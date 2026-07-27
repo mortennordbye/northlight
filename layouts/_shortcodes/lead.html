@@ -1,0 +1,15 @@
+{{- /*
+  lead — an introductory paragraph, set larger and lighter than body text.
+
+  Reuses the .lede class that `page.html` already applies to a post's `description`,
+  rather than introducing a second set of type tokens that would drift away from it.
+  A post with a `description` gets that treatment for free and does not need this;
+  this is for a lede inside the body, or on a page whose description is doing other
+  work (the meta description, the card summary, the feed entry).
+
+  Inner content is rendered through the page's own Markdown configuration, so render
+  hooks, footnotes and nested shortcodes all behave as they do everywhere else.
+
+  Call:  {{< lead >}}Markdown **here**.{{< /lead >}}
+*/ -}}
+<div class="lede">{{ .Inner | .Page.RenderString (dict "display" "block") }}</div>

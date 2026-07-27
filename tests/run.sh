@@ -139,7 +139,7 @@ refute_grep '/docs/' "$PUBLIC/index.json" "docs stay out of the search index"
 refute_grep '/docs/' "$PUBLIC/index.xml"  "docs stay out of the RSS feed"
 # Host-agnostic: CI builds with the Pages base URL, not the demo's example.com.
 DOC_URLS=$(grep -oE 'https?://[^<]*/docs/[a-z-]+/' "$PUBLIC/sitemap.xml" | sort -u | wc -l | tr -d ' ')
-assert_count 6 "$DOC_URLS" "all six docs pages are in the sitemap"
+assert_count 7 "$DOC_URLS" "all seven docs pages are in the sitemap"
 
 # excludeFromSearch keeps a page out of the index without keeping it off the site.
 refute_grep 'a-link-post' "$PUBLIC/index.json" "excludeFromSearch keeps a post out of the index"
@@ -186,6 +186,27 @@ if grep -o '<img [^>]*>' "$WRITING" | grep -qvE 'alt=|alt[ >]'; then
 else
   ok "every rendered image has an alt attribute"
 fi
+
+# --------------------------------------------------------------------------------
+group "Shortcodes"
+
+SHORTCODES="$PUBLIC/docs/shortcodes/index.html"
+
+assert_file "$SHORTCODES" "the shortcodes documentation page builds"
+
+# Showing a shortcode call in a code fence needs the escaped form, {{</* … */>}}.
+# Without it Hugo executes the call even inside a fence, the example silently vanishes
+# from the documentation, and the page renders the feature where it meant to describe
+# it. Nothing else catches that: the build stays green and the page still looks fine.
+# The escaped form reaches the reader as {{&lt; … &gt;}}, so assert on that.
+assert_grep '{{&lt; lead &gt;}}' "$SHORTCODES" "shortcode calls shown in code fences stay literal"
+
+# lead: reuses the article lede class rather than defining a parallel one, so this
+# assertion also guards against someone giving it type tokens of its own.
+# Three, not two: the page's own `description` renders as a lede above the body, which
+# is exactly the overlap the shortcode's documentation warns about.
+LEADS=$(grep -o 'class=lede' "$SHORTCODES" | wc -l | tr -d ' ')
+assert_count 3 "$LEADS" "lead renders as a lede block"
 
 # --------------------------------------------------------------------------------
 group "Accessible names and heading order"

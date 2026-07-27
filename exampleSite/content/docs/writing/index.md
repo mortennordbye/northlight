@@ -9,11 +9,13 @@ date: 2026-07-27
 lastmod: 2026-07-27T18:00:00Z
 ---
 
-The theme adds nothing to Markdown that Markdown cannot already express. There are no
-shortcodes, and that is deliberate: a shortcode is theme-specific syntax, so content
-written with it only renders correctly inside this theme. Everything below is either
-standard Markdown or a render hook that enriches it, so the same files render fine
-anywhere, just plainer.
+Everything on this page is either standard Markdown or a render hook that enriches it, so
+the same files render fine anywhere, just plainer. Nothing here locks a post to this
+theme, and that is deliberate: prefer these over a shortcode wherever both would work.
+
+The theme does also ship [shortcodes]({{< ref "shortcodes" >}}) for the things Markdown
+cannot express. They are additive, and they carry a cost this page does not — read the
+trade before reaching for one.
 
 ## Front matter
 

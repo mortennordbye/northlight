@@ -156,7 +156,7 @@ Each is independent; none depends on an earlier one except where stated.
 
 No JavaScript, no new dependencies, small CSS.
 
-- [ ] **`lead`** — sets an introductory paragraph in larger, lighter type. Wraps inner Markdown.
+- [x] **`lead`** — sets an introductory paragraph in larger, lighter type. Wraps inner Markdown.
       Branch `feat/shortcode-lead`. Smallest possible first item; use it to prove the
       `layouts/_shortcodes/` directory, the shortcode CSS entry point and the docs page all work
       before anything harder lands.
@@ -309,4 +309,24 @@ Appended as work completes — newest last. One line per merged feature: branch,
 anything the next session needs to know. Deviations from the plan above are recorded here, not
 silently.
 
-_(nothing merged yet)_
+- **`feat/shortcode-lead`** — `lead`, plus the surface every later item builds on: the
+  `layouts/_shortcodes/` directory, a **Shortcodes** page in the docs site at weight 4 (which
+  pushed appearance/integrations/translating down one each), a **Shortcodes** group in
+  `tests/run.sh`, and a README section. `docs/SPEC.md` §5 and `docs/FEATURE-SURVEY.md` §8 were
+  corrected per FLAG-1 rather than left contradicting the code.
+
+  No CSS was added: `lead` emits the existing `.lede` class, which is exactly the treatment a
+  post's `description` already gets. `assets/css/shortcodes.css` therefore does not exist yet —
+  create it with the first item that genuinely needs it, and wire it into the `$sheets` slice in
+  `_partials/head.html` *before* the `custom.css` append, so a site's own stylesheet still wins
+  on source order.
+
+  Worth knowing for the next items:
+  - A missing or misspelled shortcode **fails the build** — Hugo does not leave the call in the
+    output as text. So no assertion is needed for that, and one written for it would be an
+    assertion that cannot fail.
+  - Showing a call in a code fence needs the escaped form `{{</*/* … */*/>}}`. Without it Hugo
+    executes the call inside the fence, the example vanishes from the docs, and the build stays
+    green. `tests/run.sh` asserts on the literal text for exactly this reason — it is the one
+    documentation mistake nothing else catches.
+  - The sitemap assertion counts docs pages. Adding another docs page means bumping it.

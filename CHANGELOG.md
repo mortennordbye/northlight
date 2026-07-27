@@ -8,7 +8,19 @@ keys are added with defaults that preserve existing behaviour.
 
 ## [Unreleased]
 
-Nothing yet.
+### Added
+
+- **Shortcodes**, starting with `lead` — an introductory paragraph in larger, lighter type,
+  reusing the same treatment a post's `description` already gets. This reverses an earlier
+  decision to ship none: the audit behind the theme found the blog it replaces used no
+  shortcodes, which is still true, but it stopped deciding the question once the theme was
+  published for other people whose content is not that blog's. Render hooks over standard
+  Markdown remain the documented default wherever both would work, because they keep content
+  portable and shortcodes do not. Nothing here replaces a Markdown path. See
+  `docs/EXPANSION-PLAN.md` for the ordered list and what was deliberately left out.
+- **`make check-remote`** — the same gate as `make check` for a Docker daemon that cannot
+  bind-mount the working directory, such as `DOCKER_HOST` pointing at another machine. Same
+  pinned image, same flags, same suite; the source travels over the daemon socket instead.
 
 ## [0.2.0] — 2026-07-27
 

@@ -83,6 +83,13 @@ Not used, at all:
 - Markdown images `![]()` — zero (every image is raw HTML)
 - Tables, footnotes, task lists, mermaid, KaTeX/math, charts
 
+> **Superseded for shortcodes, 2026-07-27.** The finding above is still accurate, and it was
+> the reason this theme shipped none. It no longer decides the question. This is an audit of
+> *one blog*, and Northlight is published for other people whose content is not that blog's —
+> a shortcode surface is one of the things adopters compare on. `docs/EXPANSION-PLAN.md` holds
+> the ordered list being built and, more usefully, the table of what is still deliberately
+> absent and why. The audit's other findings stand unchanged.
+
 The raw-HTML images mean `markup.goldmark.renderer.unsafe = true` must stay, and your
 `prose` styles must not fight an inline `style="width:70%"`. It also means the
 `render-image.html` hook is dead weight — nothing routes through it.

@@ -329,6 +329,20 @@ Their colours sit outside the palette system on purpose. A caution should read a
 whether the site runs periwinkle, sage or clay. Every label and body colour is measured at 4.5:1
 or better against its own tinted background in both modes; the worst is 5.06:1.
 
+### Shortcodes
+
+Reach for these only where Markdown cannot express the thing. Admonitions, responsive images,
+captions, code filenames and tables above are render hooks over standard Markdown, so the same
+files render fine under any theme. A shortcode does not: move the post elsewhere and the reader
+gets the raw `{{< … >}}` back. Everything here is additive, and nothing replaces a Markdown path.
+
+| Shortcode | Inner content | What it does |
+|---|---|---|
+| `lead` | Markdown | An introductory paragraph in larger, lighter type. A post's `description` already renders this way at the top of the page; use this for a lede inside the body, or when the description is busy being the meta description, the card summary and the feed entry. |
+
+The full list, with every parameter and a live example of each, is on the
+[Shortcodes](https://mortennordbye.github.io/northlight/docs/shortcodes/) page of the demo site.
+
 ### `[params.analytics.cloudflare]`
 
 Cloudflare Web Analytics is the one provider wired directly, because it sets no cookies and needs
