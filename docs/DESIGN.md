@@ -40,7 +40,11 @@ the web and reads anonymous.
 | Code block | 13.5px | 400 | — | 1.68 |
 | Inline code | 0.855em | 400 | — | inherit |
 
-Prose measure is **68ch**. Body text never goes below 16px.
+Prose measure is **68ch**, resolved once to a fixed **44.2rem** in `tokens.css` rather than left
+as a `ch` value. `ch` is the advance of the digit zero in the *current* font, and Schibsted
+Grotesk's zero is 13.9% wider than the metric-matched fallback's — so a live `ch` measure narrows
+the column by 41px while the webfont loads and reflows the whole article when it arrives. Body
+text never goes below 16px.
 
 ---
 
@@ -61,7 +65,7 @@ drops to `#f2f2f5` rather than pure white.
 | `--line-strong` | `#d5d5da` | `#3b3b45` |
 | `--fg` | `#16161a` | `#f2f2f5` |
 | `--fg-2` | `#52525b` | `#a3a3ad` |
-| `--fg-3` | `#8a8a92` | `#71717d` |
+| `--fg-3` | `#6e6e75` | `#868690` |
 
 Shadow, light: `0 1px 2px rgba(0,0,0,.04), 0 10px 30px -14px rgba(0,0,0,.14)`
 Shadow, dark: `0 1px 2px rgba(0,0,0,.35), 0 10px 34px -16px rgba(0,0,0,.8)`
@@ -82,13 +86,21 @@ white, so each palette carries **two tones** and swaps which is which between mo
 | Periwinkle | dark | `#a6aef0` | `#6f78d8` | `rgba(166,174,240,.11)` |
 | Sage | light | `#3f7a5c` | `#a2cdb2` | `rgba(63,122,92,.08)` |
 | Sage | dark | `#a2cdb2` | `#548f6f` | `rgba(162,205,178,.11)` |
-| Clay | light | `#b6543f` | `#f0a894` | `rgba(182,84,63,.08)` |
+| Clay | light | `#b1523d` | `#f0a894` | `rgba(182,84,63,.08)` |
 | Clay | dark | `#f0a894` | `#c4634c` | `rgba(240,168,148,.11)` |
 
-Contrast of `--accent` against the page background, light mode: periwinkle ≈ 6.0:1, sage ≈
-5.1:1, clay ≈ 4.9:1. All clear WCAG AA for body text. **These were computed by hand, not
-measured — re-verify with a real tool during phase 7** and adjust the light-mode tone if any
-falls under 4.5:1.
+Contrast of `--accent`, measured during phase 7 against both the page background and the
+palette's own `--accent-tint` — the tint matters because that is what a featured card's eyebrow
+sits on. Worst case, light mode: periwinkle 5.45:1, sage 4.57:1, clay 4.55:1.
+
+**Clay's light tone was darkened from `#b6543f` to `#b1523d`.** The original cleared 4.9:1 on
+white but only 4.37:1 on its own tint. `--fg-3` was darkened from `#8a8a92` / `#71717d` for the
+same reason: 3.43:1 on the page and 3.08:1 on a tinted card, against a 4.5:1 requirement it
+cannot escape, since everything it is used for is 13.5px or smaller.
+
+The audit that produced these figures walks every text-bearing element on every page, composites
+translucent backgrounds down to the root, and applies the large-text exemption only where the
+computed size and weight actually earn it. It runs over three palettes × two modes × six pages.
 
 Selection uses `--accent-tint` with `--fg` text.
 
@@ -100,17 +112,26 @@ active TOC item, and the reading-progress bar.
 
 ### Chroma tokens
 
-| Token class | Light | Dark |
-|---|---|---|
-| comment (`.c`) | `#8a8a92` | `#71717d` |
-| keyword (`.kc`, `.nb`) | `#7c4bc4` | `#c8aaf5` |
-| string (`.s`) | `#2c7d6a` | `#86d6bd` |
-| number (`.m`) | `#b06a1f` | `#f0bd85` |
-| name/tag (`.nt`) | `#3b5bc4` | `#a3b6f5` |
+| Token class | Light | Dark | Contrast on the code surface |
+|---|---|---|---|
+| comment (`.c`) | `#727278` | `#7e7e89` | 4.60:1 / 4.60:1 |
+| keyword (`.kc`, `.nb`) | `#7c4bc4` | `#c8aaf5` | 5.50:1 / 9.29:1 |
+| string (`.s`) | `#2c7d6a` | `#86d6bd` | 4.74:1 / 10.91:1 |
+| number (`.m`) | `#a4631d` | `#f0bd85` | 4.60:1 / 10.87:1 |
+| name/tag (`.nt`) | `#3b5bc4` | `#a3b6f5` | 5.78:1 / 9.32:1 |
+
+Ratios are periwinkle, measured against `--surface` (`#fafafa` light, `#131317` dark), which is
+the code-block background. Sage and clay were measured too and clear 4.5:1 on every token.
+
+**Comment and number were darkened from the mockup during phase 2.** As built,
+`design/northlight.html` uses `#8a8a92` / `#71717d` for comments, which measure 3.28:1 and
+3.85:1 — below the 4.5:1 floor the build plan sets for them — and `#b06a1f` / `#a8681c` for
+light-mode numbers at 4.08:1 and 4.32:1. The replacements are the smallest hue-preserving shift
+that clears 4.5:1. Everything else in the mockup measured clean and is unchanged.
 
 Sage and clay override keyword/string/number/tag to sit in their own hue family; see
-`design/northlight.html` for the exact per-palette values. The full Chroma class set is larger
-than these five — phase 2 covers the rest.
+`design/northlight.html` for the exact per-palette values. The full Chroma class set is 81
+classes, far larger than these five — `assets/css/chroma.css` maps every one of them.
 
 ---
 

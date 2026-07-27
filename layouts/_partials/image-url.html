@@ -1,0 +1,28 @@
+{{- /*
+  Resolves a configured image path to a URL, or to an empty string if the file is not
+  there. Used for the author avatar, which is the one image a site author is most
+  likely to configure and then forget to add — and an unresolvable avatar is a 404 on
+  every page of the site.
+
+  Looks in assets/ first, so the image goes through Hugo's pipeline where it can, then
+  static/. Anything already absolute is passed through untouched.
+
+  Call: {{ partial "image-url.html" "images/profile.png" }}
+*/ -}}
+{{- $path := . -}}
+{{- $url := "" -}}
+{{- if $path -}}
+  {{- if or (strings.HasPrefix $path "http://") (strings.HasPrefix $path "https://") (strings.HasPrefix $path "//") -}}
+    {{- $url = $path -}}
+  {{- else -}}
+    {{- $clean := strings.TrimPrefix "/" $path -}}
+    {{- with resources.Get $clean -}}
+      {{- $url = .RelPermalink -}}
+    {{- else -}}
+      {{- if os.FileExists (printf "static/%s" $clean) -}}
+        {{- $url = $clean | relURL -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- return $url -}}

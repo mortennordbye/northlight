@@ -1,0 +1,30 @@
+{{- /* Numbered pagination. Rendered only when there is more than one page, and built
+       from Hugo's paginator so the URLs match whatever pagerSize the site sets. */ -}}
+{{- $p := .Paginator -}}
+{{- if gt $p.TotalPages 1 }}
+<nav class="pagination" aria-label="Pagination">
+  {{- with $p.Prev }}
+    <a class="page-link page-arrow" href="{{ .URL }}" rel="prev" aria-label="Previous page">
+      {{ partial "icon.html" "arrow-left" }}
+    </a>
+  {{- else }}
+    <span class="page-link page-arrow is-disabled" aria-hidden="true">{{ partial "icon.html" "arrow-left" }}</span>
+  {{- end }}
+
+  {{- range $p.Pagers }}
+    {{- if eq . $p }}
+      <span class="page-link is-current" aria-current="page">{{ .PageNumber }}</span>
+    {{- else }}
+      <a class="page-link" href="{{ .URL }}">{{ .PageNumber }}</a>
+    {{- end }}
+  {{- end }}
+
+  {{- with $p.Next }}
+    <a class="page-link page-arrow" href="{{ .URL }}" rel="next" aria-label="Next page">
+      {{ partial "icon.html" "arrow-right" }}
+    </a>
+  {{- else }}
+    <span class="page-link page-arrow is-disabled" aria-hidden="true">{{ partial "icon.html" "arrow-right" }}</span>
+  {{- end }}
+</nav>
+{{- end -}}

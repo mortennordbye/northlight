@@ -1,0 +1,48 @@
+{{- /*
+  Comments, via giscus, driven entirely by params — the theme hardcodes nothing about
+  any particular repository.
+
+  Off unless article.showComments is true AND the giscus params are set, because a
+  comment system is a third-party script and no theme should load one by surprise.
+
+  In your site's config:
+
+    [params.article]
+      showComments = true
+    [params.comments.giscus]
+      repo = "you/your-repo"
+      repoId = "R_..."
+      category = "Announcements"
+      categoryId = "DIC_..."
+      mapping = "pathname"      # optional, defaults to pathname
+      reactionsEnabled = "1"    # optional
+      lang = "en"               # optional
+
+  Using something else — utterances, Cusdis, Remark42, a static form? Copy this file
+  to layouts/_partials/comments.html in your own site and replace it wholesale. That
+  is the supported path, and it survives theme upgrades.
+*/ -}}
+{{- $g := site.Params.comments.giscus | default dict -}}
+{{- if and $g.repo $g.repoId $g.category $g.categoryId -}}
+<section class="comments" aria-label="Comments">
+  {{- /* data-theme follows the page: giscus reads the query string on load, and the
+         appearance toggle re-messages the iframe in phase 6. */ -}}
+  <script src="https://giscus.app/client.js"
+          data-repo="{{ $g.repo }}"
+          data-repo-id="{{ $g.repoId }}"
+          data-category="{{ $g.category }}"
+          data-category-id="{{ $g.categoryId }}"
+          data-mapping="{{ $g.mapping | default "pathname" }}"
+          data-strict="1"
+          data-reactions-enabled="{{ $g.reactionsEnabled | default "1" }}"
+          data-emit-metadata="0"
+          data-input-position="top"
+          data-theme="preferred_color_scheme"
+          data-lang="{{ $g.lang | default site.Language.Lang }}"
+          crossorigin="anonymous"
+          async></script>
+  <noscript>Comments require JavaScript.</noscript>
+</section>
+{{- else -}}
+  {{- warnf "comments.html: article.showComments is on but params.comments.giscus is incomplete — needs repo, repoId, category and categoryId. No comments rendered." -}}
+{{- end -}}

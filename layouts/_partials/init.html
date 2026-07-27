@@ -1,0 +1,61 @@
+{{- /*
+  Resolves theme config once and returns it as a dict. Every template reads the
+  resolved values from here rather than repeating `| default` chains, so a default
+  lives in exactly one place. Call it as `partialCached "init.html" .` — the values
+  are site-wide, so it runs once per build.
+
+  Unknown values fall back to the default rather than reaching the templates,
+  because a typo in colorScheme should not produce an unstyled page.
+
+  Booleans go through param-bool.html; see the note there about why `| default true`
+  cannot be used for them.
+*/ -}}
+
+{{- $palette := site.Params.colorScheme | default "periwinkle" -}}
+{{- if not (in (slice "periwinkle" "sage" "clay") $palette) -}}
+  {{- $palette = "periwinkle" -}}
+{{- end -}}
+
+{{- $appearance := site.Params.defaultAppearance | default "light" -}}
+{{- if not (in (slice "light" "dark") $appearance) -}}
+  {{- $appearance = "light" -}}
+{{- end -}}
+
+{{- $a := site.Params.article | default dict -}}
+{{- $f := site.Params.footer | default dict -}}
+
+{{- $article := dict
+  "showBreadcrumbs"     (partial "param-bool.html" (dict "map" $a "key" "showBreadcrumbs"     "default" true))
+  "showAuthor"          (partial "param-bool.html" (dict "map" $a "key" "showAuthor"          "default" true))
+  "showDate"            (partial "param-bool.html" (dict "map" $a "key" "showDate"            "default" true))
+  "showReadingTime"     (partial "param-bool.html" (dict "map" $a "key" "showReadingTime"     "default" true))
+  "showWordCount"       (partial "param-bool.html" (dict "map" $a "key" "showWordCount"       "default" true))
+  "showHero"            (partial "param-bool.html" (dict "map" $a "key" "showHero"            "default" true))
+  "showTableOfContents" (partial "param-bool.html" (dict "map" $a "key" "showTableOfContents" "default" true))
+  "showTaxonomies"      (partial "param-bool.html" (dict "map" $a "key" "showTaxonomies"      "default" true))
+  "showRelated"         (partial "param-bool.html" (dict "map" $a "key" "showRelated"         "default" true))
+  "showPagination"      (partial "param-bool.html" (dict "map" $a "key" "showPagination"      "default" true))
+  "showComments"        (partial "param-bool.html" (dict "map" $a "key" "showComments"        "default" false))
+  "relatedLimit"        (int ($a.relatedLimit | default 3))
+  "sharingLinks"        ($a.sharingLinks | default (slice "linkedin" "reddit"))
+-}}
+
+{{- $article = merge $article (dict
+  "showProgress" (partial "param-bool.html" (dict "map" $a "key" "showProgress" "default" true))
+) -}}
+
+{{- $footer := dict
+  "showCopyright"        (partial "param-bool.html" (dict "map" $f "key" "showCopyright"        "default" true))
+  "showThemeAttribution" (partial "param-bool.html" (dict "map" $f "key" "showThemeAttribution" "default" true))
+-}}
+
+{{- return dict
+  "palette" $palette
+  "defaultAppearance" $appearance
+  "autoSwitchAppearance" (partial "param-bool.html" (dict "map" site.Params "key" "autoSwitchAppearance" "default" true))
+  "enableSearch" (partial "param-bool.html" (dict "map" site.Params "key" "enableSearch" "default" true))
+  "enableCodeCopy" (partial "param-bool.html" (dict "map" site.Params "key" "enableCodeCopy" "default" true))
+  "article" $article
+  "footer" $footer
+  "author" (site.Params.author | default dict)
+-}}

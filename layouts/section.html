@@ -1,18 +1,33 @@
 {{ define "main" }}
-  <h1>{{ .Title }}</h1>
-  {{ .Content }}
-  {{ $paginator := .Paginate .Pages }}
-  <ul>
-    {{ range $paginator.Pages }}
-      <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
-    {{ end }}
-  </ul>
-  {{ with $paginator }}
-    {{ if gt .TotalPages 1 }}
-      <nav>
-        {{ with .Prev }}<a href="{{ .URL }}">Previous</a>{{ end }}
-        {{ with .Next }}<a href="{{ .URL }}">Next</a>{{ end }}
-      </nav>
-    {{ end }}
-  {{ end }}
+{{- $list := site.Params.list | default dict -}}
+{{- $groupByYear := partial "param-bool.html" (dict "map" $list "key" "groupByYear" "default" true) -}}
+{{- $paginator := .Paginate .Pages -}}
+
+<div class="wrap">
+  <header class="list-head">
+    <h1 class="list-title">{{ .Title }}</h1>
+    {{- with .Description }}<p class="list-text">{{ . }}</p>{{ end }}
+    {{- with .Content }}<div class="list-body">{{ . }}</div>{{ end }}
+  </header>
+
+  {{- if $groupByYear }}
+    {{- /* Grouped within the current page of results, not across the whole section, so
+           a year heading never claims to introduce posts that are on another page. */ -}}
+    {{- range $paginator.Pages.GroupByDate "2006" }}
+      <div class="year-rule">
+        <b>{{ .Key }}</b>
+        <span class="year-line" aria-hidden="true"></span>
+      </div>
+      <div class="post-list">
+        {{- range .Pages }}{{ partial "post-item.html" . }}{{ end }}
+      </div>
+    {{- end }}
+  {{- else }}
+    <div class="post-list">
+      {{- range $paginator.Pages }}{{ partial "post-item.html" . }}{{ end }}
+    </div>
+  {{- end }}
+
+  {{ partial "pagination.html" . }}
+</div>
 {{ end }}

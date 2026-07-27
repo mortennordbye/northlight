@@ -1,0 +1,214 @@
+/* ============================================================================
+   Design tokens — the single source of truth for colour, type, space, shape and
+   motion. Values come from docs/DESIGN.md, which was extracted from
+   design/northlight.html. Component CSS references var(--x) and never hardcodes
+   a hex value. Adding a palette means adding one block here and nothing else.
+
+   HOW MODE SWITCHING WORKS
+   Light and dark are designed as separate palettes, not inversions: dark sits on
+   #0b0b0e rather than pure black, and text drops to #f2f2f5 rather than pure white.
+
+   Every mode-dependent colour is declared twice. The first declaration is the plain
+   light value; the second wraps both modes in light-dark(). Browsers that support
+   light-dark() (Chrome 123+, Safari 17.5+, Firefox 120+) use the second and get both
+   modes from one declaration, so a dark value is never written twice and the two can
+   never drift apart. Browsers that do not simply keep the light value and lose dark
+   mode, which is a degradation rather than a broken page.
+
+   color-scheme does the actual switching:
+     :root                    light dark  — no JS, follows the operating system
+     html[data-theme="light"] light       — pinned by the appearance script
+     html[data-theme="dark"]  dark        — pinned by the appearance script
+   ============================================================================ */
+
+:root {
+  color-scheme: light dark;
+
+  /* --- base -------------------------------------------------------------- */
+  --bg: #ffffff;
+  --bg: light-dark(#ffffff, #0b0b0e);
+  --surface: #fafafa;
+  --surface: light-dark(#fafafa, #131317);
+  --surface-2: #f4f4f5;
+  --surface-2: light-dark(#f4f4f5, #1a1a20);
+  --line: #e8e8ea;
+  --line: light-dark(#e8e8ea, #26262d);
+  --line-strong: #d5d5da;
+  --line-strong: light-dark(#d5d5da, #3b3b45);
+  --fg: #16161a;
+  --fg: light-dark(#16161a, #f2f2f5);
+  --fg-2: #52525b;
+  --fg-2: light-dark(#52525b, #a3a3ad);
+  /* Darkened from the mockup's #8a8a92 / #71717d during phase 7. Those measured
+     3.43:1 on the page and 3.08:1 on a tinted card, and this token carries the meta
+     line, breadcrumb separators and card dates — all 13.5px or smaller, so all of it
+     is small text with no large-text exemption to claim. */
+  --fg-3: #6e6e75;
+  --fg-3: light-dark(#6e6e75, #868690);
+
+  /* Shadow is reserved for genuinely floating things: the search modal, the
+     back-to-top button, a card on hover. Borders do the work shadows do in other
+     themes. light-dark() takes colours only, so the geometry is shared and only
+     the two shadow colours switch; docs/DESIGN.md specifies a 4px larger blur in
+     dark, which is not perceptible at these opacities. */
+  --shadow-near: rgba(0, 0, 0, 0.04);
+  --shadow-near: light-dark(rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.35));
+  --shadow-far: rgba(0, 0, 0, 0.14);
+  --shadow-far: light-dark(rgba(0, 0, 0, 0.14), rgba(0, 0, 0, 0.8));
+  --shadow: 0 1px 2px var(--shadow-near), 0 10px 30px -14px var(--shadow-far);
+
+  /* --- accent: periwinkle, the default palette ---------------------------- */
+  /* Two tones per palette, and which is which swaps between modes. --accent is the
+     readable one: text, links, active TOC item, progress bar. --accent-pastel is the
+     soft one: fills, hover borders, decorative edges — contrast rules do not apply to
+     it, so it stays genuinely pastel in both modes. --accent-tint is a low-alpha wash.
+     That split is the only reason a pastel primary works at all: a true pastel used as
+     link text fails contrast on white. */
+  --accent: #4f57c4;
+  --accent: light-dark(#4f57c4, #a6aef0);
+  --accent-pastel: #a6aef0;
+  --accent-pastel: light-dark(#a6aef0, #6f78d8);
+  --accent-tint: rgba(79, 87, 196, 0.07);
+  --accent-tint: light-dark(rgba(79, 87, 196, 0.07), rgba(166, 174, 240, 0.11));
+
+  /* --- syntax highlighting ------------------------------------------------ */
+  /* Five colours drive the whole Chroma sheet; the full class map is chroma.css. */
+  --tok-com: #727278;
+  --tok-com: light-dark(#727278, #7e7e89);
+  --tok-key: #7c4bc4;
+  --tok-key: light-dark(#7c4bc4, #c8aaf5);
+  --tok-str: #2c7d6a;
+  --tok-str: light-dark(#2c7d6a, #86d6bd);
+  --tok-num: #a4631d;
+  --tok-num: light-dark(#a4631d, #f0bd85);
+  --tok-tag: #3b5bc4;
+  --tok-tag: light-dark(#3b5bc4, #a3b6f5);
+
+  /* --- type --------------------------------------------------------------- */
+  /* The Fallback faces are metric-matched shims declared in fonts.css; they hold the
+     same space as the real face so the swap does not reflow the page. */
+  --font-sans: "Schibsted Grotesk", "Schibsted Grotesk Fallback", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Spline Sans Mono", "Spline Sans Mono Fallback", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --text-home-h1: clamp(30px, 4vw, 42px);
+  --text-article-h1: clamp(30px, 4.4vw, 46px);
+  --text-h2: 26px;
+  --text-h3: 20px;
+  --text-index-h3: 21px;
+  --text-card-h3: 17px;
+  --text-lede: 19px;
+  --text-prose: 17px;
+  --text-ui: 16px;
+  --text-meta: 13.5px;
+  --text-eyebrow: 12px;
+  --text-code: 13.5px;
+  --text-code-inline: 0.855em;
+
+  --leading-tight: 1.18;   /* headings */
+  --leading-snug: 1.32;    /* index and card headings */
+  --leading-lede: 1.58;
+  --leading-ui: 1.6;
+  --leading-code: 1.68;
+  --leading-prose: 1.75;
+
+  --tracking-home-h1: -0.03em;
+  --tracking-article-h1: -0.032em;
+  --tracking-heading: -0.021em;
+  --tracking-index-h3: -0.024em;
+  --tracking-card-h3: -0.02em;
+  --tracking-eyebrow: 0.06em;
+
+  /* --- space: 4 8 12 16 20 24 32 44 56, nothing off-scale ----------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 44px;
+  --space-9: 56px;
+
+  /* --- layout ------------------------------------------------------------- */
+  --container: 1120px;
+  --gutter: var(--space-6);
+  /* The prose measure. docs/DESIGN.md specifies 68ch, and this is that number
+     resolved once: 68ch of Schibsted Grotesk at --text-prose measures 706.7px, which
+     is 44.2rem.
+
+     It is deliberately not left as `ch`. That unit is the advance of the digit zero in
+     the *current* font, and Schibsted's zero is 13.9% wider than the fallback's, so a
+     `ch` measure silently narrows the column by 41px while the webfont is loading and
+     reflows the whole article when it arrives. A fixed measure cannot be matched by a
+     fallback because it does not depend on one. */
+  --measure: 44.2rem;
+  --toc-width: 216px;
+  --toc-gap: var(--space-9);
+  --header-height: 60px;
+  --sticky-offset: 84px;    /* header height plus breathing room */
+
+  /* --- shape -------------------------------------------------------------- */
+  --radius-chip: 6px;       /* tags, small chips, kbd */
+  --radius-control: 8px;    /* icon buttons */
+  --radius-button: 9px;     /* buttons, social links */
+  --radius-thumb: 11px;     /* thumbnails */
+  --radius-pager: 12px;     /* pager cards, code blocks */
+  --radius-card: 14px;      /* post cards */
+  --radius-panel: 16px;     /* feature card, article cover, search modal */
+
+  /* --- motion, deliberately small ---------------------------------------- */
+  --ease: cubic-bezier(0.2, 0.8, 0.3, 1);
+  --dur-color: 160ms;       /* colour and border */
+  --dur-card: 200ms;        /* shadow and border on cards */
+  --dur-transform: 200ms;
+  --dur-progress: 80ms;     /* reading-progress bar, linear */
+  --dur-mode: 250ms;        /* light/dark cross-fade */
+}
+
+html[data-theme="light"] { color-scheme: light; }
+html[data-theme="dark"] { color-scheme: dark; }
+
+/* ============================================================================
+   Alternative palettes. Each overrides the two accent tones and the four syntax
+   colours that carry hue; comment grey is shared, since it is deliberately neutral
+   in every palette.
+   ============================================================================ */
+
+html[data-palette="sage"] {
+  --accent: #3f7a5c;
+  --accent: light-dark(#3f7a5c, #a2cdb2);
+  --accent-pastel: #a2cdb2;
+  --accent-pastel: light-dark(#a2cdb2, #548f6f);
+  --accent-tint: rgba(63, 122, 92, 0.08);
+  --accent-tint: light-dark(rgba(63, 122, 92, 0.08), rgba(162, 205, 178, 0.11));
+
+  --tok-key: #7a5bb5;
+  --tok-key: light-dark(#7a5bb5, #c5b0ef);
+  --tok-str: #2f7a58;
+  --tok-str: light-dark(#2f7a58, #9cd9b4);
+  --tok-num: #a2641b;
+  --tok-num: light-dark(#a2641b, #f0c48d);
+  --tok-tag: #2f6b7a;
+  --tok-tag: light-dark(#2f6b7a, #8fcbd6);
+}
+
+html[data-palette="clay"] {
+  /* Clay's light tone is darkened a touch from #b6543f: it cleared 4.9:1 on the page
+     but only 4.37:1 on its own --accent-tint, which is exactly where the eyebrow on a
+     featured card sits. */
+  --accent: #b1523d;
+  --accent: light-dark(#b1523d, #f0a894);
+  --accent-pastel: #f0a894;
+  --accent-pastel: light-dark(#f0a894, #c4634c);
+  --accent-tint: rgba(182, 84, 63, 0.08);
+  --accent-tint: light-dark(rgba(182, 84, 63, 0.08), rgba(240, 168, 148, 0.11));
+
+  --tok-key: #8b4a9c;
+  --tok-key: light-dark(#8b4a9c, #dfa9ea);
+  --tok-str: #3f7a5c;
+  --tok-str: light-dark(#3f7a5c, #9fd6a8);
+  --tok-num: #a4631d;
+  --tok-num: light-dark(#a4631d, #f0c48d);
+  --tok-tag: #2f6b8f;
+  --tok-tag: light-dark(#2f6b8f, #8fc0e0);
+}

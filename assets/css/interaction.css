@@ -1,0 +1,394 @@
+/* ============================================================================
+   The JavaScript-driven pieces: appearance toggle, code copy, scroll-spy, reading
+   progress, back to top and the search modal.
+
+   Everything here styles a control that only exists when its script has run, or that
+   the script reveals. Nothing in this file is required for the page to be readable.
+   ============================================================================ */
+
+/* --- skip link ------------------------------------------------------------- */
+
+.skip-link {
+  position: absolute;
+  left: var(--space-3);
+  top: -60px;
+  z-index: 200;
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-control);
+  padding: 10px var(--space-4);
+  font-size: 14px;
+  font-weight: 500;
+  transition: top var(--dur-card);
+}
+
+.skip-link:focus {
+  top: var(--space-3);
+}
+
+/* --- header controls ------------------------------------------------------- */
+
+.nav-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--line);
+  margin-inline: var(--space-2);
+}
+
+.icon-button {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-control);
+  background: none;
+  border: 1px solid transparent;
+  color: var(--fg-2);
+  font-size: 16px;
+  cursor: pointer;
+  transition:
+    color var(--dur-color),
+    background var(--dur-color),
+    border-color var(--dur-color);
+}
+
+.icon-button:hover {
+  color: var(--fg);
+  background: var(--surface-2);
+  border-color: var(--line);
+}
+
+/* One button, two glyphs: show the mode you would switch *to*. */
+.only-dark { display: none; }
+.only-light { display: inline-flex; }
+
+html[data-theme="dark"] .only-dark { display: inline-flex; }
+html[data-theme="dark"] .only-light { display: none; }
+
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]) .only-dark { display: inline-flex; }
+  html:not([data-theme="light"]) .only-light { display: none; }
+}
+
+.search-trigger {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 34px;
+  padding: 0 10px 0 11px;
+  min-width: 190px;
+  border-radius: var(--radius-button);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--fg-3);
+  font-size: var(--text-meta);
+  cursor: pointer;
+  transition:
+    border-color var(--dur-color),
+    color var(--dur-color);
+}
+
+.search-trigger:hover {
+  border-color: var(--line-strong);
+  color: var(--fg-2);
+}
+
+.search-trigger kbd {
+  margin-left: auto;
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--fg-3);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 1px 6px;
+}
+
+/* --- reading progress ------------------------------------------------------ */
+/* transform rather than width: it animates on the compositor and never triggers
+   layout, which matters for something that updates on every scroll frame. */
+
+.reading-progress {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline: 0;
+  height: 2px;
+  z-index: 60;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition: transform var(--dur-progress) linear;
+  will-change: transform;
+}
+
+/* --- back to top ----------------------------------------------------------- */
+
+.back-to-top {
+  position: fixed;
+  left: var(--space-5);
+  bottom: var(--space-5);
+  z-index: 70;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 1px solid var(--line-strong);
+  color: var(--fg-2);
+  font-size: 17px;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition:
+    opacity var(--dur-card),
+    transform var(--dur-transform) var(--ease),
+    visibility var(--dur-card),
+    color var(--dur-color);
+}
+
+.back-to-top.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+
+.back-to-top:hover {
+  color: var(--accent);
+}
+
+/* --- code copy ------------------------------------------------------------- */
+
+.highlight {
+  position: relative;
+}
+
+.copy-button {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--fg-2);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-chip);
+  padding: 3px 10px;
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity var(--dur-color),
+    color var(--dur-color),
+    border-color var(--dur-color);
+}
+
+/* Revealed on hover, but always reachable by keyboard — :focus-visible is what keeps
+   an opacity-0 control from being a keyboard trap. */
+.highlight:hover .copy-button,
+.copy-button:focus-visible {
+  opacity: 1;
+}
+
+.copy-button:hover {
+  color: var(--fg);
+  border-color: var(--line-strong);
+}
+
+.copy-button.is-copied {
+  color: var(--accent);
+  border-color: var(--accent-pastel);
+  opacity: 1;
+}
+
+/* A touch device has no hover, so the button would never appear. */
+@media (hover: none) {
+  .copy-button {
+    opacity: 1;
+  }
+}
+
+/* In a filename bar the button sits in the flow rather than floating over the code,
+   and it is always visible — the bar is chrome, so a control in it is expected. */
+.code-bar .copy-button {
+  position: static;
+  opacity: 1;
+}
+
+.code-figure:hover .copy-button {
+  opacity: 1;
+}
+
+/* --- scroll-spy ------------------------------------------------------------ */
+
+.toc a.is-current {
+  color: var(--accent);
+  border-left-color: var(--accent);
+  font-weight: 600;
+}
+
+@media (max-width: 960px) {
+  .toc a.is-current {
+    border-left-color: transparent;
+  }
+}
+
+/* --- search modal ---------------------------------------------------------- */
+
+.search-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 14vh var(--space-5) var(--space-5);
+  background: color-mix(in srgb, var(--fg) 26%, transparent);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.search-modal[hidden] {
+  display: none;
+}
+
+body.is-modal-open {
+  overflow: hidden;
+}
+
+.search-panel {
+  width: 100%;
+  max-width: 580px;
+  background: var(--bg);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-panel);
+  box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  animation: search-pop var(--dur-card) var(--ease) both;
+}
+
+@keyframes search-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.985);
+  }
+}
+
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--line);
+  color: var(--fg-3);
+  font-size: 17px;
+}
+
+.search-field input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  outline: none;
+  color: var(--fg);
+  font-size: var(--text-ui);
+}
+
+.search-field input::placeholder {
+  color: var(--fg-3);
+}
+
+.search-esc {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--fg-3);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 2px 7px;
+  cursor: pointer;
+}
+
+.search-results {
+  max-height: min(52vh, 420px);
+  overflow-y: auto;
+  padding: var(--space-2);
+}
+
+.search-result {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-3);
+  padding: 9px;
+  border-radius: var(--radius-thumb);
+  transition: background 120ms;
+}
+
+.search-result:hover,
+.search-result.is-selected {
+  background: var(--surface-2);
+}
+
+.search-thumb {
+  width: 76px;
+  height: auto;
+  aspect-ratio: 1200 / 630;
+  object-fit: contain;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-chip);
+}
+
+.search-text b {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 550;
+  line-height: var(--leading-snug);
+  margin-bottom: 3px;
+}
+
+.search-meta {
+  font-size: 12.5px;
+  color: var(--fg-3);
+}
+
+.search-empty {
+  padding: var(--space-6) var(--space-3);
+  text-align: center;
+  font-size: 14px;
+  color: var(--fg-3);
+}
+
+.search-hints {
+  display: flex;
+  gap: var(--space-4);
+  padding: 9px var(--space-4);
+  border-top: 1px solid var(--line);
+  font-size: var(--text-eyebrow);
+  color: var(--fg-3);
+  background: var(--surface);
+}
+
+.search-hints b {
+  font-weight: 500;
+  color: var(--fg-2);
+}
+
+@media (max-width: 720px) {
+  .search-trigger-label,
+  .search-trigger kbd {
+    display: none;
+  }
+
+  .search-trigger {
+    min-width: 0;
+    width: 34px;
+    justify-content: center;
+    padding: 0;
+  }
+}

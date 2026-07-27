@@ -1,0 +1,28 @@
+{{- /*
+  The dot-separated date / reading time / word count line used by cards, the feature
+  block and the post index. The article page has its own richer version carrying the
+  author's avatar; this one is deliberately just the facts.
+
+  Call: {{ partial "post-meta.html" (dict "ctx" . "showWords" true) }}
+*/ -}}
+{{- $p := .ctx -}}
+{{- $cfg := partialCached "init.html" $p -}}
+{{- $a := $cfg.article -}}
+{{- $items := slice -}}
+{{- if and $a.showDate (not $p.Date.IsZero) -}}
+  {{- $items = $items | append (printf `<time datetime="%s">%s</time>` ($p.Date.Format "2006-01-02") ($p.Date.Format "2 Jan 2006")) -}}
+{{- end -}}
+{{- if $a.showReadingTime -}}
+  {{- $items = $items | append (printf "%d min read" $p.ReadingTime) -}}
+{{- end -}}
+{{- if and .showWords $a.showWordCount -}}
+  {{- $items = $items | append (printf "%s words" (lang.FormatNumber 0 $p.WordCount)) -}}
+{{- end -}}
+{{- with $items }}
+<div class="meta-line">
+  {{- range $i, $item := . }}
+    {{- if $i }}<span class="meta-dot" aria-hidden="true"></span>{{ end }}
+    <span>{{ $item | safeHTML }}</span>
+  {{- end }}
+</div>
+{{- end -}}

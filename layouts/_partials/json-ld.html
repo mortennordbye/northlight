@@ -1,0 +1,47 @@
+{{- /*
+  JSON-LD. Two shapes only: BlogPosting for a post, WebSite for everything else.
+  Built as a dict and passed through jsonify rather than hand-written into a string,
+  so quotes and apostrophes in a title cannot break the document.
+*/ -}}
+{{- $cfg := partialCached "init.html" . -}}
+{{- $data := dict -}}
+
+{{- if and .IsPage (in site.Params.mainSections .Section) -}}
+  {{- $images := slice -}}
+  {{- with .Resources.GetMatch "{cover,featured}.*" }}{{ $images = slice .Permalink }}{{ end -}}
+
+  {{- $data = dict
+    "@context" "https://schema.org"
+    "@type" "BlogPosting"
+    "headline" .Title
+    "url" .Permalink
+    "mainEntityOfPage" (dict "@type" "WebPage" "@id" .Permalink)
+    "wordCount" .WordCount
+    "isPartOf" (dict "@type" "Blog" "name" site.Title "url" site.Home.Permalink)
+  -}}
+  {{- with .Description }}{{ $data = merge $data (dict "description" .) }}{{ end -}}
+  {{- with $images }}{{ $data = merge $data (dict "image" .) }}{{ end -}}
+  {{- if not .Date.IsZero }}{{ $data = merge $data (dict "datePublished" (.Date.Format "2006-01-02T15:04:05Z07:00")) }}{{ end -}}
+  {{- if not .Lastmod.IsZero }}{{ $data = merge $data (dict "dateModified" (.Lastmod.Format "2006-01-02T15:04:05Z07:00")) }}{{ end -}}
+  {{- with $cfg.author.name }}{{ $data = merge $data (dict "author" (dict "@type" "Person" "name" .)) }}{{ end -}}
+  {{- with .GetTerms "tags" }}
+    {{- $keywords := slice -}}
+    {{- range . }}{{ $keywords = $keywords | append (cond (ne .Data.Term "") .Data.Term .LinkTitle) }}{{ end -}}
+    {{- $data = merge $data (dict "keywords" (delimit $keywords ", ")) -}}
+  {{- end -}}
+{{- else -}}
+  {{- $data = dict
+    "@context" "https://schema.org"
+    "@type" "WebSite"
+    "name" site.Title
+    "url" site.Home.Permalink
+  -}}
+  {{- with site.Params.description }}{{ $data = merge $data (dict "description" .) }}{{ end -}}
+  {{- with $cfg.author.name }}{{ $data = merge $data (dict "author" (dict "@type" "Person" "name" .)) }}{{ end -}}
+{{- end -}}
+
+{{- /* safeJS, because inside a <script> element Go treats the body as JavaScript and
+       would escape the JSON a second time, emitting a quoted string rather than an
+       object. It is safe here: jsonify escapes the HTML-significant characters as \u003c, \u003e and
+       \u0026, so a title containing a closing script tag cannot break out. */ -}}
+<script type="application/ld+json">{{ $data | jsonify | safeJS }}</script>

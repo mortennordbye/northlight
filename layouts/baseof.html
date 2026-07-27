@@ -1,11 +1,41 @@
+{{- $cfg := partialCached "init.html" . -}}
 <!doctype html>
-<html lang="{{ site.Language.Lang }}">
+<html lang="{{ site.Language.Lang }}"
+      data-palette="{{ $cfg.palette }}"
+      data-appearance-default="{{ $cfg.defaultAppearance }}"
+      data-appearance-auto="{{ $cfg.autoSwitchAppearance }}">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} · {{ site.Title }}{{ end }}</title>
+  {{ partial "head.html" . }}
 </head>
 <body>
-  {{ block "main" . }}{{ end }}
+  <a class="skip-link" href="#main-content">Skip to content</a>
+
+  {{- if and .IsPage $cfg.article.showProgress }}
+  <div class="reading-progress" id="reading-progress" aria-hidden="true"></div>
+  {{- end }}
+
+  {{ partial "header.html" . }}
+
+  <main id="main-content" tabindex="-1">
+    {{ block "main" . }}{{ end }}
+  </main>
+
+  {{ partial "footer.html" . }}
+
+  <button class="back-to-top" id="back-to-top" type="button" aria-label="Back to top" hidden>
+    {{ partial "icon.html" "arrow-up" }}
+  </button>
+
+  {{- if $cfg.enableSearch }}{{ partial "search-modal.html" . }}{{ end }}
+
+  {{- /* One deferred bundle. Every module no-ops when the markup it needs is absent,
+         so the same file is fine on every page. */ -}}
+  {{- $scripts := slice (resources.Get "js/toggle.js") (resources.Get "js/scroll.js") (resources.Get "js/toc.js") -}}
+  {{- if $cfg.enableCodeCopy }}{{ $scripts = $scripts | append (resources.Get "js/code-copy.js") }}{{ end -}}
+  {{- if $cfg.enableSearch }}{{ $scripts = $scripts | append (resources.Get "js/search.js") }}{{ end -}}
+  {{- $js := $scripts | resources.Concat "js/northlight.js" -}}
+  {{- if hugo.IsProduction }}{{ $js = $js | minify }}{{ end -}}
+  {{- $js = $js | fingerprint "sha512" }}
+  <script src="{{ $js.RelPermalink }}" integrity="{{ $js.Data.Integrity }}" crossorigin="anonymous" defer></script>
 </body>
 </html>

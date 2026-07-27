@@ -1,0 +1,51 @@
+{{- /*
+  OpenGraph. This shadows Hugo's embedded opengraph.html deliberately.
+
+  The embedded one renders article:tag from .LinkTitle, which is Hugo's title-cased
+  form of a term — so `network-policy` goes out as `Network-Policy`. Every other tag
+  in this theme renders as the author wrote it, and a social card that disagrees with
+  the page is a small lie. .Data.Term is the raw term.
+
+  It is also narrower than the embedded template on purpose: no author facebook or
+  series handling, because this theme has neither. Keep it that way — the reason to
+  own this file is control, and control is only worth having while the file stays
+  small enough to read.
+*/ -}}
+{{- $title := cond .IsHome site.Title .Title -}}
+{{- $desc := "" -}}
+{{- with .Description }}{{ $desc = . }}
+{{- else }}{{ with .Summary }}{{ $desc = . | plainify | chomp }}
+{{- else }}{{ $desc = site.Params.description }}{{ end }}{{ end -}}
+
+<meta property="og:site_name" content="{{ site.Title }}">
+<meta property="og:title" content="{{ $title }}">
+{{- with $desc }}
+<meta property="og:description" content="{{ . }}">
+{{- end }}
+<meta property="og:url" content="{{ .Permalink }}">
+<meta property="og:locale" content="{{ site.Language.Lang }}">
+<meta property="og:type" content="{{ if and .IsPage (in site.Params.mainSections .Section) }}article{{ else }}website{{ end }}">
+
+{{- if and .IsPage (in site.Params.mainSections .Section) }}
+  {{- with .Section }}
+<meta property="article:section" content="{{ . }}">
+  {{- end }}
+  {{- if not .Date.IsZero }}
+<meta property="article:published_time" content="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">
+  {{- end }}
+  {{- if not .Lastmod.IsZero }}
+<meta property="article:modified_time" content="{{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" }}">
+  {{- end }}
+  {{- range .GetTerms "tags" }}
+<meta property="article:tag" content="{{ with .Data.Term }}{{ . }}{{ else }}{{ .LinkTitle }}{{ end }}">
+  {{- end }}
+{{- end }}
+
+{{- /* The cover, as an absolute URL — a relative og:image is ignored by every
+       consumer of it. Falls back to a site-wide image if a page has no cover. */ -}}
+{{- $image := "" -}}
+{{- with .Resources.GetMatch "{cover,featured}.*" }}{{ $image = .Permalink }}{{ end -}}
+{{- if not $image }}{{ with site.Params.image }}{{ $image = . | absURL }}{{ end }}{{ end -}}
+{{- with $image }}
+<meta property="og:image" content="{{ . }}">
+{{- end }}

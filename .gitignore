@@ -14,3 +14,4 @@ exampleSite/resources/
 # Local working files
 .notes/
 .screenshots/
+.playwright-mcp/

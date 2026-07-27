@@ -1,0 +1,22 @@
+{{- /* Markup for the ⌘K modal. Inert and hidden without JavaScript; search.js does
+       all the work. The index URL is passed as an attribute so the script has no
+       hardcoded path and a site can move its output format if it wants to. */ -}}
+{{- with site.Home.OutputFormats.Get "json" }}
+<div class="search-modal" id="search-modal" role="dialog" aria-modal="true" aria-label="Search posts"
+     data-search-index="{{ .RelPermalink }}" hidden>
+  <div class="search-panel">
+    <div class="search-field">
+      {{ partial "icon.html" "search" }}
+      <input type="search" data-search-input placeholder="Search posts, tags…" autocomplete="off"
+             spellcheck="false" aria-label="Search posts">
+      <button class="search-esc" type="button" data-search-close aria-label="Close search">Esc</button>
+    </div>
+    <div class="search-results" data-search-results role="listbox" aria-label="Search results"></div>
+    <div class="search-hints">
+      <span><b>↑↓</b> navigate</span>
+      <span><b>↵</b> open</span>
+      <span><b>Esc</b> close</span>
+    </div>
+  </div>
+</div>
+{{- end -}}

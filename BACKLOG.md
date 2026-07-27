@@ -3,109 +3,47 @@
 Known gaps deliberately left for later. Not work-in-progress — WIP belongs on a branch. Each
 entry states what, why it was deferred, what would unblock it, and where the code lives.
 
----
-
-## Config reference in README is a placeholder
-
-**What:** `README.md` has a `<!-- TODO -->` where the full parameter reference belongs — every
-param, its default, and what it does.
-
-**Why deferred:** the params do not exist yet. Writing the reference before the templates would
-document guesses, and a wrong config reference is worse than none.
-
-**Unblocks it:** finishing build-plan phase 4, at which point the param surface is stable enough
-to document.
-
-**Where:** `README.md`, "Configuration" section. Source of truth will be
-`exampleSite/hugo.toml`.
+Empty is the correct state for this file. Everything that was in it at the end of the initial
+build was either fixed or turned into a decision recorded where the decision lives — see *Closed*
+below for what happened to each.
 
 ---
 
-## Intermittent "no such file or directory" build failure, unattributed
-
-**What:** `make build` / `make check` occasionally dies mid-render with
-`open .../exampleSite/public/<file>: no such file or directory`, on a different file each time
-(`index.html`, `robots.txt`), or `mkdir .../exampleSite/resources/_gen: no such file or
-directory`. Hugo reports a successful page count first, so it is a filesystem error, not a
-template error. Re-running succeeds.
-
-**Why deferred:** it could not be pinned down. Observed 11 failures in ~90 runs during one
-window, then **0 failures in 107 consecutive runs** afterwards, across Hugo 0.161.1, 0.163.3 and
-0.164.0 and across four different Makefile shapes. Every mitigation tried — pre-creating the
-publish directory, `HUGO_NUMWORKERMULTIPLIER=1`, building to the container's own filesystem and
-copying the result out, deleting from inside the container rather than the host — appeared to fix
-it and then did not survive a larger sample. The failures clustered while the machine was also
-pulling container images and running a browser, which points at the macOS bind mount under load
-rather than at Hugo. A workaround was written and then reverted rather than ship unexplained
-complexity in the Makefile.
-
-**Unblocks it:** a reproduction that survives a 50-run sample on an idle machine. If it recurs,
-capture `docker version`, the storage driver, and whether OrbStack or Docker Desktop is in use,
-then compare a build whose destination is inside the container (`--destination /tmp/public`)
-against one writing straight to the mount. If it turns out to be real and Hugo-side, it belongs
-upstream, not in this repo.
-
-**Where:** `Makefile` — the `build` and `check` targets, and the `RUN` mount at
-`/src/northlight`.
+## Nothing open
 
 ---
 
-## Contrast figures are hand-computed, not measured
+## Closed
 
-**What:** the light-mode accent contrast ratios in `docs/DESIGN.md` (periwinkle ≈ 6.0:1, sage ≈
-5.1:1, clay ≈ 4.9:1) were calculated by hand from the sRGB values, not measured with a tool.
-Clay is the closest to the 4.5:1 AA floor and has the least headroom.
+Kept as a short record so the same questions are not reopened from scratch.
 
-**Why deferred:** no build exists to run a contrast checker against.
+| Was | Outcome |
+|---|---|
+| Config reference in README was a placeholder | Written. Every param, default and effect, plus front matter and covers. |
+| `--fg-3` failed AA for small text | Fixed in phase 7: `#6e6e75` / `#868690`, measured. |
+| Accent contrast was hand-computed | Measured across 3 palettes × 2 modes × 6 pages. Clay's light tone darkened to `#b1523d`. |
+| Font fallback had no matched metrics | Fixed — and the real cause turned out to be the `ch` measure. Layout shift on font swap went 88px → 0px. |
+| Theme distribution undecided | Both routes documented; submodule recommended because it needs no Go toolchain. |
+| Highlighted line had a seam under line numbers | Fixed: the gutter moved onto `.lnt`, inside `.hl`. Measured gap is now 0px. |
+| OpenGraph `article:tag` was title-cased | Fixed: `opengraph.html` and `twitter_cards.html` are now the theme's own, using `.Data.Term`. |
+| Search was substring-only with no ranking | Fixed: field-weighted scoring, and every term must match. Still no library, still no dependency. |
+| Draft labels unbuilt | Built, with a draft post in `exampleSite/` to exercise it. |
+| Cover art duplicates the post title | Not a bug. Documented in `README.md` under Covers, with `showHero = false` as the per-post escape. |
+| Bind-mount build race | Mitigated and held: 0 failures in 62 cold container-side builds across three sampling runs. The explanation lives in the `Makefile`, beside the code that depends on it. |
+| `v0.1.0` not tagged | Tagged. |
 
-**Unblocks it:** build-plan phase 7. If any value lands under 4.5:1, darken that palette's
-light-mode `--accent` until it clears.
+### Deliberately not built
 
-**Where:** `docs/DESIGN.md` "The two-tone accent"; values will live in
-`assets/css/tokens.css`.
+These were the Tier 2 list in `docs/SPEC.md`. They are not deferred work — they are decisions, and
+reopening one needs a reason that did not exist when it was made.
 
----
-
-## Theme distribution method not decided
-
-**What:** the theme ships as a git submodule in the docs. Hugo Modules is the other option and
-gives proper version pinning via `go.mod`.
-
-**Why deferred:** it only matters at first release, and it changes the install instructions and
-possibly CI.
-
-**Unblocks it:** deciding before tagging `v0.1.0`. Hugo Modules needs Go available in whatever
-builds consuming sites.
-
-**Where:** `README.md` "Install", `theme.toml`, and build-plan phase 8.
-
----
-
-## Cover art duplicates the post title
-
-**What:** the reference blog's covers are 1200×630 with the post title baked into the artwork,
-so any layout showing a cover above a headline renders the title twice.
-
-**Why deferred:** it is a content decision for the site author, not a theme bug. The theme
-renders both correctly.
-
-**Unblocks it:** the author either accepts it as a magazine convention or removes text from the
-cover art. If neither, the theme could grow a `showTitleOverCover` param — but do not add that
-speculatively.
-
-**Where:** noted in `docs/DESIGN.md` "Covers".
-
----
-
-## Tier 2 features from the audit are unbuilt
-
-**What:** series taxonomy, card-view variants, and `groupByYear` are configured on the site
-Northlight replaces but unexercised by any of its content. Math passthrough is enabled and
-unused. Draft labels are on and unused.
-
-**Why deferred:** building for zero current usage is exactly the failure mode
-`docs/SPEC.md` warns about — two-thirds of the previous theme was unused surface area.
-
-**Unblocks it:** an actual post that needs one of them.
-
-**Where:** `docs/SPEC.md` "Build order", Tier 2.
+- **Series taxonomy.** Configured on the site Northlight replaces, used by zero posts there. This
+  theme exists because an audit found two thirds of the previous one to be unused surface; adding
+  an unused taxonomy would repeat exactly that mistake. Build it when a post needs it.
+- **Card-view variants for the post index.** The index is a list with covers and term pages use
+  cards, which is what the approved design shows. A switch between the two is configuration nobody
+  asked for.
+- **Math passthrough.** Enabled and unused on the reference blog. It is site config
+  (`markup.goldmark.extensions.passthrough`) plus a KaTeX or MathJax script, both of which belong
+  in `extend-head.html` rather than in a theme that would otherwise load a maths renderer for
+  every site using it.

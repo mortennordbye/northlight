@@ -1,0 +1,14 @@
+{{- /*
+  The small uppercase category label above a post title.
+
+  design/northlight.html shows a category here — "Networking", "Cost & tooling" — but
+  the front matter surface in docs/SPEC.md is title, description, date, draft and tags,
+  with no category field. Rather than invent a config key nobody asked for, this uses
+  the post's first tag, which is in practice what the mockup's categories were.
+
+  A post with no tags gets no eyebrow rather than an empty one.
+*/ -}}
+{{- with .GetTerms "tags" -}}
+  {{- $first := index . 0 -}}
+  <span class="eyebrow">{{ with $first.Data.Term }}{{ . }}{{ else }}{{ $first.LinkTitle }}{{ end }}</span>
+{{- end -}}

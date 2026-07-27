@@ -1,11 +1,34 @@
+{{- /*
+  The search index, fetched by the ⌘K modal in phase 6.
+
+  Deliberately small: title, url, date, tags, a plain-text summary and a thumbnail.
+  It is downloaded before the first search, so it pays for every byte. The full body
+  is not included — for a blog-sized corpus, matching on title, tags and summary is
+  enough, and shipping every post's prose would multiply the payload for a marginal
+  gain in recall.
+*/ -}}
 {{- $index := slice -}}
 {{- range where site.RegularPages "Section" "in" site.Params.mainSections -}}
+  {{- $thumb := "" -}}
+  {{- with .Resources.GetMatch "{cover,featured}.*" -}}
+    {{- $img := . -}}
+    {{- if in (slice "png" "jpeg" "gif" "webp") .MediaType.SubType -}}
+      {{- $img = .Resize "160x q70" -}}
+    {{- end -}}
+    {{- $thumb = $img.RelPermalink -}}
+  {{- end -}}
+  {{- $tags := slice -}}
+  {{- range .GetTerms "tags" -}}
+    {{- $tags = $tags | append (cond (ne .Data.Term "") .Data.Term .LinkTitle) -}}
+  {{- end -}}
   {{- $index = $index | append (dict
       "title" .Title
       "url" .RelPermalink
-      "date" (.Date.Format "2006-01-02")
-      "tags" (.Params.tags | default slice)
-      "summary" (.Summary | plainify | chomp)
+      "date" (.Date.Format "2 Jan 2006")
+      "readingTime" .ReadingTime
+      "tags" $tags
+      "summary" (cond (ne .Description "") .Description (.Summary | plainify | chomp))
+      "thumb" $thumb
   ) -}}
 {{- end -}}
 {{- $index | jsonify -}}

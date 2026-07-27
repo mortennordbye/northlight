@@ -18,7 +18,9 @@ enableRobotsTXT = true
 summaryLength = 30
 
 [pagination]
-  pagerSize = 10
+  # 4 rather than the more usual 10, purely so the demo site has two pages of
+  # results and the pagination component is actually visible.
+  pagerSize = 4
 
 [outputs]
   home = ["HTML", "RSS", "JSON"]   # JSON is the search index — required if enableSearch
@@ -64,8 +66,7 @@ summaryLength = 30
   [params.author]
     name = "Your Name"
     headline = "What you do"
-    bio = "One or two sentences."
-    image = "images/profile.png"
+    image = "images/profile.svg"   # square, 160px or larger; sized and cropped in CSS
     links = [
       { linkedin = "https://www.linkedin.com/in/you" },
       { github = "https://github.com/you" },
@@ -112,3 +113,27 @@ summaryLength = 30
     name = "Tags"
     pageRef = "tags"
     weight = 20
+
+  [[menu.footer]]
+    name = "GitHub"
+    url = "https://github.com/mortennordbye/northlight"
+    weight = 10
+  [[menu.footer]]
+    name = "RSS"
+    url = "/index.xml"
+    weight = 20
+
+# --- Related content ----------------------------------------------------------
+# Required for params.article.showRelated. Hugo's defaults index `keywords`, which
+# this theme does not use; index the tag taxonomy instead.
+
+[related]
+  includeNewer = true
+  threshold = 80
+  toLower = false
+  [[related.indices]]
+    name = "tags"
+    weight = 100
+  [[related.indices]]
+    name = "date"
+    weight = 10

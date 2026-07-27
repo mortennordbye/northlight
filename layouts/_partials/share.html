@@ -1,0 +1,23 @@
+{{- $cfg := partialCached "init.html" . -}}
+{{- $url := .Permalink -}}
+{{- $title := .Title -}}
+{{- with $cfg.article.sharingLinks }}
+<div class="share">
+  <span class="share-label">Share</span>
+  {{- range $name := . }}
+    {{- $href := "" -}}
+    {{- if eq $name "linkedin" -}}
+      {{- $href = printf "https://www.linkedin.com/sharing/share-offsite/?url=%s" ($url | urlquery) -}}
+    {{- else if eq $name "reddit" -}}
+      {{- $href = printf "https://www.reddit.com/submit?url=%s&title=%s" ($url | urlquery) ($title | urlquery) -}}
+    {{- else -}}
+      {{- warnf "share.html: unknown sharing link %q — supported: linkedin, reddit" $name -}}
+    {{- end -}}
+    {{- with $href }}
+      <a class="button" href="{{ . }}" rel="noopener" target="_blank">
+        {{ partial "icon.html" $name }}<span>{{ $name | title }}</span>
+      </a>
+    {{- end }}
+  {{- end }}
+</div>
+{{- end -}}

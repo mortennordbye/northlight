@@ -1,9 +1,24 @@
 {{ define "main" }}
-  <h1>{{ .Title }}</h1>
-  {{ .Content }}
-  <ul>
-    {{ range .Pages }}
-      <li><a href="{{ .RelPermalink }}">{{ .Title }}</a> ({{ len .Pages }})</li>
-    {{ end }}
-  </ul>
+<div class="wrap">
+  <header class="list-head">
+    <h1 class="list-title">{{ .Title }}</h1>
+    {{- with .Description }}<p class="list-text">{{ . }}</p>{{ end }}
+    {{- with .Content }}<div class="list-body">{{ . }}</div>{{ end }}
+  </header>
+
+  {{- /* Term links with counts, sorted by how much is filed under each — a tag list is
+         a navigation aid, and alphabetical order buries the tags people actually use. */ -}}
+  {{- with .Pages.ByTitle }}
+  <div class="term-cloud">
+    {{- range sort . "Pages" "desc" }}
+      <a class="term" href="{{ .RelPermalink }}">
+        {{ with .Data.Term }}{{ . }}{{ else }}{{ .LinkTitle }}{{ end }}
+        <span class="term-count">{{ len .Pages }}</span>
+      </a>
+    {{- end }}
+  </div>
+  {{- else }}
+    <p class="empty-note">No tags yet.</p>
+  {{- end }}
+</div>
 {{ end }}

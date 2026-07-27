@@ -1,0 +1,25 @@
+{{- $cfg := partialCached "init.html" . -}}
+{{- $related := first $cfg.article.relatedLimit (site.RegularPages.Related .) -}}
+{{- with $related }}
+<section class="related" aria-labelledby="read-next">
+  <h2 id="read-next" class="section-title">Read next</h2>
+  <div class="related-grid">
+    {{- range . }}
+      <a class="related-card" href="{{ .RelPermalink }}">
+        {{- with .Resources.GetMatch "{cover,featured}.*" }}
+          {{- $thumb := . -}}
+          {{- if in (slice "png" "jpeg" "gif" "webp") .MediaType.SubType -}}
+            {{- $thumb = .Resize "400x q80" -}}
+          {{- end }}
+          <img class="related-thumb" src="{{ $thumb.RelPermalink }}" alt=""
+               width="{{ $thumb.Width }}" height="{{ $thumb.Height }}" loading="lazy" decoding="async">
+        {{- end }}
+        <h3 class="related-title">{{ .LinkTitle }}</h3>
+        <p class="related-meta">
+          {{- .Date.Format "2 Jan 2006" }} &middot; {{ .ReadingTime }} min
+        </p>
+      </a>
+    {{- end }}
+  </div>
+</section>
+{{- end -}}

@@ -1,0 +1,69 @@
+{{- $cfg := partialCached "init.html" . -}}
+{{- $desc := "" -}}
+{{- with .Description }}{{ $desc = . }}
+{{- else }}{{ with .Summary }}{{ $desc = . | plainify | chomp }}
+{{- else }}{{ $desc = site.Params.description }}{{ end }}{{ end -}}
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} · {{ site.Title }}{{ end }}</title>
+{{- with $desc }}
+<meta name="description" content="{{ . }}">
+{{- end }}
+<link rel="canonical" href="{{ .Permalink }}">
+
+{{- /* Set `robots` in front matter, or cascade it from a section, to keep thin pages
+       out of search results. Taxonomy listings are the usual case. */ -}}
+{{- with .Params.robots }}
+<meta name="robots" content="{{ . }}">
+{{- end }}
+
+{{- /* Hugo's embedded templates. Since 0.146 they are partials rather than
+       `template "_internal/..."`. opengraph finds the cover through its own
+       page-image lookup, which matches resources named cover/feature/thumbnail. */ -}}
+{{ partial "opengraph.html" . }}
+{{ partial "twitter_cards.html" . }}
+
+{{- /* Inlined and placed before the stylesheet so the mode is pinned before first
+       paint. Theme-owned code, hence safeJS. */ -}}
+{{- with resources.Get "js/appearance.js" | minify }}
+<script>{{ .Content | safeJS }}</script>
+{{- end }}
+
+{{- /* fonts.css is a template so its woff2 URLs carry a content hash; the rest are
+       plain CSS. Concatenated into one request, then fingerprinted — consuming sites
+       cache CSS as immutable for a year on the strength of that hash, so removing
+       the fingerprint would be a year-long stale-asset bug. */ -}}
+{{- $fonts := resources.Get "css/fonts.css" | resources.ExecuteAsTemplate "css/fonts.css" . -}}
+{{- $sheets := slice
+      $fonts
+      (resources.Get "css/tokens.css")
+      (resources.Get "css/base.css")
+      (resources.Get "css/layout.css")
+      (resources.Get "css/chroma.css")
+      (resources.Get "css/prose.css")
+      (resources.Get "css/article.css")
+      (resources.Get "css/list.css")
+      (resources.Get "css/interaction.css")
+-}}
+{{- $css := $sheets | resources.Concat "css/northlight.css" -}}
+{{- if hugo.IsProduction -}}
+  {{- $css = $css | minify -}}
+{{- end -}}
+{{- $css = $css | fingerprint "sha512" }}
+<link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}" crossorigin="anonymous">
+
+{{- /* Only the body face is preloaded. The mono face is not on the critical path:
+       nothing above the fold on a typical page is set in it. */ -}}
+{{- with resources.Get "fonts/schibsted-grotesk-latin.woff2" | fingerprint }}
+<link rel="preload" href="{{ .RelPermalink }}" as="font" type="font/woff2" crossorigin>
+{{- end }}
+
+{{ partial "favicons.html" . }}
+{{ partial "json-ld.html" . }}
+
+{{- with .OutputFormats.Get "rss" }}
+<link rel="alternate" type="application/rss+xml" href="{{ .Permalink }}" title="{{ site.Title }}">
+{{- end }}
+
+{{ partial "extend-head.html" . }}
