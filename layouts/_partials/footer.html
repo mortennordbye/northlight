@@ -1,0 +1,25 @@
+{{- $cfg := partialCached "init.html" . -}}
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    {{- if $cfg.footer.showCopyright }}
+    <p class="footer-copy">
+      &copy; {{ now.Format "2006" }} {{ site.Title }}
+      {{- /* Hugo is linked; the theme name is not. The theme's own repository URL
+             contains its author's name, and nothing under layouts/ is allowed to carry
+             an author-specific value — `make check` greps for exactly that. Site
+             authors who want to link it can override this partial. */ -}}
+      {{- with $cfg.footer.showThemeAttribution }} &middot;
+        built with <a href="https://gohugo.io/" rel="noopener">Hugo</a> and the Northlight theme
+      {{- end }}
+    </p>
+    {{- end }}
+
+    {{- with site.Menus.footer }}
+    <nav class="footer-nav" aria-label="Footer">
+      {{- range . }}
+        <a href="{{ .URL }}"{{ if strings.HasPrefix .URL "http" }} rel="noopener"{{ end }}>{{ .Name }}</a>
+      {{- end }}
+    </nav>
+    {{- end }}
+  </div>
+</footer>

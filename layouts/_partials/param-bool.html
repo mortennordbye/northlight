@@ -1,0 +1,15 @@
+{{- /*
+  Reads a boolean param that defaults to true.
+
+  `site.Params.x | default true` is wrong for booleans: false is a zero value, so
+  `default` replaces it and an explicit `false` in someone's config silently becomes
+  true. This tests for the key instead. Hugo lowercases param keys, hence the lower.
+
+  Call:  {{ partial "param-bool.html" (dict "map" .Params "key" "showToc" "default" true) }}
+*/ -}}
+{{- $value := .default -}}
+{{- $map := .map | default dict -}}
+{{- if isset $map (lower .key) -}}
+  {{- $value = index $map (lower .key) -}}
+{{- end -}}
+{{- return $value -}}

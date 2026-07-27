@@ -1,0 +1,139 @@
+/* ============================================================================
+   Page frame: the container, the sticky header and the footer. Everything that
+   surrounds content rather than being content.
+   ============================================================================ */
+
+.wrap {
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* --- header --------------------------------------------------------------- */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: saturate(1.6) blur(12px);
+  -webkit-backdrop-filter: saturate(1.6) blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+
+/* backdrop-filter is what makes the translucency read as glass rather than as a
+   washed-out bar. Without it, 82% opacity over scrolling content is muddy, so fall
+   back to an opaque bar instead. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .site-header {
+    background: var(--bg);
+  }
+}
+
+.header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  height: var(--header-height);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: 15.5px;
+  font-weight: 600;
+  letter-spacing: var(--tracking-card-h3);
+}
+
+.brand-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex: none;
+  box-shadow: 0 0 0 3px var(--accent-tint);
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.site-nav a {
+  font-size: 14px;
+  font-weight: 450;
+  color: var(--fg-2);
+  padding: 7px var(--space-3);
+  border-radius: 7px;
+  transition:
+    color var(--dur-color),
+    background var(--dur-color);
+}
+
+.site-nav a:hover {
+  color: var(--fg);
+  background: var(--surface-2);
+}
+
+.site-nav a[aria-current] {
+  color: var(--fg);
+  font-weight: 500;
+}
+
+/* --- footer --------------------------------------------------------------- */
+
+.site-footer {
+  border-top: 1px solid var(--line);
+  padding: var(--space-7) 0 var(--space-9);
+  margin-top: var(--space-8);
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+}
+
+.footer-copy {
+  font-size: 14px;
+  color: var(--fg-3);
+}
+
+.footer-copy a:hover,
+.footer-nav a:hover {
+  color: var(--accent);
+}
+
+.footer-nav {
+  display: flex;
+  gap: 18px;
+}
+
+.footer-nav a {
+  font-size: 14px;
+  color: var(--fg-2);
+  transition: color var(--dur-color);
+}
+
+/* --- shared icon sizing --------------------------------------------------- */
+
+.icon {
+  width: 1em;
+  height: 1em;
+  flex: none;
+}
+
+@media (max-width: 720px) {
+  .wrap {
+    padding-inline: 18px;
+  }
+
+  .site-nav a {
+    padding-inline: var(--space-2);
+  }
+}

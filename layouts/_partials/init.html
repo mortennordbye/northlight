@@ -6,6 +6,9 @@
 
   Unknown values fall back to the default rather than reaching the templates,
   because a typo in colorScheme should not produce an unstyled page.
+
+  Booleans go through param-bool.html; see the note there about why `| default true`
+  cannot be used for them.
 */ -}}
 
 {{- $palette := site.Params.colorScheme | default "periwinkle" -}}
@@ -18,15 +21,35 @@
   {{- $appearance = "light" -}}
 {{- end -}}
 
-{{- /* `| default true` would turn an explicit false back into true, so test for the
-       key instead. Hugo lowercases param keys. */ -}}
-{{- $autoSwitch := true -}}
-{{- if isset site.Params "autoswitchappearance" -}}
-  {{- $autoSwitch = site.Params.autoSwitchAppearance -}}
-{{- end -}}
+{{- $a := site.Params.article | default dict -}}
+{{- $f := site.Params.footer | default dict -}}
+
+{{- $article := dict
+  "showBreadcrumbs"     (partial "param-bool.html" (dict "map" $a "key" "showBreadcrumbs"     "default" true))
+  "showAuthor"          (partial "param-bool.html" (dict "map" $a "key" "showAuthor"          "default" true))
+  "showDate"            (partial "param-bool.html" (dict "map" $a "key" "showDate"            "default" true))
+  "showReadingTime"     (partial "param-bool.html" (dict "map" $a "key" "showReadingTime"     "default" true))
+  "showWordCount"       (partial "param-bool.html" (dict "map" $a "key" "showWordCount"       "default" true))
+  "showHero"            (partial "param-bool.html" (dict "map" $a "key" "showHero"            "default" true))
+  "showTableOfContents" (partial "param-bool.html" (dict "map" $a "key" "showTableOfContents" "default" true))
+  "showTaxonomies"      (partial "param-bool.html" (dict "map" $a "key" "showTaxonomies"      "default" true))
+  "showRelated"         (partial "param-bool.html" (dict "map" $a "key" "showRelated"         "default" true))
+  "showPagination"      (partial "param-bool.html" (dict "map" $a "key" "showPagination"      "default" true))
+  "showComments"        (partial "param-bool.html" (dict "map" $a "key" "showComments"        "default" false))
+  "relatedLimit"        (int ($a.relatedLimit | default 3))
+  "sharingLinks"        ($a.sharingLinks | default (slice "linkedin" "reddit"))
+-}}
+
+{{- $footer := dict
+  "showCopyright"        (partial "param-bool.html" (dict "map" $f "key" "showCopyright"        "default" true))
+  "showThemeAttribution" (partial "param-bool.html" (dict "map" $f "key" "showThemeAttribution" "default" true))
+-}}
 
 {{- return dict
   "palette" $palette
   "defaultAppearance" $appearance
-  "autoSwitchAppearance" $autoSwitch
+  "autoSwitchAppearance" (partial "param-bool.html" (dict "map" site.Params "key" "autoSwitchAppearance" "default" true))
+  "article" $article
+  "footer" $footer
+  "author" (site.Params.author | default dict)
 -}}

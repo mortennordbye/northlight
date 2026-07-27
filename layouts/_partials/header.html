@@ -1,0 +1,19 @@
+{{- /* Sticky, translucent, one border. The search affordance and the appearance
+       toggle both need JavaScript to do anything, so they are added in phase 6
+       rather than rendered here as controls that do nothing. */ -}}
+<header class="site-header">
+  <div class="wrap header-bar">
+    <a class="brand" href="{{ site.Home.RelPermalink }}">
+      <span class="brand-dot" aria-hidden="true"></span>{{ site.Title }}
+    </a>
+
+    {{- with site.Menus.main }}
+    <nav class="site-nav" aria-label="Main">
+      {{- range . }}
+        {{- $active := or ($.IsMenuCurrent "main" .) ($.HasMenuCurrent "main" .) }}
+        <a href="{{ .URL }}"{{ if $active }} aria-current="page"{{ end }}>{{ .Name }}</a>
+      {{- end }}
+    </nav>
+    {{- end }}
+  </div>
+</header>

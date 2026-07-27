@@ -112,3 +112,12 @@ summaryLength = 30
     name = "Tags"
     pageRef = "tags"
     weight = 20
+
+  [[menu.footer]]
+    name = "GitHub"
+    url = "https://github.com/mortennordbye/northlight"
+    weight = 10
+  [[menu.footer]]
+    name = "RSS"
+    url = "/index.xml"
+    weight = 20
