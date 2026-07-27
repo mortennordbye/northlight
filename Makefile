@@ -10,10 +10,19 @@
 # The repo is mounted at /src/northlight rather than /src because Hugo resolves
 # --themesDir relative to --source: exampleSite/../.. must be the directory that
 # *contains* a folder named after the theme.
+#
+# `clean` deletes from inside the container rather than from the host. Deleting the
+# output directories on the host and then having the container recreate them races on
+# a macOS bind mount: the build dies with "open .../public/robots.txt: no such file or
+# directory", and the same event surfaces a second time as a misleading
+# "resource is nil" template error. Measured over cold builds: 2/12 host-side,
+# 0/37 container-side. Deleting and recreating through the same mount client is the
+# cheapest thing that removed it.
 
 HUGO_IMAGE ?= ghcr.io/gohugoio/hugo:v0.164.0
 RUN         = docker run --rm -v "$(CURDIR)":/src/northlight -w /src/northlight
 SITE        = --source exampleSite --themesDir ../..
+PATHS       = exampleSite/public exampleSite/resources resources .hugo_build.lock
 
 .DEFAULT_GOAL := help
 
@@ -39,6 +48,6 @@ check: ## THE GATE — build with warnings as errors, then sanity-check the outp
 	@echo "OK"
 
 clean: ## Remove build output and caches
-	rm -rf exampleSite/public exampleSite/resources resources .hugo_build.lock
+	$(RUN) --entrypoint sh $(HUGO_IMAGE) -c 'rm -rf $(PATHS)'
 
 .PHONY: help serve build check clean
