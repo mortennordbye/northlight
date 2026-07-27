@@ -8,7 +8,7 @@
   {{ partial "head.html" . }}
 </head>
 <body>
-  <a class="skip-link" href="#main-content">Skip to content</a>
+  <a class="skip-link" href="#main-content">{{ i18n "skipToContent" }}</a>
 
   {{- if and .IsPage $cfg.article.showProgress }}
   <div class="reading-progress" id="reading-progress" aria-hidden="true"></div>
@@ -22,7 +22,7 @@
 
   {{ partial "footer.html" . }}
 
-  <button class="back-to-top" id="back-to-top" type="button" aria-label="Back to top" hidden>
+  <button class="back-to-top" id="back-to-top" type="button" aria-label="{{ i18n "backToTop" }}" hidden>
     {{ partial "icon.html" "arrow-up" }}
   </button>
 
@@ -30,7 +30,22 @@
 
   {{- /* One deferred bundle. Every module no-ops when the markup it needs is absent,
          so the same file is fine on every page. */ -}}
-  {{- $scripts := slice (resources.Get "js/toggle.js") (resources.Get "js/scroll.js") (resources.Get "js/toc.js") (resources.Get "js/comments.js") -}}
+  {{- /* The handful of strings that only exist after a click, so they cannot be
+         rendered into the markup. Everything else the reader sees is translated by
+         Hugo at build time. strings.js reads this once; see the note there. */ -}}
+  <script type="application/json" id="northlight-strings">
+    {{- dict
+      "copy"                  (i18n "copy")
+      "copied"                (i18n "copied")
+      "copyFailed"            (i18n "copyFailed")
+      "copyCodeToClipboard"   (i18n "copyCodeToClipboard")
+      "codeCopiedToClipboard" (i18n "codeCopiedToClipboard")
+      "switchToDarkMode"      (i18n "switchToDarkMode")
+      "switchToLightMode"     (i18n "switchToLightMode")
+      | jsonify | safeJS -}}
+  </script>
+
+  {{- $scripts := slice (resources.Get "js/strings.js") (resources.Get "js/toggle.js") (resources.Get "js/scroll.js") (resources.Get "js/toc.js") (resources.Get "js/comments.js") -}}
   {{- if $cfg.enableCodeCopy }}{{ $scripts = $scripts | append (resources.Get "js/code-copy.js") }}{{ end -}}
   {{- if $cfg.enableSearch }}{{ $scripts = $scripts | append (resources.Get "js/search.js") }}{{ end -}}
   {{- $js := $scripts | resources.Concat "js/northlight.js" -}}

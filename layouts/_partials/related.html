@@ -2,7 +2,7 @@
 {{- $related := first $cfg.article.relatedLimit (site.RegularPages.Related .) -}}
 {{- with $related }}
 <section class="related" aria-labelledby="read-next">
-  <h2 id="read-next" class="section-title">Read next</h2>
+  <h2 id="read-next" class="section-title">{{ i18n "readNext" }}</h2>
   <div class="related-grid">
     {{- range . }}
       <a class="related-card" href="{{ .RelPermalink }}">

@@ -8,7 +8,7 @@
   {{- end }}
   <div class="item-body">
     {{ partial "eyebrow.html" . }}
-    <h3 class="item-title">{{ if .Draft }}<span class="draft-label">Draft</span>{{ end }}{{ .LinkTitle }}</h3>
+    <h3 class="item-title">{{ if .Draft }}<span class="draft-label">{{ i18n "draft" }}</span>{{ end }}{{ .LinkTitle }}</h3>
     {{- with .Description }}<p class="item-text">{{ . }}</p>{{ end }}
     {{- with .GetTerms "tags" }}
       <div class="item-tags">

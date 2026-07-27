@@ -8,7 +8,7 @@
       <span class="brand-dot" aria-hidden="true"></span>{{ site.Title }}
     </a>
 
-    <nav class="site-nav" aria-label="Main">
+    <nav class="site-nav" aria-label="{{ i18n "mainNavigation" }}">
       {{- range site.Menus.main }}
         {{- $active := or ($.IsMenuCurrent "main" .) ($.HasMenuCurrent "main" .) }}
         <a href="{{ .URL }}"{{ if $active }} aria-current="page"{{ end }}>{{ .Name }}</a>
@@ -18,12 +18,12 @@
         <span class="nav-sep" aria-hidden="true"></span>
         <button class="search-trigger" type="button" data-search-trigger hidden>
           {{ partial "icon.html" "search" }}
-          <span class="search-trigger-label">Search posts</span>
+          <span class="search-trigger-label">{{ i18n "searchPosts" }}</span>
           <kbd>{{ "⌘" }}K</kbd>
         </button>
       {{- end }}
 
-      <button class="icon-button" type="button" data-toggle-appearance hidden aria-label="Switch colour mode">
+      <button class="icon-button" type="button" data-toggle-appearance hidden aria-label="{{ i18n "switchColourMode" }}">
         <span class="only-light">{{ partial "icon.html" "moon" }}</span>
         <span class="only-dark">{{ partial "icon.html" "sun" }}</span>
       </button>

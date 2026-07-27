@@ -24,7 +24,9 @@
   }
 
   function label(mode) {
-    return mode === "dark" ? "Switch to light mode" : "Switch to dark mode";
+    return mode === "dark"
+      ? t("switchToLightMode", "Switch to light mode")
+      : t("switchToDarkMode", "Switch to dark mode");
   }
 
   function sync() {

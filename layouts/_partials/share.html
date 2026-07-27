@@ -3,7 +3,7 @@
 {{- $title := .Title -}}
 {{- with $cfg.article.sharingLinks }}
 <div class="share">
-  <span class="share-label">Share</span>
+  <span class="share-label">{{ i18n "share" }}</span>
   {{- range $name := . }}
     {{- $href := "" -}}
     {{- if eq $name "linkedin" -}}

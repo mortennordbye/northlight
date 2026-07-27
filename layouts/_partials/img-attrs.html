@@ -1,0 +1,33 @@
+{{- /*
+  Builds the src / srcset / sizes / width / height attributes for one image resource
+  and returns them as a string.
+
+  Call: {{ partial "img-attrs.html" $resource }}
+
+  Extracted because render-image.html needs it twice, once for the light image and
+  once for its dark counterpart.
+
+  SVG has no raster size to resize and a resized GIF stops animating, so neither goes
+  down the processing path. Both still get a src.
+*/ -}}
+{{- $img := . -}}
+{{- $out := printf `src="%s"` $img.RelPermalink -}}
+
+{{- $sub := $img.MediaType.SubType -}}
+{{- if and (eq $img.ResourceType "image") (not (in (slice "svg" "gif") $sub)) -}}
+  {{- /* Only widths below the original. Upscaling costs bytes and adds nothing, so the
+         original is always the largest candidate rather than a blurry enlargement. */ -}}
+  {{- $srcset := slice -}}
+  {{- range (slice 480 720 1080 1440) -}}
+    {{- if lt . $img.Width -}}
+      {{- $r := $img.Resize (printf "%dx q82" .) -}}
+      {{- $srcset = $srcset | append (printf "%s %dw" $r.RelPermalink .) -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $srcset = $srcset | append (printf "%s %dw" $img.RelPermalink $img.Width) -}}
+  {{- /* 44.2rem is --measure. It cannot be read from CSS here, so if the measure
+         changes this needs changing with it. */ -}}
+  {{- $out = printf `src="%s" srcset="%s" sizes="(max-width: 47rem) 100vw, 44.2rem" width="%d" height="%d"` $img.RelPermalink (delimit $srcset ", ") $img.Width $img.Height -}}
+{{- end -}}
+
+{{ return $out }}

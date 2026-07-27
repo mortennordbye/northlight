@@ -21,25 +21,26 @@
     var button = document.createElement("button");
     button.className = "copy-button";
     button.type = "button";
-    button.setAttribute("aria-label", "Copy code to clipboard");
-    button.innerHTML = '<span class="copy-label">Copy</span>';
+    button.setAttribute("aria-label", t("copyCodeToClipboard", "Copy code to clipboard"));
+    button.innerHTML = '<span class="copy-label"></span>';
+    button.querySelector(".copy-label").textContent = t("copy", "Copy");
 
     var reset;
     button.addEventListener("click", function () {
       navigator.clipboard.writeText(code.innerText).then(
         function () {
           button.classList.add("is-copied");
-          button.querySelector(".copy-label").textContent = "Copied";
-          button.setAttribute("aria-label", "Code copied to clipboard");
+          button.querySelector(".copy-label").textContent = t("copied", "Copied");
+          button.setAttribute("aria-label", t("codeCopiedToClipboard", "Code copied to clipboard"));
           clearTimeout(reset);
           reset = setTimeout(function () {
             button.classList.remove("is-copied");
-            button.querySelector(".copy-label").textContent = "Copy";
-            button.setAttribute("aria-label", "Copy code to clipboard");
+            button.querySelector(".copy-label").textContent = t("copy", "Copy");
+            button.setAttribute("aria-label", t("copyCodeToClipboard", "Copy code to clipboard"));
           }, 1800);
         },
         function () {
-          button.querySelector(".copy-label").textContent = "Failed";
+          button.querySelector(".copy-label").textContent = t("copyFailed", "Failed");
         }
       );
     });

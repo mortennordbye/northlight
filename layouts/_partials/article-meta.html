@@ -19,10 +19,10 @@
       {{- $items = $items | append (printf `<time datetime="%s">%s</time>` (.Date.Format "2006-01-02") (.Date.Format "2 Jan 2006")) -}}
     {{- end -}}
     {{- if $a.showReadingTime -}}
-      {{- $items = $items | append (printf "%d min read" .ReadingTime) -}}
+      {{- $items = $items | append (i18n "readingTime" .ReadingTime) -}}
     {{- end -}}
     {{- if $a.showWordCount -}}
-      {{- $items = $items | append (printf "%s words" (lang.FormatNumber 0 .WordCount)) -}}
+      {{- $items = $items | append (i18n "wordCount" (dict "Count" .WordCount "Formatted" (lang.FormatNumber 0 .WordCount))) -}}
     {{- end -}}
     {{- range $i, $item := $items }}
       {{- if $i }}<span class="meta-dot" aria-hidden="true"></span>{{ end }}

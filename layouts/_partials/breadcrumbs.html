@@ -2,7 +2,7 @@
        repeating a 60-character headline as a crumb helps nobody. .Ancestors runs from
        the parent up to the home page, so it is reversed to read top-down. */ -}}
 {{- with .Ancestors.Reverse -}}
-<nav class="breadcrumbs" aria-label="Breadcrumb">
+<nav class="breadcrumbs" aria-label="{{ i18n "breadcrumb" }}">
   {{- range . }}
     {{- if not .IsHome }}<span class="crumb-sep" aria-hidden="true">/</span>{{ end }}
     <a href="{{ .RelPermalink }}">{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .LinkTitle }}{{ end }}</a>
