@@ -14,7 +14,12 @@
        cache CSS as immutable for a year on the strength of that hash, so removing
        the fingerprint would be a year-long stale-asset bug. */ -}}
 {{- $fonts := resources.Get "css/fonts.css" | resources.ExecuteAsTemplate "css/fonts.css" . -}}
-{{- $sheets := slice $fonts (resources.Get "css/tokens.css") (resources.Get "css/base.css") -}}
+{{- $sheets := slice
+      $fonts
+      (resources.Get "css/tokens.css")
+      (resources.Get "css/base.css")
+      (resources.Get "css/chroma.css")
+-}}
 {{- $css := $sheets | resources.Concat "css/northlight.css" -}}
 {{- if hugo.IsProduction -}}
   {{- $css = $css | minify -}}

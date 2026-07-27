@@ -1,0 +1,290 @@
+/* ============================================================================
+   Syntax highlighting.
+
+   markup.highlight.noClasses = false, so Chroma emits class names and this file
+   supplies every colour. Chroma's class set is 81 tokens — far more than any one
+   highlighter style emits — and all of them are mapped below, because a class with
+   no rule silently falls back to body colour and looks like a bug in someone else's
+   post. Regenerate the inventory with:
+
+     hugo gen chromastyles --style=github --mode=light
+     hugo gen chromastyles --style=github-dark --mode=dark --modeSelector
+
+   Only five colours do the work: --tok-com, --tok-key, --tok-str, --tok-num and
+   --tok-tag, plus the foreground greys. That restraint is deliberate — the palette
+   has five hues, so the highlighter uses five hues. Everything is grouped by which
+   token it maps to rather than by Chroma's naming, so adding a class means deciding
+   which of the five it belongs to.
+
+   Both modes come free: the tokens are light-dark() pairs in tokens.css.
+
+   Markup Chroma produces, which the layout rules below assume:
+
+     <div class="highlight">
+       <pre class="chroma"><code class="language-x"><span class="line"><span class="cl">…
+
+   and with linenos=table, where .chroma appears twice — once on a wrapping div and
+   once on each of the two <pre> elements:
+
+     <div class="highlight"><div class="chroma"><table class="lntable"><tr>
+       <td class="lntd"><pre class="chroma">… line numbers …</pre></td>
+       <td class="lntd"><pre class="chroma">… code …</pre></td>
+   ============================================================================ */
+
+/* --- the block itself ---------------------------------------------------- */
+
+.highlight {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pager);
+  overflow: hidden;
+  margin: 0 0 var(--space-7);
+}
+
+.highlight pre.chroma,
+.highlight .chroma {
+  background: none;
+  margin: 0;
+}
+
+.highlight pre.chroma {
+  padding: var(--space-4);
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  line-height: var(--leading-code);
+  color: var(--fg);
+  tab-size: 2;
+}
+
+/* Chroma sets a background colour on .bg when a style defines one. Ours comes from
+   .highlight, so neutralise it rather than let a stray colour through. */
+.chroma .bg {
+  background: none;
+}
+
+/* --- line numbers -------------------------------------------------------- */
+/* Line numbers use the comment tone rather than --fg-3: they sit on the code
+   surface, where --fg-3 measures 3.28:1, and --tok-com is the one muted tone
+   verified against that background. */
+
+.chroma .lntable {
+  display: block;
+  width: 100%;
+  border-spacing: 0;
+  overflow-x: auto;
+}
+
+.chroma .lntd {
+  vertical-align: top;
+  padding: 0;
+}
+
+.chroma .lntd:first-child pre.chroma {
+  padding-right: var(--space-3);
+  overflow: visible;
+}
+
+.chroma .lntd:last-child pre.chroma {
+  padding-left: 0;
+}
+
+.chroma .ln,
+.chroma .lnt {
+  color: var(--tok-com);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.chroma .lnlinks {
+  color: var(--tok-com);
+  text-decoration: none;
+}
+
+.chroma .lnlinks:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+/* Highlighted line. .hl wraps the whole line, so it needs to be a block to paint
+   across the full width of a scrolled block. */
+.chroma .hl {
+  display: block;
+  background: var(--accent-tint);
+  box-shadow: inset 2px 0 0 var(--accent-pastel);
+}
+
+/* With line numbers, Chroma emits .hl in both table columns, which would draw the
+   accent bar twice — once at the block edge and again between the numbers and the
+   code. Keep the tint on both so the highlight reads as one row, and leave the bar
+   only on the column that starts the row. */
+.chroma .lntd:last-child .hl {
+  box-shadow: none;
+}
+
+/* .line and .cl wrap every line and carry no colour of their own. */
+.chroma .line,
+.chroma .cl {
+  display: inline;
+}
+
+/* --- comments ------------------------------------------------------------- */
+/* c comment · ch hashbang · cm multiline · cs special
+   Verified at 4.60:1 against --surface in both modes. */
+
+.chroma .c,
+.chroma .ch,
+.chroma .cm,
+.chroma .cs,
+.chroma .c1 {
+  color: var(--tok-com);
+}
+
+/* --- keywords ------------------------------------------------------------- */
+/* k keyword · kc constant · kd declaration · kn namespace · kp pseudo
+   kr reserved · kt type · nb builtin · bp builtin pseudo · nd decorator
+   cp preprocessor · cpf preprocessor file — directives read as keywords, which is
+   what puts a Dockerfile FROM and an nginx include in the same colour. */
+
+.chroma .k,
+.chroma .kc,
+.chroma .kd,
+.chroma .kn,
+.chroma .kp,
+.chroma .kr,
+.chroma .kt,
+.chroma .nb,
+.chroma .bp,
+.chroma .nd,
+.chroma .cp,
+.chroma .cpf {
+  color: var(--tok-key);
+}
+
+/* --- strings and literals -------------------------------------------------- */
+/* s string · sa affix · sb backtick · sc char · sd doc · se escape · sh heredoc
+   si interpolated · sr regex · ss symbol · sx other · dl delimiter
+   l literal · ld date — YAML scalars come through as .l, and the mockup colours
+   them as strings, so literals join this group rather than standing alone. */
+
+.chroma .s,
+.chroma .sa,
+.chroma .sb,
+.chroma .sc,
+.chroma .sd,
+.chroma .se,
+.chroma .sh,
+.chroma .si,
+.chroma .sr,
+.chroma .ss,
+.chroma .sx,
+.chroma .s1,
+.chroma .s2,
+.chroma .dl,
+.chroma .l,
+.chroma .ld {
+  color: var(--tok-str);
+}
+
+/* --- numbers -------------------------------------------------------------- */
+/* m number · mb binary · mf float · mh hex · mi integer · mo octal · il long */
+
+.chroma .m,
+.chroma .mb,
+.chroma .mf,
+.chroma .mh,
+.chroma .mi,
+.chroma .mo,
+.chroma .il {
+  color: var(--tok-num);
+}
+
+/* --- tags, attributes and types -------------------------------------------- */
+/* nt tag · na attribute — the YAML key colour, and the one that carries most of a
+   config file. nc class · nn namespace · no constant · ne exception join them so
+   type-like names stay distinct from plain identifiers. */
+
+.chroma .nt,
+.chroma .na,
+.chroma .nc,
+.chroma .nn,
+.chroma .no,
+.chroma .ne {
+  color: var(--tok-tag);
+}
+
+/* --- plain identifiers ----------------------------------------------------- */
+/* Deliberately body colour, not a sixth hue: function and variable names are the
+   bulk of most code, and colouring them turns a block into confetti. The mockup
+   sets shell commands in plain foreground for the same reason.
+   n name · nf function · fm magic method · ni entity · nl label · nv variable
+   vc class var · vg global · vi instance · vm magic · nx other · py property
+   x other · g generic */
+
+.chroma .n,
+.chroma .nf,
+.chroma .fm,
+.chroma .ni,
+.chroma .nl,
+.chroma .nv,
+.chroma .vc,
+.chroma .vg,
+.chroma .vi,
+.chroma .vm,
+.chroma .nx,
+.chroma .py,
+.chroma .x,
+.chroma .g {
+  color: var(--fg);
+}
+
+/* --- punctuation and operators --------------------------------------------- */
+/* One step down from the foreground, so the structure of a block is visible
+   without competing with what it says. o operator · ow word operator · or other
+   p punctuation */
+
+.chroma .o,
+.chroma .ow,
+.chroma .or,
+.chroma .p {
+  color: var(--fg-2);
+}
+
+/* Whitespace carries no colour by design; the rule exists so the class is
+   accounted for rather than accidentally unstyled. */
+.chroma .w {
+  color: inherit;
+}
+
+/* --- lexer errors ---------------------------------------------------------- */
+/* Not red. A lexer error is usually the lexer's problem, not the author's — the
+   Dockerfile lexer emits .err for perfectly valid COPY flags — so it renders as
+   ordinary text rather than shouting at the reader. */
+.chroma .err {
+  color: var(--fg);
+}
+
+/* --- generic tokens, mostly diffs ------------------------------------------ */
+/* No red or green exists in this palette, so additions borrow the string hue and
+   deletions the number hue, both as a low-alpha wash rather than as text colour,
+   which keeps the diff readable at 4.5:1 while still reading as added or removed. */
+
+.chroma .gi {
+  color: var(--fg);
+  background: color-mix(in srgb, var(--tok-str) 14%, transparent);
+}
+
+.chroma .gd {
+  color: var(--fg);
+  background: color-mix(in srgb, var(--tok-num) 14%, transparent);
+}
+
+.chroma .ge { font-style: italic; }
+.chroma .gs { font-weight: 600; }
+.chroma .gh { color: var(--fg); font-weight: 600; }
+.chroma .gu { color: var(--fg-2); font-weight: 600; }
+.chroma .gp { color: var(--tok-com); }
+.chroma .go { color: var(--fg-2); }
+.chroma .gt { color: var(--fg-2); }
+.chroma .gr { color: var(--fg); }
+.chroma .gl { text-decoration: underline; }
