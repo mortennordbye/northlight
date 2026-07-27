@@ -44,7 +44,7 @@ jobs:
           hugo version
 
       - id: pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
       # --panicOnWarning is the same gate as `make check`. A warning that would fail
       # locally should fail here rather than publish quietly.
