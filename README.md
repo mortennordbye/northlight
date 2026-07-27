@@ -483,6 +483,9 @@ northlight/
 | Dependabot Auto-merge | PR | merge patch and minor action bumps once checks pass |
 | Stale | daily | mark inactive issues and pull requests, then close them |
 
+[`docs/AUTOMATION.md`](docs/AUTOMATION.md) covers the rest: which checks are required, how the
+audit thresholds are set, and how a release is cut.
+
 ---
 
 ## Audited output
