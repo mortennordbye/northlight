@@ -188,6 +188,31 @@ else
 fi
 
 # --------------------------------------------------------------------------------
+group "Accessible names and heading order"
+
+# Below 720px both .search-trigger-label and the kbd hint are display:none, so the button
+# is reduced to an icon. Without an aria-label it is an unnamed control on every page at
+# phone width, which is what Lighthouse scored as a button-name failure.
+assert_grep 'class=search-trigger[^>]*aria-label=' "$PUBLIC/index.html" \
+  "search trigger carries an accessible name"
+
+# post-item.html is used only by section.html, where the only other heading is the list's
+# own h1. An h3 there skips a level. The year rule is deliberately a <div>, so it does not
+# fill the gap.
+assert_grep '<h2 class=item-title' "$PUBLIC/blog/index.html" \
+  "post list titles do not skip a heading level"
+refute_grep '<h3 class=item-title' "$PUBLIC/blog/index.html" \
+  "post list titles are not h3"
+
+# Every heading level that appears on a list page must be reachable without a jump. This
+# catches the general regression rather than the one instance above.
+LEVELS=$(grep -oE '<h[1-6][ >]' "$PUBLIC/blog/index.html" | grep -oE '[1-6]' | sort -u | tr -d '\n')
+case "$LEVELS" in
+  12|1|12345|123|1234) ok "heading levels on the post index descend without a gap" ;;
+  *) bad "heading levels on the post index descend without a gap" "levels present: $LEVELS" ;;
+esac
+
+# --------------------------------------------------------------------------------
 group "Article features"
 
 MEASURING="$PUBLIC/blog/measuring/index.html"
