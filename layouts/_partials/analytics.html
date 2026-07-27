@@ -1,0 +1,35 @@
+{{- /*
+  Cloudflare Web Analytics.
+
+  Renders nothing at all unless a token is configured, so the theme's "no third-party
+  requests by default" rule still holds: a site that sets nothing sends nothing.
+
+  In your site's config:
+
+    [params.analytics.cloudflare]
+      token = "your-32-character-beacon-token"
+
+  The beacon token is not a secret. It is visible in the page source of every site
+  using it, and it identifies a site rather than authorising anything — which is why a
+  param is the right home for it. It still belongs in your site's config and never in
+  the theme.
+
+  This is the one analytics provider the theme wires directly. Everything else goes
+  through extend-head.html or extend-footer.html, because a theme that ships five
+  vendors makes four of them dead weight for every site that uses it.
+
+  Loaded at the end of <body> with defer, per Cloudflare's own guidance, so it cannot
+  delay the first paint.
+*/ -}}
+{{- with site.Params.analytics -}}
+  {{- with .cloudflare -}}
+    {{- with .token -}}
+      {{- /* jsonify builds the attribute rather than string concatenation, so a token
+             containing a quote produces broken JSON instead of escaping out of the
+             attribute. Hugo escapes the result for attribute context on the way out
+             and the browser decodes it back to valid JSON. */ -}}
+      <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
+              data-cf-beacon='{{ dict "token" . | jsonify }}'></script>
+    {{- end -}}
+  {{- end -}}
+{{- end -}}

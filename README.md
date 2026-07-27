@@ -198,6 +198,15 @@ Only read when `article.showComments` is true. Leave it out and no third-party s
 | `reactionsEnabled` | `"1"` | Reactions on the main post. |
 | `lang` | site language | giscus UI language. |
 
+Comments are GitHub Discussions, so moderation, threading and reactions are GitHub's rather than
+yours to run, and nothing about your repository is hardcoded in the theme.
+
+The widget follows **this site's** appearance toggle, not just the reader's operating system. giscus
+renders in a cross-origin iframe that no stylesheet here can reach, so the theme messages it
+directly whenever the mode changes. Without that, a reader who switches to dark on a light-mode
+machine gets a bright comment box under a dark article. With JavaScript off it falls back to
+following the operating system, which is the best answer available in that case.
+
 Using something else — utterances, Cusdis, a static form? Copy
 `layouts/_partials/comments.html` into your own site and replace it. That is the supported path
 and it survives theme upgrades.
@@ -270,6 +279,28 @@ type emits a build warning and falls back to a plain blockquote rather than fail
 Their colours sit outside the palette system on purpose. A caution should read as a caution
 whether the site runs periwinkle, sage or clay. Every label and body colour is measured at 4.5:1
 or better against its own tinted background in both modes; the worst is 5.06:1.
+
+### `[params.analytics.cloudflare]`
+
+Cloudflare Web Analytics is the one provider wired directly, because it sets no cookies and needs
+no consent banner. Set nothing and the theme makes no third-party requests at all.
+
+| Key | Default | What it does |
+|---|---|---|
+| `token` | — | Your beacon token. Set it and the beacon loads, deferred, at the end of `<body>`. |
+
+```toml
+[params.analytics.cloudflare]
+  token = "your-32-character-beacon-token"
+```
+
+The beacon token is not a secret — it appears in the page source of every site using it and
+identifies a site rather than authorising anything. It still belongs in your site's config, never
+in the theme.
+
+Any other provider goes in `extend-head.html`, or `extend-footer.html` if it is script-shaped and
+should not block the first paint. A theme that ships five analytics vendors makes four of them
+dead weight for everyone.
 
 ### Overriding anything
 

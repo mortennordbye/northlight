@@ -91,7 +91,7 @@ summaryLength = 30
     relatedLimit = 3
     showPagination = true      # prev / next
     sharingLinks = ["linkedin", "reddit"]
-    showComments = false       # requires a partials/comments.html override
+    showComments = false       # giscus is built in; see [params.comments.giscus] below
 
   [params.list]
     groupByYear = true
@@ -100,9 +100,40 @@ summaryLength = 30
     showCopyright = true
     showThemeAttribution = true
 
-# Comments are wired through an overridable partial rather than baked in.
-# Copy layouts/partials/comments.html into your own site to use giscus, utterances,
-# or anything else. Same pattern for analytics via layouts/partials/extend-head.html.
+# --- Comments -----------------------------------------------------------------
+# giscus (GitHub Discussions) is built in and driven entirely by these params — the
+# theme hardcodes nothing about any repository. Fill all four in, set
+# params.article.showComments = true, and comments appear. Leave any of them out and
+# nothing is loaded.
+#
+# Left commented here because this demo has no discussion repository to point at, and
+# a comment widget wired to someone else's repo is worse than none.
+#
+#   [params.comments.giscus]
+#     repo = "you/your-repo"
+#     repoId = "R_..."             # from giscus.app
+#     category = "Announcements"
+#     categoryId = "DIC_..."       # from giscus.app
+#     mapping = "pathname"         # optional
+#     reactionsEnabled = "1"       # optional
+#
+# The widget follows this site's appearance toggle, not just the operating system.
+#
+# Using utterances, Cusdis, Remark42 or a static form instead? Copy
+# layouts/_partials/comments.html into your own site and replace it wholesale.
+
+# --- Analytics ----------------------------------------------------------------
+# Cloudflare Web Analytics is the one provider wired directly, because it needs no
+# cookies and no consent banner. Set the beacon token and it loads; set nothing and
+# the site makes no third-party requests at all.
+#
+# Commented out because this demo should not report traffic to anyone.
+#
+#   [params.analytics.cloudflare]
+#     token = "your-32-character-beacon-token"
+#
+# Any other provider goes in layouts/_partials/extend-head.html, or
+# extend-footer.html if it is script-shaped and should not block the first paint.
 
 [menu]
   [[menu.main]]

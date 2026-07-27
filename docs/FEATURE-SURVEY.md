@@ -130,10 +130,11 @@ author can do. It is not a measure of effort.
 
 | Feature | Status | Value | Note |
 |---|---|---|---|
-| Comments (giscus) | **Have** | — | Params-driven, partial overridable |
+| Comments (giscus) | **Have** | — | GitHub Discussions, params-driven, follows the appearance toggle, partial overridable |
 | `extend-head.html` | **Have** | — | |
 | **`extend-footer.html`** | **Have** | — | End-of-body twin of the head hook |
 | `extend-head-uncached.html` | Gap | Low | |
+| Analytics: Cloudflare Web Analytics | **Have** | — | `params.analytics.cloudflare.token`. Cookieless, so no consent banner |
 | Analytics: Fathom, Umami, Seline, GA, Plausible | Rejected | — | `extend-head.html` is the supported route. A theme should not ship five vendors |
 | Firebase view and like counters | Rejected | — | Adds a backend to a static site |
 | Buy Me A Coffee widget | Rejected | — | |

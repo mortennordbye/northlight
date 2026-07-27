@@ -24,10 +24,23 @@ keys are added with defaults that preserve existing behaviour.
 - **`_partials/extend-footer.html`.** The end-of-body twin of `extend-head.html`, for scripts
   that should not block the first paint.
 
+- **Cloudflare Web Analytics**, via `params.analytics.cloudflare.token`. Chosen as the one
+  directly-wired provider because it sets no cookies and needs no consent banner. Set no token and
+  the theme still makes no third-party requests.
+
+### Fixed
+
+- **giscus now follows the site's appearance toggle**, not only the operating system. It renders
+  in a cross-origin iframe, so the theme messages it on every mode change. Previously a reader who
+  switched to dark on a light-mode machine got a bright comment box under a dark article. A source
+  comment claimed this already worked; it did not.
+
 ### Changed
 
 - `wrapStandAloneImageWithinParagraph = false` is documented as required config. Without it
   images still work; they just never get captions.
+- The appearance toggle emits a `northlight:appearance` event, so anything that CSS cannot restyle
+  can listen instead of being wired into the toggle itself.
 
 ## [0.1.0] — 2026-07-27
 
