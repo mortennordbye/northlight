@@ -10,6 +10,12 @@ this already been decided?* Where a row says **Rejected**, the reason is in `BAC
 "Deliberately not built" or in the notes here — reopening one needs an argument that did not
 exist when the decision was made.
 
+**Before building anything off this page**, read "Shipping a feature" in `CONTRIBUTING.md`. A
+feature here is not done when it works: it needs its default resolved in `init.html`, its strings
+in `i18n/en.toml`, a demonstration in `exampleSite/`, a section in the docs site under
+`exampleSite/content/docs/`, a `README.md` row, a `CHANGELOG.md` entry, and its row below updated.
+That last step is what keeps this document true.
+
 ## Legend
 
 | Status | Meaning |

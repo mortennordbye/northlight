@@ -67,7 +67,43 @@ These are specific to this project. Breaking one is a bug even if the build pass
   site authors inject analytics and comment systems without forking. Keep them overridable and
   documented.
 - **No feature without a home in `exampleSite/`.** If it is not demonstrated there, it is not
-  finished and it is not documented.
+  finished and it is not documented. See the checklist below: "demonstrated" also means a section
+  in the docs site.
+- **No user-facing string in a template.** Everything a reader can see comes from `i18n/en.toml`.
+  A hardcoded string is invisible to translators and cannot be found by grepping the catalogue.
+
+## Shipping a feature
+
+The demo site is also the manual, so a feature is not done when it works. `exampleSite/content/docs/`
+builds the documentation you can read at the demo URL, which means a change to the theme and a
+change to its documentation are the same pull request.
+
+Work through all of this. Every step is here because skipping it has produced a bug or a gap at
+some point.
+
+1. **Resolve the default once.** Add the param to `_partials/init.html` rather than writing
+   `| default` inline in a template. Booleans go through `_partials/param-bool.html`, because
+   `| default true` silently flips an explicit `false` back to true.
+2. **Put strings in `i18n/en.toml`.** Anything a reader sees. Plurals use `one`/`other` rather than
+   a conditional in a template, so languages whose plural rules differ from English need no
+   template changes. Keep the pluralised `[table]` entries at the **bottom** of the file: in TOML a
+   bare key after a table header joins that table, and the build fails with "reserved keys mixed
+   with unreserved keys".
+   - A string that only exists **after a click** cannot be rendered into the markup. Add it to the
+     JSON block in `baseof.html` and read it with `t("key", "English fallback")`. Always pass the
+     fallback, so a missing catalogue leaves working buttons rather than blank ones.
+3. **Demonstrate it in `exampleSite/`.** Config in `hugo.toml`, commented out if switching it on
+   would send data to a third party, plus content if the feature is content-shaped.
+4. **Document it in the docs site**, on the page it belongs to under `exampleSite/content/docs/`:
+   getting-started, configuration, writing, appearance, integrations or translating. Those pages
+   are built by the theme, so write yours so that it *demonstrates* what it describes rather than
+   only describing it.
+5. **Add a `README.md` row**: key, default, what it changes.
+6. **Add a `CHANGELOG.md` entry** under Unreleased, in the right subsection. Say what breaks, if
+   anything.
+7. **Update `docs/FEATURE-SURVEY.md`.** Set the row's status. If you decided *not* to build
+   something, mark it Rejected with the reason rather than leaving it as an open candidate.
+8. **Verify**, and say in the PR what you actually checked.
 
 ## Architecture
 
