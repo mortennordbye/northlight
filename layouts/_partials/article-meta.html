@@ -3,10 +3,12 @@
 {{- $author := $cfg.author -}}
 <div class="article-meta">
   {{- if and $a.showAuthor $author.name }}
-    {{- with $author.image }}
-      {{- /* Sized and cropped in CSS rather than by Hugo, so an SVG avatar works as
-             well as a raster one. Supply a square image, 160px or larger. */ -}}
-      <img class="avatar" src="{{ . | relURL }}" alt="" width="32" height="32" loading="lazy">
+    {{- /* Sized and cropped in CSS rather than by Hugo, so an SVG avatar works as well
+           as a raster one. Supply a square image, 160px or larger. Resolved through
+           image-url.html so a configured-but-missing file renders nothing instead of a
+           404 on every page. */ -}}
+    {{- with partial "image-url.html" $author.image }}
+      <img class="avatar" src="{{ . }}" alt="" width="32" height="32" loading="lazy">
     {{- end }}
     <span class="author-name">{{ $author.name }}</span>
   {{- end }}

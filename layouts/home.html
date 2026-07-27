@@ -22,7 +22,7 @@
     {{- if $author.name }}
     <div class="byline-row">
       <div class="byline">
-        {{- with $author.image }}<img class="byline-avatar" src="{{ . | relURL }}" alt="" width="40" height="40">{{ end }}
+        {{- with partial "image-url.html" $author.image }}<img class="byline-avatar" src="{{ . }}" alt="" width="40" height="40">{{ end }}
         <span>
           <b>{{ $author.name }}</b>
           {{- with $author.headline }}<span class="byline-headline">{{ . }}</span>{{ end }}
