@@ -1,0 +1,28 @@
+{{- /*
+  Favicons are a site's identity, not a theme's, so the theme ships none. It links
+  the standard names only when the site actually provides them — emitting the links
+  unconditionally would put a 404 on every page of every site that has not got round
+  to making an icon yet.
+
+  Drop any of these into your site's static/ directory and they are picked up:
+
+    favicon.ico
+    favicon.svg
+    apple-touch-icon.png
+    site.webmanifest
+
+  os.FileExists searches the assembled filesystem, so a site's static/ and the
+  theme's are both visible.
+*/ -}}
+{{- if os.FileExists "static/favicon.svg" }}
+<link rel="icon" type="image/svg+xml" href="{{ "favicon.svg" | relURL }}">
+{{- end }}
+{{- if os.FileExists "static/favicon.ico" }}
+<link rel="icon" sizes="32x32" href="{{ "favicon.ico" | relURL }}">
+{{- end }}
+{{- if os.FileExists "static/apple-touch-icon.png" }}
+<link rel="apple-touch-icon" href="{{ "apple-touch-icon.png" | relURL }}">
+{{- end }}
+{{- if os.FileExists "static/site.webmanifest" }}
+<link rel="manifest" href="{{ "site.webmanifest" | relURL }}">
+{{- end }}

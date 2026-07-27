@@ -1,0 +1,33 @@
+{{- /*
+  Sitemap, minus taxonomy listings.
+
+  docs/SPEC.md calls for taxonomy and term kinds to be excluded — a tag listing is a
+  navigation aid, not a destination, and submitting dozens of them dilutes the pages
+  that matter. Hugo's sitemap config has no excludedKinds option, so the filtering
+  happens here.
+
+  A site that wants a page out of the sitemap regardless can set `sitemap_exclude`
+  in its front matter.
+*/ -}}
+{{- printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" | safeHTML }}
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  {{- range site.Pages }}
+    {{- if and
+          (not (in (slice "taxonomy" "term") .Kind))
+          (not .Params.sitemap_exclude)
+          (ne .Permalink "") }}
+  <url>
+    <loc>{{ .Permalink }}</loc>
+    {{- if not .Lastmod.IsZero }}
+    <lastmod>{{ .Lastmod.Format "2006-01-02T15:04:05-07:00" | safeHTML }}</lastmod>
+    {{- end }}
+    {{- with .Sitemap.ChangeFreq }}
+    <changefreq>{{ . }}</changefreq>
+    {{- end }}
+    {{- if ge .Sitemap.Priority 0.0 }}
+    <priority>{{ .Sitemap.Priority }}</priority>
+    {{- end }}
+  </url>
+    {{- end }}
+  {{- end }}
+</urlset>

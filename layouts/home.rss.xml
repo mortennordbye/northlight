@@ -1,0 +1,42 @@
+{{- /*
+  RSS for the home page. Replaces Hugo's embedded template for two reasons: it lists
+  only the main sections rather than every page on the site, and it ships the full
+  post in content:encoded so a reader can display the article without a round trip
+  back to the site.
+
+  printf is used for the XML declaration because Go templates strip a leading `<?`.
+*/ -}}
+{{- printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" | safeHTML }}
+{{- $pages := where site.RegularPages "Section" "in" site.Params.mainSections -}}
+{{- $limit := site.Config.Services.RSS.Limit -}}
+{{- if ge $limit 1 }}{{ $pages = first $limit $pages }}{{ end -}}
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>{{ site.Title }}</title>
+    <link>{{ site.Home.Permalink }}</link>
+    {{- with site.Params.description }}
+    <description>{{ . }}</description>
+    {{- end }}
+    <language>{{ site.Language.Lang }}</language>
+    {{- with $pages }}
+    <lastBuildDate>{{ (index . 0).Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</lastBuildDate>
+    {{- end }}
+    <atom:link href="{{ .Permalink }}" rel="self" type="application/rss+xml"/>
+    {{- range $pages }}
+    <item>
+      <title>{{ .Title }}</title>
+      <link>{{ .Permalink }}</link>
+      <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</pubDate>
+      <guid isPermaLink="true">{{ .Permalink }}</guid>
+      <description>{{ with .Description }}{{ . }}{{ else }}{{ .Summary | plainify | chomp }}{{ end }}</description>
+      {{- range .GetTerms "tags" }}
+      <category>{{ with .Data.Term }}{{ . }}{{ else }}{{ .LinkTitle }}{{ end }}</category>
+      {{- end }}
+      {{- with .Resources.GetMatch "{cover,featured}.*" }}
+      <enclosure url="{{ .Permalink }}" type="{{ .MediaType.Type }}" length="0"/>
+      {{- end }}
+      <content:encoded>{{ printf "<![CDATA[%s]]>" .Content | safeHTML }}</content:encoded>
+    </item>
+    {{- end }}
+  </channel>
+</rss>
