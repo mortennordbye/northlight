@@ -25,7 +25,7 @@ jobs:
       # Checked out into a directory named after the theme: Hugo resolves --themesDir
       # relative to --source, so exampleSite/../.. has to contain a folder called
       # northlight. Same reason the Makefile mounts the repo at /src/northlight.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           path: northlight
 

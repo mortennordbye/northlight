@@ -27,7 +27,7 @@ jobs:
       # --themesDir relative to --source, so exampleSite/../.. has to be a directory
       # that *contains* a folder called northlight. Same reason the Makefile mounts
       # the repo at /src/northlight.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           path: northlight
 

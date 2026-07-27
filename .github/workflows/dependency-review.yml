@@ -15,7 +15,7 @@ jobs:
     name: Dependency review
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # Pinned to an exact tag: this action publishes no floating v4 or v5 tag, so a
       # major-only pin resolves to nothing and fails before doing any work.
       - uses: actions/dependency-review-action@v5.0.0
