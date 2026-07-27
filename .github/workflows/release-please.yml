@@ -26,4 +26,4 @@ jobs:
       # Known wrinkle: a PR opened with GITHUB_TOKEN does not trigger other workflows, so
       # the release PR reports no checks and the required-checks rule will hold it. Merge it
       # with the admin bypass. It is not a broken pipeline.
-      - uses: googleapis/release-please-action@v5
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5
