@@ -8,6 +8,8 @@
 
 [![CI](https://github.com/mortennordbye/northlight/actions/workflows/ci.yml/badge.svg)](https://github.com/mortennordbye/northlight/actions/workflows/ci.yml) [![Audit](https://github.com/mortennordbye/northlight/actions/workflows/audit.yml/badge.svg)](https://github.com/mortennordbye/northlight/actions/workflows/audit.yml) [![Pages](https://github.com/mortennordbye/northlight/actions/workflows/pages.yml/badge.svg)](https://github.com/mortennordbye/northlight/actions/workflows/pages.yml) [![Scorecard](https://api.securityscorecards.dev/projects/github.com/mortennordbye/northlight/badge)](https://scorecard.dev/viewer/?uri=github.com/mortennordbye/northlight)
 
+[![Lighthouse SEO](https://img.shields.io/badge/Lighthouse_SEO-100-brightgreen?style=flat-square&logo=lighthouse&logoColor=white)](#audited-output) [![Accessibility](https://img.shields.io/badge/Accessibility-100-brightgreen?style=flat-square&logo=lighthouse&logoColor=white)](#audited-output) [![Best Practices](https://img.shields.io/badge/Best_Practices-100-brightgreen?style=flat-square&logo=lighthouse&logoColor=white)](#audited-output)
+
 [![License](https://img.shields.io/github/license/mortennordbye/northlight?style=flat-square)](LICENSE) [![Last Commit](https://img.shields.io/github/last-commit/mortennordbye/northlight?style=flat-square)](https://github.com/mortennordbye/northlight/commits/main) [![Stars](https://img.shields.io/github/stars/mortennordbye/northlight?style=flat-square)](https://github.com/mortennordbye/northlight/stargazers)
 
 North light is the soft, even light from a north-facing window — no glare, no hard shadows, the
@@ -480,6 +482,53 @@ northlight/
 | Release Please | push to main | open the version-bump PR, then cut the tag and release |
 | Dependabot Auto-merge | PR | merge patch and minor action bumps once checks pass |
 | Stale | daily | mark inactive issues and pull requests, then close them |
+
+---
+
+## Audited output
+
+A theme is only as good as the HTML it emits, so that is measured on every pull request rather
+than asserted here. The Audit workflow builds `exampleSite`, serves it, and runs Lighthouse
+against five routes that between them cover a home page, a list, an article with images and
+admonitions, a documentation page and a taxonomy.
+
+| Route | Performance | Accessibility | Best practices | SEO |
+| ----- | ----------- | ------------- | -------------- | --- |
+| `/` | 91 | **100** | **100** | **100** |
+| `/blog/` | 100 | **100** | **100** | **100** |
+| `/blog/measuring/` | 98 | **100** | **100** | **100** |
+| `/docs/writing/` | 99 | **100** | **100** | **100** |
+| `/tags/` | 100 | **100** | **100** | n/a |
+
+The bold columns are enforced. The performance column is one run, and it moves with runner load.
+
+**SEO, accessibility and best practices are required to stay at 100.** The build fails if any of
+them drops, so the badges above are an enforced floor rather than a snapshot of a good day.
+
+Performance is a warning rather than a gate. It is timing-sensitive on shared CI runners, and a
+check that goes red at random is a check people learn to ignore.
+
+SEO is not asserted on `/tags/`, and that is deliberate rather than a gap. `exampleSite` sets
+`robots: noindex, follow` on taxonomy pages to keep thin pages out of the index, which Lighthouse
+correctly scores as a crawlability failure. Asserting it there would mean either lying about the
+configuration or abandoning it.
+
+A second job runs `lychee` offline over the built HTML, checking internal links and heading
+anchors — including the fragments the generated table of contents points at.
+
+None of this replaces `tests/run.sh`, which asserts that the SEO furniture *exists*: sitemap,
+`robots.txt`, `rel=canonical`, OpenGraph tags, JSON-LD that is not double-encoded, and an `alt`
+attribute on every rendered image. The audit judges whether it is *correct*.
+
+To reproduce a run locally, build against a localhost base URL and point Lighthouse at it:
+
+```bash
+hugo --source exampleSite --themesDir ../.. --minify --gc --baseURL "http://localhost:8080/"
+python3 -m http.server 8080 --directory exampleSite/public
+```
+
+The base URL matters. `exampleSite` ships `baseURL = "https://example.com/"`, and auditing a build
+made with that scores a site that is not yours.
 
 ---
 
