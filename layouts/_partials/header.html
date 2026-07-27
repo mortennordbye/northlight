@@ -1,19 +1,32 @@
-{{- /* Sticky, translucent, one border. The search affordance and the appearance
-       toggle both need JavaScript to do anything, so they are added in phase 6
-       rather than rendered here as controls that do nothing. */ -}}
+{{- $cfg := partialCached "init.html" . -}}
+{{- /* The search trigger and the appearance toggle both ship with `hidden` and are
+       revealed by their scripts. A control that does nothing is worse than no control,
+       and search is the one feature allowed to disappear without JavaScript. */ -}}
 <header class="site-header">
   <div class="wrap header-bar">
     <a class="brand" href="{{ site.Home.RelPermalink }}">
       <span class="brand-dot" aria-hidden="true"></span>{{ site.Title }}
     </a>
 
-    {{- with site.Menus.main }}
     <nav class="site-nav" aria-label="Main">
-      {{- range . }}
+      {{- range site.Menus.main }}
         {{- $active := or ($.IsMenuCurrent "main" .) ($.HasMenuCurrent "main" .) }}
         <a href="{{ .URL }}"{{ if $active }} aria-current="page"{{ end }}>{{ .Name }}</a>
       {{- end }}
+
+      {{- if $cfg.enableSearch }}
+        <span class="nav-sep" aria-hidden="true"></span>
+        <button class="search-trigger" type="button" data-search-trigger hidden>
+          {{ partial "icon.html" "search" }}
+          <span class="search-trigger-label">Search posts</span>
+          <kbd>{{ "⌘" }}K</kbd>
+        </button>
+      {{- end }}
+
+      <button class="icon-button" type="button" data-toggle-appearance hidden aria-label="Switch colour mode">
+        <span class="only-light">{{ partial "icon.html" "moon" }}</span>
+        <span class="only-dark">{{ partial "icon.html" "sun" }}</span>
+      </button>
     </nav>
-    {{- end }}
   </div>
 </header>

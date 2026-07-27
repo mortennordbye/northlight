@@ -40,6 +40,10 @@
   "sharingLinks"        ($a.sharingLinks | default (slice "linkedin" "reddit"))
 -}}
 
+{{- $article = merge $article (dict
+  "showProgress" (partial "param-bool.html" (dict "map" $a "key" "showProgress" "default" true))
+) -}}
+
 {{- $footer := dict
   "showCopyright"        (partial "param-bool.html" (dict "map" $f "key" "showCopyright"        "default" true))
   "showThemeAttribution" (partial "param-bool.html" (dict "map" $f "key" "showThemeAttribution" "default" true))
@@ -49,6 +53,8 @@
   "palette" $palette
   "defaultAppearance" $appearance
   "autoSwitchAppearance" (partial "param-bool.html" (dict "map" site.Params "key" "autoSwitchAppearance" "default" true))
+  "enableSearch" (partial "param-bool.html" (dict "map" site.Params "key" "enableSearch" "default" true))
+  "enableCodeCopy" (partial "param-bool.html" (dict "map" site.Params "key" "enableCodeCopy" "default" true))
   "article" $article
   "footer" $footer
   "author" (site.Params.author | default dict)
