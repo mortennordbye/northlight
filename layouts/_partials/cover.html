@@ -1,0 +1,41 @@
+{{- /*
+  The post cover.
+
+  Covers are 1200x630 with the title baked into the artwork, so a crop cuts the title
+  in half. The image renders in an exact aspect-ratio box with object-fit: contain —
+  see .article-cover in article.css — which means a cover that is not 1200x630
+  letterboxes rather than losing its edges. This is the single bug that forced a local
+  hero override on the theme Northlight replaces; do not reintroduce a fixed-height
+  band with object-fit: cover.
+
+  Accepts cover.* or featured.* as a page-bundle resource. featured.* is supported
+  because that is what the reference blog already uses; cover.* is the documented name.
+
+  width and height come from the real image so the box is reserved before the bytes
+  arrive, which is what keeps the page from jumping as it loads.
+*/ -}}
+{{- $cover := .Resources.GetMatch "{cover,featured}.*" -}}
+{{- with $cover -}}
+  {{- $raster := in (slice "png" "jpeg" "gif" "webp" "tiff" "bmp") .MediaType.SubType -}}
+  <figure class="article-cover">
+    {{- if $raster -}}
+      {{- $widths := slice 480 800 1200 -}}
+      {{- $srcset := slice -}}
+      {{- range $widths -}}
+        {{- if le . $cover.Width -}}
+          {{- $r := $cover.Resize (printf "%dx q85" .) -}}
+          {{- $srcset = $srcset | append (printf "%s %dw" $r.RelPermalink .) -}}
+        {{- end -}}
+      {{- end -}}
+      <img
+        src="{{ .RelPermalink }}"
+        {{ with $srcset }}srcset="{{ delimit . ", " }}"
+        sizes="(max-width: 960px) 100vw, 848px"{{ end }}
+        width="{{ .Width }}" height="{{ .Height }}"
+        alt="{{ $.Params.coverAlt | default "" }}"
+        fetchpriority="high" decoding="async">
+    {{- else -}}
+      <img src="{{ .RelPermalink }}" alt="{{ $.Params.coverAlt | default "" }}" fetchpriority="high">
+    {{- end -}}
+  </figure>
+{{- end -}}

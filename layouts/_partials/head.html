@@ -20,6 +20,8 @@
       (resources.Get "css/base.css")
       (resources.Get "css/layout.css")
       (resources.Get "css/chroma.css")
+      (resources.Get "css/prose.css")
+      (resources.Get "css/article.css")
 -}}
 {{- $css := $sheets | resources.Concat "css/northlight.css" -}}
 {{- if hugo.IsProduction -}}
@@ -33,3 +35,5 @@
 {{- with resources.Get "fonts/schibsted-grotesk-latin.woff2" | fingerprint }}
 <link rel="preload" href="{{ .RelPermalink }}" as="font" type="font/woff2" crossorigin>
 {{- end }}
+
+{{ partial "extend-head.html" . }}

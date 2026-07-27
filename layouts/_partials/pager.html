@@ -1,0 +1,24 @@
+{{- /* Prev/next within the section. Hugo orders a section by date descending, so
+       .NextInSection is the *newer* post and .PrevInSection the older one. The labels
+       are written from the reader's point of view — "Older" and "Newer" — because
+       "Previous" against a date-sorted list is ambiguous every time. */ -}}
+{{- $older := .PrevInSection -}}
+{{- $newer := .NextInSection -}}
+{{- if or $older $newer }}
+<nav class="pager" aria-label="Post navigation">
+  {{- with $older }}
+    <a class="pager-link" href="{{ .RelPermalink }}" rel="prev">
+      <span class="pager-key">{{ partial "icon.html" "arrow-left" }} Older</span>
+      <span class="pager-title">{{ .LinkTitle }}</span>
+    </a>
+  {{- else }}
+    <span></span>
+  {{- end }}
+  {{- with $newer }}
+    <a class="pager-link pager-next" href="{{ .RelPermalink }}" rel="next">
+      <span class="pager-key">Newer {{ partial "icon.html" "arrow-right" }}</span>
+      <span class="pager-title">{{ .LinkTitle }}</span>
+    </a>
+  {{- end }}
+</nav>
+{{- end -}}

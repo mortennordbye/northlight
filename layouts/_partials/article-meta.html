@@ -1,0 +1,30 @@
+{{- $cfg := partialCached "init.html" . -}}
+{{- $a := $cfg.article -}}
+{{- $author := $cfg.author -}}
+<div class="article-meta">
+  {{- if and $a.showAuthor $author.name }}
+    {{- with $author.image }}
+      {{- /* Sized and cropped in CSS rather than by Hugo, so an SVG avatar works as
+             well as a raster one. Supply a square image, 160px or larger. */ -}}
+      <img class="avatar" src="{{ . | relURL }}" alt="" width="32" height="32" loading="lazy">
+    {{- end }}
+    <span class="author-name">{{ $author.name }}</span>
+  {{- end }}
+
+  <div class="meta-line">
+    {{- $items := slice -}}
+    {{- if and $a.showDate (not .Date.IsZero) -}}
+      {{- $items = $items | append (printf `<time datetime="%s">%s</time>` (.Date.Format "2006-01-02") (.Date.Format "2 Jan 2006")) -}}
+    {{- end -}}
+    {{- if $a.showReadingTime -}}
+      {{- $items = $items | append (printf "%d min read" .ReadingTime) -}}
+    {{- end -}}
+    {{- if $a.showWordCount -}}
+      {{- $items = $items | append (printf "%s words" (lang.FormatNumber 0 .WordCount)) -}}
+    {{- end -}}
+    {{- range $i, $item := $items }}
+      {{- if $i }}<span class="meta-dot" aria-hidden="true"></span>{{ end }}
+      <span>{{ $item | safeHTML }}</span>
+    {{- end }}
+  </div>
+</div>

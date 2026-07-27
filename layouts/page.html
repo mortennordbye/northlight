@@ -1,6 +1,63 @@
 {{ define "main" }}
-  <article>
-    <h1>{{ .Title }}</h1>
-    {{ .Content }}
-  </article>
+{{- $cfg := partialCached "init.html" . -}}
+{{- $a := $cfg.article -}}
+
+{{- /* Page front matter overrides the site default where it makes sense. Same helper
+       as init.html, so an explicit `showTableOfContents = false` on a post is honoured
+       rather than being flipped back by `| default`. */ -}}
+{{- $showToc := partial "param-bool.html" (dict "map" .Params "key" "showTableOfContents" "default" $a.showTableOfContents) -}}
+{{- $hasToc := and $showToc (gt (len .Fragments.Headings) 0) -}}
+{{- $showHero := partial "param-bool.html" (dict "map" .Params "key" "showHero" "default" $a.showHero) -}}
+
+<article class="article wrap">
+  <header class="article-head">
+    {{- if $a.showBreadcrumbs }}{{ partial "breadcrumbs.html" . }}{{ end }}
+
+    <h1 class="article-title">{{ .Title }}</h1>
+
+    {{- with .Params.description }}<p class="lede">{{ . }}</p>{{ end }}
+
+    {{ partial "article-meta.html" . }}
+  </header>
+
+  {{ if $showHero }}{{ partial "cover.html" . }}{{ end }}
+
+  <div class="article-body{{ if not $hasToc }} article-body-wide{{ end }}">
+    {{- /* The footer is a sibling of .prose, not a child of it. Nested inside, every
+           tag, pager card and related title would inherit prose typography and, worse,
+           `.prose a` — which outranks the component classes and paints them all accent
+           blue with an underline. .article-main holds them to the same measure so the
+           column still reads as one. */}}
+    <div class="article-main">
+      <div class="prose">
+        {{ .Content }}
+      </div>
+
+      <footer class="article-foot">
+        {{- if $a.showTaxonomies }}
+          {{- with .GetTerms "tags" }}
+          <div class="tag-row">
+            {{- /* .Data.Term is the tag as the author wrote it. .LinkTitle would be
+                   Hugo's title-cased version, which turns `network-policy` into
+                   `Network-Policy` and is not what anyone typed. */ -}}
+            {{- range . }}<a class="tag" href="{{ .RelPermalink }}">{{ with .Data.Term }}{{ . }}{{ else }}{{ .LinkTitle }}{{ end }}</a>{{ end }}
+          </div>
+          {{- end }}
+        {{- end }}
+
+        {{ partial "share.html" . }}
+        {{ if $a.showPagination }}{{ partial "pager.html" . }}{{ end }}
+        {{ if $a.showRelated }}{{ partial "related.html" . }}{{ end }}
+        {{ if $a.showComments }}{{ partial "comments.html" . }}{{ end }}
+      </footer>
+    </div>
+
+    {{- if $hasToc }}
+    <aside class="toc" aria-labelledby="toc-title">
+      <p class="toc-title" id="toc-title">On this page</p>
+      {{ .TableOfContents }}
+    </aside>
+    {{- end }}
+  </div>
+</article>
 {{ end }}

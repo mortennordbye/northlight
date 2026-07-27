@@ -65,7 +65,7 @@ summaryLength = 30
     name = "Your Name"
     headline = "What you do"
     bio = "One or two sentences."
-    image = "images/profile.png"
+    image = "images/profile.svg"   # square, 160px or larger; sized and cropped in CSS
     links = [
       { linkedin = "https://www.linkedin.com/in/you" },
       { github = "https://github.com/you" },
@@ -121,3 +121,18 @@ summaryLength = 30
     name = "RSS"
     url = "/index.xml"
     weight = 20
+
+# --- Related content ----------------------------------------------------------
+# Required for params.article.showRelated. Hugo's defaults index `keywords`, which
+# this theme does not use; index the tag taxonomy instead.
+
+[related]
+  includeNewer = true
+  threshold = 80
+  toLower = false
+  [[related.indices]]
+    name = "tags"
+    weight = 100
+  [[related.indices]]
+    name = "date"
+    weight = 10
