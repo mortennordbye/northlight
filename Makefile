@@ -44,10 +44,39 @@ check: ## THE GATE — build with warnings as errors, then run the test suite
 	$(RUN) $(HUGO_IMAGE) $(SITE) --minify --gc --panicOnWarning
 	@sh tests/run.sh
 
+# Same gate, for a Docker daemon that cannot see this directory — DOCKER_HOST pointing at
+# another machine, or a daemon in its own VM without the repo on a shared path. There the
+# bind mount in RUN resolves to an empty directory and `check` dies with
+# "failed to open dir /src/northlight/exampleSite". This ships the source over the daemon
+# socket instead. Same image, same flags, same test suite; only the delivery differs.
+#
+# `check` remains the gate. Reach for this one only when `check` cannot see the source.
+#
+# Only files git knows about are sent, tracked and untracked-but-not-ignored alike, so
+# build output and caches never make the trip.
+check-remote: ## THE GATE, for a Docker daemon that cannot bind-mount this directory
+	@set -eu; \
+	tarball=$$(mktemp); \
+	cid=""; \
+	trap 'rm -f "$$tarball"; [ -n "$$cid" ] && docker rm -f "$$cid" >/dev/null 2>&1 || true' EXIT; \
+	{ git ls-files -z; git ls-files -z --others --exclude-standard; } \
+		| tar --null -T - -cf "$$tarball"; \
+	chmod 644 "$$tarball"; \
+	cid=$$(docker create --entrypoint sh $(HUGO_IMAGE) -c \
+		'mkdir -p /tmp/northlight \
+			&& tar -xf /tmp/src.tar -C /tmp/northlight \
+			&& cd /tmp/northlight \
+			&& hugo $(SITE) --minify --gc --panicOnWarning'); \
+	docker cp "$$tarball" "$$cid:/tmp/src.tar" >/dev/null; \
+	docker start -a "$$cid"; \
+	rm -rf exampleSite/public; \
+	docker cp "$$cid:/tmp/northlight/exampleSite/public" exampleSite/public >/dev/null
+	@sh tests/run.sh
+
 test: ## Run the test suite against the current build (see check)
 	@sh tests/run.sh
 
 clean: ## Remove build output and caches
 	$(RUN) --entrypoint sh $(HUGO_IMAGE) -c 'rm -rf $(PATHS)'
 
-.PHONY: help serve build check test clean
+.PHONY: help serve build check check-remote test clean
