@@ -44,7 +44,10 @@
 
       {{- if $cfg.enableSearch }}
         <span class="nav-sep" aria-hidden="true"></span>
-        <button class="search-trigger" type="button" data-search-trigger hidden>
+        {{- /* aria-label as well as the visible label, because below 720px both the label
+               and the kbd hint are display:none and the button is reduced to an icon. Without
+               this it is an unnamed control on every page at phone width. */ -}}
+        <button class="search-trigger" type="button" data-search-trigger hidden aria-label="{{ i18n "searchPosts" }}">
           {{ partial "icon.html" "search" }}
           <span class="search-trigger-label">{{ i18n "searchPosts" }}</span>
           <kbd>{{ "⌘" }}K</kbd>

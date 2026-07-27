@@ -1,0 +1,21 @@
+name: Dependency Review
+
+# The theme ships no runtime dependencies at all, so the dependency graph here is exactly
+# the GitHub Actions pinned in .github/workflows/. That is a small surface, but it is the
+# one that runs with a token against this repository, so a PR that swaps in a
+# known-vulnerable action is worth blocking.
+
+on: [pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  dependency-review:
+    name: Dependency review
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Pinned to an exact tag: this action publishes no floating v4 or v5 tag, so a
+      # major-only pin resolves to nothing and fails before doing any work.
+      - uses: actions/dependency-review-action@v5.0.0

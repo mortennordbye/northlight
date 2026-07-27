@@ -58,6 +58,16 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Fixed
 
+- **The search button had no accessible name on a phone.** Below 720px both the visible label and
+  the `⌘K` hint are `display:none`, leaving an icon-only control that a screen reader announced as
+  just "button" on every page. It now carries an `aria-label` as well, matching the appearance
+  toggle beside it. Found by the new Lighthouse audit, which scored accessibility at 0.92–0.95
+  across every route because of it.
+- **The post index skipped a heading level.** Post titles in a section listing were `h3` directly
+  under the list's `h1`, with nothing at `h2` in between, because the year rule is deliberately a
+  `div` rather than a heading. They are now `h2`. Purely semantic: `base.css` styles `h1`–`h6`
+  identically and `.item-title` sets every visual property by class, so nothing moves.
+
 - **Wide media no longer breaks the page.** An embedded `iframe` overflowed by 843px at a 375px
   viewport, so a pasted video embed broke the layout on a phone. `iframe`, `video`, `audio`,
   `embed` and `object` are now contained, with 16/9 assumed for frames and overridable inline.

@@ -1,0 +1,24 @@
+name: Release Please
+
+# Config keys are API for anyone who has pinned this theme, so versions have to mean
+# something. release-please reads the Conventional Commit history on main and opens a PR
+# that bumps the version and updates CHANGELOG.md; merging that PR cuts the tag and the
+# GitHub release.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    name: Release PR
+    runs-on: ubuntu-latest
+    steps:
+      # Known wrinkle: a PR opened with GITHUB_TOKEN does not trigger other workflows, so
+      # the release PR reports no checks and the required-checks rule will hold it. Merge it
+      # with the admin bypass. It is not a broken pipeline.
+      - uses: googleapis/release-please-action@v5

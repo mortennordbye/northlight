@@ -1,0 +1,16 @@
+version: 2
+updates:
+  # The only ecosystem this repo has. There is no Node toolchain and no package manager by
+  # design, so the actions pinned in these workflows are the entire dependency surface.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore(deps):"
+    groups:
+      # One PR a week rather than one per action. Major updates stay individual on purpose,
+      # since those are the ones that need reading.
+      github-actions:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]

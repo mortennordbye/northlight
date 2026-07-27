@@ -1,0 +1,28 @@
+name: Stale
+
+on:
+  schedule:
+    - cron: '30 1 * * *'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    name: Mark stale
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v10
+        with:
+          days-before-stale: 60
+          days-before-close: 14
+          stale-issue-message: >-
+            Marked stale after 60 days of inactivity. Comment to keep it open; it closes in
+            14 days otherwise. Closing is not a judgement on the report, only on the queue.
+          stale-pr-message: >-
+            Marked stale after 60 days of inactivity. Comment to keep it open; it closes in
+            14 days otherwise.
+          exempt-issue-labels: 'never-stale'
+          exempt-pr-labels: 'never-stale'

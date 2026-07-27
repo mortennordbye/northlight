@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://mortennordbye.github.io/northlight/docs/
+    about: Install, configuration reference, writing, appearance, integrations and translating.
+  - name: Report a security vulnerability
+    url: https://github.com/mortennordbye/northlight/security/advisories/new
+    about: Please report vulnerabilities privately, not as a public issue.

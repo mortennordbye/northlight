@@ -1,0 +1,64 @@
+name: CI
+
+# The gate `make check` runs locally, run on every pull request. Before this existed the
+# suite only ran on pushes to main, which meant a branch could be merged without the tests
+# ever having executed against it.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Build & test
+    runs-on: ubuntu-latest
+    steps:
+      # Checked out into a directory named after the theme: Hugo resolves --themesDir
+      # relative to --source, so exampleSite/../.. has to contain a folder called
+      # northlight. Same reason the Makefile mounts the repo at /src/northlight.
+      - uses: actions/checkout@v4
+        with:
+          path: northlight
+
+      # Read from the Makefile rather than pinned again here. The version already lives in
+      # three places that must move together (Makefile, theme.toml min_version, README
+      # requirements); adding a fourth copy per workflow is how they drift apart.
+      - id: hugo
+        name: Resolve pinned Hugo version
+        run: |
+          v=$(grep -oE 'hugo:v[0-9]+\.[0-9]+\.[0-9]+' northlight/Makefile | head -1 | cut -d: -f2)
+          if [ -z "$v" ]; then echo "could not read HUGO_IMAGE from Makefile" >&2; exit 1; fi
+          echo "version=${v#v}" >> "$GITHUB_OUTPUT"
+          echo "Hugo $v (from Makefile)"
+
+      - name: Install Hugo
+        env:
+          HUGO_VERSION: ${{ steps.hugo.outputs.version }}
+        run: |
+          curl -sSLo hugo.deb \
+            "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb"
+          sudo dpkg -i hugo.deb
+          hugo version
+
+      # --panicOnWarning is the same gate as `make check`. A warning that fails locally
+      # should fail here rather than merge quietly.
+      - name: Build
+        run: |
+          hugo \
+            --source northlight/exampleSite \
+            --themesDir ../.. \
+            --minify --gc --panicOnWarning
+
+      # A green build is not enough: Hugo renders broken layouts happily, so this asserts
+      # the output is actually right.
+      - name: Test
+        run: sh northlight/tests/run.sh

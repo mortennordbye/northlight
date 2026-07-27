@@ -1,0 +1,70 @@
+name: Bug report
+description: Report something that is broken
+labels: [bug]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Also tell us what you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: >-
+        Ideally starting from a clean exampleSite. If the problem does not reproduce there,
+        say what your site does differently.
+      placeholder: |
+        1. Set `article.showToc = true` in hugo.toml
+        2. Build a post with no h2 headings
+        3. ...
+    validations:
+      required: true
+
+  - type: input
+    id: hugo-version
+    attributes:
+      label: Hugo version
+      description: Output of `hugo version`. It must be the extended build.
+      placeholder: hugo v0.164.0+extended darwin/arm64
+    validations:
+      required: true
+
+  - type: input
+    id: theme-version
+    attributes:
+      label: Northlight version
+      description: Tag, or the commit SHA if you track a branch.
+      placeholder: v0.1.0
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Relevant configuration
+      description: >-
+        The part of hugo.toml that matters. Remove any tokens or IDs before pasting.
+      render: toml
+
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Colour mode
+      description: Where the problem appears.
+      options:
+        - Both light and dark
+        - Light only
+        - Dark only
+        - Not applicable
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I am on an extended Hugo build at or above the `min_version` in `theme.toml`
+          required: true
+        - label: I checked this is not caused by a site-level override in my own `layouts/`
+          required: true
