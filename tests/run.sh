@@ -174,6 +174,20 @@ assert_grep 'loading=lazy'          "$WRITING" "prose images are lazy loaded"
 assert_grep 'class=img-light'       "$WRITING" "light image of a dark-variant pair"
 assert_grep 'class=img-dark'        "$WRITING" "dark image of a dark-variant pair"
 assert_grep '<figcaption>'          "$WRITING" "image captions render"
+
+# Whitespace between inline elements collapses to a visible space. A link render hook
+# that ends with a newline therefore puts a space between the link and whatever follows
+# it, which is only noticeable — and then unmissable — when what follows is punctuation.
+# Checked across the whole build rather than one page, because it depends on how the
+# sentence was written, not on which template rendered it.
+DANGLING=$(find "$PUBLIC" -name '*.html' | while read -r f; do
+  awk -v f="$f" 'p && /^[.,;:!?)]/ { print f; exit } { p = /<\/a>$/ }' "$f"
+done | head -1)
+if [ -n "$DANGLING" ]; then
+  bad "no space between a link and the punctuation after it" "${DANGLING#"$ROOT"/}"
+else
+  ok "no space between a link and the punctuation after it"
+fi
 assert_grep 'code-bar'              "$WRITING" "code fence filename bar renders"
 assert_grep 'table-wrap'            "$WRITING" "tables get a scroll container"
 assert_grep 'footnotes'             "$WRITING" "footnotes render"

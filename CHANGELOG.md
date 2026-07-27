@@ -22,6 +22,13 @@ keys are added with defaults that preserve existing behaviour.
   bind-mount the working directory, such as `DOCKER_HOST` pointing at another machine. Same
   pinned image, same flags, same suite; the source travels over the daemon socket instead.
 
+### Fixed
+
+- **A space appeared between a link and the punctuation after it.** Any sentence ending on a
+  link rendered as `see the docs .` rather than `see the docs.` The link render hook emitted a
+  trailing newline, and whitespace between inline elements collapses to a visible space. Present
+  since the hook was written, and visible on the theme's own documentation.
+
 ## [0.2.0] — 2026-07-27
 
 A minor rather than a patch: most of what follows is new surface. Every key added here has a
