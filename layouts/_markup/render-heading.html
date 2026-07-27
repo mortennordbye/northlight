@@ -1,0 +1,10 @@
+{{- /*
+  Adds the id the table of contents links to, plus a hover anchor for copying a link
+  to a section. The anchor is inside the heading so it inherits its colour, and it is
+  hidden until hover or keyboard focus — never hidden from assistive technology,
+  which is why it has a label rather than being aria-hidden.
+*/ -}}
+<h{{ .Level }} id="{{ .Anchor }}">
+  {{- .Text -}}
+  <a class="heading-anchor" href="#{{ .Anchor }}" aria-label="Link to this section">#</a>
+</h{{ .Level }}>

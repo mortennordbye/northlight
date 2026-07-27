@@ -1,0 +1,14 @@
+{{- /*
+  Link render hook. Its only job is external links: rel="noopener" so the opened page
+  cannot reach back through window.opener, and target="_blank".
+
+  "External" means a different host than the site's own, not merely "starts with
+  http" — an absolute link to your own domain is not external and should not open in
+  a new tab. Fragment, mailto and relative links fall through untouched.
+*/ -}}
+{{- $u := urls.Parse .Destination -}}
+{{- $external := and $u.Host (ne $u.Host (urls.Parse site.BaseURL).Host) -}}
+<a href="{{ .Destination | safeURL }}"
+  {{- with .Title }} title="{{ . }}"{{ end }}
+  {{- if $external }} rel="noopener" target="_blank"{{ end -}}
+>{{ .Text }}</a>
