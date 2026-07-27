@@ -21,7 +21,7 @@ and the theme looks unfinished no matter how good the rest is.
 **Goal:** `make serve` renders a blank-but-valid site.
 
 - `Makefile` with `serve`, `build`, `check`, `clean`, all wrapped in `docker run` against
-  `ghcr.io/gohugoio/hugo:v0.161.1` (multi-arch — the plain amd64 Hugo tarball fails on Apple
+  `ghcr.io/gohugoio/hugo:v0.164.0` (multi-arch — the plain amd64 Hugo tarball fails on Apple
   silicon). The repo mounts at `/src/northlight`, because Hugo resolves `--themesDir` relative
   to `--source`.
 - `theme.toml` with name, licence, min Hugo version, tags, author.
@@ -70,6 +70,19 @@ confirm the filename contains a hash.
 - Cover at minimum the languages the reference blog uses: `yaml` (36 fences), `bash` (35),
   `text`, `nginx`, `hcl`, `dockerfile`, `alloy`.
 - `markup.highlight.noClasses = false` in `exampleSite/hugo.toml`.
+
+**Scope, measured rather than guessed:** Chroma emits **68 distinct token classes**.
+`docs/DESIGN.md` names five. Get the full inventory mechanically rather than by eye:
+
+```bash
+docker run --rm ghcr.io/gohugoio/hugo:v0.164.0 gen chromastyles --style=github --mode=light
+docker run --rm ghcr.io/gohugoio/hugo:v0.164.0 gen chromastyles --style=github-dark --mode=dark --modeSelector
+```
+
+`--mode` and `--modeSelector` are new in Hugo 0.164 and generate light/dark pairs directly.
+Use the generated files as the *class checklist*, not as the stylesheet — the colours must come
+from the design tokens. Note `--modeSelector` scopes under `.dark`, while this theme keys off
+`html[data-theme="dark"]`, so the selectors need rewriting either way.
 
 **Verify:** put one fence of each language into an exampleSite post. Render in both modes.
 Every token must be legible; comments in particular must not drop below 4.5:1 against the code

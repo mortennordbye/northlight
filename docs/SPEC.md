@@ -37,7 +37,7 @@ instead. Doing that as you go is cheap; retrofitting it across finished template
 
 | Thing | Value | Consequence for the new theme |
 |---|---|---|
-| Hugo | extended 0.161.1 (`blog/Dockerfile`) | extended = SCSS/asset pipeline available |
+| Hugo | extended 0.161.1 (`blog/Dockerfile`) | extended = SCSS/asset pipeline available. **Northlight requires 0.164.0**, so `blog/Dockerfile` needs the bump before the blog can adopt it. |
 | Languages | `en` only, no translations | drop all i18n, `language-redirect`, hreflang |
 | baseURL | `https://blog.nordbye.it/` | — |
 | Build | `hugo --minify --gc`, alpine → nginx | theme must build with no network at build time |

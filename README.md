@@ -39,8 +39,12 @@ table of contents is still a list of working links, and the colour mode falls ba
 
 ## Requirements
 
-Hugo **extended** 0.161.0 or newer. Nothing else — no Node, no npm, no CSS framework, no build
+Hugo **extended** 0.164.0 or newer. Nothing else — no Node, no npm, no CSS framework, no build
 step beyond Hugo itself.
+
+0.164.0 is the floor because the theme is built on the template system Hugo introduced in 0.146
+and on the light/dark Chroma style pairs added in 0.164. If you are on an older Hugo, upgrade
+before installing the theme.
 
 ## Install
 

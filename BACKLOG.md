@@ -21,6 +21,35 @@ to document.
 
 ---
 
+## Intermittent "no such file or directory" build failure, unattributed
+
+**What:** `make build` / `make check` occasionally dies mid-render with
+`open .../exampleSite/public/<file>: no such file or directory`, on a different file each time
+(`index.html`, `robots.txt`), or `mkdir .../exampleSite/resources/_gen: no such file or
+directory`. Hugo reports a successful page count first, so it is a filesystem error, not a
+template error. Re-running succeeds.
+
+**Why deferred:** it could not be pinned down. Observed 11 failures in ~90 runs during one
+window, then **0 failures in 107 consecutive runs** afterwards, across Hugo 0.161.1, 0.163.3 and
+0.164.0 and across four different Makefile shapes. Every mitigation tried — pre-creating the
+publish directory, `HUGO_NUMWORKERMULTIPLIER=1`, building to the container's own filesystem and
+copying the result out, deleting from inside the container rather than the host — appeared to fix
+it and then did not survive a larger sample. The failures clustered while the machine was also
+pulling container images and running a browser, which points at the macOS bind mount under load
+rather than at Hugo. A workaround was written and then reverted rather than ship unexplained
+complexity in the Makefile.
+
+**Unblocks it:** a reproduction that survives a 50-run sample on an idle machine. If it recurs,
+capture `docker version`, the storage driver, and whether OrbStack or Docker Desktop is in use,
+then compare a build whose destination is inside the container (`--destination /tmp/public`)
+against one writing straight to the mount. If it turns out to be real and Hugo-side, it belongs
+upstream, not in this repo.
+
+**Where:** `Makefile` — the `build` and `check` targets, and the `RUN` mount at
+`/src/northlight`.
+
+---
+
 ## Contrast figures are hand-computed, not measured
 
 **What:** the light-mode accent contrast ratios in `docs/DESIGN.md` (periwinkle ≈ 6.0:1, sage ≈

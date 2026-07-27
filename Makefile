@@ -2,15 +2,16 @@
 # Do not install Hugo, Node or npm on the host. The official Hugo image is multi-arch,
 # so this works on Apple silicon where the plain linux-amd64 tarball does not.
 #
-# Pinned to the exact version theme.toml declares as the minimum, so the theme is
-# always built on the oldest Hugo it claims to support. The image entrypoint is hugo
+# Pinned to an exact version rather than a floating tag, so a build is reproducible
+# and an upgrade is a reviewable one-line change. Keep this in step with
+# theme.toml's min_version and README's "Requirements". The image entrypoint is hugo
 # itself, so recipes pass subcommands and flags directly.
 #
 # The repo is mounted at /src/northlight rather than /src because Hugo resolves
 # --themesDir relative to --source: exampleSite/../.. must be the directory that
 # *contains* a folder named after the theme.
 
-HUGO_IMAGE ?= ghcr.io/gohugoio/hugo:v0.161.1
+HUGO_IMAGE ?= ghcr.io/gohugoio/hugo:v0.164.0
 RUN         = docker run --rm -v "$(CURDIR)":/src/northlight -w /src/northlight
 SITE        = --source exampleSite --themesDir ../..
 

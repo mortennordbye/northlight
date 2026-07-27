@@ -6,7 +6,7 @@ homepage = "https://github.com/mortennordbye/northlight"
 demosite = "https://github.com/mortennordbye/northlight"
 tags = ["blog", "minimal", "clean", "dark mode", "light mode", "responsive", "technical", "accessible", "search", "table of contents"]
 features = ["blog", "dark mode", "search", "table of contents", "syntax highlighting", "responsive", "seo", "rss", "tags"]
-min_version = "0.161.0"
+min_version = "0.164.0"
 
 [author]
   name = "Morten Victor Nordbye"
