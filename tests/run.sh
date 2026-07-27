@@ -389,6 +389,56 @@ else
 fi
 
 # --------------------------------------------------------------------------------
+group "Toolchain pins"
+
+# The Hugo version lives in the Makefile and in theme.toml's min_version, and the two must
+# agree: min_version is what a site author is told they need, the Makefile is what this repo
+# actually builds with. Claiming one and testing the other is how a theme ships broken to
+# everyone on the version it advertises.
+MK_VER=$(grep -oE 'hugo:v[0-9]+\.[0-9]+\.[0-9]+' "$ROOT/Makefile" | head -1 | sed 's/.*:v//')
+TT_VER=$(grep -oE 'min_version *= *"[0-9.]+"' "$ROOT/theme.toml" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+if [ -n "$MK_VER" ] && [ "$MK_VER" = "$TT_VER" ]; then
+  ok "Makefile and theme.toml pin the same Hugo version"
+else
+  bad "Makefile and theme.toml pin the same Hugo version" "Makefile=$MK_VER theme.toml=$TT_VER"
+fi
+
+# Every workflow must derive the version from the Makefile rather than repeat it. A literal
+# here means a Makefile bump leaves CI testing one Hugo and the deploy publishing with
+# another: green checks, a different binary, nothing visible in the diff.
+HARDCODED=$(grep -rlE 'HUGO_VERSION: *[0-9]+\.[0-9]+' "$ROOT/.github/workflows" 2>/dev/null | tr '\n' ' ')
+if [ -z "$HARDCODED" ]; then
+  ok "no workflow hardcodes the Hugo version"
+else
+  bad "no workflow hardcodes the Hugo version" "$HARDCODED"
+fi
+
+# --------------------------------------------------------------------------------
+group "Largest contentful paint"
+
+# The home page featured cover is the LCP element. It must carry a high fetch priority and
+# must never be lazy: it is above the fold at every viewport.
+FEATURE_IMG=$(grep -o '<img class=feature-cover[^>]*>' "$PUBLIC/index.html" | head -1)
+case "$FEATURE_IMG" in
+  *fetchpriority=high*) ok "featured cover requests high fetch priority" ;;
+  "") bad "featured cover requests high fetch priority" "no feature-cover img found" ;;
+  *)  bad "featured cover requests high fetch priority" "$FEATURE_IMG" ;;
+esac
+case "$FEATURE_IMG" in
+  *loading=lazy*) bad "featured cover is not lazy-loaded" "$FEATURE_IMG" ;;
+  *) ok "featured cover is not lazy-loaded" ;;
+esac
+
+# The article hero is the same story on a post page. The img inside .article-cover carries
+# no class of its own, so match it through the figure.
+ART_IMG=$(tr '>' '>\n' < "$PUBLIC/blog/measuring/index.html" | sed -n '/<figure class=article-cover/,/<\/figure/p' | grep -o '<img[^>]*>' | head -1)
+case "$ART_IMG" in
+  *fetchpriority=high*) ok "article cover requests high fetch priority" ;;
+  "") bad "article cover requests high fetch priority" "no img found inside .article-cover" ;;
+  *)  bad "article cover requests high fetch priority" "$ART_IMG" ;;
+esac
+
+# --------------------------------------------------------------------------------
 printf '\n'
 if [ "$FAIL" -gt 0 ]; then
   red "FAILED  $FAIL failed, $PASS passed, $SKIP skipped"

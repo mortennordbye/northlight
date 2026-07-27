@@ -31,12 +31,23 @@ jobs:
         with:
           path: northlight
 
-      # Pinned to the version in the Makefile and in theme.toml's min_version. Installed
-      # from the official release rather than a third-party action so there is one less
-      # thing between the tag and the binary.
+      # Read from the Makefile rather than written out again here. This used to be a
+      # literal, which meant a Makefile bump left CI testing one Hugo and this workflow
+      # publishing with another — green checks, a different binary, and nothing to see in
+      # the diff. ci.yml and audit.yml resolve it the same way.
+      - id: hugo
+        name: Resolve pinned Hugo version
+        run: |
+          v=$(grep -oE 'hugo:v[0-9]+\.[0-9]+\.[0-9]+' northlight/Makefile | head -1 | cut -d: -f2)
+          if [ -z "$v" ]; then echo "could not read HUGO_IMAGE from Makefile" >&2; exit 1; fi
+          echo "version=${v#v}" >> "$GITHUB_OUTPUT"
+          echo "Hugo $v (from Makefile)"
+
+      # Installed from the official release rather than a third-party action so there is
+      # one less thing between the tag and the binary.
       - name: Install Hugo
         env:
-          HUGO_VERSION: 0.164.0
+          HUGO_VERSION: ${{ steps.hugo.outputs.version }}
         run: |
           curl -sSLo hugo.deb \
             "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb"
