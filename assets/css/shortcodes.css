@@ -1,0 +1,28 @@
+/* ============================================================================
+   Shortcodes. Everything here is reachable only from content that opts into it,
+   so nothing in this file styles a page that uses none of them.
+
+   Same rules as the rest: tokens only, both colour modes, no horizontal overflow
+   at 375px. Concatenated after the component sheets and before the site's own
+   custom.css, so a site author can still override any of it.
+   ============================================================================ */
+
+/* --- badge ----------------------------------------------------------------- */
+
+/* Deliberately the same shape as .tag — chip radius, hairline border, surface-2
+   fill — because a reader should not have to learn two visual languages for two
+   things that are both "a small label". It is a separate class rather than a
+   reuse of .tag because .tag also carries link and hover behaviour that a badge
+   has no business inheriting. */
+.badge {
+  display: inline-block;
+  font-size: 12.5px;
+  font-weight: 450;
+  line-height: var(--leading-ui);
+  color: var(--fg-2);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-chip);
+  padding: 3px 9px;
+  vertical-align: baseline;
+}

@@ -175,18 +175,25 @@ assert_grep 'class=img-light'       "$WRITING" "light image of a dark-variant pa
 assert_grep 'class=img-dark'        "$WRITING" "dark image of a dark-variant pair"
 assert_grep '<figcaption>'          "$WRITING" "image captions render"
 
-# Whitespace between inline elements collapses to a visible space. A link render hook
-# that ends with a newline therefore puts a space between the link and whatever follows
-# it, which is only noticeable — and then unmissable — when what follows is punctuation.
-# Checked across the whole build rather than one page, because it depends on how the
-# sentence was written, not on which template rendered it.
+# Whitespace between inline elements collapses to a visible space. A template that ends
+# with a newline after an inline closing tag therefore puts a space between it and
+# whatever follows — only noticeable, and then unmissable, when what follows is
+# punctuation: "see the docs ." instead of "see the docs."
+#
+# Every inline-producing template is a candidate, so this checks the whole build rather
+# than one page and every inline tag rather than one: it depends on how a sentence was
+# written, not on which template rendered it. The link render hook and the badge
+# shortcode have each shipped this bug.
 DANGLING=$(find "$PUBLIC" -name '*.html' | while read -r f; do
-  awk -v f="$f" 'p && /^[.,;:!?)]/ { print f; exit } { p = /<\/a>$/ }' "$f"
+  awk -v f="$f" '
+    p && /^[.,;:!?)]/ { print f; exit }
+    { p = /<\/(a|span|code|em|strong|abbr|kbd|small|sup|sub)>$/ }
+  ' "$f"
 done | head -1)
 if [ -n "$DANGLING" ]; then
-  bad "no space between a link and the punctuation after it" "${DANGLING#"$ROOT"/}"
+  bad "no space between an inline element and the punctuation after it" "${DANGLING#"$ROOT"/}"
 else
-  ok "no space between a link and the punctuation after it"
+  ok "no space between an inline element and the punctuation after it"
 fi
 assert_grep 'code-bar'              "$WRITING" "code fence filename bar renders"
 assert_grep 'table-wrap'            "$WRITING" "tables get a scroll container"
@@ -221,6 +228,16 @@ assert_grep '{{&lt; lead &gt;}}' "$SHORTCODES" "shortcode calls shown in code fe
 # is exactly the overlap the shortcode's documentation warns about.
 LEADS=$(grep -o 'class=lede' "$SHORTCODES" | wc -l | tr -d ' ')
 assert_count 3 "$LEADS" "lead renders as a lede block"
+
+# badge: inline rendering is the whole point of the RenderString call — without the
+# inline display Hugo wraps the inner text in a <p>, which breaks the line box the
+# badge sits in. Assert on the markup rather than on the class alone.
+assert_grep '<span class=badge>' "$SHORTCODES" "badge renders as an inline chip"
+if grep -o '<span class=badge>[^<]*<p' "$SHORTCODES" >/dev/null; then
+  bad "badge inner content stays inline" "inner content was wrapped in a paragraph"
+else
+  ok "badge inner content stays inline"
+fi
 
 # --------------------------------------------------------------------------------
 group "Accessible names and heading order"

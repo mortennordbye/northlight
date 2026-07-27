@@ -10,6 +10,10 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **`badge`** — a small inline label for a status or a piece of metadata, taking the same shape
+  as a tag without a tag's link behaviour. Brings `assets/css/shortcodes.css` into the bundle,
+  concatenated after the component sheets and before a site's own `custom.css` so it stays
+  overridable.
 - **Shortcodes**, starting with `lead` — an introductory paragraph in larger, lighter type,
   reusing the same treatment a post's `description` already gets. This reverses an earlier
   decision to ship none: the audit behind the theme found the blog it replaces used no

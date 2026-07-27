@@ -1,0 +1,12 @@
+{{- /*
+  badge — a small inline label.
+
+  Inner content is rendered inline, so emphasis and a link work inside one, but a
+  paragraph does not: a badge sits in a sentence or a heading, and a block element
+  inside it would break the line box.
+
+  Call:  {{< badge >}}Beta{{< /badge >}}
+*/ -}}
+<span class="badge">{{ .Inner | .Page.RenderString }}</span>
+{{- /* No trailing newline — it would collapse to a visible space between the badge and
+       whatever follows, which shows up as "badge ." at the end of a sentence. */ -}}

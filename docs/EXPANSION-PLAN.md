@@ -160,7 +160,7 @@ No JavaScript, no new dependencies, small CSS.
       Branch `feat/shortcode-lead`. Smallest possible first item; use it to prove the
       `layouts/_shortcodes/` directory, the shortcode CSS entry point and the docs page all work
       before anything harder lands.
-- [ ] **`badge`** — small inline pill for metadata. Inner text. Branch `feat/shortcode-badge`.
+- [x] **`badge`** — small inline pill for metadata. Inner text. Branch `feat/shortcode-badge`.
 - [ ] **`keyword` / `keywordList`** — a wrapping row of labelled pills, optionally with an icon.
       Container plus item. Depends on A1 `badge` for its CSS foundation and on A2 `icon` for the
       optional icon. Branch `feat/shortcode-keywords`.
@@ -330,3 +330,26 @@ silently.
     green. `tests/run.sh` asserts on the literal text for exactly this reason — it is the one
     documentation mistake nothing else catches.
   - The sitemap assertion counts docs pages. Adding another docs page means bumping it.
+
+- **`fix/link-hook-trailing-space`** — not on the plan; found while writing the page above. The
+  link render hook ended with a newline after `</a>`, and whitespace between inline elements
+  collapses to a visible space, so every sentence ending on a link rendered as "see the docs ."
+  The theme's own appearance page showed it. Fixed, with a test that scans the whole build.
+
+- **`feat/shortcode-badge`** — `badge`, plus `assets/css/shortcodes.css` and its wiring into the
+  `$sheets` slice in `_partials/head.html`.
+
+  **Every inline shortcode must end with a whitespace-trimming comment.** `badge` shipped the
+  same trailing-newline bug as the link hook above, in its first draft, and it rendered as
+  "badge ." at the end of a sentence. The test from that fix was broadened to cover `span`,
+  `code`, `em`, `strong` and the rest, so it now catches this for any inline shortcode — but the
+  cheaper fix is to write the trim in from the start:
+
+  ```
+  <span class="badge">…</span>
+  {{- /* comment, trimming both sides */ -}}
+  ```
+
+  Also worth knowing: `.Page.RenderString` defaults to inline, which is what an inline shortcode
+  wants. Passing `(dict "display" "block")` wraps the inner content in a `<p>` and breaks the
+  line box.

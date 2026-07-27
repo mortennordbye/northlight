@@ -45,3 +45,20 @@ page, so links, emphasis and footnotes behave normally:
 The soft, even, neutral light from a north-facing window — no glare, and the
 same all day. That is the whole [design brief]({{< ref "appearance" >}}).
 {{< /lead >}}
+
+## `badge`
+
+A small inline label, for a status or a piece of metadata that belongs in the run of
+the text rather than in front matter.
+
+```text
+Northlight {{</* badge */>}}0.3.0{{</* /badge */>}} is a theme, not a framework.
+```
+
+Northlight {{< badge >}}0.3.0{{< /badge >}} is a theme, not a framework. It takes the
+same shape as a tag — chip radius, hairline border — because both are small labels and
+a reader should not have to learn two visual languages for that.
+
+Inner content is rendered inline, so emphasis and links work: {{< badge >}}**bold**{{< /badge >}}
+and {{< badge >}}[a link]({{< ref "getting-started" >}}){{< /badge >}}. A paragraph does
+not, and should not — a badge sits inside a line.
