@@ -12,6 +12,20 @@
   color: var(--accent);
 }
 
+.draft-label {
+  display: inline-block;
+  font-size: var(--text-eyebrow);
+  font-weight: 600;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--tok-num);
+  border: 1px solid var(--tok-num);
+  border-radius: var(--radius-chip);
+  padding: 1px 7px;
+  margin-right: var(--space-2);
+  vertical-align: middle;
+}
+
 /* --- home intro ------------------------------------------------------------ */
 
 .intro {

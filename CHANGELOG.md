@@ -47,6 +47,15 @@ table of contents is a list of working links, and the colour mode follows the sy
 - OpenGraph, Twitter cards, canonical URLs and JSON-LD.
 - Favicons and the author avatar linked only when the files actually exist.
 
+### Also
+
+- Field-weighted search ranking: a title match outranks a tag match outranks a summary mention,
+  and a multi-word query narrows rather than widens. No search library.
+- Draft labels, visible only when Hugo is run with `--buildDrafts`.
+- Optional filename bar on a code fence via `{file="..."}`.
+- The theme owns its OpenGraph and Twitter card partials rather than using Hugo's embedded ones,
+  so tags render as written and both agree on which image a page has.
+
 ### Accessibility
 
 - WCAG AA verified by measurement across three palettes, two modes and six page types: every

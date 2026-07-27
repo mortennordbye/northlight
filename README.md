@@ -211,6 +211,13 @@ shape letterboxes rather than losing its edges. This is deliberate: cover art wi
 into it loses the title to a crop, and a visible letterbox is a better failure than silent
 destruction.
 
+If your cover art has the post title baked into it, the title will appear twice on the article
+page — once in the artwork and once as the heading below it. That is a deliberate non-decision:
+magazines do it on purpose, and the alternative is a theme that hides your `<h1>`, which costs you
+the heading in search results, in the tab title and for anyone using a screen reader. If you would
+rather it appeared once, take the words out of the artwork. Set `showHero = false` in a post's
+front matter to drop the cover on that post alone.
+
 ### Overriding anything
 
 Two partials exist purely as escape hatches, and both survive theme upgrades:

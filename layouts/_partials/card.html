@@ -8,7 +8,7 @@
          width="{{ $img.Width }}" height="{{ $img.Height }}" loading="lazy" decoding="async">
   {{- end }}
   <div class="card-body">
-    <h3 class="card-title">{{ .LinkTitle }}</h3>
+    <h3 class="card-title">{{ if .Draft }}<span class="draft-label">Draft</span>{{ end }}{{ .LinkTitle }}</h3>
     {{- with .Description }}<p class="card-text">{{ . }}</p>{{ end }}
     <div class="card-foot">
       {{ partial "post-meta.html" (dict "ctx" .) }}

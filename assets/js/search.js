@@ -38,15 +38,43 @@
     });
   }
 
+  /* Scores a post against the query. Not a search library — a weighting, so that a
+     title match outranks a tag match and a tag match outranks a mention halfway down
+     a summary. Every term must appear somewhere, which is what makes a two-word query
+     narrow the results instead of widening them. */
+  function score(post, terms) {
+    var title = post.title.toLowerCase();
+    var tags = (post.tags || []).join(" ").toLowerCase();
+    var summary = (post.summary || "").toLowerCase();
+    var total = 0;
+
+    for (var i = 0; i < terms.length; i++) {
+      var t = terms[i];
+      var s = 0;
+      if (title.indexOf(t) === 0) s = 100;          // title starts with it
+      else if (title.indexOf(t) !== -1) s = 60;     // title contains it
+      else if (tags.indexOf(t) !== -1) s = 35;
+      else if (summary.indexOf(t) !== -1) s = 10;
+      else return 0;                                // every term has to land somewhere
+      total += s;
+    }
+    return total;
+  }
+
   function render(term) {
     var q = term.trim().toLowerCase();
-    var hits = !q
-      ? posts.slice(0, 8)
-      : posts.filter(function (p) {
-          return (p.title + " " + (p.tags || []).join(" ") + " " + (p.summary || ""))
-            .toLowerCase()
-            .indexOf(q) !== -1;
-        });
+    var terms = q ? q.split(/\s+/) : [];
+    var hits;
+
+    if (!terms.length) {
+      hits = posts.slice(0, 8);
+    } else {
+      hits = posts
+        .map(function (p) { return { post: p, score: score(p, terms) }; })
+        .filter(function (r) { return r.score > 0; })
+        .sort(function (a, b) { return b.score - a.score; })
+        .map(function (r) { return r.post; });
+    }
 
     selected = 0;
 

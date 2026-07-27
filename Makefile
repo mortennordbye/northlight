@@ -16,8 +16,11 @@
 # a macOS bind mount: the build dies with "open .../public/robots.txt: no such file or
 # directory", and the same event surfaces a second time as a misleading
 # "resource is nil" template error. Measured over cold builds: 2/12 host-side,
-# 0/37 container-side. Deleting and recreating through the same mount client is the
-# cheapest thing that removed it.
+# 0/62 container-side across three sampling runs. Deleting and recreating through the
+# same mount client is the cheapest thing that removed it.
+#
+# If it ever comes back, it will be because something outside make deleted public/ —
+# Finder, git clean, a stray rm -rf — which bypasses this entirely.
 
 HUGO_IMAGE ?= ghcr.io/gohugoio/hugo:v0.164.0
 RUN         = docker run --rm -v "$(CURDIR)":/src/northlight -w /src/northlight

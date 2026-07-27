@@ -17,6 +17,11 @@
 
     {{- with .Params.description }}<p class="lede">{{ . }}</p>{{ end }}
 
+    {{- /* Only ever visible with --buildDrafts, i.e. to the author previewing. It is a
+           label rather than a banner because the point is to answer "is this the draft
+           or the published one" at a glance, not to shout. */ -}}
+    {{- if .Draft }}<p class="draft-label">Draft</p>{{ end }}
+
     {{ partial "article-meta.html" . }}
   </header>
 

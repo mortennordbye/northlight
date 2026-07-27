@@ -1,0 +1,26 @@
+{{- /*
+  Twitter/X card tags. Shadows Hugo's embedded twitter_cards.html so that the image
+  lookup matches opengraph.html exactly — the embedded pair can disagree about which
+  image a page has, and a card that shows a different picture than the OpenGraph
+  preview is the kind of bug nobody notices until someone shares the link.
+
+  summary_large_image when there is a cover, summary when there is not: a large-image
+  card with no image renders as an empty box.
+*/ -}}
+{{- $desc := "" -}}
+{{- with .Description }}{{ $desc = . }}
+{{- else }}{{ with .Summary }}{{ $desc = . | plainify | chomp }}
+{{- else }}{{ $desc = site.Params.description }}{{ end }}{{ end -}}
+
+{{- $image := "" -}}
+{{- with .Resources.GetMatch "{cover,featured}.*" }}{{ $image = .Permalink }}{{ end -}}
+{{- if not $image }}{{ with site.Params.image }}{{ $image = . | absURL }}{{ end }}{{ end -}}
+
+<meta name="twitter:card" content="{{ cond (ne $image "") "summary_large_image" "summary" }}">
+<meta name="twitter:title" content="{{ cond .IsHome site.Title .Title }}">
+{{- with $desc }}
+<meta name="twitter:description" content="{{ . }}">
+{{- end }}
+{{- with $image }}
+<meta name="twitter:image" content="{{ . }}">
+{{- end }}

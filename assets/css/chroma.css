@@ -107,9 +107,18 @@
   padding: 0;
 }
 
+/* The gutter between the numbers and the code goes on .lnt rather than on the pre.
+   .hl wraps .lnt, so padding inside it gets the highlight background; padding on the
+   pre sits outside .hl and leaves a seam between the two columns on any line that is
+   both numbered and highlighted. */
 .chroma .lntd:first-child pre.chroma {
-  padding-right: var(--space-3);
+  padding-right: 0;
   overflow: visible;
+}
+
+.chroma .lnt,
+.chroma .ln {
+  padding-right: var(--space-3);
 }
 
 .chroma .lntd:last-child pre.chroma {
