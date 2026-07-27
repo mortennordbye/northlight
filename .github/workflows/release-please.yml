@@ -9,14 +9,19 @@ on:
   push:
     branches: [main]
 
+# Read-only at the top level, write scoped to the job that needs it. A workflow-wide write
+# token is handed to every job and every step in it, including any action that gets added
+# later; Scorecard's Token-Permissions check scores exactly this.
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 jobs:
   release:
     name: Release PR
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       # Known wrinkle: a PR opened with GITHUB_TOKEN does not trigger other workflows, so
       # the release PR reports no checks and the required-checks rule will hold it. Merge it
