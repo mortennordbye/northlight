@@ -58,6 +58,11 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Fixed
 
+- **The home page's featured cover loaded without a priority hint.** It is the largest
+  contentful paint element on the home page, and it queued behind the stylesheet and the fonts.
+  It now carries `fetchpriority="high"`, matching what `cover.html` already did for the article
+  hero. No visual change; measured LCP on the home page was 2.2s before.
+
 - **The search button had no accessible name on a phone.** Below 720px both the visible label and
   the `⌘K` hint are `display:none`, leaving an icon-only control that a screen reader announced as
   just "button" on every page. It now carries an `aria-label` as well, matching the appearance
