@@ -5,22 +5,6 @@ entry states what, why it was deferred, what would unblock it, and where the cod
 
 ---
 
-## Config reference in README is a placeholder
-
-**What:** `README.md` has a `<!-- TODO -->` where the full parameter reference belongs — every
-param, its default, and what it does.
-
-**Why deferred:** the params do not exist yet. Writing the reference before the templates would
-document guesses, and a wrong config reference is worse than none.
-
-**Unblocks it:** finishing build-plan phase 4, at which point the param surface is stable enough
-to document.
-
-**Where:** `README.md`, "Configuration" section. Source of truth will be
-`exampleSite/hugo.toml`.
-
----
-
 ## Bind-mount build race: mitigated, root cause not proven
 
 **What:** on a cold output directory, `make build` / `make check` could die with
@@ -45,21 +29,6 @@ or Docker Desktop is in use, then compare a build whose destination is inside th
 and Hugo-side, it belongs upstream, not here.
 
 **Where:** `Makefile` — the `clean` target and the `RUN` mount at `/src/northlight`.
-
----
-
-## Theme distribution method not decided
-
-**What:** the theme ships as a git submodule in the docs. Hugo Modules is the other option and
-gives proper version pinning via `go.mod`.
-
-**Why deferred:** it only matters at first release, and it changes the install instructions and
-possibly CI.
-
-**Unblocks it:** deciding before tagging `v0.1.0`. Hugo Modules needs Go available in whatever
-builds consuming sites.
-
-**Where:** `README.md` "Install", `theme.toml`, and build-plan phase 8.
 
 ---
 
