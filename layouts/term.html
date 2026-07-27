@@ -1,9 +1,19 @@
 {{ define "main" }}
-  <h1>{{ .Title }}</h1>
-  {{ .Content }}
-  <ul>
-    {{ range .Pages }}
-      <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
-    {{ end }}
-  </ul>
+{{- $paginator := .Paginate .Pages -}}
+<div class="wrap">
+  <header class="list-head">
+    <p class="eyebrow">Tagged</p>
+    <h1 class="list-title">{{ with .Data.Term }}{{ . }}{{ else }}{{ .Title }}{{ end }}</h1>
+    <p class="list-text">
+      {{ len .Pages }} post{{ if ne (len .Pages) 1 }}s{{ end }}
+    </p>
+    {{- with .Content }}<div class="list-body">{{ . }}</div>{{ end }}
+  </header>
+
+  <div class="card-grid">
+    {{- range $paginator.Pages }}{{ partial "card.html" . }}{{ end }}
+  </div>
+
+  {{ partial "pagination.html" . }}
+</div>
 {{ end }}

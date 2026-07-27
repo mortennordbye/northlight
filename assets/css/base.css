@@ -18,7 +18,13 @@ html {
   scrollbar-color: var(--line-strong) transparent;
 }
 
+/* Flex column so the footer sits at the bottom of the viewport on a short page —
+   a tag list or a 404 otherwise leaves the footer stranded halfway up. */
 body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
   background: var(--bg);
   color: var(--fg);
   font-family: var(--font-sans);

@@ -18,7 +18,9 @@ enableRobotsTXT = true
 summaryLength = 30
 
 [pagination]
-  pagerSize = 10
+  # 4 rather than the more usual 10, purely so the demo site has two pages of
+  # results and the pagination component is actually visible.
+  pagerSize = 4
 
 [outputs]
   home = ["HTML", "RSS", "JSON"]   # JSON is the search index — required if enableSearch

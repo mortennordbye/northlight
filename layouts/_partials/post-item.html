@@ -1,0 +1,20 @@
+{{- /* A row in the post index: cover on the left, everything else on the right. */ -}}
+<a class="post-item" href="{{ .RelPermalink }}">
+  {{- with .Resources.GetMatch "{cover,featured}.*" }}
+    {{- $img := . }}
+    {{- if in (slice "png" "jpeg" "gif" "webp") .MediaType.SubType }}{{ $img = .Resize "640x q80" }}{{ end }}
+    <img class="item-cover" src="{{ $img.RelPermalink }}" alt=""
+         width="{{ $img.Width }}" height="{{ $img.Height }}" loading="lazy" decoding="async">
+  {{- end }}
+  <div class="item-body">
+    {{ partial "eyebrow.html" . }}
+    <h3 class="item-title">{{ .LinkTitle }}</h3>
+    {{- with .Description }}<p class="item-text">{{ . }}</p>{{ end }}
+    {{- with .GetTerms "tags" }}
+      <div class="item-tags">
+        {{- range . }}<span class="tag">{{ with .Data.Term }}{{ . }}{{ else }}{{ .LinkTitle }}{{ end }}</span>{{ end }}
+      </div>
+    {{- end }}
+    {{ partial "post-meta.html" (dict "ctx" . "showWords" true) }}
+  </div>
+</a>

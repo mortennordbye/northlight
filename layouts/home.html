@@ -1,10 +1,81 @@
 {{ define "main" }}
-  <h1>{{ site.Title }}</h1>
-  {{ with site.Params.description }}<p>{{ . }}</p>{{ end }}
-  {{ .Content }}
-  <ul>
-    {{ range where site.RegularPages "Section" "in" site.Params.mainSections }}
-      <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
-    {{ end }}
-  </ul>
+{{- $cfg := partialCached "init.html" . -}}
+{{- $home := site.Params.home | default dict -}}
+{{- $showFeatured := partial "param-bool.html" (dict "map" $home "key" "showFeatured" "default" true) -}}
+{{- $recentCount := int ($home.recentCount | default 3) -}}
+{{- $author := $cfg.author -}}
+
+{{- $posts := where site.RegularPages "Section" "in" site.Params.mainSections -}}
+{{- $featured := "" -}}
+{{- $recent := $posts -}}
+{{- if and $showFeatured $posts -}}
+  {{- $featured = index $posts 0 -}}
+  {{- $recent = after 1 $posts -}}
+{{- end -}}
+
+<section class="intro">
+  <div class="wrap">
+    <h1 class="intro-title">{{ .Title }}</h1>
+    {{- with .Description }}<p class="intro-text">{{ . }}</p>{{ end }}
+    {{- with .Content }}<div class="intro-body">{{ . }}</div>{{ end }}
+
+    {{- if $author.name }}
+    <div class="byline-row">
+      <div class="byline">
+        {{- with $author.image }}<img class="byline-avatar" src="{{ . | relURL }}" alt="" width="40" height="40">{{ end }}
+        <span>
+          <b>{{ $author.name }}</b>
+          {{- with $author.headline }}<span class="byline-headline">{{ . }}</span>{{ end }}
+        </span>
+      </div>
+
+      {{- with $author.links }}
+      <div class="socials">
+        {{- range . }}
+          {{- range $name, $url := . }}
+            <a href="{{ $url }}" rel="noopener" target="_blank" aria-label="{{ $name | title }}">{{ partial "icon.html" $name }}</a>
+          {{- end }}
+        {{- end }}
+      </div>
+      {{- end }}
+    </div>
+    {{- end }}
+  </div>
+</section>
+
+<div class="wrap">
+  {{- with $featured }}
+  <div class="section-head">
+    <h2 class="section-title">Featured</h2>
+  </div>
+  <a class="feature" href="{{ .RelPermalink }}">
+    {{- with .Resources.GetMatch "{cover,featured}.*" }}
+      {{- $img := . }}
+      {{- if in (slice "png" "jpeg" "gif" "webp") .MediaType.SubType }}{{ $img = .Resize "700x q85" }}{{ end }}
+      <img class="feature-cover" src="{{ $img.RelPermalink }}" alt=""
+           width="{{ $img.Width }}" height="{{ $img.Height }}" decoding="async">
+    {{- end }}
+    <div class="feature-body">
+      {{ partial "eyebrow.html" . }}
+      <h3 class="feature-title">{{ .LinkTitle }}</h3>
+      {{- with .Description }}<p class="feature-text">{{ . }}</p>{{ end }}
+      {{ partial "post-meta.html" (dict "ctx" .) }}
+    </div>
+  </a>
+  {{- end }}
+
+  {{- with first $recentCount $recent }}
+  <div class="section-head">
+    <h2 class="section-title">Recent posts</h2>
+    {{- with site.GetPage (printf "/%s" (index site.Params.mainSections 0)) }}
+      <a class="section-more" href="{{ .RelPermalink }}">
+        All {{ len $posts }} posts <span class="nudge">{{ partial "icon.html" "arrow-right" }}</span>
+      </a>
+    {{- end }}
+  </div>
+  <div class="card-grid">
+    {{- range . }}{{ partial "card.html" . }}{{ end }}
+  </div>
+  {{- end }}
+</div>
 {{ end }}

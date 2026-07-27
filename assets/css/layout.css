@@ -9,6 +9,12 @@
   padding-inline: var(--gutter);
 }
 
+/* Takes up the slack in the body's flex column, which is what keeps the footer at
+   the bottom on pages with little content. */
+main {
+  flex: 1 0 auto;
+}
+
 /* --- header --------------------------------------------------------------- */
 
 .site-header {

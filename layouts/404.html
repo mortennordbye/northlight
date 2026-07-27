@@ -1,4 +1,15 @@
 {{ define "main" }}
-  <h1>404 — page not found</h1>
-  <p><a href="{{ site.Home.RelPermalink }}">Return to the home page</a></p>
+<div class="wrap notfound">
+  <p class="eyebrow">404</p>
+  <h1 class="notfound-title">This page does not exist.</h1>
+  <p class="notfound-text">
+    The link may be out of date, or the page may have moved. The posts are all still here.
+  </p>
+  <div class="notfound-actions">
+    <a class="button" href="{{ site.Home.RelPermalink }}">Home</a>
+    {{- with site.GetPage (printf "/%s" (index site.Params.mainSections 0)) }}
+      <a class="button" href="{{ .RelPermalink }}">All posts</a>
+    {{- end }}
+  </div>
+</div>
 {{ end }}
