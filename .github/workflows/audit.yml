@@ -1,0 +1,129 @@
+name: Audit
+
+# What the theme's output is actually worth to a search engine and a screen reader.
+#
+# tests/run.sh already asserts that the SEO furniture *exists* — sitemap, robots.txt,
+# rel=canonical, og:title, JSON-LD that is not double-encoded, an alt on every image. What a
+# grep cannot judge is whether any of it is *correct*. Lighthouse scores crawlability,
+# heading order, contrast, tap targets, viewport and link text; lychee proves the links and
+# heading anchors resolve.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lighthouse:
+    name: Lighthouse
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: northlight
+
+      - id: hugo
+        name: Resolve pinned Hugo version
+        run: |
+          v=$(grep -oE 'hugo:v[0-9]+\.[0-9]+\.[0-9]+' northlight/Makefile | head -1 | cut -d: -f2)
+          if [ -z "$v" ]; then echo "could not read HUGO_IMAGE from Makefile" >&2; exit 1; fi
+          echo "version=${v#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Install Hugo
+        env:
+          HUGO_VERSION: ${{ steps.hugo.outputs.version }}
+        run: |
+          curl -sSLo hugo.deb \
+            "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb"
+          sudo dpkg -i hugo.deb
+
+      # Built against localhost on purpose. exampleSite pins baseURL to https://example.com/,
+      # and a straight build would send Lighthouse there for every stylesheet, font and
+      # rel=canonical — scoring a site that is not this one. An absolute localhost baseURL
+      # keeps canonical a valid absolute URL, which the SEO audit checks.
+      - name: Build against localhost
+        run: |
+          hugo \
+            --source northlight/exampleSite \
+            --themesDir ../.. \
+            --minify --gc \
+            --baseURL "http://localhost:8080/"
+
+      # python3 is already on the runner. Anything heavier would reintroduce the Node
+      # toolchain this theme deliberately does without.
+      - name: Serve the build
+        run: |
+          python3 -m http.server 8080 --bind 127.0.0.1 \
+            --directory northlight/exampleSite/public >/dev/null 2>&1 &
+          for _ in $(seq 30); do
+            curl -sf http://localhost:8080/ >/dev/null && exit 0
+            sleep 1
+          done
+          echo "static server did not come up on :8080" >&2
+          exit 1
+
+      # SEO, accessibility and best-practices fail the build. Performance is a warning only:
+      # it is timing-sensitive on shared runners, and a gate that goes red at random is a
+      # gate people learn to ignore.
+      - name: Lighthouse
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          configPath: northlight/.lighthouserc.json
+          uploadArtifacts: true
+          temporaryPublicStorage: false
+
+  links:
+    name: Link check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: northlight
+
+      - id: hugo
+        name: Resolve pinned Hugo version
+        run: |
+          v=$(grep -oE 'hugo:v[0-9]+\.[0-9]+\.[0-9]+' northlight/Makefile | head -1 | cut -d: -f2)
+          if [ -z "$v" ]; then echo "could not read HUGO_IMAGE from Makefile" >&2; exit 1; fi
+          echo "version=${v#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Install Hugo
+        env:
+          HUGO_VERSION: ${{ steps.hugo.outputs.version }}
+        run: |
+          curl -sSLo hugo.deb \
+            "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb"
+          sudo dpkg -i hugo.deb
+
+      # Root-relative so every internal link maps onto a path under the build directory,
+      # which is what --root-dir resolves against.
+      - name: Build with root-relative URLs
+        run: |
+          hugo \
+            --source northlight/exampleSite \
+            --themesDir ../.. \
+            --minify --gc \
+            --baseURL "/"
+
+      # --offline skips remote URLs entirely, so an unreachable third-party site can never
+      # turn this red; what it does check is that internal links and heading anchors
+      # resolve. The docs site generates its own table of contents, so a broken anchor is a
+      # realistic regression rather than a theoretical one.
+      - name: Check internal links and anchors
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --offline
+            --no-progress
+            --include-fragments
+            --root-dir ${{ github.workspace }}/northlight/exampleSite/public
+            "northlight/exampleSite/public/**/*.html"
+          fail: true
