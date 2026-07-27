@@ -1,6 +1,14 @@
-# Northlight
+<div align="center">
 
-A quiet, readable Hugo theme for technical writing.
+# 🪟 Northlight
+
+### A quiet, readable Hugo theme for technical writing.
+
+[![Hugo](https://img.shields.io/badge/Hugo-0.164%2B%20extended-FF4088?logo=hugo&logoColor=white)](https://gohugo.io) [![CSS](https://img.shields.io/badge/CSS-hand--written-1572B6?logo=css&logoColor=white)](assets/css) [![JavaScript](https://img.shields.io/badge/JavaScript-vanilla-F7DF1E?logo=javascript&logoColor=black)](assets/js) [![Docker](https://img.shields.io/badge/Docker-containerised%20build-2496ED?logo=docker&logoColor=white)](Makefile)
+
+[![CI](https://github.com/mortennordbye/northlight/actions/workflows/ci.yml/badge.svg)](https://github.com/mortennordbye/northlight/actions/workflows/ci.yml) [![Audit](https://github.com/mortennordbye/northlight/actions/workflows/audit.yml/badge.svg)](https://github.com/mortennordbye/northlight/actions/workflows/audit.yml) [![Pages](https://github.com/mortennordbye/northlight/actions/workflows/pages.yml/badge.svg)](https://github.com/mortennordbye/northlight/actions/workflows/pages.yml) [![Scorecard](https://api.securityscorecards.dev/projects/github.com/mortennordbye/northlight/badge)](https://scorecard.dev/viewer/?uri=github.com/mortennordbye/northlight)
+
+[![License](https://img.shields.io/github/license/mortennordbye/northlight?style=flat-square)](LICENSE) [![Last Commit](https://img.shields.io/github/last-commit/mortennordbye/northlight?style=flat-square)](https://github.com/mortennordbye/northlight/commits/main) [![Stars](https://img.shields.io/github/stars/mortennordbye/northlight?style=flat-square)](https://github.com/mortennordbye/northlight/stargazers)
 
 North light is the soft, even light from a north-facing window — no glare, no hard shadows, the
 same all day. That is the whole brief. Northlight has no concept to get between you and the
@@ -8,10 +16,36 @@ words: no gradients, no glass, no glow, no decorative motion. What it has instea
 type scale, a spacing rhythm that holds, syntax highlighting that works in both colour modes,
 and a dark mode designed rather than inverted.
 
-Screenshots: [light](images/screenshot.png) · the same page in both modes and all three palettes
-is in [`design/northlight.html`](design/northlight.html).
+**[Demo and documentation](https://mortennordbye.github.io/northlight/docs/)** · Screenshots:
+[light](images/screenshot.png) · the same page in both modes and all three palettes is in
+[`design/northlight.html`](design/northlight.html).
 
-## Design
+</div>
+
+---
+
+## Overview
+
+| Area | What you get |
+| ---- | ------------ |
+| Reading | Sticky scroll-spy table of contents, reading progress, heading anchors |
+| Code | Chroma class-based highlighting styled for light and dark, filename bar, copy button |
+| Search | A ⌘K modal with cover thumbnails and keyboard navigation |
+| Covers | Rendered at their exact aspect ratio and never cropped |
+| Post furniture | Tags, related posts, prev/next, share links, a comments hook |
+| Feeds | RSS, JSON search index, sitemap and robots.txt |
+| Palettes | Periwinkle, sage and clay, each in a designed light and dark mode |
+
+Content is enriched through render hooks rather than shortcodes, so posts stay portable markdown:
+admonitions use GitHub's alert syntax, and prose images get intrinsic dimensions, a `srcset` and
+optional captions without anything theme-specific in the source. A site can add its own
+`assets/css/custom.css` and it is folded into the theme's fingerprinted bundle automatically.
+
+Everything interactive degrades: with JavaScript off the site stays readable and navigable, the
+table of contents is still a list of working links, and the colour mode falls back to
+`prefers-color-scheme`. Only search disappears.
+
+### Design
 
 Open [`design/northlight.html`](design/northlight.html) in a browser. It is a single
 self-contained file showing the home page, the post index and a full article, in both colour
@@ -25,22 +59,53 @@ Colour is a white and near-black base plus one pastel primary, in three palettes
 and a genuinely pastel one for fills and hovers — which is what lets a pastel work without
 failing contrast.
 
-## Features
+---
 
-Long-form reading with a sticky scroll-spy table of contents, reading progress, and heading
-anchors. Syntax highlighting via Chroma classes, styled for light and dark, with a filename bar
-and copy button. A ⌘K search modal with cover thumbnails and keyboard navigation. Post covers
-rendered at their exact aspect ratio and never cropped. Tags, related posts, prev/next, share
-links, and a comments hook. RSS, JSON search index, sitemap and robots.txt.
+## Getting Started
 
-Content is enriched through render hooks rather than shortcodes, so posts stay portable markdown:
-admonitions use GitHub's alert syntax, and prose images get intrinsic dimensions, a `srcset` and
-optional captions without anything theme-specific in the source. A site can add its own
-`assets/css/custom.css` and it is folded into the theme's fingerprinted bundle automatically.
+**Requirements:** Hugo **extended** 0.164.0 or newer. Nothing else — no Node, no npm, no CSS
+framework, no build step beyond Hugo itself.
 
-Everything interactive degrades: with JavaScript off the site stays readable and navigable, the
-table of contents is still a list of working links, and the colour mode falls back to
-`prefers-color-scheme`. Only search disappears.
+0.164.0 is the floor because the theme is built on the template system Hugo introduced in 0.146
+and on the light/dark Chroma style pairs added in 0.164. If you are on an older Hugo, upgrade
+before installing the theme.
+
+1. **Add the theme.** As a git submodule (recommended — no Go toolchain needed):
+
+   ```bash
+   git submodule add https://github.com/mortennordbye/northlight.git themes/northlight
+   ```
+
+   ```toml
+   # hugo.toml
+   theme = "northlight"
+   ```
+
+   If you build in CI, remember `submodules: recursive` on the checkout step.
+
+   Or as a Hugo Module (needs Go available wherever you build):
+
+   ```bash
+   hugo mod init github.com/you/your-site
+   ```
+
+   ```toml
+   # hugo.toml
+   [module]
+     [[module.imports]]
+       path = "github.com/mortennordbye/northlight"
+   ```
+
+2. **Configure.** Copy [`exampleSite/hugo.toml`](exampleSite/hugo.toml) as your starting config —
+   it is a working file with every option in it, and the reference below matches it exactly.
+
+3. **Run.**
+
+   ```bash
+   hugo server
+   ```
+
+---
 
 ## Documentation
 
@@ -51,45 +116,7 @@ the same pull request.
 
 What follows is the short version.
 
-## Requirements
-
-Hugo **extended** 0.164.0 or newer. Nothing else — no Node, no npm, no CSS framework, no build
-step beyond Hugo itself.
-
-0.164.0 is the floor because the theme is built on the template system Hugo introduced in 0.146
-and on the light/dark Chroma style pairs added in 0.164. If you are on an older Hugo, upgrade
-before installing the theme.
-
-## Install
-
-**As a git submodule** (recommended — no Go toolchain needed):
-
-```bash
-git submodule add https://github.com/mortennordbye/northlight.git themes/northlight
-```
-
-```toml
-# hugo.toml
-theme = "northlight"
-```
-
-If you build in CI, remember `submodules: recursive` on the checkout step.
-
-**As a Hugo Module** (needs Go available wherever you build):
-
-```bash
-hugo mod init github.com/you/your-site
-```
-
-```toml
-# hugo.toml
-[module]
-  [[module.imports]]
-    path = "github.com/mortennordbye/northlight"
-```
-
-Then copy [`exampleSite/hugo.toml`](exampleSite/hugo.toml) as your starting config — it is a
-working file with every option in it, and the reference below matches it exactly.
+---
 
 ## Configuration
 
@@ -417,6 +444,45 @@ html[data-palette="clay"] { --accent: #9c4737; } /* your own take on clay */
 Every token is listed in [`docs/DESIGN.md`](docs/DESIGN.md). `exampleSite/assets/css/custom.css`
 is a working example — it adds print styles, which the theme deliberately has no opinion about.
 
+---
+
+## Repository structure
+
+```text
+northlight/
+├── layouts/            # the theme: baseof, page templates, _partials/, _markup/ render hooks
+├── assets/
+│   ├── css/            # hand-written CSS, concatenated and fingerprinted by Hugo
+│   └── js/             # small vanilla-JS modules, each optional
+├── i18n/               # every user-facing string; en.toml is the catalogue
+├── static/             # files copied verbatim
+├── exampleSite/        # demo site, documentation and integration test in one
+├── tests/run.sh        # the assertion suite `make check` runs against the build
+├── design/             # the approved visual target, plus ten rejected explorations
+├── docs/               # SPEC, BUILD-PLAN, DESIGN tokens, FEATURE-SURVEY
+├── images/             # screenshots
+├── Makefile            # every workflow, containerised
+└── theme.toml          # Hugo theme gallery metadata
+```
+
+---
+
+## Workflows
+
+| Workflow | Trigger | Purpose |
+| -------- | ------- | ------- |
+| CI | push, PR | build `exampleSite` with warnings as errors, then run `tests/run.sh` |
+| Audit | push, PR | Lighthouse SEO, accessibility and best-practices scores; internal link and anchor check |
+| Pages | push to main | build and publish the demo site and documentation |
+| Dependency Review | PR | block a PR that introduces a known-vulnerable dependency |
+| Scorecard | push, weekly | OpenSSF supply-chain grade, published to the Security tab |
+| PR Title | PR | enforce Conventional Commits, which release versioning depends on |
+| Release Please | push to main | open the version-bump PR, then cut the tag and release |
+| Dependabot Auto-merge | PR | merge patch and minor action bumps once checks pass |
+| Stale | daily | mark inactive issues and pull requests, then close them |
+
+---
+
 ## Development
 
 Everything runs in a container. Do not install Hugo on your host.
@@ -424,9 +490,12 @@ Everything runs in a container. Do not install Hugo on your host.
 ```bash
 make serve    # dev server on http://localhost:1313
 make build    # production build of exampleSite
-make check    # the gate: build with warnings as errors, then sanity-check output
+make check    # the gate: build with warnings as errors, then run the test suite
+make test     # run the test suite against the current build
 make clean
 ```
+
+---
 
 ## Contributing
 
@@ -436,6 +505,26 @@ modes, asset fingerprinting is mandatory, nothing author-specific in theme files
 
 Known gaps that are deliberately deferred live in [`BACKLOG.md`](BACKLOG.md).
 
+Security issues go through [private vulnerability reporting](SECURITY.md), not a public issue.
+
 ## Licence
 
 MIT. See [`LICENSE`](LICENSE).
+
+---
+
+<div align="center">
+
+### ⭐ Star this repo if you find it useful ⭐
+
+<a href="https://www.star-history.com/#mortennordbye/northlight&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=mortennordbye/northlight&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=mortennordbye/northlight&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=mortennordbye/northlight&type=Date" width="600" />
+  </picture>
+</a>
+
+Made by [Morten Victor Nordbye](https://nordbye.it)
+
+</div>
