@@ -46,6 +46,17 @@
       (resources.Get "css/list.css")
       (resources.Get "css/interaction.css")
 -}}
+{{- /* The site's own stylesheet, if it has one. Nothing in this theme provides
+       assets/css/custom.css, so this resolves only against the consuming site — which
+       is the point: a site author can retune a token, add a palette or override any
+       rule without forking the theme or shadowing this partial.
+
+       Appended last so it wins on source order at equal specificity, and concatenated
+       rather than linked separately so it stays inside the same fingerprinted bundle.
+       A second <link> would be an unfingerprinted request and a second round trip. */ -}}
+{{- with resources.Get "css/custom.css" -}}
+  {{- $sheets = $sheets | append . -}}
+{{- end -}}
 {{- $css := $sheets | resources.Concat "css/northlight.css" -}}
 {{- if hugo.IsProduction -}}
   {{- $css = $css | minify -}}

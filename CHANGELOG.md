@@ -6,6 +6,42 @@ and versions follow [semantic versioning](https://semver.org/).
 **Config keys are API.** A key is never renamed or repurposed without a major version bump. New
 keys are added with defaults that preserve existing behaviour.
 
+## [Unreleased]
+
+### Added
+
+- **Admonitions.** Five callout types — note, tip, important, warning and caution — using
+  GitHub's `> [!NOTE]` alert syntax rather than a shortcode, so the markdown renders as an
+  ordinary blockquote anywhere else. Their colours sit outside the palette system, because a
+  caution should read as a caution in every palette. Worst measured contrast is 5.06:1.
+- **Image render hook.** Markdown images now carry intrinsic width and height, a `srcset` at
+  480/720/1080/1440 capped at the original, `loading="lazy"` and `decoding="async"`. A markdown
+  title becomes a caption. This closes a no-layout-shift gap: prose images previously shipped
+  with no dimensions and reflowed the article as they loaded.
+- **`assets/css/custom.css`.** A site can add its own stylesheet with no configuration. It is
+  appended to the theme's bundle, so it is minified and fingerprinted with everything else and
+  adds no request.
+- **`_partials/extend-footer.html`.** The end-of-body twin of `extend-head.html`, for scripts
+  that should not block the first paint.
+
+- **Cloudflare Web Analytics**, via `params.analytics.cloudflare.token`. Chosen as the one
+  directly-wired provider because it sets no cookies and needs no consent banner. Set no token and
+  the theme still makes no third-party requests.
+
+### Fixed
+
+- **giscus now follows the site's appearance toggle**, not only the operating system. It renders
+  in a cross-origin iframe, so the theme messages it on every mode change. Previously a reader who
+  switched to dark on a light-mode machine got a bright comment box under a dark article. A source
+  comment claimed this already worked; it did not.
+
+### Changed
+
+- `wrapStandAloneImageWithinParagraph = false` is documented as required config. Without it
+  images still work; they just never get captions.
+- The appearance toggle emits a `northlight:appearance` event, so anything that CSS cannot restyle
+  can listen instead of being wired into the toggle itself.
+
 ## [0.1.0] — 2026-07-27
 
 First release.

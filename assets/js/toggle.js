@@ -33,6 +33,12 @@
       b.setAttribute("aria-label", label(mode));
       b.setAttribute("title", label(mode));
     });
+    /* Anything that cannot be restyled by CSS alone — a third-party iframe, most
+       obviously — needs telling. Broadcasting an event keeps this file from having to
+       know who those listeners are. */
+    document.dispatchEvent(
+      new CustomEvent("northlight:appearance", { detail: { mode: mode } })
+    );
   }
 
   buttons.forEach(function (b) {

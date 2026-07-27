@@ -1,0 +1,80 @@
+{{- /*
+  Image render hook for markdown images.
+
+  Without this, `![alt](photo.png)` produces a bare <img> with no intrinsic size, which
+  means the article reflows as each image arrives. The theme's no-layout-shift rule
+  applies to prose images just as much as to covers, and this is what enforces it: every
+  local image ships width and height, so the browser reserves the box before the bytes
+  land.
+
+  It also generates a srcset. The prose column is 44.2rem, so a 2400px screenshot was
+  costing readers roughly three times the bytes they could use.
+
+  Resolution order is page resource, then assets/, then leave it alone. That last case
+  covers remote URLs and anything in static/, neither of which Hugo can process — those
+  still get lazy loading, just no dimensions, because there is nothing to measure.
+
+  A title becomes a caption:
+
+      ![A wide diagram](diagram.png "How the pieces fit")
+
+  The figure wrapper only appears for an image alone in its own paragraph, since a
+  <figure> inside a <p> is invalid HTML. That requires
+  markup.goldmark.parser.wrapStandAloneImageWithinParagraph = false, which is in the
+  required config in README.md. Without it captions are simply skipped; nothing breaks.
+*/ -}}
+
+{{- $src := .Destination -}}
+{{- $alt := .PlainText -}}
+{{- $caption := .Title -}}
+
+{{- /* Page bundle first: that is where a post's own screenshots live. */ -}}
+{{- $img := .PageInner.Resources.GetMatch $src -}}
+{{- if not $img -}}
+  {{- $img = resources.Get $src -}}
+{{- end -}}
+
+{{- /* SVG has no raster dimensions and GIF loses its animation on resize, so neither
+       goes through the processing path. */ -}}
+{{- $processable := false -}}
+{{- if $img -}}
+  {{- $sub := $img.MediaType.SubType -}}
+  {{- $processable = and (eq $img.ResourceType "image") (not (in (slice "svg" "gif") $sub)) -}}
+{{- end -}}
+
+{{- $attrs := "" -}}
+{{- if $processable -}}
+  {{- /* Only widths below the original — upscaling costs bytes and adds nothing. The
+         original is always the last candidate, so the largest source is never a
+         blurry enlargement. */ -}}
+  {{- $srcset := slice -}}
+  {{- range (slice 480 720 1080 1440) -}}
+    {{- if lt . $img.Width -}}
+      {{- $r := $img.Resize (printf "%dx q82" .) -}}
+      {{- $srcset = $srcset | append (printf "%s %dw" $r.RelPermalink .) -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $srcset = $srcset | append (printf "%s %dw" $img.RelPermalink $img.Width) -}}
+
+  {{- /* 44.2rem is --measure. It cannot be read from CSS here, so if the measure
+         changes this needs changing with it. */ -}}
+  {{- $attrs = printf `src="%s" srcset="%s" sizes="(max-width: 47rem) 100vw, 44.2rem" width="%d" height="%d"`
+      $img.RelPermalink (delimit $srcset ", ") $img.Width $img.Height -}}
+{{- else if $img -}}
+  {{- $attrs = printf `src="%s"` $img.RelPermalink -}}
+{{- else -}}
+  {{- $attrs = printf `src="%s"` ($src | safeURL) -}}
+{{- end -}}
+
+{{- /* The assembled tag is marked safe, so the alt text has to be escaped here rather
+       than relying on the auto-escaping that marking it safe turns off. */ -}}
+{{- $image := printf `<img %s alt="%s" loading="lazy" decoding="async">` $attrs (htmlEscape $alt) -}}
+
+{{- if and .IsBlock $caption -}}
+  <figure>
+    {{ $image | safeHTML }}
+    <figcaption>{{ $caption }}</figcaption>
+  </figure>
+{{- else -}}
+  {{- $image | safeHTML -}}
+{{- end -}}

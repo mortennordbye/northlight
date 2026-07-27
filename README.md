@@ -33,6 +33,11 @@ and copy button. A ⌘K search modal with cover thumbnails and keyboard navigati
 rendered at their exact aspect ratio and never cropped. Tags, related posts, prev/next, share
 links, and a comments hook. RSS, JSON search index, sitemap and robots.txt.
 
+Content is enriched through render hooks rather than shortcodes, so posts stay portable markdown:
+admonitions use GitHub's alert syntax, and prose images get intrinsic dimensions, a `srcset` and
+optional captions without anything theme-specific in the source. A site can add its own
+`assets/css/custom.css` and it is folded into the theme's fingerprinted bundle automatically.
+
 Everything interactive degrades: with JavaScript off the site stays readable and navigable, the
 table of contents is still a list of working links, and the colour mode falls back to
 `prefers-color-scheme`. Only search disappears.
@@ -97,6 +102,13 @@ bump — see [`CHANGELOG.md`](CHANGELOG.md).
 
 [taxonomies]
   tag = "tags"             # the theme reads the `tags` taxonomy for tag rows and related posts
+```
+
+```toml
+[markup.goldmark.parser]
+  wrapStandAloneImageWithinParagraph = false   # lets an image on its own line become a
+                                               # <figure> with a caption. Without it, images
+                                               # still work — they just never get captions.
 ```
 
 Add these two if they apply to you:
@@ -186,6 +198,15 @@ Only read when `article.showComments` is true. Leave it out and no third-party s
 | `reactionsEnabled` | `"1"` | Reactions on the main post. |
 | `lang` | site language | giscus UI language. |
 
+Comments are GitHub Discussions, so moderation, threading and reactions are GitHub's rather than
+yours to run, and nothing about your repository is hardcoded in the theme.
+
+The widget follows **this site's** appearance toggle, not just the reader's operating system. giscus
+renders in a cross-origin iframe that no stylesheet here can reach, so the theme messages it
+directly whenever the mode changes. Without that, a reader who switches to dark on a light-mode
+machine gets a bright comment box under a dark article. With JavaScript off it falls back to
+following the operating system, which is the best answer available in that case.
+
 Using something else — utterances, Cusdis, a static form? Copy
 `layouts/_partials/comments.html` into your own site and replace it. That is the supported path
 and it survives theme upgrades.
@@ -218,15 +239,101 @@ the heading in search results, in the tab title and for anyone using a screen re
 rather it appeared once, take the words out of the artwork. Set `showHero = false` in a post's
 front matter to drop the cover on that post alone.
 
+### Images in posts
+
+Write an ordinary markdown image and the theme handles the rest:
+
+```markdown
+![A wide diagram of the build pipeline](pipeline.png "How the pieces fit")
+```
+
+Images resolve from the post's own page bundle first, then from `assets/`. A local image gets:
+
+- its **intrinsic width and height**, so the article does not reflow as pictures load
+- a **`srcset`** at 480, 720, 1080 and 1440 wide, capped at the original — the prose column is
+  44.2rem, so a 2400px screenshot otherwise costs a reader roughly three times the bytes they
+  can use
+- `loading="lazy"` and `decoding="async"`
+
+The optional **title** — the quoted part — becomes a caption. Captions need the
+`wrapStandAloneImageWithinParagraph` setting above and only apply to an image alone in its own
+paragraph, because a `<figure>` inside a `<p>` is invalid HTML.
+
+Remote URLs and anything in `static/` pass through untouched apart from lazy loading. Hugo cannot
+measure a file it does not manage, and a made-up width is worse than none. SVG and GIF skip
+resizing too: SVG has no raster size to resize, and a resized GIF stops animating.
+
+### Admonitions
+
+Callouts use GitHub's alert syntax, so the markdown stays portable — anywhere else it renders as
+an ordinary blockquote:
+
+```markdown
+> [!WARNING]
+> Renaming a published config key is a breaking change.
+```
+
+Five types are recognised: `NOTE`, `TIP`, `IMPORTANT`, `WARNING` and `CAUTION`. An unrecognised
+type emits a build warning and falls back to a plain blockquote rather than failing silently.
+
+Their colours sit outside the palette system on purpose. A caution should read as a caution
+whether the site runs periwinkle, sage or clay. Every label and body colour is measured at 4.5:1
+or better against its own tinted background in both modes; the worst is 5.06:1.
+
+### `[params.analytics.cloudflare]`
+
+Cloudflare Web Analytics is the one provider wired directly, because it sets no cookies and needs
+no consent banner. Set nothing and the theme makes no third-party requests at all.
+
+| Key | Default | What it does |
+|---|---|---|
+| `token` | — | Your beacon token. Set it and the beacon loads, deferred, at the end of `<body>`. |
+
+```toml
+[params.analytics.cloudflare]
+  token = "your-32-character-beacon-token"
+```
+
+The beacon token is not a secret — it appears in the page source of every site using it and
+identifies a site rather than authorising anything. It still belongs in your site's config, never
+in the theme.
+
+Any other provider goes in `extend-head.html`, or `extend-footer.html` if it is script-shaped and
+should not block the first paint. A theme that ships five analytics vendors makes four of them
+dead weight for everyone.
+
 ### Overriding anything
 
-Two partials exist purely as escape hatches, and both survive theme upgrades:
+Three escape hatches, all of which survive theme upgrades:
 
 - `layouts/_partials/extend-head.html` — anything you need in `<head>`: an analytics beacon, a
   verification tag, a preconnect.
+- `layouts/_partials/extend-footer.html` — anything that belongs at the end of `<body>`: a
+  deferred widget, a script that needs the DOM. Prefer this over the head hook for anything
+  script-shaped, so it does not block the first paint.
 - `layouts/_partials/comments.html` — any comment system.
 
-Copy either into your own site's `layouts/_partials/` and yours wins.
+Copy any of them into your own site's `layouts/_partials/` and yours wins.
+
+### Your own CSS
+
+Create `assets/css/custom.css` in your site and the theme picks it up automatically. There is
+nothing to configure, and the theme ships no file of that name, so there is nothing to conflict
+with.
+
+It is appended to the theme's own stylesheet, which means it is minified and fingerprinted with
+everything else and costs no extra request — and being last, a plain rule beats the theme's
+equivalent at the same specificity.
+
+Retuning a token is usually tidier than overriding a rule:
+
+```css
+:root { --measure: 40rem; }                      /* a narrower prose column */
+html[data-palette="clay"] { --accent: #9c4737; } /* your own take on clay */
+```
+
+Every token is listed in [`docs/DESIGN.md`](docs/DESIGN.md). `exampleSite/assets/css/custom.css`
+is a working example — it adds print styles, which the theme deliberately has no opinion about.
 
 ## Development
 

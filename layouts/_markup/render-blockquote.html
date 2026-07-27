@@ -1,0 +1,48 @@
+{{- /*
+  Blockquote render hook. Two jobs in one file because Goldmark routes both through
+  the same hook.
+
+  A plain blockquote renders as a plain blockquote — prose.css already styles it.
+
+  A blockquote opening with an alert marker becomes an admonition:
+
+      > [!WARNING]
+      > Renaming a param is a breaking change.
+
+  That is GitHub's own syntax, which is the whole reason to use it. A shortcode would
+  tie the post to this theme; this renders as an ordinary blockquote anywhere else and
+  as an admonition here, so nothing in the content locks the author in. Hugo parses the
+  marker natively and hands it over as .AlertType.
+
+  Recognised: note, tip, important, warning, caution. An unrecognised marker is not
+  silently swallowed — it warns at build time and falls back to a plain blockquote,
+  because a typo'd admonition that renders as normal text is a bug you find in
+  production.
+*/ -}}
+
+{{- if eq .Type "alert" -}}
+  {{- $icons := dict
+    "note"      "info"
+    "tip"       "bulb"
+    "important" "megaphone"
+    "warning"   "alert"
+    "caution"   "octagon"
+  -}}
+  {{- $type := lower .AlertType -}}
+  {{- $icon := index $icons $type -}}
+
+  {{- if $icon -}}
+    {{- /* .AlertTitle carries an author-supplied title where one was given; otherwise
+           the type itself is the label. */ -}}
+    {{- $title := .AlertTitle | default (title $type) -}}
+    <div class="admonition admonition-{{ $type }}" role="note">
+      <p class="admonition-label">{{ partial "icon.html" $icon }}<span>{{ $title }}</span></p>
+      <div class="admonition-body">{{ .Text }}</div>
+    </div>
+  {{- else -}}
+    {{- warnf "render-blockquote.html: unknown alert type %q in %s — rendered as a plain blockquote" .AlertType .Page.File.Path -}}
+    <blockquote>{{ .Text }}</blockquote>
+  {{- end -}}
+{{- else -}}
+  <blockquote>{{ .Text }}</blockquote>
+{{- end -}}

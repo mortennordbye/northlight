@@ -84,6 +84,36 @@
   --tok-tag: #3b5bc4;
   --tok-tag: light-dark(#3b5bc4, #a3b6f5);
 
+  /* --- admonitions -------------------------------------------------------- */
+  /* Deliberately outside the palette system. A caution is red whether the site
+     runs periwinkle, sage or clay: these carry meaning, and meaning that shifts
+     with a decorative setting is not meaning. Desaturated to stay inside the
+     north-light brief — a warning here should read as a warning, not as a siren.
+
+     Each pair is a label colour and the wash behind it. Measured against the
+     composited wash, not against --bg: the worst of the ten combinations is
+     5.31:1, and body text at --fg-2 holds 6.93:1 or better on all of them. */
+  --adm-note: #2f6099;
+  --adm-note: light-dark(#2f6099, #8fb6e2);
+  --adm-note-tint: rgba(47, 96, 153, 0.07);
+  --adm-note-tint: light-dark(rgba(47, 96, 153, 0.07), rgba(143, 182, 226, 0.12));
+  --adm-tip: #2f6b4e;
+  --adm-tip: light-dark(#2f6b4e, #79c39b);
+  --adm-tip-tint: rgba(47, 107, 78, 0.07);
+  --adm-tip-tint: light-dark(rgba(47, 107, 78, 0.07), rgba(121, 195, 155, 0.12));
+  --adm-important: #5f45a8;
+  --adm-important: light-dark(#5f45a8, #b3a2ec);
+  --adm-important-tint: rgba(95, 69, 168, 0.07);
+  --adm-important-tint: light-dark(rgba(95, 69, 168, 0.07), rgba(179, 162, 236, 0.12));
+  --adm-warning: #8a5a00;
+  --adm-warning: light-dark(#8a5a00, #dfa93f);
+  --adm-warning-tint: rgba(138, 90, 0, 0.08);
+  --adm-warning-tint: light-dark(rgba(138, 90, 0, 0.08), rgba(223, 169, 63, 0.12));
+  --adm-caution: #a83431;
+  --adm-caution: light-dark(#a83431, #e79089);
+  --adm-caution-tint: rgba(168, 52, 49, 0.07);
+  --adm-caution-tint: light-dark(rgba(168, 52, 49, 0.07), rgba(231, 144, 137, 0.12));
+
   /* --- type --------------------------------------------------------------- */
   /* The Fallback faces are metric-matched shims declared in fonts.css; they hold the
      same space as the real face so the swap does not reflow the page. */

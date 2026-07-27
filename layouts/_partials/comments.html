@@ -25,8 +25,11 @@
 {{- $g := site.Params.comments.giscus | default dict -}}
 {{- if and $g.repo $g.repoId $g.category $g.categoryId -}}
 <section class="comments" aria-label="Comments">
-  {{- /* data-theme follows the page: giscus reads the query string on load, and the
-         appearance toggle re-messages the iframe in phase 6. */ -}}
+  {{- /* preferred_color_scheme is the starting point, not the whole story: it follows
+         the operating system, which is only right until the reader uses this site's
+         own toggle. comments.js re-messages the iframe from there. This attribute is
+         what a reader with JavaScript disabled gets, and following their OS is the
+         best available answer in that case. */ -}}
   <script src="https://giscus.app/client.js"
           data-repo="{{ $g.repo }}"
           data-repo-id="{{ $g.repoId }}"
