@@ -63,6 +63,12 @@ keys are added with defaults that preserve existing behaviour.
   `embed` and `object` are now contained, with 16/9 assumed for frames and overridable inline.
 - **The theme attribution rendered as escaped markup** once it moved into `i18n`, printing the
   anchor tag as text in the footer.
+- **The header pushed the page sideways on a phone.** `.header-bar` is a fixed-height row that
+  cannot shrink, so a site with more than three menu entries overflowed at 375px. It now wraps
+  onto a second row below 720px, and the anchor offset grows to clear the taller bar.
+- **The updated date could repeat the publication date.** The comparison was on timestamps, so a
+  post published in the morning and corrected that afternoon rendered "27 Jul 2026 · Updated
+  27 Jul 2026". It now compares the formatted dates, which is what the reader actually sees.
 - **`--shadow-pop` did not exist**, so the nested menu panel rendered with no shadow. The token is
   `--shadow`.
 - **The script bundle declared a bare `t` global.** A single-letter global from a theme is a

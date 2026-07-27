@@ -195,6 +195,9 @@ assert_grep 'Updated <time'  "$MEASURING" "updated date renders when lastmod is 
 assert_grep 'class=edit-link' "$WRITING"   "edit link renders when editURL is set"
 # The updated date must not appear when lastmod equals date, or every post claims it.
 refute_grep 'Updated <time' "$PUBLIC/blog/two-modes/index.html" "no updated date without a real lastmod"
+# Nor when lastmod is later but renders as the same day: "27 Jul 2026 - Updated 27 Jul 2026"
+# says nothing twice.
+refute_grep 'Updated <time' "$WRITING" "no updated date when it renders as the same day"
 
 assert_grep 'nav-group'  "$PUBLIC/index.html" "nested menu renders as a disclosure"
 assert_grep '<details'   "$PUBLIC/index.html" "nested menu uses details, not a hover dropdown"
@@ -326,6 +329,15 @@ esac
 
 # Wide media must scroll or shrink inside its own box, never move the body.
 assert_grep '\.prose iframe' "$ROOT/assets/css/prose.css" "embedded media is contained"
+
+# The header is a fixed-height row that cannot shrink. Without the wrap it overflowed
+# the page sideways on a phone as soon as a site had more than three menu entries.
+# Nothing here opens a browser, so this guards the rule rather than the rendered result.
+assert_grep 'flex-wrap: wrap' "$ROOT/assets/css/layout.css" "header wraps rather than overflowing"
+# The taller two-row header needs a bigger anchor offset, and the rule has to live in
+# prose.css: layout.css is concatenated first, so the same rule there silently loses.
+assert_grep 'var(--sticky-offset) + var(--header-height)' "$ROOT/assets/css/prose.css" \
+  "anchor offset clears the wrapped header"
 
 # Chroma needs both modes. A token coloured in one and not the other is incomplete.
 ONE_MODE=""

@@ -3,6 +3,9 @@ title: "Writing content"
 description: "Front matter, admonitions, images, code fences, tables and embeds. Every example on this page is live."
 weight: 3
 date: 2026-07-27
+# Deliberately later than `date` but on the same calendar day. This is the fixture for
+# the "no updated date when it renders as the same day" case in tests/run.sh: the theme
+# compares the formatted dates, not the timestamps, so nothing should render here.
 lastmod: 2026-07-27T18:00:00Z
 ---
 

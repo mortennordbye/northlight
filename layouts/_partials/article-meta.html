@@ -20,9 +20,17 @@
     {{- end -}}
 
     {{- /* The updated date is only worth showing when it says something the publication
-           date does not. Hugo defaults Lastmod to Date, so without this comparison every
-           post would claim to have been updated on the day it was written. */ -}}
-    {{- if and $a.showDateUpdated (not .Lastmod.IsZero) (gt .Lastmod.Unix .Date.Unix) -}}
+           date does not. Hugo defaults Lastmod to Date, so without a comparison every post
+           would claim to have been updated on the day it was written.
+
+           The comparison is on the *formatted* dates rather than the timestamps, because
+           that is what the reader sees. A post published in the morning and corrected that
+           afternoon has a later Lastmod to the second, but both render as the same day, and
+           "27 Jul 2026 · Updated 27 Jul 2026" is noise. Whether it changed is Git's
+           question; whether it looks changed is this one. */ -}}
+    {{- $shown := .Date.Format $cfg.dateFormat -}}
+    {{- $updatedShown := .Lastmod.Format $cfg.dateFormat -}}
+    {{- if and $a.showDateUpdated (not .Lastmod.IsZero) (gt .Lastmod.Unix .Date.Unix) (ne $updatedShown $shown) -}}
       {{- $stamp := printf `<time datetime="%s">%s</time>` (.Lastmod.Format "2006-01-02") (.Lastmod.Format $cfg.dateFormat) -}}
       {{- $items = $items | append (i18n "updatedOn" ($stamp | safeHTML)) -}}
     {{- end -}}

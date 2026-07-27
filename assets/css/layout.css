@@ -226,4 +226,25 @@ main {
   .site-nav a {
     padding-inline: var(--space-2);
   }
+
+  /* The header is a fixed-height row that cannot shrink, so a site with more than
+     three menu entries pushed the whole page sideways on a phone. Nothing in the bar
+     is optional enough to hide, and a horizontally scrolling nav hides entries behind
+     a gesture with nothing to suggest it, so it wraps onto a second row instead and
+     the bar grows to fit.
+
+     min-height rather than height: the row still sets the floor, but an open
+     disclosure panel can now make it taller instead of overflowing. */
+  .header-bar {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: var(--header-height);
+    padding-block: var(--space-2);
+    row-gap: var(--space-2);
+  }
+
+  .site-nav {
+    flex-wrap: wrap;
+    min-width: 0;
+  }
 }

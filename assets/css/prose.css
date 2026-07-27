@@ -28,6 +28,20 @@
   position: relative;
 }
 
+/* Below 720px the header wraps onto a second row, so an anchor jump has to clear a
+   taller bar. This lives here rather than in layout.css beside the wrap rule, because
+   layout.css is concatenated first and the .prose rule above would win at equal
+   specificity and quietly undo it. */
+@media (max-width: 720px) {
+  .prose h2,
+  .prose h3,
+  .prose h4,
+  .prose h5,
+  .prose h6 {
+    scroll-margin-top: calc(var(--sticky-offset) + var(--header-height));
+  }
+}
+
 .prose h2 {
   font-size: var(--text-h2);
   font-weight: 650;
