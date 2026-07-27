@@ -11,8 +11,59 @@
        :root { --measure: 40rem; }
        html[data-palette="clay"] { --accent: #9c4737; }
 
-   What follows is a real example rather than a placeholder: print styles. The theme has
-   no opinion about paper, and this is the kind of thing a site adds for itself. */
+   Two real examples follow rather than placeholders: the documentation index, which is
+   a layout this site has and the theme does not, and print styles, which the theme has
+   no opinion about. */
+
+/* --- documentation index -------------------------------------------------- */
+
+.doc-index {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+}
+
+.doc-card {
+  display: block;
+  padding: var(--space-5);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  transition:
+    border-color var(--dur-card),
+    transform var(--dur-card);
+}
+
+.doc-card:hover {
+  border-color: var(--accent-pastel);
+  transform: translateY(-2px);
+}
+
+.doc-card-title {
+  font-size: var(--text-card-h3);
+  font-weight: 600;
+  margin: 0 0 var(--space-2);
+}
+
+.doc-card-text {
+  font-size: var(--text-meta);
+  line-height: 1.55;
+  color: var(--fg-3);
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .doc-card {
+    transition: none;
+  }
+
+  .doc-card:hover {
+    transform: none;
+  }
+}
+
+/* --- print ---------------------------------------------------------------- */
 
 @media print {
   /* Chrome and Safari drop backgrounds when printing, which would leave the
@@ -31,7 +82,8 @@
   .back-to-top,
   .share,
   .pager,
-  .related {
+  .related,
+  .edit-link {
     display: none;
   }
 

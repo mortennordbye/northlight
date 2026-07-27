@@ -295,6 +295,17 @@
   margin-top: var(--space-3);
 }
 
+/* A section's own body copy is markdown, so it can be several paragraphs. Without
+   this they run together: the paragraph spacing in prose.css is scoped to .prose,
+   and this is not prose. */
+.list-body > * + * {
+  margin-top: var(--space-4);
+}
+
+.list-body a {
+  color: var(--accent);
+}
+
 .year-rule {
   display: flex;
   align-items: center;

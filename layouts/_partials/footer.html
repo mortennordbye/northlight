@@ -9,7 +9,7 @@
              an author-specific value — `make check` greps for exactly that. Site
              authors who want to link it can override this partial. */ -}}
       {{- if $cfg.footer.showThemeAttribution }} &middot;
-        {{ i18n "builtWith" (`<a href="https://gohugo.io/" rel="noopener">Hugo</a>` | safeHTML) }}
+        {{ i18n "builtWith" (`<a href="https://gohugo.io/" rel="noopener">Hugo</a>` | safeHTML) | safeHTML }}
       {{- end }}
     </p>
     {{- end }}
