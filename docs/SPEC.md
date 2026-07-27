@@ -1,10 +1,10 @@
-# Blowfish feature inventory — what a replacement theme must do
+# Feature inventory — what a replacement theme must do
 
 Source of truth: `blog/` at commit `0d44fb6e` (2026-07-27).
-Blowfish pinned at `v2.104.0` (submodule `1f14448`), Hugo extended `0.161.1`.
+Previous theme pinned at `v2.104.0` (submodule `1f14448`), Hugo extended `0.161.1`.
 
 The point of this document: everything below is *in use today*. Anything not listed is
-Blowfish machinery you are paying for and not using.
+machinery carried by the previous theme and not used.
 
 ## Scope: this is a public theme
 
@@ -23,7 +23,7 @@ What that changes:
 - Config keys should be documented and stable — once someone else pins the theme, renaming
   a param is a breaking change.
 
-What it does **not** change: the audit found two-thirds of Blowfish unused. The goal is a
+What it does **not** change: the audit found two-thirds of the previous theme unused. The goal is a
 small theme that is configurable where it matters, not another kitchen sink. Resist adding
 a param for something neither you nor a plausible user needs; features earn their way in.
 
@@ -79,7 +79,7 @@ Used:
 
 Not used, at all:
 
-- **Shortcodes — zero. Not one of Blowfish's ~45 shortcodes appears in any post.**
+- **Shortcodes — zero. Not one of the previous theme's ~45 shortcodes appears in any post.**
 - Markdown images `![]()` — zero (every image is raw HTML)
 - Tables, footnotes, task lists, mermaid, KaTeX/math, charts
 
@@ -117,7 +117,7 @@ Post length: 1300–3600 words. Long enough that the TOC earns its place.
 ### Global
 
 - `colorScheme = "github"` — one palette: neutral / primary / secondary as RGB triplets.
-  You need **one** scheme file, not the 16 Blowfish ships.
+  You need **one** scheme file, not the 16 the previous theme ships.
 - `defaultAppearance = "dark"` + `autoSwitchAppearance = true` — dark default, follows
   system preference, user toggle persisted. Needs the render-blocking inline script that
   sets `html.dark` before first paint, or you get a flash.
@@ -190,7 +190,7 @@ scroll-to-top button.
 Three files in `blog/layouts/partials/`. They are yours already and are theme-agnostic
 enough to lift straight into the new theme (or keep as site-level overrides):
 
-- **`hero/basic.html`** — the important one. Replaces Blowfish's fixed-height
+- **`hero/basic.html`** — the important one. Replaces the previous theme's fixed-height
   `h-36/h-56/h-72` + `object-cover` band, which cropped the top and bottom off the
   1200×630 covers described in `blog/IMAGE-STYLE.md`. The override keeps
   `aspect-ratio: 1200 / 630` so covers render uncropped at every width.
@@ -203,7 +203,7 @@ enough to lift straight into the new theme (or keep as site-level overrides):
 
 ## 6. What you can drop
 
-Roughly two-thirds of Blowfish. Not used by a single page of this site:
+Roughly two-thirds of the previous theme. Not used by a single page of this site:
 
 All ~45 shortcodes · Firebase views/likes · multilingual + language-redirect + all i18n
 files · KaTeX · Mermaid · Chart.js · gallery · carousel · TypeIt · zen mode · a11y module ·
@@ -249,7 +249,7 @@ math passthrough.
 
 ## 8. Decisions to make before writing template one
 
-- **Tailwind or hand-written CSS.** Blowfish is Tailwind 4 with a pre-compiled
+- **Tailwind or hand-written CSS.** The previous theme is Tailwind 4 with a pre-compiled
   `main.css` and a `tailwind.config.js`; the Dockerfile's `npm install` step exists only
   for that. Hand-written CSS deletes the Node dependency from the build entirely — for a
   6-post single-author blog that is a real simplification, and it removes the
@@ -258,7 +258,7 @@ math passthrough.
 - **Distribution: git submodule vs Hugo Module.** Currently a submodule, and CI depends on
   `submodules: recursive`. A Hugo Module needs Go in the build image but gives you version
   pinning in `go.mod` and no submodule sharp edges.
-- **Icons.** Blowfish inlines SVGs from `assets/icons/` through a partial. You need about
+- **Icons.** The previous theme inlines SVGs from `assets/icons/` through a partial. You need about
   a dozen: linkedin, github, link, reddit, sun, moon, search, bars (mobile menu),
   arrow-up, chevron-down, copy/check.
 - **Render hooks to keep.** Heading anchors (the TOC links to them) and external-link

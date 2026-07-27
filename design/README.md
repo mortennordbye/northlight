@@ -7,7 +7,7 @@
 >
 > For the tokens extracted from the approved design, see [`../docs/DESIGN.md`](../docs/DESIGN.md).
 
-Standalone HTML mockups for the Blowfish replacement. Open any file directly in a browser.
+Standalone HTML mockups for the replacement theme. Open any file directly in a browser.
 Each one carries a floating control in the bottom-right: **Home / Index / Article** switches
 view, and the last button toggles light and dark. Content is the real six posts, real titles,
 dates, tags and word counts, so the layouts are judged against what the site actually holds.

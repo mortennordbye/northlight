@@ -201,7 +201,7 @@ That test is the whole point of the phase — run it for real, do not reason abo
 
 ## Do not build
 
-The audit in `docs/SPEC.md` found roughly two-thirds of Blowfish unused by the site this
+The audit in `docs/SPEC.md` found roughly two-thirds of the previous theme unused by the site this
 replaces. Adding it back "because a theme should have it" is the main way this project fails.
 
 Out of scope unless explicitly asked: shortcodes of any kind, view/like counters, multilingual
