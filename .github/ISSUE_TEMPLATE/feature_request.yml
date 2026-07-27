@@ -1,0 +1,35 @@
+name: Feature request
+description: Suggest an idea
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: >-
+        Northlight is deliberately small. The audit it was built from found roughly two-thirds
+        of its predecessor unused, so features earn their way in rather than being added
+        because a theme is expected to have them. A request that explains the problem is much
+        more likely to land than one that names a feature.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: What are you trying to do that the theme makes hard or impossible today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: If it needs configuration, suggest the parameter name and its default.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What did you try instead?
+      description: >-
+        The theme has escape hatches: `extend-head.html`, `comments.html`, your own
+        `assets/css/custom.css`, and site-level template overrides. Did one of them nearly work?
