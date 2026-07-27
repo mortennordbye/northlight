@@ -31,8 +31,6 @@ keys are added with defaults that preserve existing behaviour.
 - **`dateFormat`** and **`rtl`** params.
 - **A documentation site.** `exampleSite/content/docs/` is a full manual built by the theme
   itself, so every page demonstrates the feature it documents.
-
-
 - **Admonitions.** Five callout types — note, tip, important, warning and caution — using
   GitHub's `> [!NOTE]` alert syntax rather than a shortcode, so the markdown renders as an
   ordinary blockquote anywhere else. Their colours sit outside the palette system, because a
@@ -51,6 +49,13 @@ keys are added with defaults that preserve existing behaviour.
   directly-wired provider because it sets no cookies and needs no consent banner. Set no token and
   the theme still makes no third-party requests.
 
+- **A test suite**, `tests/run.sh`, run by `make check` and by CI before deploying. POSIX `sh`
+  and nothing else, so it adds no toolchain. It asserts what a green build does not: asset
+  fingerprinting and integrity, feed and sitemap validity and scope, the never-cropped cover, both
+  colour modes for every syntax and admonition colour, that every custom property and i18n key
+  resolves, that no user-facing string is hardcoded, and that the script bundle declares no bare
+  globals.
+
 ### Fixed
 
 - **Wide media no longer breaks the page.** An embedded `iframe` overflowed by 843px at a 375px
@@ -58,6 +63,11 @@ keys are added with defaults that preserve existing behaviour.
   `embed` and `object` are now contained, with 16/9 assumed for frames and overridable inline.
 - **The theme attribution rendered as escaped markup** once it moved into `i18n`, printing the
   anchor tag as text in the footer.
+- **`--shadow-pop` did not exist**, so the nested menu panel rendered with no shadow. The token is
+  `--shadow`.
+- **The script bundle declared a bare `t` global.** A single-letter global from a theme is a
+  collision risk for anything a site author loads. The shared lookup is now `window.Northlight.t`,
+  with each module holding a local alias and its own fallback.
 - **Section body copy had no paragraph spacing.** `.list-body` is not `.prose`, so the paragraph
   rules never reached it and multi-paragraph section descriptions ran together.
 

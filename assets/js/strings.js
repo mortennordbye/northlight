@@ -5,13 +5,19 @@
    cannot be rendered into the markup because they change at runtime, so baseof.html
    serialises them into a JSON block and this reads it once.
 
-   Every call passes an English fallback. A site that has not translated the theme, or
-   one where the block is missing entirely, still gets working buttons rather than
-   blank ones, so nothing here is load-bearing.
+   Exposed as window.Northlight.t rather than a bare global. The bundle is concatenated,
+   so a top-level `var t` would put a single-letter name on window for every site using
+   the theme, where anything a site author loads could collide with it. One namespaced
+   object is the smallest footprint that still lets the modules share a lookup.
 
-   This must be first in the bundle: the modules that follow call t() at definition
-   time. */
-var t = (function () {
+   Every call passes an English fallback, so a site that has not translated the theme, a
+   missing block, or a malformed one all still produce working buttons.
+
+   This must be first in the bundle: the modules after it read window.Northlight.t when
+   they run. */
+window.Northlight = window.Northlight || {};
+
+window.Northlight.t = (function () {
   var strings = {};
   try {
     var el = document.getElementById("northlight-strings");

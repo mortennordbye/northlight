@@ -17,7 +17,8 @@ not.
 ```bash
 make serve    # live-reload dev server on http://localhost:1313
 make build    # production build of exampleSite
-make check    # THE GATE — see below
+make check    # THE GATE — build, then run the test suite
+make test     # the test suite alone, against the current build
 make clean    # remove build output and caches
 ```
 
@@ -31,12 +32,32 @@ breakage and keeps the theme installable with nothing but Hugo.
 ## Before opening a pull request
 
 ```bash
-make check
+make check     # build with warnings as errors, then run the suite
+make test      # the suite alone, against the current build
 ```
 
-That builds with warnings treated as errors, then sanity-checks the output. A green build is
-necessary but not sufficient — Hugo renders broken layouts happily. For any change touching a
-template or CSS, also:
+`make check` builds with warnings treated as errors and then runs `tests/run.sh`, which is
+the same suite CI runs before deploying.
+
+It is POSIX `sh` and the tools any Unix already has. This theme has no Node toolchain and no
+package manager, and a test suite that reintroduced one would undo the main thing the build is
+protecting. `python3` is used only to validate JSON and XML, and those cases skip rather than
+fail when it is absent.
+
+The suite asserts what a green build does not: that the output is fingerprinted and
+integrity-hashed, that feeds and the sitemap parse and contain the right things, that covers are
+never cropped, that syntax and admonition colours exist in both modes, that every custom property
+and every i18n key resolves, that no user-facing string is hardcoded, and that the script bundle
+declares no bare globals.
+
+When you add a case, check that it can actually fail. Break the thing on purpose and confirm the
+suite goes red before you commit it. An assertion that cannot fail is worse than none, because it
+reads as coverage. Two of the original cases were wrong in exactly this way: one matched
+`northlight.min.css` as though it carried a content hash, and one hardcoded the demo's own
+hostname so it would have failed only in CI.
+
+The suite still does not replace looking at the page. Hugo renders broken layouts happily and
+nothing here opens a browser, so for any change touching a template or CSS, also:
 
 1. `make serve` and load the affected page.
 2. Check it in **both** colour modes. A change that only looks right in light mode is not done.
@@ -103,7 +124,9 @@ some point.
    anything.
 7. **Update `docs/FEATURE-SURVEY.md`.** Set the row's status. If you decided *not* to build
    something, mark it Rejected with the reason rather than leaving it as an open candidate.
-8. **Verify**, and say in the PR what you actually checked.
+8. **Add a case to `tests/run.sh`** for whatever the feature guarantees. Then break the thing on
+   purpose and confirm the suite goes red before you commit it.
+9. **Verify**, and say in the PR what you actually checked.
 
 ## Architecture
 

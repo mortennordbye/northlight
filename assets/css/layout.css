@@ -158,7 +158,7 @@ main {
   background: var(--bg);
   border: 1px solid var(--line);
   border-radius: var(--radius-thumb);
-  box-shadow: var(--shadow-pop);
+  box-shadow: var(--shadow);
 }
 
 /* On a narrow screen the header wraps and an absolutely positioned panel would sit

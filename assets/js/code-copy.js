@@ -5,6 +5,9 @@
    button, and the code is still selectable — which is what people did before copy
    buttons existed. */
 (function () {
+  /* Local alias, so this module keeps working even without the strings module. */
+  var t = (window.Northlight || {}).t || function (key, fallback) { return fallback; };
+
   var blocks = document.querySelectorAll(".highlight");
   if (!blocks.length || !navigator.clipboard) return;
 
