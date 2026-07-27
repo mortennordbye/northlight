@@ -4,9 +4,11 @@ name: Scorecard
 # branch protection, dependency pinning, workflow hygiene — and publishes findings to the
 # Security tab.
 #
-# Expect a few points lost on "Pinned-Dependencies": the actions here are pinned to version
-# tags rather than commit SHAs, because a readable diff on a dependency bump is worth more
-# on a theme than the last few points of a score. That trade is deliberate.
+# Every action is pinned to a commit SHA with the version in a trailing comment. A tag is
+# mutable: whoever controls the action repository can repoint v2 at different code, and a
+# workflow with a write token would run it without the diff ever showing. Dependabot updates
+# the SHA and the comment together, so the readability cost is a comment rather than a
+# guess.
 
 on:
   push:
@@ -25,16 +27,16 @@ jobs:
       security-events: write
       id-token: write
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
 
-      - uses: ossf/scorecard-action@v2.4.4
+      - uses: ossf/scorecard-action@2d1146689b8cda280b9bc96326124645441f03bc # v2.4.4
         with:
           results_file: results.sarif
           results_format: sarif
           publish_results: true
 
-      - uses: github/codeql-action/upload-sarif@v4
+      - uses: github/codeql-action/upload-sarif@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81 # v4
         with:
           sarif_file: results.sarif

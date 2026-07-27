@@ -23,6 +23,6 @@ jobs:
       # pull_request_target is safe here only because nothing is checked out. Never add a
       # checkout step to this workflow: it runs with a writable token against the PR's
       # branch, so checking out fork code would hand that token to the fork.
-      - uses: amannn/action-semantic-pull-request@v6
+      - uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
