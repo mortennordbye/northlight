@@ -1,0 +1,32 @@
+{{- /*
+  Resolves theme config once and returns it as a dict. Every template reads the
+  resolved values from here rather than repeating `| default` chains, so a default
+  lives in exactly one place. Call it as `partialCached "init.html" .` — the values
+  are site-wide, so it runs once per build.
+
+  Unknown values fall back to the default rather than reaching the templates,
+  because a typo in colorScheme should not produce an unstyled page.
+*/ -}}
+
+{{- $palette := site.Params.colorScheme | default "periwinkle" -}}
+{{- if not (in (slice "periwinkle" "sage" "clay") $palette) -}}
+  {{- $palette = "periwinkle" -}}
+{{- end -}}
+
+{{- $appearance := site.Params.defaultAppearance | default "light" -}}
+{{- if not (in (slice "light" "dark") $appearance) -}}
+  {{- $appearance = "light" -}}
+{{- end -}}
+
+{{- /* `| default true` would turn an explicit false back into true, so test for the
+       key instead. Hugo lowercases param keys. */ -}}
+{{- $autoSwitch := true -}}
+{{- if isset site.Params "autoswitchappearance" -}}
+  {{- $autoSwitch = site.Params.autoSwitchAppearance -}}
+{{- end -}}
+
+{{- return dict
+  "palette" $palette
+  "defaultAppearance" $appearance
+  "autoSwitchAppearance" $autoSwitch
+-}}

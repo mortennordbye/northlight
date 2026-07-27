@@ -1,0 +1,29 @@
+{{- $cfg := partialCached "init.html" . -}}
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} · {{ site.Title }}{{ end }}</title>
+
+{{- /* Inlined and placed before the stylesheet so the mode is pinned before first
+       paint. Theme-owned code, hence safeJS. */ -}}
+{{- with resources.Get "js/appearance.js" | minify }}
+<script>{{ .Content | safeJS }}</script>
+{{- end }}
+
+{{- /* fonts.css is a template so its woff2 URLs carry a content hash; the rest are
+       plain CSS. Concatenated into one request, then fingerprinted — consuming sites
+       cache CSS as immutable for a year on the strength of that hash, so removing
+       the fingerprint would be a year-long stale-asset bug. */ -}}
+{{- $fonts := resources.Get "css/fonts.css" | resources.ExecuteAsTemplate "css/fonts.css" . -}}
+{{- $sheets := slice $fonts (resources.Get "css/tokens.css") (resources.Get "css/base.css") -}}
+{{- $css := $sheets | resources.Concat "css/northlight.css" -}}
+{{- if hugo.IsProduction -}}
+  {{- $css = $css | minify -}}
+{{- end -}}
+{{- $css = $css | fingerprint "sha512" }}
+<link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}" crossorigin="anonymous">
+
+{{- /* Only the body face is preloaded. The mono face is not on the critical path:
+       nothing above the fold on a typical page is set in it. */ -}}
+{{- with resources.Get "fonts/schibsted-grotesk-latin.woff2" | fingerprint }}
+<link rel="preload" href="{{ .RelPermalink }}" as="font" type="font/woff2" crossorigin>
+{{- end }}

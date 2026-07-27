@@ -1,9 +1,11 @@
+{{- $cfg := partialCached "init.html" . -}}
 <!doctype html>
-<html lang="{{ site.Language.Lang }}">
+<html lang="{{ site.Language.Lang }}"
+      data-palette="{{ $cfg.palette }}"
+      data-appearance-default="{{ $cfg.defaultAppearance }}"
+      data-appearance-auto="{{ $cfg.autoSwitchAppearance }}">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} · {{ site.Title }}{{ end }}</title>
+  {{ partial "head.html" . }}
 </head>
 <body>
   {{ block "main" . }}{{ end }}
