@@ -53,7 +53,9 @@ COPY --chown=1000:1000 . /srv
 EXPOSE 8080
 ```
 
-```nginx
+A fence can name the file it came from, which renders a bar above the code:
+
+```nginx {file="/etc/nginx/conf.d/example.conf"}
 server {
     listen       443 ssl;
     server_name  example.com;

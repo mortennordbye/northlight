@@ -33,6 +33,34 @@
 
 /* --- the block itself ---------------------------------------------------- */
 
+/* A fence with {file="..."} is wrapped in a figure that owns the frame, and the
+   inner .highlight gives up its own border and radius so the two do not nest. */
+.code-figure {
+  margin: 0 0 var(--space-7);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pager);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.code-figure .highlight {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+.code-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 9px var(--space-4);
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--fg-2);
+}
+
 .highlight {
   background: var(--surface);
   border: 1px solid var(--line);

@@ -1,0 +1,24 @@
+{{- /*
+  Code block render hook. Its only job is the filename bar; the highlighting is still
+  Chroma's, called through transform.Highlight with the site's own markup.highlight
+  options so a fence behaves identically whether or not it names a file.
+
+  Write the filename as a fence attribute:
+
+      ```yaml {file="cilium-audit.yaml"}
+
+  Without one, the output is exactly what Hugo would have produced unaided, so this
+  hook costs nothing on the fences that do not use it.
+*/ -}}
+{{- $file := .Attributes.file -}}
+{{- $highlighted := transform.Highlight (.Inner | strings.TrimSpace) .Type .Options -}}
+{{- if $file -}}
+  <figure class="code-figure">
+    <figcaption class="code-bar">
+      <span class="code-file">{{ $file }}</span>
+    </figcaption>
+    {{ $highlighted }}
+  </figure>
+{{- else -}}
+  {{ $highlighted }}
+{{- end -}}

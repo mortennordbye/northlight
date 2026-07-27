@@ -44,6 +44,9 @@
       );
     });
 
-    block.appendChild(button);
+    /* A fence with a filename renders a bar; the button belongs in it rather than
+       floating over the first line of code. */
+    var bar = block.closest(".code-figure") && block.closest(".code-figure").querySelector(".code-bar");
+    (bar || block).appendChild(button);
   });
 })();

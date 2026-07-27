@@ -5,6 +5,74 @@ entry states what, why it was deferred, what would unblock it, and where the cod
 
 ---
 
+## v0.1.0 is not tagged yet
+
+**What:** `CHANGELOG.md` documents 0.1.0 and the theme is feature-complete against
+`docs/BUILD-PLAN.md`, but no git tag exists.
+
+**Why deferred:** the work is on the `build/theme` branch. Tagging a release on an unmerged
+branch points `v0.1.0` at a commit that is not on `main`, which is worse than not tagging.
+
+**Unblocks it:** merging `build/theme` into `main`, then `git tag -a v0.1.0`. The install
+instructions and `theme.toml` already reference the tag's URL shape.
+
+**Where:** `CHANGELOG.md`, `theme.toml`.
+
+---
+
+## Highlighted line has a seam under line numbers
+
+**What:** on a fence using `linenos=table` *and* `hl_lines`, the highlighted row's background
+stops at the edge of the line-number cell and resumes in the code cell, leaving a hairline gap
+between the two columns. Chroma emits `.hl` separately inside each table cell and the cell
+padding sits between them.
+
+**Why deferred:** cosmetic, and it needs both features on the same fence — a combination the
+reference blog never uses. Fixing it properly means restyling the `lntable` layout so the row is
+one background rather than two.
+
+**Unblocks it:** a post that actually uses line numbers with highlighted lines.
+
+**Where:** `.chroma .hl` and the `.lntd` rules in `assets/css/chroma.css`.
+
+---
+
+## OpenGraph article:tag is title-cased
+
+**What:** `<meta property="article:tag">` renders `Accessibility` rather than `accessibility`.
+Hugo's embedded `opengraph.html` uses `.LinkTitle` for terms, which is Hugo's title-cased form.
+Tags elsewhere in the theme render as the author wrote them, via `.Data.Term`.
+
+**Why deferred:** fixing it means replacing the whole embedded OpenGraph partial with a
+hand-rolled copy, and then owning every future change Hugo makes to it — a large maintenance
+surface for the casing of one social meta tag no human reads.
+
+**Unblocks it:** Hugo exposing the raw term to the embedded template, or a decision that the
+casing matters enough to fork the partial.
+
+**Where:** `layouts/_partials/head.html`, the `partial "opengraph.html"` call.
+
+---
+
+## Search is substring-only
+
+**What:** `assets/js/search.js` lowercases the query and tests it against title, tags and summary
+with `indexOf`. There is no ranking, no fuzzy matching and no typo tolerance, and the index
+carries no post bodies.
+
+**Why deferred:** deliberate, not an oversight. For a blog-sized corpus it finds what people look
+for, and a matching library would cost more over the wire than the entire index does. It is
+recorded here because it is the first thing that stops scaling — at a few hundred posts, ranked
+matching starts to earn its keep.
+
+**Unblocks it:** a site large enough that substring matching returns too much or the wrong order.
+`search.js` is the only file that would change; the index format already carries what a ranker
+needs.
+
+**Where:** `assets/js/search.js`, `layouts/home.json`.
+
+---
+
 ## Bind-mount build race: mitigated, root cause not proven
 
 **What:** on a cold output directory, `make build` / `make check` could die with

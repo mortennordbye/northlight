@@ -212,6 +212,17 @@ html[data-theme="dark"] .only-light { display: none; }
   }
 }
 
+/* In a filename bar the button sits in the flow rather than floating over the code,
+   and it is always visible — the bar is chrome, so a control in it is expected. */
+.code-bar .copy-button {
+  position: static;
+  opacity: 1;
+}
+
+.code-figure:hover .copy-button {
+  opacity: 1;
+}
+
 /* --- scroll-spy ------------------------------------------------------------ */
 
 .toc a.is-current {
