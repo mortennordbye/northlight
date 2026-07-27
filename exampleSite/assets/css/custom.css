@@ -1,0 +1,51 @@
+/* Site-level CSS, owned by this site rather than by the theme.
+
+   Northlight picks up assets/css/custom.css automatically if it exists and appends it
+   to its own bundle, so it is minified and fingerprinted along with everything else and
+   costs no extra request. Nothing has to be configured to switch it on, and the theme
+   ships no file of this name, so there is nothing to conflict with.
+
+   Because it lands last in the cascade, a plain rule beats the theme's equivalent at the
+   same specificity. Retuning a design token is usually the tidier move:
+
+       :root { --measure: 40rem; }
+       html[data-palette="clay"] { --accent: #9c4737; }
+
+   What follows is a real example rather than a placeholder: print styles. The theme has
+   no opinion about paper, and this is the kind of thing a site adds for itself. */
+
+@media print {
+  /* Chrome and Safari drop backgrounds when printing, which would leave the
+     admonitions as unlabelled floating text. Give them a visible edge instead. */
+  .admonition {
+    border: 1px solid #999;
+    border-left-width: 3px;
+    break-inside: avoid;
+  }
+
+  /* Interface, not content. None of it means anything on paper. */
+  .site-header,
+  .site-footer,
+  .toc,
+  .reading-progress,
+  .back-to-top,
+  .share,
+  .pager,
+  .related {
+    display: none;
+  }
+
+  /* The measure exists to stop the eye travelling too far on a screen. A sheet of A4
+     is already narrower than that, so let the text use the page. */
+  .prose,
+  .wrap {
+    max-width: none;
+  }
+
+  /* A printed link is a dead end unless its destination is written out. */
+  .prose a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.85em;
+    word-break: break-all;
+  }
+}

@@ -37,5 +37,7 @@
   {{- if hugo.IsProduction }}{{ $js = $js | minify }}{{ end -}}
   {{- $js = $js | fingerprint "sha512" }}
   <script src="{{ $js.RelPermalink }}" integrity="{{ $js.Data.Integrity }}" crossorigin="anonymous" defer></script>
+
+  {{ partial "extend-footer.html" . }}
 </body>
 </html>

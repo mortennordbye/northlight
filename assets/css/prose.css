@@ -114,6 +114,78 @@
   margin-block: var(--space-5);
 }
 
+/* A captioned image. The figure owns the vertical rhythm so the img inside it does
+   not add a second margin between the picture and its own caption. */
+.prose figure {
+  margin: var(--space-5) 0;
+}
+
+.prose figure img {
+  display: block;
+  margin-block: 0;
+}
+
+.prose figcaption {
+  margin-top: var(--space-2);
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--fg-3);
+}
+
+/* --- admonitions --------------------------------------------------------- */
+/* Same shape as a blockquote — 3px edge, tinted wash — so the two read as
+   relatives rather than as two unrelated components. Colours come from the
+   semantic --adm-* tokens, which do not follow the palette. */
+.admonition {
+  --adm: var(--adm-note);
+  --adm-bg: var(--adm-note-tint);
+  border-left: 3px solid var(--adm);
+  background: var(--adm-bg);
+  border-radius: 0 var(--radius-thumb) var(--radius-thumb) 0;
+  padding: var(--space-4) var(--space-5);
+  margin: 30px 0;
+  font-size: 16.5px;
+  color: var(--fg-2);
+}
+
+.admonition-tip { --adm: var(--adm-tip); --adm-bg: var(--adm-tip-tint); }
+.admonition-important { --adm: var(--adm-important); --adm-bg: var(--adm-important-tint); }
+.admonition-warning { --adm: var(--adm-warning); --adm-bg: var(--adm-warning-tint); }
+.admonition-caution { --adm: var(--adm-caution); --adm-bg: var(--adm-caution-tint); }
+
+.admonition-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-2);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--adm);
+}
+
+.admonition-label .icon {
+  width: 1.15em;
+  height: 1.15em;
+  flex: none;
+}
+
+.admonition-body > :last-child {
+  margin-bottom: 0;
+}
+
+/* The wash is already a tint of the accent-adjacent colour; a second tinted box
+   inside it turns to mud. Inline code borrows the admonition's own edge instead. */
+.admonition-body code {
+  background: color-mix(in srgb, var(--adm) 8%, transparent);
+  border-color: color-mix(in srgb, var(--adm) 22%, transparent);
+}
+
+.admonition-body a {
+  color: var(--adm);
+}
+
 .prose hr {
   border: 0;
   border-top: 1px solid var(--line);

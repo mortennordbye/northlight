@@ -6,6 +6,29 @@ and versions follow [semantic versioning](https://semver.org/).
 **Config keys are API.** A key is never renamed or repurposed without a major version bump. New
 keys are added with defaults that preserve existing behaviour.
 
+## [Unreleased]
+
+### Added
+
+- **Admonitions.** Five callout types — note, tip, important, warning and caution — using
+  GitHub's `> [!NOTE]` alert syntax rather than a shortcode, so the markdown renders as an
+  ordinary blockquote anywhere else. Their colours sit outside the palette system, because a
+  caution should read as a caution in every palette. Worst measured contrast is 5.06:1.
+- **Image render hook.** Markdown images now carry intrinsic width and height, a `srcset` at
+  480/720/1080/1440 capped at the original, `loading="lazy"` and `decoding="async"`. A markdown
+  title becomes a caption. This closes a no-layout-shift gap: prose images previously shipped
+  with no dimensions and reflowed the article as they loaded.
+- **`assets/css/custom.css`.** A site can add its own stylesheet with no configuration. It is
+  appended to the theme's bundle, so it is minified and fingerprinted with everything else and
+  adds no request.
+- **`_partials/extend-footer.html`.** The end-of-body twin of `extend-head.html`, for scripts
+  that should not block the first paint.
+
+### Changed
+
+- `wrapStandAloneImageWithinParagraph = false` is documented as required config. Without it
+  images still work; they just never get captions.
+
 ## [0.1.0] — 2026-07-27
 
 First release.
