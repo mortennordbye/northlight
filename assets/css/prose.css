@@ -28,6 +28,20 @@
   position: relative;
 }
 
+/* Below 720px the header wraps onto a second row, so an anchor jump has to clear a
+   taller bar. This lives here rather than in layout.css beside the wrap rule, because
+   layout.css is concatenated first and the .prose rule above would win at equal
+   specificity and quietly undo it. */
+@media (max-width: 720px) {
+  .prose h2,
+  .prose h3,
+  .prose h4,
+  .prose h5,
+  .prose h6 {
+    scroll-margin-top: calc(var(--sticky-offset) + var(--header-height));
+  }
+}
+
 .prose h2 {
   font-size: var(--text-h2);
   font-weight: 650;
@@ -114,13 +128,52 @@
   margin-block: var(--space-5);
 }
 
+/* Embedded media, which arrives as raw HTML and so never passes through a render
+   hook. A pasted YouTube embed carries width="1200" height="675", and without this
+   that pushed the whole page sideways on a phone. Wide media scrolls or shrinks
+   inside its own box; the body never scrolls horizontally.
+
+   iframes have no intrinsic aspect ratio, so height:auto cannot recover one from the
+   width and height attributes the way it does for an image. 16/9 is the assumption
+   because video is what people actually embed. Anything else overrides it inline:
+   <iframe style="aspect-ratio: 4/3"> wins, exactly as inline widths do on images. */
+.prose iframe,
+.prose video,
+.prose audio,
+.prose embed,
+.prose object {
+  display: block;
+  max-width: 100%;
+  margin-block: var(--space-5);
+  border: 0;
+  border-radius: var(--radius-thumb);
+}
+
+.prose iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+}
+
+.prose video {
+  width: 100%;
+  height: auto;
+}
+
+.prose audio {
+  width: 100%;
+}
+
 /* A captioned image. The figure owns the vertical rhythm so the img inside it does
    not add a second margin between the picture and its own caption. */
 .prose figure {
   margin: var(--space-5) 0;
 }
 
-.prose figure img {
+/* :where() keeps this at zero specificity for the class slot, so the light/dark pair
+   rules below beat it with a single class and work outside .prose too, in the header
+   logo for instance. Written the obvious way this rule wins and both images show. */
+:where(.prose figure) img {
   display: block;
   margin-block: 0;
 }
@@ -130,6 +183,41 @@
   font-size: 14.5px;
   line-height: 1.5;
   color: var(--fg-3);
+}
+
+/* Light and dark artwork for the same image, emitted as a pair by render-image.html
+   when a `-dark` sibling exists.
+
+   These rules mirror the appearance logic exactly rather than relying on
+   prefers-color-scheme alone: the media query only knows what the operating system
+   wants, and a reader who used this site's toggle has said otherwise. data-theme is
+   only present when they have pinned a mode, so :not([data-theme="light"]) means
+   "following the system, and the system says dark".
+
+   display:none keeps the hidden one out of the accessibility tree, so the alt text is
+   announced once rather than twice, and lazy loading keeps it off the wire.
+
+   These work anywhere, not only in prose: the header logo uses the same pair. */
+.img-dark {
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]) .img-light {
+    display: none;
+  }
+
+  html:not([data-theme="light"]) .img-dark {
+    display: block;
+  }
+}
+
+html[data-theme="dark"] .img-light {
+  display: none;
+}
+
+html[data-theme="dark"] .img-dark {
+  display: block;
 }
 
 /* --- admonitions --------------------------------------------------------- */

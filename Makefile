@@ -40,17 +40,14 @@ serve: ## Live-reload dev server on http://localhost:1313
 build: ## Production build of exampleSite
 	$(RUN) $(HUGO_IMAGE) $(SITE) --minify --gc
 
-check: ## THE GATE — build with warnings as errors, then sanity-check the output
+check: ## THE GATE — build with warnings as errors, then run the test suite
 	$(RUN) $(HUGO_IMAGE) $(SITE) --minify --gc --panicOnWarning
-	@test -f exampleSite/public/index.html || { echo "FAIL: no index.html"; exit 1; }
-	@test -f exampleSite/public/index.xml  || { echo "FAIL: no RSS"; exit 1; }
-	@test -f exampleSite/public/index.json || { echo "FAIL: no search index"; exit 1; }
-	@test -f exampleSite/public/404.html   || { echo "FAIL: no 404"; exit 1; }
-	@grep -rqi nordbye layouts assets static 2>/dev/null \
-		&& { echo "FAIL: author-specific value hardcoded in theme files"; exit 1; } || true
-	@echo "OK"
+	@sh tests/run.sh
+
+test: ## Run the test suite against the current build (see check)
+	@sh tests/run.sh
 
 clean: ## Remove build output and caches
 	$(RUN) --entrypoint sh $(HUGO_IMAGE) -c 'rm -rf $(PATHS)'
 
-.PHONY: help serve build check clean
+.PHONY: help serve build check test clean

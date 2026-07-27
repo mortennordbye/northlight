@@ -1,0 +1,26 @@
+{{- /*
+  Site-ownership verification tags. Each renders only when its key is set, so a site
+  that verifies nothing emits nothing.
+
+    [params.verification]
+      google    = "..."
+      bing      = "..."
+      pinterest = "..."
+      yandex    = "..."
+      fediverse = "@you@instance.tld"
+
+  These are public identifiers, not secrets. They prove control of a domain to a
+  service that already knows the domain, so they belong in config like any other
+  param.
+
+  fediverse is the odd one out and the one most worth having. Mastodon shows a
+  verified author byline on a link preview when the page carries a me-relation back to
+  the profile, which is the difference between a post looking like yours and looking
+  like an unattributed repost.
+*/ -}}
+{{- $v := (partialCached "init.html" .).verification -}}
+{{- with $v.google }}<meta name="google-site-verification" content="{{ . }}">{{ end }}
+{{- with $v.bing }}<meta name="msvalidate.01" content="{{ . }}">{{ end }}
+{{- with $v.pinterest }}<meta name="p:domain_verify" content="{{ . }}">{{ end }}
+{{- with $v.yandex }}<meta name="yandex-verification" content="{{ . }}">{{ end }}
+{{- with $v.fediverse }}<meta name="fediverse:creator" content="{{ . }}">{{ end }}

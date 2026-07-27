@@ -9,6 +9,9 @@
    the preference is removed rather than pinned, which hands control back to the
    operating system instead of freezing the page on whatever it happened to be. */
 (function () {
+  /* Local alias, so this module keeps working even without the strings module. */
+  var t = (window.Northlight || {}).t || function (key, fallback) { return fallback; };
+
   var root = document.documentElement;
   var buttons = document.querySelectorAll("[data-toggle-appearance]");
   if (!buttons.length) return;
@@ -24,7 +27,9 @@
   }
 
   function label(mode) {
-    return mode === "dark" ? "Switch to light mode" : "Switch to dark mode";
+    return mode === "dark"
+      ? t("switchToLightMode", "Switch to light mode")
+      : t("switchToDarkMode", "Switch to dark mode");
   }
 
   function sync() {

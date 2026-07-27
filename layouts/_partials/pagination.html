@@ -2,9 +2,9 @@
        from Hugo's paginator so the URLs match whatever pagerSize the site sets. */ -}}
 {{- $p := .Paginator -}}
 {{- if gt $p.TotalPages 1 }}
-<nav class="pagination" aria-label="Pagination">
+<nav class="pagination" aria-label="{{ i18n "pagination" }}">
   {{- with $p.Prev }}
-    <a class="page-link page-arrow" href="{{ .URL }}" rel="prev" aria-label="Previous page">
+    <a class="page-link page-arrow" href="{{ .URL }}" rel="prev" aria-label="{{ i18n "previousPage" }}">
       {{ partial "icon.html" "arrow-left" }}
     </a>
   {{- else }}
@@ -20,7 +20,7 @@
   {{- end }}
 
   {{- with $p.Next }}
-    <a class="page-link page-arrow" href="{{ .URL }}" rel="next" aria-label="Next page">
+    <a class="page-link page-arrow" href="{{ .URL }}" rel="next" aria-label="{{ i18n "nextPage" }}">
       {{ partial "icon.html" "arrow-right" }}
     </a>
   {{- else }}

@@ -1,12 +1,12 @@
 # Northlight — example site configuration.
 #
-# This file doubles as the parameter reference until README.md gets a proper one.
-# Every option the theme supports should appear here, with its default in a comment,
-# so a site author can copy this file and delete what they don't need.
+# This is a working config for the demo, and it doubles as the parameter reference:
+# every option the theme supports appears here with its default in a comment, so a
+# site author can copy this file and delete what they do not need.
 #
-# NOTE for whoever builds the theme: params listed here are the intended surface from
-# docs/SPEC.md. Add them as you implement them; do not read a param in a template that
-# isn't documented here.
+# The narrative version of all of this lives in /docs/ on the built site, which is
+# generated from exampleSite/content/docs/. Nothing there is written by hand twice: if
+# a feature is documented, it is also demonstrated on the same page.
 
 baseURL = "https://example.com/"
 locale = "en"                      # replaces languageCode, deprecated in Hugo 0.158
@@ -62,6 +62,19 @@ summaryLength = 30
   enableCodeCopy = true        # copy button on code blocks     (default: true)
 
   mainSections = ["blog"]      # which sections appear in lists (default: ["blog"])
+                               # `docs` is deliberately absent: the manual should not
+                               # appear in the blog index, the feed or the archive.
+
+  dateFormat = "2 Jan 2006"    # Go reference layout                    (default: "2 Jan 2006")
+  rtl = false                  # sets dir="rtl" on <html>               (default: false)
+
+  # logo = "images/logo.svg"   # replaces the dot and the wordmark in the header
+  # logoDark = "images/logo-dark.svg"   # optional counterpart for dark mode
+
+  # [params.verification]      # public ownership tags; each renders only when set
+  #   google = "..."
+  #   bing = "..."
+  #   fediverse = "@you@instance.tld"   # Mastodon verified-author byline on link previews
 
   [params.author]
     name = "Your Name"
@@ -81,6 +94,7 @@ summaryLength = 30
     showBreadcrumbs = true
     showAuthor = true
     showDate = true
+    showDateUpdated = true     # only shows when lastmod is later than date (default: false)
     showReadingTime = true
     showWordCount = true
     showHero = true            # the 1200x630 cover. Never cropped.
@@ -92,6 +106,10 @@ summaryLength = 30
     showPagination = true      # prev / next
     sharingLinks = ["linkedin", "reddit"]
     showComments = false       # giscus is built in; see [params.comments.giscus] below
+
+    showEdit = true            # "Edit this page" link                  (default: false)
+    editURL = "https://github.com/mortennordbye/northlight/edit/main/exampleSite/content"
+    editAppendPath = true      # append the post's own path to editURL  (default: true)
 
   [params.list]
     groupByYear = true
@@ -135,15 +153,55 @@ summaryLength = 30
 # Any other provider goes in layouts/_partials/extend-head.html, or
 # extend-footer.html if it is script-shaped and should not block the first paint.
 
+# A parent entry with children renders as a disclosure panel rather than a hover
+# dropdown, so it works by touch and by keyboard without JavaScript. One level deep.
+
 [menu]
   [[menu.main]]
     name = "Blog"
     pageRef = "blog"
     weight = 10
+
+  [[menu.main]]
+    identifier = "docs"
+    name = "Docs"
+    pageRef = "docs"
+    weight = 20
+  [[menu.main]]
+    parent = "docs"
+    name = "Getting started"
+    pageRef = "docs/getting-started"
+    weight = 1
+  [[menu.main]]
+    parent = "docs"
+    name = "Configuration"
+    pageRef = "docs/configuration"
+    weight = 2
+  [[menu.main]]
+    parent = "docs"
+    name = "Writing content"
+    pageRef = "docs/writing"
+    weight = 3
+  [[menu.main]]
+    parent = "docs"
+    name = "Appearance"
+    pageRef = "docs/appearance"
+    weight = 4
+  [[menu.main]]
+    parent = "docs"
+    name = "Integrations"
+    pageRef = "docs/integrations"
+    weight = 5
+  [[menu.main]]
+    parent = "docs"
+    name = "Translating"
+    pageRef = "docs/translating"
+    weight = 6
+
   [[menu.main]]
     name = "Tags"
     pageRef = "tags"
-    weight = 20
+    weight = 30
 
   [[menu.footer]]
     name = "GitHub"

@@ -24,7 +24,7 @@
 */ -}}
 {{- $g := site.Params.comments.giscus | default dict -}}
 {{- if and $g.repo $g.repoId $g.category $g.categoryId -}}
-<section class="comments" aria-label="Comments">
+<section class="comments" aria-label="{{ i18n "comments" }}">
   {{- /* preferred_color_scheme is the starting point, not the whole story: it follows
          the operating system, which is only right until the reader uses this site's
          own toggle. comments.js re-messages the iframe from there. This attribute is
@@ -44,7 +44,7 @@
           data-lang="{{ $g.lang | default site.Language.Lang }}"
           crossorigin="anonymous"
           async></script>
-  <noscript>Comments require JavaScript.</noscript>
+  <noscript>{{ i18n "commentsRequireJavaScript" }}</noscript>
 </section>
 {{- else -}}
   {{- warnf "comments.html: article.showComments is on but params.comments.giscus is incomplete — needs repo, repoId, category and categoryId. No comments rendered." -}}

@@ -46,7 +46,7 @@
 <div class="wrap">
   {{- with $featured }}
   <div class="section-head">
-    <h2 class="section-title">Featured</h2>
+    <h2 class="section-title">{{ i18n "featured" }}</h2>
   </div>
   <a class="feature" href="{{ .RelPermalink }}">
     {{- with .Resources.GetMatch "{cover,featured}.*" }}
@@ -66,10 +66,10 @@
 
   {{- with first $recentCount $recent }}
   <div class="section-head">
-    <h2 class="section-title">Recent posts</h2>
+    <h2 class="section-title">{{ i18n "recentPosts" }}</h2>
     {{- with site.GetPage (printf "/%s" (index site.Params.mainSections 0)) }}
       <a class="section-more" href="{{ .RelPermalink }}">
-        All {{ len $posts }} posts <span class="nudge">{{ partial "icon.html" "arrow-right" }}</span>
+        {{ i18n "allNPosts" (len $posts) }} <span class="nudge">{{ partial "icon.html" "arrow-right" }}</span>
       </a>
     {{- end }}
   </div>

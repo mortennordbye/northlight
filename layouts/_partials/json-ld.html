@@ -40,6 +40,29 @@
   {{- with $cfg.author.name }}{{ $data = merge $data (dict "author" (dict "@type" "Person" "name" .)) }}{{ end -}}
 {{- end -}}
 
+{{- /* BreadcrumbList, emitted alongside the page's own schema whenever the page has
+       ancestors. The visible trail already exists; this is the machine-readable
+       version of the same thing, and it is what search results render as a path
+       instead of a bare URL.
+
+       The current page is the last item even though the visible trail omits it,
+       because schema.org expects the full path and a search engine is not looking at
+       an h1 underneath it. Positions are 1-based. */ -}}
+{{- $crumbs := slice -}}
+{{- with .Ancestors.Reverse -}}
+  {{- range $i, $p := . -}}
+    {{- $name := cond $p.IsHome site.Title $p.LinkTitle -}}
+    {{- $crumbs = $crumbs | append (dict "@type" "ListItem" "position" (add $i 1) "name" $name "item" $p.Permalink) -}}
+  {{- end -}}
+{{- end -}}
+{{- if and $crumbs .IsPage -}}
+  {{- $crumbs = $crumbs | append (dict "@type" "ListItem" "position" (add (len $crumbs) 1) "name" .LinkTitle "item" .Permalink) -}}
+{{- end -}}
+{{- if gt (len $crumbs) 1 -}}
+  {{- $bc := dict "@context" "https://schema.org" "@type" "BreadcrumbList" "itemListElement" $crumbs -}}
+<script type="application/ld+json">{{ $bc | jsonify | safeJS }}</script>
+{{- end -}}
+
 {{- /* safeJS, because inside a <script> element Go treats the body as JavaScript and
        would escape the JSON a second time, emitting a quoted string rather than an
        object. It is safe here: jsonify escapes the HTML-significant characters as \u003c, \u003e and

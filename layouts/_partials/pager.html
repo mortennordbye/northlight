@@ -5,10 +5,10 @@
 {{- $older := .PrevInSection -}}
 {{- $newer := .NextInSection -}}
 {{- if or $older $newer }}
-<nav class="pager" aria-label="Post navigation">
+<nav class="pager" aria-label="{{ i18n "postNavigation" }}">
   {{- with $older }}
     <a class="pager-link" href="{{ .RelPermalink }}" rel="prev">
-      <span class="pager-key">{{ partial "icon.html" "arrow-left" }} Older</span>
+      <span class="pager-key">{{ partial "icon.html" "arrow-left" }} {{ i18n "older" }}</span>
       <span class="pager-title">{{ .LinkTitle }}</span>
     </a>
   {{- else }}
@@ -16,7 +16,7 @@
   {{- end }}
   {{- with $newer }}
     <a class="pager-link pager-next" href="{{ .RelPermalink }}" rel="next">
-      <span class="pager-key">Newer {{ partial "icon.html" "arrow-right" }}</span>
+      <span class="pager-key">{{ i18n "newer" }} {{ partial "icon.html" "arrow-right" }}</span>
       <span class="pager-title">{{ .LinkTitle }}</span>
     </a>
   {{- end }}

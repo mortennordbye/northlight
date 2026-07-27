@@ -10,6 +10,27 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **Internationalisation.** Every user-facing string now comes from `i18n/en.toml`. There was no
+  `i18n/` directory at all, so a non-English site could not use the theme without editing
+  templates. Plurals are `one`/`other` rather than a conditional in a template. The handful of
+  strings that only exist after a click are serialised into a JSON block that the scripts read,
+  each with an English fallback.
+- **Dark variants for prose images.** Drop `diagram-dark.png` beside `diagram.png` and it is used
+  whenever the dark palette is active. Two `<img>` elements and CSS rather than `<picture>` with a
+  `prefers-color-scheme` source, because a media query only knows what the operating system wants
+  and this theme lets a reader override that.
+- **Updated dates** via `article.showDateUpdated`, rendered only when `lastmod` is genuinely later
+  than `date`.
+- **Edit links** via `article.showEdit`, `editURL` and `editAppendPath`.
+- **Nested menus.** One level, as a `<details>` disclosure rather than a hover dropdown.
+- **Logos** via `logo` and optional `logoDark`, replacing the dot and the wordmark together.
+- **`[params.verification]`** for Google, Bing, Pinterest, Yandex and `fediverse:creator`.
+- **`BreadcrumbList` structured data** alongside the existing page schema.
+- **`excludeFromSearch`** front matter, the search-index counterpart to `sitemap_exclude`.
+- **`externalUrl`** front matter, so a listing entry can point off-site.
+- **`dateFormat`** and **`rtl`** params.
+- **A documentation site.** `exampleSite/content/docs/` is a full manual built by the theme
+  itself, so every page demonstrates the feature it documents.
 - **Admonitions.** Five callout types — note, tip, important, warning and caution — using
   GitHub's `> [!NOTE]` alert syntax rather than a shortcode, so the markdown renders as an
   ordinary blockquote anywhere else. Their colours sit outside the palette system, because a
@@ -28,7 +49,33 @@ keys are added with defaults that preserve existing behaviour.
   directly-wired provider because it sets no cookies and needs no consent banner. Set no token and
   the theme still makes no third-party requests.
 
+- **A test suite**, `tests/run.sh`, run by `make check` and by CI before deploying. POSIX `sh`
+  and nothing else, so it adds no toolchain. It asserts what a green build does not: asset
+  fingerprinting and integrity, feed and sitemap validity and scope, the never-cropped cover, both
+  colour modes for every syntax and admonition colour, that every custom property and i18n key
+  resolves, that no user-facing string is hardcoded, and that the script bundle declares no bare
+  globals.
+
 ### Fixed
+
+- **Wide media no longer breaks the page.** An embedded `iframe` overflowed by 843px at a 375px
+  viewport, so a pasted video embed broke the layout on a phone. `iframe`, `video`, `audio`,
+  `embed` and `object` are now contained, with 16/9 assumed for frames and overridable inline.
+- **The theme attribution rendered as escaped markup** once it moved into `i18n`, printing the
+  anchor tag as text in the footer.
+- **The header pushed the page sideways on a phone.** `.header-bar` is a fixed-height row that
+  cannot shrink, so a site with more than three menu entries overflowed at 375px. It now wraps
+  onto a second row below 720px, and the anchor offset grows to clear the taller bar.
+- **The updated date could repeat the publication date.** The comparison was on timestamps, so a
+  post published in the morning and corrected that afternoon rendered "27 Jul 2026 · Updated
+  27 Jul 2026". It now compares the formatted dates, which is what the reader actually sees.
+- **`--shadow-pop` did not exist**, so the nested menu panel rendered with no shadow. The token is
+  `--shadow`.
+- **The script bundle declared a bare `t` global.** A single-letter global from a theme is a
+  collision risk for anything a site author loads. The shared lookup is now `window.Northlight.t`,
+  with each module holding a local alias and its own fallback.
+- **Section body copy had no paragraph spacing.** `.list-body` is not `.prose`, so the paragraph
+  rules never reached it and multi-paragraph section descriptions ran together.
 
 - **giscus now follows the site's appearance toggle**, not only the operating system. It renders
   in a cross-origin iframe, so the theme messages it on every mode change. Previously a reader who

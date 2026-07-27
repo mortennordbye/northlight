@@ -1,0 +1,372 @@
+#!/bin/sh
+# Northlight test suite.
+#
+# Runs against a built exampleSite. `make check` builds first and then calls this, so
+# run it that way rather than directly unless you know the output is current.
+#
+# POSIX sh and the tools any Unix already has, on purpose. This theme has no Node
+# toolchain and no package manager, and a test suite that reintroduced one would undo
+# the main thing the build is trying to protect. python3 is used only for JSON and XML
+# validity, and those checks skip with a warning rather than failing if it is absent.
+#
+# Every assertion here exists because something broke. Adding a feature means adding a
+# case; see "Shipping a feature" in CONTRIBUTING.md.
+
+set -u
+
+ROOT=$(cd "$(dirname "$0")/.." && pwd)
+PUBLIC="$ROOT/exampleSite/public"
+PASS=0
+FAIL=0
+SKIP=0
+
+red()   { printf '\033[31m%s\033[0m\n' "$1"; }
+green() { printf '\033[32m%s\033[0m\n' "$1"; }
+grey()  { printf '\033[90m%s\033[0m\n' "$1"; }
+
+ok()   { PASS=$((PASS + 1)); grey "  ok    $1"; }
+bad()  { FAIL=$((FAIL + 1)); red   "  FAIL  $1"; [ $# -gt 1 ] && printf '        %s\n' "$2"; }
+skip() { SKIP=$((SKIP + 1)); grey "  skip  $1"; }
+
+group() { printf '\n%s\n' "$1"; }
+
+# assert_file <path> <label>
+assert_file() {
+  if [ -f "$1" ]; then ok "$2"; else bad "$2" "missing: ${1#"$ROOT"/}"; fi
+}
+
+# assert_grep <pattern> <file> <label>   -- pattern must be present
+assert_grep() {
+  if grep -q "$1" "$2" 2>/dev/null; then ok "$3"; else bad "$3" "no match for /$1/ in ${2#"$ROOT"/}"; fi
+}
+
+# refute_grep <pattern> <file> <label>   -- pattern must be absent
+refute_grep() {
+  if grep -q "$1" "$2" 2>/dev/null; then bad "$3" "unexpected match for /$1/ in ${2#"$ROOT"/}"; else ok "$3"; fi
+}
+
+# assert_count <expected> <actual> <label>
+assert_count() {
+  if [ "$1" = "$2" ]; then ok "$3"; else bad "$3" "expected $1, got $2"; fi
+}
+
+HAVE_PY=0
+command -v python3 >/dev/null 2>&1 && HAVE_PY=1
+
+# --------------------------------------------------------------------------------
+group "Build output"
+
+assert_file "$PUBLIC/index.html"   "home page built"
+assert_file "$PUBLIC/index.xml"    "RSS feed built"
+assert_file "$PUBLIC/index.json"   "search index built"
+assert_file "$PUBLIC/sitemap.xml"  "sitemap built"
+assert_file "$PUBLIC/404.html"     "404 built"
+assert_file "$PUBLIC/robots.txt"   "robots.txt built"
+
+for route in blog tags docs docs/getting-started docs/configuration docs/writing \
+             docs/appearance docs/integrations docs/translating; do
+  assert_file "$PUBLIC/$route/index.html" "route /$route/ built"
+done
+
+# --------------------------------------------------------------------------------
+group "Assets: fingerprinting and integrity"
+# Sites cache these as immutable for a year on the strength of the hash in the name.
+# Losing the fingerprint is a year-long stale-asset bug on every site using the theme.
+
+CSS_REF=$(grep -o 'css/northlight[^"]*\.css' "$PUBLIC/index.html" | head -1)
+JS_REF=$(grep -o 'js/northlight[^"]*\.js' "$PUBLIC/index.html" | head -1)
+
+# A long hex run, not merely "has two dots": northlight.min.css would satisfy that and
+# carries no hash at all, which is exactly how a dropped fingerprint slips through.
+if printf '%s' "$CSS_REF" | grep -qE '[0-9a-f]{40,}\.css$'; then
+  ok "CSS filename carries a content hash"
+else
+  bad "CSS filename carries a content hash" "got: ${CSS_REF:-none}"
+fi
+if printf '%s' "$JS_REF" | grep -qE '[0-9a-f]{40,}\.js$'; then
+  ok "JS filename carries a content hash"
+else
+  bad "JS filename carries a content hash" "got: ${JS_REF:-none}"
+fi
+
+assert_grep 'integrity=' "$PUBLIC/index.html" "subresource integrity present"
+[ -n "$CSS_REF" ] && assert_file "$PUBLIC/$CSS_REF" "referenced stylesheet exists"
+[ -n "$JS_REF" ]  && assert_file "$PUBLIC/$JS_REF"  "referenced script exists"
+
+# --------------------------------------------------------------------------------
+group "Theme purity"
+# A theme is copied verbatim into other people's repositories. Nothing about any one
+# author may appear in it.
+
+if grep -rqi 'nordbye' "$ROOT/layouts" "$ROOT/assets" "$ROOT/static" "$ROOT/i18n" 2>/dev/null; then
+  bad "no author-specific values in theme files" "grep -ri nordbye matched"
+else
+  ok "no author-specific values in theme files"
+fi
+
+if grep -rqiE 'claude|anthropic|copilot' \
+     "$ROOT/layouts" "$ROOT/assets" "$ROOT/i18n" "$ROOT/README.md" 2>/dev/null; then
+  bad "no AI tool attribution in theme or docs" "matched a tool name"
+else
+  ok "no AI tool attribution in theme or docs"
+fi
+
+# --------------------------------------------------------------------------------
+group "Feeds and the search index"
+
+if [ "$HAVE_PY" = 1 ]; then
+  if python3 -c "import json,sys; json.load(open('$PUBLIC/index.json'))" 2>/dev/null; then
+    ok "index.json is valid JSON"
+  else
+    bad "index.json is valid JSON"
+  fi
+  for f in index.xml sitemap.xml; do
+    if python3 -c "import xml.dom.minidom as m; m.parse('$PUBLIC/$f')" 2>/dev/null; then
+      ok "$f is well-formed XML"
+    else
+      bad "$f is well-formed XML"
+    fi
+  done
+else
+  skip "JSON and XML validity (python3 not found)"
+fi
+
+# Taxonomies are excluded from the sitemap by design.
+refute_grep '/tags/' "$PUBLIC/sitemap.xml" "sitemap excludes taxonomy pages"
+
+# The manual is outside mainSections, so it must not reach blog surfaces.
+refute_grep '/docs/' "$PUBLIC/index.json" "docs stay out of the search index"
+refute_grep '/docs/' "$PUBLIC/index.xml"  "docs stay out of the RSS feed"
+# Host-agnostic: CI builds with the Pages base URL, not the demo's example.com.
+DOC_URLS=$(grep -oE 'https?://[^<]*/docs/[a-z-]+/' "$PUBLIC/sitemap.xml" | sort -u | wc -l | tr -d ' ')
+assert_count 6 "$DOC_URLS" "all six docs pages are in the sitemap"
+
+# excludeFromSearch keeps a page out of the index without keeping it off the site.
+refute_grep 'a-link-post' "$PUBLIC/index.json" "excludeFromSearch keeps a post out of the index"
+assert_file "$PUBLIC/blog/a-link-post/index.html" "excluded post still builds"
+
+# --------------------------------------------------------------------------------
+group "Structured data and head"
+
+assert_grep 'application/ld+json'  "$PUBLIC/blog/measuring/index.html" "JSON-LD emitted on a post"
+assert_grep 'BlogPosting'          "$PUBLIC/blog/measuring/index.html" "post uses BlogPosting"
+assert_grep 'BreadcrumbList'       "$PUBLIC/blog/measuring/index.html" "BreadcrumbList emitted"
+assert_grep 'og:title'             "$PUBLIC/blog/measuring/index.html" "OpenGraph tags emitted"
+assert_grep 'rel=canonical'        "$PUBLIC/blog/measuring/index.html" "canonical URL emitted"
+# JSON-LD must be a JSON object, not a double-encoded string. This regressed once.
+refute_grep 'ld+json">"'           "$PUBLIC/blog/measuring/index.html" "JSON-LD is not double-encoded"
+
+# --------------------------------------------------------------------------------
+group "Content rendering"
+
+WRITING="$PUBLIC/docs/writing/index.html"
+
+ADMONITIONS=$(grep -o 'class="admonition admonition-' "$WRITING" | wc -l | tr -d ' ')
+assert_count 5 "$ADMONITIONS" "all five admonition types render"
+for kind in note tip important warning caution; do
+  assert_grep "admonition-$kind" "$WRITING" "admonition type: $kind"
+done
+
+# Every prose image must declare its size, or the article reflows as it loads.
+assert_grep 'width=1600 height=470' "$WRITING" "prose images carry intrinsic dimensions"
+assert_grep 'srcset='               "$WRITING" "prose images carry a srcset"
+assert_grep 'loading=lazy'          "$WRITING" "prose images are lazy loaded"
+assert_grep 'class=img-light'       "$WRITING" "light image of a dark-variant pair"
+assert_grep 'class=img-dark'        "$WRITING" "dark image of a dark-variant pair"
+assert_grep '<figcaption>'          "$WRITING" "image captions render"
+assert_grep 'code-bar'              "$WRITING" "code fence filename bar renders"
+assert_grep 'table-wrap'            "$WRITING" "tables get a scroll container"
+assert_grep 'footnotes'             "$WRITING" "footnotes render"
+
+# An image with no alt attribute at all is a bug; alt="" is a deliberate choice.
+# The minifier rewrites alt="" to a bare `alt`, which is still an alt attribute and is
+# the correct markup for decorative images.
+if grep -o '<img [^>]*>' "$WRITING" | grep -qvE 'alt=|alt[ >]'; then
+  bad "every rendered image has an alt attribute" "$(grep -o '<img [^>]*>' "$WRITING" | grep -vE 'alt=|alt[ >]' | head -1)"
+else
+  ok "every rendered image has an alt attribute"
+fi
+
+# --------------------------------------------------------------------------------
+group "Article features"
+
+MEASURING="$PUBLIC/blog/measuring/index.html"
+assert_grep 'Updated <time'  "$MEASURING" "updated date renders when lastmod is later"
+assert_grep 'class=edit-link' "$WRITING"   "edit link renders when editURL is set"
+# The updated date must not appear when lastmod equals date, or every post claims it.
+refute_grep 'Updated <time' "$PUBLIC/blog/two-modes/index.html" "no updated date without a real lastmod"
+# Nor when lastmod is later but renders as the same day: "27 Jul 2026 - Updated 27 Jul 2026"
+# says nothing twice.
+refute_grep 'Updated <time' "$WRITING" "no updated date when it renders as the same day"
+
+assert_grep 'nav-group'  "$PUBLIC/index.html" "nested menu renders as a disclosure"
+assert_grep '<details'   "$PUBLIC/index.html" "nested menu uses details, not a hover dropdown"
+# Pagination decides which listing page it lands on, so search all of them rather than
+# hardcoding a page number that content changes would invalidate.
+if grep -rq 'is-external' "$PUBLIC/blog/"; then
+  ok "externalUrl marks the listing entry"
+else
+  bad "externalUrl marks the listing entry"
+fi
+if grep -rq 'gohugo.io/documentation' "$PUBLIC/blog/"; then
+  ok "externalUrl entry links off-site"
+else
+  bad "externalUrl entry links off-site"
+fi
+
+# --------------------------------------------------------------------------------
+group "Internationalisation"
+
+I18N="$ROOT/i18n/en.toml"
+assert_file "$I18N" "English catalogue exists"
+
+# Every key a template or script asks for must exist, or the string renders empty.
+MISSING=""
+for key in $(grep -rhoE 'i18n "[A-Za-z0-9_]+"' "$ROOT/layouts" | sed 's/.*"\(.*\)"/\1/' | sort -u); do
+  grep -qE "^${key} =|^\[${key}\]" "$I18N" || MISSING="$MISSING $key"
+done
+if [ -n "$MISSING" ]; then
+  bad "every i18n key used is defined" "missing:$MISSING"
+else
+  ok "every i18n key used is defined"
+fi
+
+# Pluralised tables must sit last: in TOML a bare key after a table header joins that
+# table, and the build fails with "reserved keys mixed with unreserved keys".
+FIRST_TABLE=$(grep -n '^\[' "$I18N" | head -1 | cut -d: -f1)
+LAST_BARE=$(grep -nE '^[a-zA-Z][A-Za-z0-9_]* =' "$I18N" \
+  | grep -vE ':(zero|one|two|few|many|other) =' | tail -1 | cut -d: -f1)
+if [ -n "$FIRST_TABLE" ] && [ -n "$LAST_BARE" ] && [ "$LAST_BARE" -gt "$FIRST_TABLE" ]; then
+  bad "pluralised tables are last in en.toml" "a bare key at line $LAST_BARE follows a table at line $FIRST_TABLE"
+else
+  ok "pluralised tables are last in en.toml"
+fi
+
+# No user-facing string may be hardcoded in a template.
+HARDCODED=$(grep -rhoE '(aria-label|placeholder)="[A-Za-z][^"{]*"' "$ROOT/layouts" | sort -u)
+if [ -n "$HARDCODED" ]; then
+  bad "no hardcoded user-facing strings in templates" "$(echo "$HARDCODED" | tr '\n' ' ')"
+else
+  ok "no hardcoded user-facing strings in templates"
+fi
+
+# Every runtime lookup needs an English fallback, so a missing catalogue leaves working
+# controls rather than blank ones.
+BAD_T=$(grep -rhoE '\bt\("[A-Za-z0-9_]+"\)' "$ROOT/assets/js" | sort -u)
+if [ -n "$BAD_T" ]; then
+  bad "every t() call passes a fallback" "$(echo "$BAD_T" | tr '\n' ' ')"
+else
+  ok "every t() call passes a fallback"
+fi
+
+# --------------------------------------------------------------------------------
+group "Scripts"
+
+if [ -n "$JS_REF" ]; then
+  GLOBALS=$(grep -oE '^var [a-zA-Z_$]+' "$PUBLIC/$JS_REF" | sort -u)
+  if [ -n "$GLOBALS" ]; then
+    bad "bundle declares no bare globals" "found: $(echo "$GLOBALS" | tr '\n' ' ')"
+  else
+    ok "bundle declares no bare globals"
+  fi
+  assert_grep 'window.Northlight' "$PUBLIC/$JS_REF" "shared lookup is namespaced"
+fi
+
+assert_grep 'northlight-strings' "$PUBLIC/index.html" "runtime string block is emitted"
+# It must be a JSON object, not a quoted string. Contextual escaping got this wrong once.
+refute_grep 'northlight-strings>"' "$PUBLIC/index.html" "runtime string block is not double-encoded"
+
+# Controls that need JavaScript must ship hidden, so no-JS readers see no dead affordances.
+assert_grep 'data-toggle-appearance hidden' "$PUBLIC/index.html" "appearance toggle ships hidden"
+
+# --------------------------------------------------------------------------------
+group "CSS invariants"
+
+TOKENS="$ROOT/assets/css/tokens.css"
+
+# Every custom property referenced must be defined, or the rule silently does nothing.
+UNDEF=""
+DEFINED=$(grep -rhoE '^[[:space:]]*--[a-z0-9-]+[[:space:]]*:' "$ROOT/assets/css" | tr -d ' :' | sort -u)
+# Block comments are stripped first, across lines, so a custom property named in a
+# documentation comment does not register as a use.
+strip_comments() {
+  awk '
+    BEGIN { inc = 0 }
+    {
+      line = $0; out = ""
+      while (length(line)) {
+        if (inc) {
+          p = index(line, "*/")
+          if (p == 0) { line = ""; break }
+          line = substr(line, p + 2); inc = 0
+        } else {
+          p = index(line, "/*")
+          if (p == 0) { out = out line; line = ""; break }
+          out = out substr(line, 1, p - 1); line = substr(line, p + 2); inc = 1
+        }
+      }
+      print out
+    }' "$@"
+}
+
+for prop in $(strip_comments "$ROOT"/assets/css/*.css | grep -oE 'var\(--[a-z0-9-]+' | sed 's/var(//' | sort -u); do
+  echo "$DEFINED" | grep -qx -- "$prop" || UNDEF="$UNDEF $prop"
+done
+if [ -n "$UNDEF" ]; then
+  bad "every custom property used is defined" "undefined:$UNDEF"
+else
+  ok "every custom property used is defined"
+fi
+
+# Covers are 1200x630 with the title baked in. A crop destroys them.
+assert_grep 'aspect-ratio: 1200 */ *630' "$ROOT/assets/css/article.css" "cover keeps its exact aspect ratio"
+# Scoped to the cover rule itself: .avatar is a square headshot and is meant to crop.
+COVER_RULE=$(awk '/^\.article-cover img \{/,/^\}/' "$ROOT/assets/css/article.css")
+case "$COVER_RULE" in
+  *"object-fit: contain"*) ok "cover is never cropped" ;;
+  *) bad "cover is never cropped" "the .article-cover img rule does not use object-fit: contain" ;;
+esac
+
+# Wide media must scroll or shrink inside its own box, never move the body.
+assert_grep '\.prose iframe' "$ROOT/assets/css/prose.css" "embedded media is contained"
+
+# The header is a fixed-height row that cannot shrink. Without the wrap it overflowed
+# the page sideways on a phone as soon as a site had more than three menu entries.
+# Nothing here opens a browser, so this guards the rule rather than the rendered result.
+assert_grep 'flex-wrap: wrap' "$ROOT/assets/css/layout.css" "header wraps rather than overflowing"
+# The taller two-row header needs a bigger anchor offset, and the rule has to live in
+# prose.css: layout.css is concatenated first, so the same rule there silently loses.
+assert_grep 'var(--sticky-offset) + var(--header-height)' "$ROOT/assets/css/prose.css" \
+  "anchor offset clears the wrapped header"
+
+# Chroma needs both modes. A token coloured in one and not the other is incomplete.
+ONE_MODE=""
+for tok in tok-com tok-key tok-str tok-num tok-tag; do
+  COUNT=$(grep -c -- "--$tok:" "$TOKENS")
+  [ "$COUNT" -ge 2 ] || ONE_MODE="$ONE_MODE $tok"
+done
+if [ -n "$ONE_MODE" ]; then
+  bad "syntax colours declare both modes" "single-mode:$ONE_MODE"
+else
+  ok "syntax colours declare both modes"
+fi
+
+# Same for the admonition colours.
+ADM_ONE_MODE=""
+for tok in adm-note adm-tip adm-important adm-warning adm-caution; do
+  COUNT=$(grep -c -- "--$tok:" "$TOKENS")
+  [ "$COUNT" -ge 2 ] || ADM_ONE_MODE="$ADM_ONE_MODE $tok"
+done
+if [ -n "$ADM_ONE_MODE" ]; then
+  bad "admonition colours declare both modes" "single-mode:$ADM_ONE_MODE"
+else
+  ok "admonition colours declare both modes"
+fi
+
+# --------------------------------------------------------------------------------
+printf '\n'
+if [ "$FAIL" -gt 0 ]; then
+  red "FAILED  $FAIL failed, $PASS passed, $SKIP skipped"
+  exit 1
+fi
+green "OK  $PASS passed, $SKIP skipped"

@@ -295,6 +295,17 @@
   margin-top: var(--space-3);
 }
 
+/* A section's own body copy is markdown, so it can be several paragraphs. Without
+   this they run together: the paragraph spacing in prose.css is scoped to .prose,
+   and this is not prose. */
+.list-body > * + * {
+  margin-top: var(--space-4);
+}
+
+.list-body a {
+  color: var(--accent);
+}
+
 .year-rule {
   display: flex;
   align-items: center;
@@ -531,4 +542,14 @@
   .byline-row {
     gap: var(--space-4);
   }
+}
+
+/* An entry that leaves the site. The icon sits with the title rather than after the
+   card, so the destination is clear before the click rather than after it. */
+.card-title .icon,
+.item-title .icon {
+  width: 0.72em;
+  height: 0.72em;
+  color: var(--fg-3);
+  vertical-align: baseline;
 }

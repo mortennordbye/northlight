@@ -42,6 +42,15 @@ Everything interactive degrades: with JavaScript off the site stays readable and
 table of contents is still a list of working links, and the colour mode falls back to
 `prefers-color-scheme`. Only search disappears.
 
+## Documentation
+
+The demo site **is** the manual: <https://mortennordbye.github.io/northlight/docs/>. Every page
+there is built by the theme, so each one demonstrates the feature it documents. It is generated
+from `exampleSite/content/docs/`, so a change to the theme and a change to its documentation are
+the same pull request.
+
+What follows is the short version.
+
 ## Requirements
 
 Hugo **extended** 0.164.0 or newer. Nothing else — no Node, no npm, no CSS framework, no build
@@ -140,6 +149,10 @@ Add these two if they apply to you:
 | `enableSearch` | `true` | The ⌘K modal. Needs `JSON` in `[outputs].home`. |
 | `enableCodeCopy` | `true` | Copy button on code blocks. |
 | `mainSections` | `["blog"]` | Which sections count as posts for the home page, index, RSS and search. |
+| `dateFormat` | `"2 Jan 2006"` | Go reference layout. `"2 Jan 2006"` is an English convention, not a universal one. |
+| `rtl` | `false` | Sets `dir="rtl"` on `<html>`. See the caveat under Translating. |
+| `logo` | — | Replaces the dot and the wordmark in the header. |
+| `logoDark` | — | Optional dark counterpart. With only `logo` set, the same file is used in both modes. |
 
 ### `[params.author]`
 
@@ -164,6 +177,7 @@ Add these two if they apply to you:
 | `showBreadcrumbs` | `true` | Trail above the title. Ancestors only — the post's own title is the h1 right below it. |
 | `showAuthor` | `true` | Author name and avatar in the meta line. |
 | `showDate` | `true` | Publication date. |
+| `showDateUpdated` | `false` | Updated date. Renders only when `lastmod` is genuinely later than `date`, because Hugo defaults one to the other. |
 | `showReadingTime` | `true` | Estimated reading time. |
 | `showWordCount` | `true` | Word count. Shown in the post index; the article meta line uses date and reading time only. |
 | `showHero` | `true` | The cover image. |
@@ -175,6 +189,9 @@ Add these two if they apply to you:
 | `showPagination` | `true` | Older/newer post links. |
 | `sharingLinks` | `["linkedin", "reddit"]` | Share buttons. Supported: `linkedin`, `reddit`. An unknown name logs a build warning and renders nothing. |
 | `showComments` | `false` | Comments. Also needs `[params.comments.giscus]` filled in, or an override — see below. |
+| `showEdit` | `false` | "Edit this page" link. |
+| `editURL` | — | Base URL for it, usually your repository's content root. Renders nothing when unset. |
+| `editAppendPath` | `true` | Append the page's own path to `editURL`. |
 
 ### `[params.list]` and `[params.footer]`
 
@@ -221,6 +238,9 @@ and it survives theme upgrades.
 | `coverAlt` | Alt text for the cover. Empty by default, which is correct for artwork that repeats the title. |
 | `robots` | `noindex, follow` and similar. Cascades, so setting it on a section covers everything under it. |
 | `sitemap_exclude` | Keep a page out of the sitemap. |
+| `excludeFromSearch` | Keep a page out of the ⌘K index. Separate from the above: "do not index this" and "do not surface this in site search" are different intentions. |
+| `lastmod` | Updated date, shown when `showDateUpdated` is on. |
+| `externalUrl` | Point the listing entry at another site. The page still builds, so existing permalinks keep working. |
 
 ### Covers
 
@@ -301,6 +321,68 @@ in the theme.
 Any other provider goes in `extend-head.html`, or `extend-footer.html` if it is script-shaped and
 should not block the first paint. A theme that ships five analytics vendors makes four of them
 dead weight for everyone.
+
+### `[params.verification]`
+
+Public ownership tags. Each renders only when its key is set.
+
+| Key | Meta tag |
+|---|---|
+| `google` | `google-site-verification` |
+| `bing` | `msvalidate.01` |
+| `pinterest` | `p:domain_verify` |
+| `yandex` | `yandex-verification` |
+| `fediverse` | `fediverse:creator`, written as `@you@instance.tld` |
+
+`fediverse` is the one most worth setting. Mastodon shows a verified author byline on a link
+preview when the page points back at your profile, which is the difference between a shared post
+looking like yours and looking like an unattributed repost.
+
+### Menus
+
+A menu entry with children renders as a `<details>` disclosure, not a hover dropdown. Hover menus
+are unreachable by touch and awkward by keyboard; `details` gives both for free, needs no
+JavaScript, and closes on Escape.
+
+```toml
+[[menu.main]]
+  identifier = "docs"
+  name = "Docs"
+  pageRef = "docs"
+  weight = 20
+
+[[menu.main]]
+  parent = "docs"
+  name = "Configuration"
+  pageRef = "docs/configuration"
+  weight = 2
+```
+
+One level only. A blog that needs three wants a landing page, not a bigger menu.
+
+### Translating
+
+Every string the theme puts on screen lives in `i18n/en.toml`. Nothing user-facing is hardcoded in
+a template, so translating the theme is one file:
+
+```bash
+cp themes/northlight/i18n/en.toml i18n/nb.toml
+```
+
+Your site's `i18n/` wins over the theme's, and any key you leave out falls back to English, so a
+partial translation degrades one string at a time rather than producing blanks.
+
+Plural forms are expressed as `one`/`other` and pluralised by Hugo from the count, rather than by a
+conditional in a template, so a language whose plural rules differ from English needs no template
+changes.
+
+Keys are ordered with the pluralised tables last. In TOML every bare key after a `[table]` header
+belongs to that table, so adding a simple key below them silently makes it part of the last table
+and the build fails.
+
+`rtl = true` sets `dir="rtl"`. The layout mirrors, but that path has had far less real-world
+exercise than the rest of the theme. If you run it in a right-to-left language, please report what
+breaks.
 
 ### Overriding anything
 

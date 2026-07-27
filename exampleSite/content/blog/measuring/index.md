@@ -2,6 +2,7 @@
 title: "Measuring Contrast Instead of Guessing"
 description: "Four of the theme's own syntax colours failed the 4.5:1 floor. All four had been calculated by hand and looked fine."
 date: 2026-05-04
+lastmod: 2026-07-20
 draft: false
 tags: ["accessibility", "design"]
 ---

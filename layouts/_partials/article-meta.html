@@ -16,17 +16,48 @@
   <div class="meta-line">
     {{- $items := slice -}}
     {{- if and $a.showDate (not .Date.IsZero) -}}
-      {{- $items = $items | append (printf `<time datetime="%s">%s</time>` (.Date.Format "2006-01-02") (.Date.Format "2 Jan 2006")) -}}
+      {{- $items = $items | append (printf `<time datetime="%s">%s</time>` (.Date.Format "2006-01-02") (.Date.Format $cfg.dateFormat)) -}}
     {{- end -}}
+
+    {{- /* The updated date is only worth showing when it says something the publication
+           date does not. Hugo defaults Lastmod to Date, so without a comparison every post
+           would claim to have been updated on the day it was written.
+
+           The comparison is on the *formatted* dates rather than the timestamps, because
+           that is what the reader sees. A post published in the morning and corrected that
+           afternoon has a later Lastmod to the second, but both render as the same day, and
+           "27 Jul 2026 · Updated 27 Jul 2026" is noise. Whether it changed is Git's
+           question; whether it looks changed is this one. */ -}}
+    {{- $shown := .Date.Format $cfg.dateFormat -}}
+    {{- $updatedShown := .Lastmod.Format $cfg.dateFormat -}}
+    {{- if and $a.showDateUpdated (not .Lastmod.IsZero) (gt .Lastmod.Unix .Date.Unix) (ne $updatedShown $shown) -}}
+      {{- $stamp := printf `<time datetime="%s">%s</time>` (.Lastmod.Format "2006-01-02") (.Lastmod.Format $cfg.dateFormat) -}}
+      {{- $items = $items | append (i18n "updatedOn" ($stamp | safeHTML)) -}}
+    {{- end -}}
+
     {{- if $a.showReadingTime -}}
-      {{- $items = $items | append (printf "%d min read" .ReadingTime) -}}
+      {{- $items = $items | append (i18n "readingTime" .ReadingTime) -}}
     {{- end -}}
     {{- if $a.showWordCount -}}
-      {{- $items = $items | append (printf "%s words" (lang.FormatNumber 0 .WordCount)) -}}
+      {{- $items = $items | append (i18n "wordCount" (dict "Count" .WordCount "Formatted" (lang.FormatNumber 0 .WordCount))) -}}
     {{- end -}}
     {{- range $i, $item := $items }}
       {{- if $i }}<span class="meta-dot" aria-hidden="true"></span>{{ end }}
       <span>{{ $item | safeHTML }}</span>
     {{- end }}
   </div>
+
+  {{- /* Edit link. Only rendered when a base URL is configured, because a link that
+         goes nowhere is worse than no link. editAppendPath is on by default, so the
+         configured value is the repository's content root rather than a per-post URL,
+         which is what nearly every site wants. */ -}}
+  {{- if and $a.showEdit $a.editURL }}
+    {{- $url := $a.editURL -}}
+    {{- if and $a.editAppendPath .File }}
+      {{- $url = printf "%s/%s" (strings.TrimSuffix "/" $a.editURL) .File.Path -}}
+    {{- end }}
+    <a class="edit-link" href="{{ $url }}" rel="noopener" target="_blank">
+      {{ partial "icon.html" "pencil" }}{{ i18n "editThisPage" }}
+    </a>
+  {{- end }}
 </div>

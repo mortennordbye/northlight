@@ -56,6 +56,11 @@ jobs:
             --minify --gc --panicOnWarning \
             --baseURL "${{ steps.pages.outputs.base_url }}/"
 
+      # The same suite `make check` runs locally. A green build is not enough: Hugo
+      # renders broken layouts happily, so this asserts the output is actually right.
+      - name: Test
+        run: sh northlight/tests/run.sh
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: northlight/exampleSite/public

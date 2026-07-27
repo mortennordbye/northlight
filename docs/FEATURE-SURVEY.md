@@ -10,6 +10,12 @@ this already been decided?* Where a row says **Rejected**, the reason is in `BAC
 "Deliberately not built" or in the notes here — reopening one needs an argument that did not
 exist when the decision was made.
 
+**Before building anything off this page**, read "Shipping a feature" in `CONTRIBUTING.md`. A
+feature here is not done when it works: it needs its default resolved in `init.html`, its strings
+in `i18n/en.toml`, a demonstration in `exampleSite/`, a section in the docs site under
+`exampleSite/content/docs/`, a `README.md` row, a `CHANGELOG.md` entry, and its row below updated.
+That last step is what keeps this document true.
+
 ## Legend
 
 | Status | Meaning |
@@ -30,7 +36,7 @@ author can do. It is not a measure of effort.
 | Feature | Status | Value | Note |
 |---|---|---|---|
 | Table of contents | **Have** | — | Scroll-spy, sticky rail on desktop, card on mobile |
-| TOC hides unfocused children | Gap | Low | Extra motion in a component whose job is to stay still |
+| TOC hides unfocused children | Rejected | — | Extra motion in a component whose job is to stay still |
 | Reading time | **Have** | — | |
 | Word count | **Have** | — | |
 | Reading progress bar | **Have** | — | 2px, respects `prefers-reduced-motion` |
@@ -48,7 +54,7 @@ author can do. It is not a measure of effort.
 | **Responsive images in prose** | **Have** | — | `render-image.html`: intrinsic dimensions, srcset, lazy, async |
 | Image captions | **Have** | — | Markdown title becomes a `<figcaption>` |
 | Image zoom / lightbox | Rejected | Low | JS weight for a gesture the browser already offers |
-| Zen / focus mode | Gap | Low | The layout is already the focus mode |
+| Zen / focus mode | Rejected | — | The layout is already the focus mode |
 | Reply by email link | Gap | Low | |
 | oEmbed rich cards | Rejected | Low | Remote requests at build time |
 
@@ -62,15 +68,15 @@ author can do. It is not a measure of effort.
 | `coverAlt` | **Have** | — | |
 | `robots` | **Have** | — | Cascades |
 | `sitemap_exclude` | **Have** | — | |
-| **`excludeFromSearch`** | **Gap** | Medium | Sitemap exclusion exists; the search index has no equivalent |
-| **`lastmod` / updated date** | **Partial** | **High** | Emitted in sitemap, OpenGraph and JSON-LD, but never shown to a reader. A corrected post looks stale |
-| **Edit this page link** | **Gap** | **High** | Standard for an open-source or docs-shaped site; cheap and it invites contribution |
-| `externalUrl` link posts | Gap | Medium | For syndicated or link-blog entries |
+| **`excludeFromSearch`** | **Have** | — | Front matter; the search-index counterpart to `sitemap_exclude` |
+| **`lastmod` / updated date** | **Have** | — | `showDateUpdated`. Renders only when `lastmod` is genuinely later than `date` |
+| **Edit this page link** | **Have** | — | `showEdit`, `editURL`, `editAppendPath` |
+| `externalUrl` link posts | **Have** | — | Listing entries link off-site, with an icon before the click |
 | Custom `summary` | **Have** | — | Hugo built-in |
 | Series / `series_order` | Rejected | — | Zero posts use it. See `BACKLOG.md` |
 | Multiple authors | Rejected | — | Single-author theme by design |
 | Author taxonomy and badges | Rejected | — | Follows from the above |
-| Categories as a second taxonomy | Gap | Low | Tags alone have been sufficient |
+| Categories as a second taxonomy | Rejected | — | `taxonomy.html` is generic, so a site can add one in config without theme changes |
 | Custom taxonomies | **Have** | — | Hugo config; `taxonomy.html` is generic |
 
 ## 3. Layout and navigation
@@ -79,9 +85,9 @@ author can do. It is not a measure of effort.
 |---|---|---|---|
 | Main menu | **Have** | — | |
 | Footer menu | **Have** | — | |
-| **Nested / dropdown menus** | **Gap** | Medium | `site.Menus.main` is ranged one level deep; `.Children` is ignored |
+| **Nested / dropdown menus** | **Have** | — | One level, as a `<details>` disclosure rather than a hover dropdown |
 | Sub-navigation bar | Rejected | Low | Second nav for a six-post blog |
-| Header layout variants (fixed, fill, blur) | Gap | Low | Four variants where one considered choice is better |
+| Header layout variants (fixed, fill, blur) | Rejected | — | Four variants where one considered choice is better |
 | Homepage layouts (profile/hero/card/background/custom) | Rejected | — | One homepage, matching the approved design |
 | Hero styles (basic/big/background/thumb) | Rejected | — | Covers are 1200×630 with the title baked in; only one treatment is correct |
 | Card vs list view switches | Rejected | — | See `BACKLOG.md` |
@@ -98,7 +104,7 @@ author can do. It is not a measure of effort.
 | Light / dark modes | **Have** | — | `light-dark()`, no flash, follows system |
 | Appearance toggle | **Have** | — | |
 | Colour palettes | **Have** | — | Three: periwinkle, sage, clay |
-| Built-in palette count | Gap | Low | Reference theme ships 16. Three considered ones beat sixteen |
+| Built-in palette count | Rejected | — | Every accent is measured against its own background in both modes. That does not scale to sixteen |
 | **User `custom.css` hook** | **Have** | — | Auto-detected, folded into the fingerprinted bundle |
 | Custom palettes from the site repo | **Have** | — | Retune tokens in `custom.css` |
 | Self-hosted fonts | **Have** | — | Metric-matched fallbacks, zero layout shift |
@@ -107,7 +113,7 @@ author can do. It is not a measure of effort.
 | Icon set | **Have** | — | Inline SVG, `_partials/icon.html` |
 | Custom icons from the site repo | Gap | Low | |
 | Tailwind rebuild pipeline | Rejected | — | There is no Tailwind. That is the point |
-| Logo / secondary logo | Gap | Medium | Header is text-only; a site author with a wordmark has no route |
+| Logo / secondary logo | **Have** | — | `logo` and optional `logoDark`, replacing the dot and wordmark together |
 
 ## 5. Discovery, SEO and feeds
 
@@ -120,9 +126,9 @@ author can do. It is not a measure of effort.
 | `robots.txt` | **Have** | — | |
 | OpenGraph / Twitter cards | **Have** | — | Theme-owned, correct tag casing |
 | JSON-LD article schema | **Have** | — | |
-| **BreadcrumbList schema** | **Gap** | Medium | Breadcrumbs render but emit no structured data |
+| **BreadcrumbList schema** | **Have** | — | Emitted alongside the page schema wherever the page has ancestors |
 | Meta description fallback order | **Partial** | Low | Fixed order; reference theme makes it configurable |
-| **Search engine verification tags** | **Gap** | Medium | Google, Bing, and notably `fediverse:creator` for Mastodon attribution |
+| **Search engine verification tags** | **Have** | — | `[params.verification]`, including `fediverse:creator` |
 | Canonical URL | **Have** | — | |
 | Favicons | **Have** | — | Overridable partial |
 
@@ -145,10 +151,10 @@ author can do. It is not a measure of effort.
 
 | Feature | Status | Value | Note |
 |---|---|---|---|
-| **Translatable UI strings** | **Gap** | **High** | There is no `i18n/` directory. Every string is hardcoded English inside templates, so a non-English site cannot use this theme without editing it |
+| **Translatable UI strings** | **Have** | — | `i18n/en.toml`. Nothing user-facing is hardcoded, plurals included |
 | Multilingual sites | Rejected | — | Full multi-language routing is out of scope per `docs/SPEC.md` |
-| RTL support | Gap | Medium | Follows from the strings work |
-| Configurable date format | **Partial** | Medium | Uses the site language default; not a param |
+| RTL support | **Partial** | Low | `rtl = true` sets `dir`. Layout mirrors, but this has had no real-world exercise |
+| Configurable date format | **Have** | — | `dateFormat`, a Go reference layout |
 | Browser language redirect | Rejected | Low | Client-side redirects on a static site |
 
 ## 8. Shortcodes
@@ -174,23 +180,31 @@ Two are worth naming individually because a technical blog has a real claim on t
 
 ---
 
-## Ranked build order
+## What is left
 
-Ordered by value to a reader or a site author, divided by the surface it adds. Everything here is
-a render hook, a partial, or a param — nothing invents syntax and nothing adds a dependency.
+Seven rows are still Gap or Partial, all Low value or narrow:
 
-1. ~~**Responsive images in prose**~~ — **done.** `_markup/render-image.html`. Fixed an existing
-   invariant violation rather than adding a feature: prose images shipped with no intrinsic size
-   and reflowed the article as they loaded.
-2. ~~**Admonitions**~~ — **done.** `_markup/render-blockquote.html`, GitHub `> [!NOTE]` syntax.
-3. ~~**`custom.css` hook**~~ — **done.** Appended to the theme bundle, so it stays fingerprinted
-   and costs no extra request.
-4. ~~**`extend-footer.html`**~~ — **done.** Completes the escape-hatch pair.
-5. **Updated date and edit link.** `lastmod` is already computed and thrown away; surfacing it plus
-   an edit URL makes a maintained post look maintained.
-6. **Translatable UI strings.** Move every hardcoded string into `i18n/en.toml`. Mechanical, wide,
-   and it is the single thing most likely to stop a stranger using the theme.
-7. **Small SEO batch.** BreadcrumbList schema, verification tags including `fediverse:creator`,
-   `excludeFromSearch`.
-8. **Nested menus.** Honour `.Children` in the header.
-9. **Logo support.** A wordmark or mark in place of the site title, both modes.
+* **RTL** is Partial. `rtl = true` sets `dir` and the layout mirrors, but nothing here has
+  been exercised by someone actually reading right to left. That is the row most likely
+  to be wrong.
+* **Share links** covers LinkedIn and Reddit. More providers are trivial to add and worth
+  adding when someone asks for a specific one.
+* **Meta description fallback order** is fixed rather than configurable.
+* `extend-head-uncached.html`, custom icons from the site repo, reply-by-email, and
+  RSSNext ownership tags are all unbuilt and none has been asked for.
+
+Everything else on this page is either built or explicitly rejected with a reason. A row
+marked Rejected is a decision, not a backlog item: reopening one needs an argument that
+did not exist when it was made.
+
+## Known limitations
+
+Not features, and not on the list above, but worth writing down.
+
+* **Search covers `mainSections` only.** The documentation section is deliberately outside
+  it so the manual does not appear in the blog index, the feed or the archive, which also
+  means ⌘K does not find it. Widening search without widening the rest would need the
+  index and the listing scopes to be separated.
+* **Raster images cannot follow the palette on their own.** The `-dark` sibling mechanism
+  solves it for images the author controls. Anything hotlinked or in `static/` cannot be
+  paired, because Hugo does not manage those files.

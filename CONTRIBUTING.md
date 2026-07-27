@@ -17,7 +17,8 @@ not.
 ```bash
 make serve    # live-reload dev server on http://localhost:1313
 make build    # production build of exampleSite
-make check    # THE GATE — see below
+make check    # THE GATE — build, then run the test suite
+make test     # the test suite alone, against the current build
 make clean    # remove build output and caches
 ```
 
@@ -31,12 +32,32 @@ breakage and keeps the theme installable with nothing but Hugo.
 ## Before opening a pull request
 
 ```bash
-make check
+make check     # build with warnings as errors, then run the suite
+make test      # the suite alone, against the current build
 ```
 
-That builds with warnings treated as errors, then sanity-checks the output. A green build is
-necessary but not sufficient — Hugo renders broken layouts happily. For any change touching a
-template or CSS, also:
+`make check` builds with warnings treated as errors and then runs `tests/run.sh`, which is
+the same suite CI runs before deploying.
+
+It is POSIX `sh` and the tools any Unix already has. This theme has no Node toolchain and no
+package manager, and a test suite that reintroduced one would undo the main thing the build is
+protecting. `python3` is used only to validate JSON and XML, and those cases skip rather than
+fail when it is absent.
+
+The suite asserts what a green build does not: that the output is fingerprinted and
+integrity-hashed, that feeds and the sitemap parse and contain the right things, that covers are
+never cropped, that syntax and admonition colours exist in both modes, that every custom property
+and every i18n key resolves, that no user-facing string is hardcoded, and that the script bundle
+declares no bare globals.
+
+When you add a case, check that it can actually fail. Break the thing on purpose and confirm the
+suite goes red before you commit it. An assertion that cannot fail is worse than none, because it
+reads as coverage. Two of the original cases were wrong in exactly this way: one matched
+`northlight.min.css` as though it carried a content hash, and one hardcoded the demo's own
+hostname so it would have failed only in CI.
+
+The suite still does not replace looking at the page. Hugo renders broken layouts happily and
+nothing here opens a browser, so for any change touching a template or CSS, also:
 
 1. `make serve` and load the affected page.
 2. Check it in **both** colour modes. A change that only looks right in light mode is not done.
@@ -67,7 +88,45 @@ These are specific to this project. Breaking one is a bug even if the build pass
   site authors inject analytics and comment systems without forking. Keep them overridable and
   documented.
 - **No feature without a home in `exampleSite/`.** If it is not demonstrated there, it is not
-  finished and it is not documented.
+  finished and it is not documented. See the checklist below: "demonstrated" also means a section
+  in the docs site.
+- **No user-facing string in a template.** Everything a reader can see comes from `i18n/en.toml`.
+  A hardcoded string is invisible to translators and cannot be found by grepping the catalogue.
+
+## Shipping a feature
+
+The demo site is also the manual, so a feature is not done when it works. `exampleSite/content/docs/`
+builds the documentation you can read at the demo URL, which means a change to the theme and a
+change to its documentation are the same pull request.
+
+Work through all of this. Every step is here because skipping it has produced a bug or a gap at
+some point.
+
+1. **Resolve the default once.** Add the param to `_partials/init.html` rather than writing
+   `| default` inline in a template. Booleans go through `_partials/param-bool.html`, because
+   `| default true` silently flips an explicit `false` back to true.
+2. **Put strings in `i18n/en.toml`.** Anything a reader sees. Plurals use `one`/`other` rather than
+   a conditional in a template, so languages whose plural rules differ from English need no
+   template changes. Keep the pluralised `[table]` entries at the **bottom** of the file: in TOML a
+   bare key after a table header joins that table, and the build fails with "reserved keys mixed
+   with unreserved keys".
+   - A string that only exists **after a click** cannot be rendered into the markup. Add it to the
+     JSON block in `baseof.html` and read it with `t("key", "English fallback")`. Always pass the
+     fallback, so a missing catalogue leaves working buttons rather than blank ones.
+3. **Demonstrate it in `exampleSite/`.** Config in `hugo.toml`, commented out if switching it on
+   would send data to a third party, plus content if the feature is content-shaped.
+4. **Document it in the docs site**, on the page it belongs to under `exampleSite/content/docs/`:
+   getting-started, configuration, writing, appearance, integrations or translating. Those pages
+   are built by the theme, so write yours so that it *demonstrates* what it describes rather than
+   only describing it.
+5. **Add a `README.md` row**: key, default, what it changes.
+6. **Add a `CHANGELOG.md` entry** under Unreleased, in the right subsection. Say what breaks, if
+   anything.
+7. **Update `docs/FEATURE-SURVEY.md`.** Set the row's status. If you decided *not* to build
+   something, mark it Rejected with the reason rather than leaving it as an open candidate.
+8. **Add a case to `tests/run.sh`** for whatever the feature guarantees. Then break the thing on
+   purpose and confirm the suite goes red before you commit it.
+9. **Verify**, and say in the PR what you actually checked.
 
 ## Architecture
 

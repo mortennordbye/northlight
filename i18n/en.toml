@@ -1,0 +1,90 @@
+# Every string the theme puts on screen. Nothing user-facing is hardcoded in a
+# template, so translating the theme means copying this file to your language code
+# (i18n/de.toml, i18n/nb.toml) and translating the values. Nothing else changes.
+#
+# Placeholders: {{ . }} is the value passed to the call. Keep it in the translation.
+#
+# ORDERING MATTERS. In TOML, every bare key after a [table] header belongs to that
+# table, so the pluralised entries are all at the bottom. Adding a simple key below
+# them silently makes it part of the last table and the build fails with "reserved
+# keys mixed with unreserved keys".
+
+# --- Chrome -------------------------------------------------------------------
+skipToContent = "Skip to content"
+mainNavigation = "Main"
+footerNavigation = "Footer"
+backToTop = "Back to top"
+switchColourMode = "Switch colour mode"
+switchToDarkMode = "Switch to dark mode"
+switchToLightMode = "Switch to light mode"
+
+# --- Search -------------------------------------------------------------------
+searchPosts = "Search posts"
+searchPlaceholder = "Search posts, tags…"
+searchResults = "Search results"
+closeSearch = "Close search"
+escapeKey = "Esc"
+
+# --- Article ------------------------------------------------------------------
+draft = "Draft"
+onThisPage = "On this page"
+readNext = "Read next"
+share = "Share"
+comments = "Comments"
+commentsRequireJavaScript = "Comments require JavaScript."
+linkToSection = "Link to this section"
+table = "Table"
+breadcrumb = "Breadcrumb"
+postNavigation = "Post navigation"
+older = "Older"
+newer = "Newer"
+editThisPage = "Edit this page"
+externalPost = "Read on the original site"
+
+# --- Lists and taxonomies -----------------------------------------------------
+featured = "Featured"
+recentPosts = "Recent posts"
+allPosts = "All posts"
+home = "Home"
+tagged = "Tagged"
+noTagsYet = "No tags yet."
+pageNotFound = "This page does not exist."
+pageNotFoundHelp = "The link may be out of date, or the page may have moved. The posts are all still here."
+
+# --- Pagination ---------------------------------------------------------------
+pagination = "Pagination"
+previousPage = "Previous page"
+nextPage = "Next page"
+
+# --- Code blocks --------------------------------------------------------------
+copy = "Copy"
+copied = "Copied"
+copyFailed = "Failed"
+copyCodeToClipboard = "Copy code to clipboard"
+codeCopiedToClipboard = "Code copied to clipboard"
+
+# --- Footer -------------------------------------------------------------------
+# {{ . }} is a link to Hugo, so the two names stay in whatever order the language
+# wants rather than being concatenated inside a template.
+builtWith = "built with {{ . }} and the Northlight theme"
+
+# --- Pluralised. Keep these last; see the note at the top. --------------------
+[readingTime]
+one = "{{ . }} min read"
+other = "{{ . }} min read"
+
+# .Formatted carries the thousands separator; .Count drives pluralisation.
+[wordCount]
+one = "{{ .Formatted }} word"
+other = "{{ .Formatted }} words"
+
+[updatedOn]
+other = "Updated {{ . }}"
+
+[postCount]
+one = "{{ . }} post"
+other = "{{ . }} posts"
+
+[allNPosts]
+one = "All {{ . }} post"
+other = "All {{ . }} posts"
