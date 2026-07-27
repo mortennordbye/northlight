@@ -26,3 +26,19 @@
   padding: 3px 9px;
   vertical-align: baseline;
 }
+
+/* --- button ---------------------------------------------------------------- */
+
+/* .button itself is defined in article.css and reused as-is. The only thing needed
+   here is winning against `.prose a`, which is two classes to .button's one and
+   would otherwise paint the label accent-coloured and underline it — a button that
+   looks like a link defeats the point of having both. The hover underline goes too;
+   the button already has its own hover treatment. */
+.prose a.button {
+  color: var(--fg);
+  box-shadow: none;
+}
+
+.prose a.button:hover {
+  box-shadow: none;
+}

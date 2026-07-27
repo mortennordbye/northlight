@@ -233,6 +233,16 @@ assert_count 3 "$LEADS" "lead renders as a lede block"
 # inline display Hugo wraps the inner text in a <p>, which breaks the line box the
 # badge sits in. Assert on the markup rather than on the class alone.
 assert_grep '<span class=badge>' "$SHORTCODES" "badge renders as an inline chip"
+
+# button: pageRef must resolve to a real URL, not be echoed as written, and _blank must
+# bring rel=noopener with it or the opened page can reach back through window.opener.
+assert_grep 'class=button href=/docs/getting-started/' "$SHORTCODES" "button resolves pageRef to a URL"
+BLANK=$(grep -o '<a class=button[^>]*_blank[^>]*>' "$SHORTCODES" | head -1)
+case "$BLANK" in
+  *noopener*) ok "button with target=_blank sets rel=noopener" ;;
+  "") bad "button with target=_blank sets rel=noopener" "no target=_blank button found" ;;
+  *)  bad "button with target=_blank sets rel=noopener" "$BLANK" ;;
+esac
 if grep -o '<span class=badge>[^<]*<p' "$SHORTCODES" >/dev/null; then
   bad "badge inner content stays inline" "inner content was wrapped in a paragraph"
 else

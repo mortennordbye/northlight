@@ -177,7 +177,8 @@ duplicated as shortcodes — and every shortcode is additive, replacing no Markd
 |---|---|---|
 | Lead | **Have** | Reuses the `.lede` treatment rather than defining a parallel one |
 | Badge | **Have** | Same shape as a tag, without a tag's link behaviour |
-| Button · Email · Keyword · LTR/RTL · Swatches | Gap | Presentational primitives, no JS |
+| Button | **Have** | Reuses the `.button` already used by the 404 page and the share row |
+| Email · Keyword · LTR/RTL · Swatches | Gap | Presentational primitives, no JS |
 | Icon · Article · List · Figure | Gap | Wrap partials the theme already has |
 | Alert | Gap | Only if it can reuse the admonition render hook's colours; a second syntax for the same thing is not worth the surface |
 | Accordion · Gallery · Tabs · Timeline | Gap | CSS-driven, JS-optional |

@@ -168,7 +168,7 @@ No JavaScript, no new dependencies, small CSS.
       parameters in the surveyed themes; build it variadic instead, there is no reason for the
       limit. Branch `feat/shortcode-swatches`. Genuinely useful in a theme whose docs are about
       design tokens.
-- [ ] **`button`** — styled call-to-action link. Parameters: `href`, `pageRef`, `target`, `rel`.
+- [x] **`button`** — styled call-to-action link. Parameters: `href`, `pageRef`, `target`, `rel`.
       Must set `rel="noopener"` when `target="_blank"`, and must not accept raw HTML.
       Branch `feat/shortcode-button`.
 - [ ] **`email`** — obfuscated `mailto:` link. Parameters: `email`, `text`, `subject`. Obfuscation
@@ -353,3 +353,21 @@ silently.
   Also worth knowing: `.Page.RenderString` defaults to inline, which is what an inline shortcode
   wants. Passing `(dict "display" "block")` wraps the inner content in a `<p>` and breaks the
   line box.
+
+- **`feat/shortcode-button`** — `button`, reusing the existing `.button`. Two things generalise
+  to every later item:
+
+  **A shortcode that reuses a chrome class needs a `.prose` override.** `.prose a` is two classes
+  to `.button`'s one, so inside content the button came out accent-coloured and underlined — it
+  looked like a link, which defeats having both. `assets/css/shortcodes.css` now carries
+  `.prose a.button`. Anything reused from `article.css` inside prose will hit this.
+
+  **Validate parameters with `errorf`, and guard the follow-on checks.** `errorf` logs and
+  carries on rather than stopping, so an unresolvable `pageRef` also tripped the separate
+  "pageRef or href is required" check and reported two errors for one mistake. Guard later checks
+  on the earlier input being absent. All three failure paths — unresolvable `pageRef`, neither
+  parameter, both parameters — were confirmed to fail the build.
+
+  Author-supplied URLs are **not** passed through `safeURL`. Go's templates sanitise URLs in an
+  `href`, which neutralises `javascript:`; `safeURL` would switch that off. `render-link.html`
+  does use `safeURL`, which is a separate and older decision about Markdown links.

@@ -1,0 +1,61 @@
+{{- /*
+  button — a link styled as a call to action.
+
+  Reuses the .button class the 404 page and the share row already use, so a button in
+  content and a button in the chrome cannot drift apart.
+
+  Parameters:
+    pageRef  a path to another page in this site, resolved through site.GetPage
+    href     any URL, for anything outside the site
+    target   e.g. _blank
+    rel      extra relationship tokens
+
+  Exactly one of pageRef or href is required, and an unresolvable pageRef fails the
+  build rather than rendering a button that goes nowhere — a silently dead call to
+  action is worse than a broken build.
+
+  target="_blank" adds rel="noopener" on its own, so the opened page cannot reach back
+  through window.opener. Any rel given explicitly is kept alongside it.
+
+  href is deliberately not passed through safeURL. Go's templates sanitise URLs in an
+  href attribute, which neutralises javascript: — and this value comes from whoever
+  writes the content, which on a multi-author site is not necessarily whoever installed
+  the theme.
+
+  Call:  {{< button href="https://example.com" target="_blank" >}}Read more{{< /button >}}
+         {{< button pageRef="/docs/getting-started" >}}Get started{{< /button >}}
+*/ -}}
+
+{{- $href := .Get "href" -}}
+{{- $pageRef := .Get "pageRef" -}}
+
+{{- if and $href $pageRef -}}
+  {{- errorf "button shortcode: give either pageRef or href, not both (%s)" .Position -}}
+{{- end -}}
+
+{{- with $pageRef -}}
+  {{- with site.GetPage . -}}
+    {{- $href = .RelPermalink -}}
+  {{- else -}}
+    {{- errorf "button shortcode: no page found for pageRef %q (%s)" . $.Position -}}
+  {{- end -}}
+{{- end -}}
+
+{{- /* Guarded on $pageRef so an unresolvable one reports the useful message above and
+       not this one too — errorf logs and carries on, so both would otherwise fire. */ -}}
+{{- if and (not $href) (not $pageRef) -}}
+  {{- errorf "button shortcode: pageRef or href is required (%s)" .Position -}}
+{{- end -}}
+
+{{- $target := .Get "target" -}}
+{{- $rel := .Get "rel" -}}
+{{- if eq $target "_blank" -}}
+  {{- $rel = cond (in (printf " %s " $rel) " noopener ") $rel (trim (printf "%s noopener" (or $rel "")) " ") -}}
+{{- end -}}
+
+<a class="button" href="{{ $href }}"
+  {{- with $target }} target="{{ . }}"{{ end }}
+  {{- with $rel }} rel="{{ . }}"{{ end -}}
+>{{ .Inner | .Page.RenderString }}</a>
+{{- /* No trailing newline: it would collapse to a visible space before any punctuation
+       that follows the button. */ -}}

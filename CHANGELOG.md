@@ -10,6 +10,11 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **`button`** — a link styled as a call to action, taking `pageRef` for a page on this site or
+  `href` for anything off it. It reuses the `.button` the 404 page and share row already use, so
+  a button in content and a button in the chrome cannot drift apart. `target="_blank"` adds
+  `rel="noopener"` on its own. An unresolvable `pageRef` fails the build rather than rendering a
+  call to action that silently leads nowhere.
 - **`badge`** — a small inline label for a status or a piece of metadata, taking the same shape
   as a tag without a tag's link behaviour. Brings `assets/css/shortcodes.css` into the bundle,
   concatenated after the component sheets and before a site's own `custom.css` so it stays

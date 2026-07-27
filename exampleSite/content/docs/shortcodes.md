@@ -62,3 +62,30 @@ a reader should not have to learn two visual languages for that.
 Inner content is rendered inline, so emphasis and links work: {{< badge >}}**bold**{{< /badge >}}
 and {{< badge >}}[a link]({{< ref "getting-started" >}}){{< /badge >}}. A paragraph does
 not, and should not — a badge sits inside a line.
+
+## `button`
+
+A link styled as a call to action, for the one thing you actually want the reader to do
+next. It reuses the button the 404 page and the share row already use, so a button in
+your content and a button in the theme's own chrome cannot drift apart.
+
+| Parameter | Required | What it does |
+|---|---|---|
+| `pageRef` | one of these | A path to another page on this site |
+| `href` | one of these | Any URL, for anything off-site |
+| `target` | no | `_blank` to open in a new tab |
+| `rel` | no | Extra relationship tokens |
+
+```text
+{{</* button pageRef="/docs/getting-started" */>}}Get started{{</* /button */>}}
+```
+
+{{< button pageRef="/docs/getting-started" >}}Get started{{< /button >}}
+
+`target="_blank"` adds `rel="noopener"` on its own, so the opened page cannot reach back
+through `window.opener`. Anything you pass in `rel` is kept alongside it:
+
+{{< button href="https://gohugo.io/" target="_blank" >}}Hugo documentation{{< /button >}}
+
+An unresolvable `pageRef` fails the build rather than rendering a button that goes
+nowhere. A call to action that silently leads to a 404 is worse than a red build.
