@@ -285,7 +285,9 @@ solving the wrong problem — surface it as a param instead.
 ├── docs/
 │   ├── SPEC.md            # what the theme must do, from the audit of the previous theme
 │   ├── BUILD-PLAN.md      # ordered build phases with verification steps
-│   └── DESIGN.md          # design tokens: type, colour, spacing, motion
+│   ├── DESIGN.md          # design tokens: type, colour, spacing, motion
+│   ├── FEATURE-SURVEY.md  # candidate features, with status and rejections
+│   └── AUTOMATION.md      # CI, the quality audit, branch protection, releases
 ├── design/
 │   ├── northlight.html    # the approved visual target (single file, self-contained)
 │   └── explorations/      # ten rejected directions, kept for context

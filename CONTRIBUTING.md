@@ -8,6 +8,11 @@ particular author is hardcoded, and every config key is documented and stable.
 `design/northlight.html` is the approved visual target — a single self-contained mockup with both
 colour modes and all three palettes.
 
+`docs/AUTOMATION.md` explains the machinery around all of that: which workflows run and when,
+which checks are required, how the quality audit is configured, and how a release is cut. Read it
+before changing anything under `.github/`, and when a pull request behaves in a way that looks
+broken but is not.
+
 ## Development
 
 Everything runs through Docker. **Do not install Hugo, Node or npm on the host** — the official
