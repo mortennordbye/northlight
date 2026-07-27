@@ -9,7 +9,24 @@ below for what happened to each.
 
 ---
 
-## Nothing open
+## Open
+
+### `design/northlight.html` reinterprets DOM text as HTML
+
+**What.** CodeQL reports `js/xss-through-dom` (high) at `design/northlight.html:774`. The mockup's
+search box interpolates `q.value` straight into `innerHTML` without escaping.
+
+**Why deferred.** It is the approved visual target, not shipped code. Nothing under `layouts/`,
+`assets/` or `static/` is affected, and the file is opened as a local reference rather than
+served. The shipped implementation is not affected: `assets/js/search.js` escapes every
+interpolated value, which is why CodeQL flags only the mockup. Editing the approved reference
+artifact is also not something to do casually.
+
+**What unblocks it.** A decision that changing the mockup is acceptable. The fix is to escape
+`q.value` in the empty-state branch and the post fields in the results branch, matching what
+`assets/js/search.js` already does.
+
+**Where.** `design/northlight.html:768-775`; compare `assets/js/search.js:82-95`.
 
 ---
 
