@@ -61,7 +61,7 @@ jobs:
       - name: Test
         run: sh northlight/tests/run.sh
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: northlight/exampleSite/public
 
