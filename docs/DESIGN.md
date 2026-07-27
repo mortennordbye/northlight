@@ -100,17 +100,26 @@ active TOC item, and the reading-progress bar.
 
 ### Chroma tokens
 
-| Token class | Light | Dark |
-|---|---|---|
-| comment (`.c`) | `#8a8a92` | `#71717d` |
-| keyword (`.kc`, `.nb`) | `#7c4bc4` | `#c8aaf5` |
-| string (`.s`) | `#2c7d6a` | `#86d6bd` |
-| number (`.m`) | `#b06a1f` | `#f0bd85` |
-| name/tag (`.nt`) | `#3b5bc4` | `#a3b6f5` |
+| Token class | Light | Dark | Contrast on the code surface |
+|---|---|---|---|
+| comment (`.c`) | `#727278` | `#7e7e89` | 4.60:1 / 4.60:1 |
+| keyword (`.kc`, `.nb`) | `#7c4bc4` | `#c8aaf5` | 5.50:1 / 9.29:1 |
+| string (`.s`) | `#2c7d6a` | `#86d6bd` | 4.74:1 / 10.91:1 |
+| number (`.m`) | `#a4631d` | `#f0bd85` | 4.60:1 / 10.87:1 |
+| name/tag (`.nt`) | `#3b5bc4` | `#a3b6f5` | 5.78:1 / 9.32:1 |
+
+Ratios are periwinkle, measured against `--surface` (`#fafafa` light, `#131317` dark), which is
+the code-block background. Sage and clay were measured too and clear 4.5:1 on every token.
+
+**Comment and number were darkened from the mockup during phase 2.** As built,
+`design/northlight.html` uses `#8a8a92` / `#71717d` for comments, which measure 3.28:1 and
+3.85:1 — below the 4.5:1 floor the build plan sets for them — and `#b06a1f` / `#a8681c` for
+light-mode numbers at 4.08:1 and 4.32:1. The replacements are the smallest hue-preserving shift
+that clears 4.5:1. Everything else in the mockup measured clean and is unchanged.
 
 Sage and clay override keyword/string/number/tag to sit in their own hue family; see
-`design/northlight.html` for the exact per-palette values. The full Chroma class set is larger
-than these five — phase 2 covers the rest.
+`design/northlight.html` for the exact per-palette values. The full Chroma class set is 81
+classes, far larger than these five — `assets/css/chroma.css` maps every one of them.
 
 ---
 

@@ -69,14 +69,14 @@
 
   /* --- syntax highlighting ------------------------------------------------ */
   /* Five colours drive the whole Chroma sheet; the full class map is chroma.css. */
-  --tok-com: #8a8a92;
-  --tok-com: light-dark(#8a8a92, #71717d);
+  --tok-com: #727278;
+  --tok-com: light-dark(#727278, #7e7e89);
   --tok-key: #7c4bc4;
   --tok-key: light-dark(#7c4bc4, #c8aaf5);
   --tok-str: #2c7d6a;
   --tok-str: light-dark(#2c7d6a, #86d6bd);
-  --tok-num: #b06a1f;
-  --tok-num: light-dark(#b06a1f, #f0bd85);
+  --tok-num: #a4631d;
+  --tok-num: light-dark(#a4631d, #f0bd85);
   --tok-tag: #3b5bc4;
   --tok-tag: light-dark(#3b5bc4, #a3b6f5);
 
@@ -171,8 +171,8 @@ html[data-palette="sage"] {
   --tok-key: light-dark(#7a5bb5, #c5b0ef);
   --tok-str: #2f7a58;
   --tok-str: light-dark(#2f7a58, #9cd9b4);
-  --tok-num: #a8681c;
-  --tok-num: light-dark(#a8681c, #f0c48d);
+  --tok-num: #a2641b;
+  --tok-num: light-dark(#a2641b, #f0c48d);
   --tok-tag: #2f6b7a;
   --tok-tag: light-dark(#2f6b7a, #8fcbd6);
 }
@@ -189,8 +189,8 @@ html[data-palette="clay"] {
   --tok-key: light-dark(#8b4a9c, #dfa9ea);
   --tok-str: #3f7a5c;
   --tok-str: light-dark(#3f7a5c, #9fd6a8);
-  --tok-num: #b06a1f;
-  --tok-num: light-dark(#b06a1f, #f0c48d);
+  --tok-num: #a4631d;
+  --tok-num: light-dark(#a4631d, #f0c48d);
   --tok-tag: #2f6b8f;
   --tok-tag: light-dark(#2f6b8f, #8fc0e0);
 }
