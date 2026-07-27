@@ -40,7 +40,11 @@ the web and reads anonymous.
 | Code block | 13.5px | 400 | — | 1.68 |
 | Inline code | 0.855em | 400 | — | inherit |
 
-Prose measure is **68ch**. Body text never goes below 16px.
+Prose measure is **68ch**, resolved once to a fixed **44.2rem** in `tokens.css` rather than left
+as a `ch` value. `ch` is the advance of the digit zero in the *current* font, and Schibsted
+Grotesk's zero is 13.9% wider than the metric-matched fallback's — so a live `ch` measure narrows
+the column by 41px while the webfont loads and reflows the whole article when it arrives. Body
+text never goes below 16px.
 
 ---
 

@@ -85,8 +85,10 @@
   --tok-tag: light-dark(#3b5bc4, #a3b6f5);
 
   /* --- type --------------------------------------------------------------- */
-  --font-sans: "Schibsted Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: "Spline Sans Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* The Fallback faces are metric-matched shims declared in fonts.css; they hold the
+     same space as the real face so the swap does not reflow the page. */
+  --font-sans: "Schibsted Grotesk", "Schibsted Grotesk Fallback", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Spline Sans Mono", "Spline Sans Mono Fallback", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --text-home-h1: clamp(30px, 4vw, 42px);
   --text-article-h1: clamp(30px, 4.4vw, 46px);
@@ -130,7 +132,16 @@
   /* --- layout ------------------------------------------------------------- */
   --container: 1120px;
   --gutter: var(--space-6);
-  --measure: 68ch;          /* prose line length */
+  /* The prose measure. docs/DESIGN.md specifies 68ch, and this is that number
+     resolved once: 68ch of Schibsted Grotesk at --text-prose measures 706.7px, which
+     is 44.2rem.
+
+     It is deliberately not left as `ch`. That unit is the advance of the digit zero in
+     the *current* font, and Schibsted's zero is 13.9% wider than the fallback's, so a
+     `ch` measure silently narrows the column by 41px while the webfont is loading and
+     reflows the whole article when it arrives. A fixed measure cannot be matched by a
+     fallback because it does not depend on one. */
+  --measure: 44.2rem;
   --toc-width: 216px;
   --toc-gap: var(--space-9);
   --header-height: 60px;

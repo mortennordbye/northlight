@@ -21,25 +21,6 @@ to document.
 
 ---
 
-## Font fallback has no matched metrics
-
-**What:** `CONTRIBUTING.md` calls for fonts to load with `font-display: swap` **and a matched fallback
-metric**. Only the first half is done. The `@font-face` blocks in `assets/css/fonts.css` use
-`swap`, but the fallback stack is plain `system-ui`, so the swap from fallback to Schibsted
-Grotesk shifts text slightly.
-
-**Why deferred:** the fix is an extra `@font-face` block per family declaring `size-adjust`,
-`ascent-override`, `descent-override` and `line-gap-override` against a named local fallback, and
-the override percentages have to be measured against real rendered text rather than guessed.
-There is no styled page to measure against until phase 3 puts prose on the screen.
-
-**Unblocks it:** phase 3 or phase 7. Measure with the two families side by side at
-`--text-prose`, then tune `size-adjust` until the line boxes match.
-
-**Where:** `assets/css/fonts.css`, and `--font-sans` / `--font-mono` in `assets/css/tokens.css`.
-
----
-
 ## Bind-mount build race: mitigated, root cause not proven
 
 **What:** on a cold output directory, `make build` / `make check` could die with

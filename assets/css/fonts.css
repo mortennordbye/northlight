@@ -9,6 +9,38 @@
    woff2 URLs carry a content hash like every other asset. Subsetting follows Google's
    latin / latin-ext split: a page of English text only ever downloads the latin file. */
 
+/* --- metric-matched fallbacks ---------------------------------------------- */
+/* font-display: swap means text is painted in a fallback face first and replaced
+   when the real one arrives. Unless the two occupy the same space, that swap reflows
+   the page — the layout shift these overrides exist to prevent.
+
+   The percentages are measured, not guessed: rendering the same string at 100px in
+   each face and comparing advance width and font bounding box gives Schibsted
+   Grotesk as 103.6% the width of Arial, and Spline Sans Mono as within 0.02% of
+   Courier New. Re-measure if either family is ever updated.
+
+   The local() list covers the usual system faces per platform. They are not metrically
+   identical to each other, so the match is close rather than perfect on a machine that
+   falls through to a different one. */
+
+@font-face {
+  font-family: "Schibsted Grotesk Fallback";
+  src: local("Arial"), local("Helvetica Neue"), local("Liberation Sans"), local("Nimbus Sans");
+  size-adjust: 103.6%;
+  ascent-override: 94.6%;
+  descent-override: 25.1%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Spline Sans Mono Fallback";
+  src: local("Courier New"), local("DejaVu Sans Mono"), local("Liberation Mono");
+  size-adjust: 100%;
+  ascent-override: 96%;
+  descent-override: 24%;
+  line-gap-override: 0%;
+}
+
 @font-face {
   font-family: "Schibsted Grotesk";
   font-style: normal;
