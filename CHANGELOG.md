@@ -6,6 +6,13 @@ and versions follow [semantic versioning](https://semver.org/).
 **Config keys are API.** A key is never renamed or repurposed without a major version bump. New
 keys are added with defaults that preserve existing behaviour.
 
+## [0.1.1](https://github.com/mortennordbye/northlight/compare/v0.1.0...v0.1.1) (2026-07-27)
+
+
+### Bug Fixes
+
+* derive the Hugo version everywhere and prioritise the LCP image ([#12](https://github.com/mortennordbye/northlight/issues/12)) ([c66a12b](https://github.com/mortennordbye/northlight/commit/c66a12be2d90e780799f9d7833b7a2a2ca726f6b))
+
 ## [Unreleased]
 
 ### Added
