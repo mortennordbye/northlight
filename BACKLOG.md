@@ -11,26 +11,6 @@ below for what happened to each.
 
 ## Open
 
-### Make the PR title check a required status check
-
-**What.** `Conventional Commits` (from `.github/workflows/pr-title.yml`) runs on every pull
-request but is not in the `protect-default-branch` ruleset's required checks, so a
-non-conforming title is visible and ignorable rather than blocking.
-
-**Why deferred.** A required context that has never reported blocks every merge forever. The
-workflow uses `pull_request_target`, which resolves the workflow file from the *base* branch, so
-it could not run on the pull request that introduced it. It has therefore never produced a check
-run.
-
-**What unblocks it.** The next pull request. Once `Conventional Commits` appears in
-`gh api /repos/mortennordbye/northlight/commits/<sha>/check-runs`, add
-`{ "context": "Conventional Commits" }` to the `required_status_checks` rule.
-
-**Where.** `.github/workflows/pr-title.yml`; ruleset `protect-default-branch` (id `19845628`).
-
-This matters more than it looks: squash commits inherit the PR title, and release-please derives
-the next version from those commits. An unchecked title is a silently wrong release.
-
 ### `design/northlight.html` reinterprets DOM text as HTML
 
 **What.** CodeQL reports `js/xss-through-dom` (high) at `design/northlight.html:774`. The mockup's
