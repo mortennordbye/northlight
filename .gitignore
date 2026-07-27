@@ -1,0 +1,16 @@
+# Hugo build output
+public/
+exampleSite/public/
+resources/
+exampleSite/resources/
+.hugo_build.lock
+
+# OS / editor
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Local working files
+.notes/
+.screenshots/

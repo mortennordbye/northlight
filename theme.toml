@@ -1,0 +1,13 @@
+name = "Northlight"
+license = "MIT"
+licenselink = "https://github.com/mortennordbye/northlight/blob/main/LICENSE"
+description = "A quiet, readable Hugo theme for technical writing. Light and dark designed separately, three pastel palettes, no gimmicks."
+homepage = "https://github.com/mortennordbye/northlight"
+demosite = "https://github.com/mortennordbye/northlight"
+tags = ["blog", "minimal", "clean", "dark mode", "light mode", "responsive", "technical", "accessible", "search", "table of contents"]
+features = ["blog", "dark mode", "search", "table of contents", "syntax highlighting", "responsive", "seo", "rss", "tags"]
+min_version = "0.161.0"
+
+[author]
+  name = "Morten Victor Nordbye"
+  homepage = "https://nordbye.it"

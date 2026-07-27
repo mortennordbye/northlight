@@ -1,0 +1,114 @@
+# Northlight — example site configuration.
+#
+# This file doubles as the parameter reference until README.md gets a proper one.
+# Every option the theme supports should appear here, with its default in a comment,
+# so a site author can copy this file and delete what they don't need.
+#
+# NOTE for whoever builds the theme: params listed here are the intended surface from
+# docs/SPEC.md. Add them as you implement them; do not read a param in a template that
+# isn't documented here.
+
+baseURL = "https://example.com/"
+locale = "en"                      # replaces languageCode, deprecated in Hugo 0.158
+defaultContentLanguage = "en"
+title = "Example Blog"
+theme = "northlight"
+
+enableRobotsTXT = true
+summaryLength = 30
+
+[pagination]
+  pagerSize = 10
+
+[outputs]
+  home = ["HTML", "RSS", "JSON"]   # JSON is the search index — required if enableSearch
+
+[taxonomies]
+  tag = "tags"
+
+[sitemap]
+  changefreq = "daily"
+  filename = "sitemap.xml"
+  priority = 0.5
+
+# --- Markup -------------------------------------------------------------------
+# Both of these are REQUIRED by the theme.
+
+[markup]
+  [markup.goldmark.parser]
+    wrapStandAloneImageWithinParagraph = false
+    [markup.goldmark.parser.attribute]
+      block = true
+  [markup.goldmark.renderer]
+    unsafe = true          # allow raw HTML in posts. Site author's choice.
+  [markup.highlight]
+    noClasses = false      # REQUIRED: Chroma emits CSS classes, which the theme styles.
+  [markup.tableOfContents]
+    startLevel = 2
+    endLevel = 4
+
+# --- Theme params -------------------------------------------------------------
+
+[params]
+  description = "A short site description, used for meta tags and the RSS feed."
+
+  colorScheme = "periwinkle"   # periwinkle | sage | clay      (default: periwinkle)
+  defaultAppearance = "light"  # light | dark                  (default: light)
+  autoSwitchAppearance = true  # follow prefers-color-scheme    (default: true)
+
+  enableSearch = true          # ⌘K modal; needs JSON in [outputs].home (default: true)
+  enableCodeCopy = true        # copy button on code blocks     (default: true)
+
+  mainSections = ["blog"]      # which sections appear in lists (default: ["blog"])
+
+  [params.author]
+    name = "Your Name"
+    headline = "What you do"
+    bio = "One or two sentences."
+    image = "images/profile.png"
+    links = [
+      { linkedin = "https://www.linkedin.com/in/you" },
+      { github = "https://github.com/you" },
+      { link = "https://example.com" },
+    ]
+
+  [params.home]
+    showFeatured = true        # large featured card for the newest post (default: true)
+    recentCount = 3            # cards under the featured post          (default: 3)
+
+  [params.article]
+    showBreadcrumbs = true
+    showAuthor = true
+    showDate = true
+    showReadingTime = true
+    showWordCount = true
+    showHero = true            # the 1200x630 cover. Never cropped.
+    showTableOfContents = true
+    showProgress = true        # 2px reading-progress bar
+    showTaxonomies = true
+    showRelated = true
+    relatedLimit = 3
+    showPagination = true      # prev / next
+    sharingLinks = ["linkedin", "reddit"]
+    showComments = false       # requires a partials/comments.html override
+
+  [params.list]
+    groupByYear = true
+
+  [params.footer]
+    showCopyright = true
+    showThemeAttribution = true
+
+# Comments are wired through an overridable partial rather than baked in.
+# Copy layouts/partials/comments.html into your own site to use giscus, utterances,
+# or anything else. Same pattern for analytics via layouts/partials/extend-head.html.
+
+[menu]
+  [[menu.main]]
+    name = "Blog"
+    pageRef = "blog"
+    weight = 10
+  [[menu.main]]
+    name = "Tags"
+    pageRef = "tags"
+    weight = 20
