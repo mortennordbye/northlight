@@ -8,6 +8,14 @@ keys are added with defaults that preserve existing behaviour.
 
 ## [Unreleased]
 
+Nothing yet.
+
+## [0.2.0] — 2026-07-27
+
+A minor rather than a patch: most of what follows is new surface. Every key added here has a
+default that preserves the previous behaviour, so upgrading from 0.1.0 changes nothing until you
+opt in.
+
 ### Added
 
 - **Internationalisation.** Every user-facing string now comes from `i18n/en.toml`. There was no
@@ -164,4 +172,6 @@ table of contents is a list of working links, and the colour mode follows the sy
 - No horizontal scrolling at 1440, 1024, 768 or 375; code blocks and tables scroll inside
   themselves.
 
+[Unreleased]: https://github.com/mortennordbye/northlight/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/mortennordbye/northlight/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/mortennordbye/northlight/releases/tag/v0.1.0
