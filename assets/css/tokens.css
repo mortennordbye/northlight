@@ -39,8 +39,12 @@
   --fg: light-dark(#16161a, #f2f2f5);
   --fg-2: #52525b;
   --fg-2: light-dark(#52525b, #a3a3ad);
-  --fg-3: #8a8a92;
-  --fg-3: light-dark(#8a8a92, #71717d);
+  /* Darkened from the mockup's #8a8a92 / #71717d during phase 7. Those measured
+     3.43:1 on the page and 3.08:1 on a tinted card, and this token carries the meta
+     line, breadcrumb separators and card dates — all 13.5px or smaller, so all of it
+     is small text with no large-text exemption to claim. */
+  --fg-3: #6e6e75;
+  --fg-3: light-dark(#6e6e75, #868690);
 
   /* Shadow is reserved for genuinely floating things: the search modal, the
      back-to-top button, a card on hover. Borders do the work shadows do in other
@@ -178,8 +182,11 @@ html[data-palette="sage"] {
 }
 
 html[data-palette="clay"] {
-  --accent: #b6543f;
-  --accent: light-dark(#b6543f, #f0a894);
+  /* Clay's light tone is darkened a touch from #b6543f: it cleared 4.9:1 on the page
+     but only 4.37:1 on its own --accent-tint, which is exactly where the eyebrow on a
+     featured card sits. */
+  --accent: #b1523d;
+  --accent: light-dark(#b1523d, #f0a894);
   --accent-pastel: #f0a894;
   --accent-pastel: light-dark(#f0a894, #c4634c);
   --accent-tint: rgba(182, 84, 63, 0.08);

@@ -64,9 +64,8 @@
 }
 
 /* --- line numbers -------------------------------------------------------- */
-/* Line numbers use the comment tone rather than --fg-3: they sit on the code
-   surface, where --fg-3 measures 3.28:1, and --tok-com is the one muted tone
-   verified against that background. */
+/* Line numbers use the comment tone rather than --fg-3. Both are muted greys, but
+   --tok-com is the one measured against the code surface specifically. */
 
 .chroma .lntable {
   display: block;
@@ -106,18 +105,25 @@
   text-decoration: underline;
 }
 
-/* Highlighted line. .hl wraps the whole line, so it needs to be a block to paint
-   across the full width of a scrolled block. */
+/* The highlighted line. .hl wraps the whole line, so it must be a block to paint
+   across the full width of a scrolled block.
+
+   It steps *away* from the text colour rather than washing accent
+   over it: lighter than the block in light mode, darker in dark mode. An accent wash
+   moves the background toward the text and drops every token on that line below
+   4.5:1 — measured, at every alpha from .11 down to .04. This way the tokens on a
+   highlighted line are the most legible on the page rather than the least, and the
+   accent bar still identifies it. */
 .chroma .hl {
   display: block;
-  background: var(--accent-tint);
+  background: var(--bg);
   box-shadow: inset 2px 0 0 var(--accent-pastel);
 }
 
 /* With line numbers, Chroma emits .hl in both table columns, which would draw the
    accent bar twice — once at the block edge and again between the numbers and the
-   code. Keep the tint on both so the highlight reads as one row, and leave the bar
-   only on the column that starts the row. */
+   code. Keep the background on both so the highlight reads as one row, and leave the
+   bar only on the column that starts the row. */
 .chroma .lntd:last-child .hl {
   box-shadow: none;
 }

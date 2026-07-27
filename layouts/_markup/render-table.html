@@ -1,0 +1,28 @@
+{{- /* Wraps every markdown table in a scroll container, so a wide table scrolls
+       inside itself instead of pushing the whole page sideways.
+
+       tabindex and role make the container focusable, which is what lets a keyboard
+       user scroll it — a scrollable region that cannot be focused is unreachable
+       without a mouse. */ -}}
+<div class="table-wrap" tabindex="0" role="region" aria-label="Table">
+  <table>
+    <thead>
+      {{- range .THead }}
+      <tr>
+        {{- range . }}
+        <th{{ with .Alignment }} style="text-align: {{ . }}"{{ end }}>{{ .Text }}</th>
+        {{- end }}
+      </tr>
+      {{- end }}
+    </thead>
+    <tbody>
+      {{- range .TBody }}
+      <tr>
+        {{- range . }}
+        <td{{ with .Alignment }} style="text-align: {{ . }}"{{ end }}>{{ .Text }}</td>
+        {{- end }}
+      </tr>
+      {{- end }}
+    </tbody>
+  </table>
+</div>

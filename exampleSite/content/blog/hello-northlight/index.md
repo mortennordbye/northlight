@@ -99,6 +99,18 @@ metadata:
     app: northlight
 ```
 
+## A table
+
+Wide tables scroll inside their own container rather than pushing the page sideways.
+
+| Token | Light | Dark | Used by |
+|---|---|---|---|
+| `--bg` | `#ffffff` | `#0b0b0e` | page background |
+| `--surface` | `#fafafa` | `#131317` | code blocks, cards on hover |
+| `--fg` | `#16161a` | `#f2f2f5` | body text |
+| `--fg-3` | `#6e6e75` | `#868690` | meta lines, dates, breadcrumb separators |
+| `--accent` | `#4f57c4` | `#a6aef0` | links, active TOC item, progress bar |
+
 ## Raw HTML
 
 The site config enables `unsafe` HTML, so posts may contain markup like this:

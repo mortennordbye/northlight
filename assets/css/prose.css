@@ -138,9 +138,31 @@
   font-weight: 600;
 }
 
-/* A wide table scrolls inside its own container, never the page. */
+/* A wide table scrolls inside its own container, never the page. The container is
+   focusable — see render-table.html — so it can be scrolled from the keyboard. */
 .prose .table-wrap {
   overflow-x: auto;
+  margin-bottom: var(--space-5);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pager);
+}
+
+.prose .table-wrap table {
+  margin-bottom: 0;
+}
+
+.prose .table-wrap th,
+.prose .table-wrap td {
+  white-space: nowrap;
+  padding: var(--space-2) var(--space-4);
+}
+
+.prose .table-wrap tr:last-child td {
+  border-bottom: 0;
+}
+
+.prose .table-wrap th {
+  background: var(--surface);
 }
 
 /* --- heading anchors ------------------------------------------------------- */

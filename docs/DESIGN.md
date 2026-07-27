@@ -61,7 +61,7 @@ drops to `#f2f2f5` rather than pure white.
 | `--line-strong` | `#d5d5da` | `#3b3b45` |
 | `--fg` | `#16161a` | `#f2f2f5` |
 | `--fg-2` | `#52525b` | `#a3a3ad` |
-| `--fg-3` | `#8a8a92` | `#71717d` |
+| `--fg-3` | `#6e6e75` | `#868690` |
 
 Shadow, light: `0 1px 2px rgba(0,0,0,.04), 0 10px 30px -14px rgba(0,0,0,.14)`
 Shadow, dark: `0 1px 2px rgba(0,0,0,.35), 0 10px 34px -16px rgba(0,0,0,.8)`
@@ -82,13 +82,21 @@ white, so each palette carries **two tones** and swaps which is which between mo
 | Periwinkle | dark | `#a6aef0` | `#6f78d8` | `rgba(166,174,240,.11)` |
 | Sage | light | `#3f7a5c` | `#a2cdb2` | `rgba(63,122,92,.08)` |
 | Sage | dark | `#a2cdb2` | `#548f6f` | `rgba(162,205,178,.11)` |
-| Clay | light | `#b6543f` | `#f0a894` | `rgba(182,84,63,.08)` |
+| Clay | light | `#b1523d` | `#f0a894` | `rgba(182,84,63,.08)` |
 | Clay | dark | `#f0a894` | `#c4634c` | `rgba(240,168,148,.11)` |
 
-Contrast of `--accent` against the page background, light mode: periwinkle ≈ 6.0:1, sage ≈
-5.1:1, clay ≈ 4.9:1. All clear WCAG AA for body text. **These were computed by hand, not
-measured — re-verify with a real tool during phase 7** and adjust the light-mode tone if any
-falls under 4.5:1.
+Contrast of `--accent`, measured during phase 7 against both the page background and the
+palette's own `--accent-tint` — the tint matters because that is what a featured card's eyebrow
+sits on. Worst case, light mode: periwinkle 5.45:1, sage 4.57:1, clay 4.55:1.
+
+**Clay's light tone was darkened from `#b6543f` to `#b1523d`.** The original cleared 4.9:1 on
+white but only 4.37:1 on its own tint. `--fg-3` was darkened from `#8a8a92` / `#71717d` for the
+same reason: 3.43:1 on the page and 3.08:1 on a tinted card, against a 4.5:1 requirement it
+cannot escape, since everything it is used for is 13.5px or smaller.
+
+The audit that produced these figures walks every text-bearing element on every page, composites
+translucent backgrounds down to the root, and applies the large-text exemption only where the
+computed size and weight actually earn it. It runs over three palettes × two modes × six pages.
 
 Selection uses `--accent-tint` with `--fg` text.
 

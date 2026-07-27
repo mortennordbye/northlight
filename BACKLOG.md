@@ -67,42 +67,6 @@ and Hugo-side, it belongs upstream, not here.
 
 ---
 
-## --fg-3 fails AA for small text
-
-**What:** `--fg-3`, the muted grey, is `#8a8a92` light and `#71717d` dark. Measured against the
-page background that is **3.42:1 and 4.19:1**, below the 4.5:1 AA floor. It is specified for the
-meta line, eyebrow labels, the TOC heading, card dates, breadcrumb separators and the footer —
-all at 13.5px or smaller, so all of it is small text and none of it qualifies for the 3:1 large-
-text exemption.
-
-**Why deferred:** deliberately, in favour of doing it with the rest of the contrast pass. Nothing
-renders `--fg-3` yet — the meta line arrives in phase 3 — so there is nothing to eyeball a
-correction against, and changing it shifts the muted grey everywhere it will eventually be used.
-
-**Unblocks it:** phase 7, together with the accent verification below. The measuring script used
-in phase 2 is the same one to use: walk the tone toward the foreground until it clears 4.6:1.
-
-**Where:** `--fg-3` in `assets/css/tokens.css`, and the base colour table in `docs/DESIGN.md`.
-
----
-
-## Accent contrast figures are hand-computed, not measured
-
-**What:** the light-mode accent contrast ratios in `docs/DESIGN.md` (periwinkle ≈ 6.0:1, sage ≈
-5.1:1, clay ≈ 4.9:1) were calculated by hand from the sRGB values, not measured with a tool.
-Clay is the closest to the 4.5:1 AA floor and has the least headroom.
-
-**Why deferred:** nothing renders `--accent` yet. The syntax tokens were measured and corrected
-during phase 2; the accents are used by links, eyebrows and the active TOC item, which do not
-exist until phases 3 and 4.
-
-**Unblocks it:** build-plan phase 7. If any value lands under 4.5:1, darken that palette's
-light-mode `--accent` until it clears.
-
-**Where:** `docs/DESIGN.md` "The two-tone accent"; values live in `assets/css/tokens.css`.
-
----
-
 ## Theme distribution method not decided
 
 **What:** the theme ships as a git submodule in the docs. Hugo Modules is the other option and
