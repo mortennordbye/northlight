@@ -532,3 +532,13 @@
     gap: var(--space-4);
   }
 }
+
+/* An entry that leaves the site. The icon sits with the title rather than after the
+   card, so the destination is clear before the click rather than after it. */
+.card-title .icon,
+.item-title .icon {
+  width: 0.72em;
+  height: 0.72em;
+  color: var(--fg-3);
+  vertical-align: baseline;
+}

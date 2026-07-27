@@ -10,7 +10,7 @@
 {{- $a := $cfg.article -}}
 {{- $items := slice -}}
 {{- if and $a.showDate (not $p.Date.IsZero) -}}
-  {{- $items = $items | append (printf `<time datetime="%s">%s</time>` ($p.Date.Format "2006-01-02") ($p.Date.Format "2 Jan 2006")) -}}
+  {{- $items = $items | append (printf `<time datetime="%s">%s</time>` ($p.Date.Format "2006-01-02") ($p.Date.Format $cfg.dateFormat)) -}}
 {{- end -}}
 {{- if $a.showReadingTime -}}
   {{- $items = $items | append (i18n "readingTime" $p.ReadingTime) -}}

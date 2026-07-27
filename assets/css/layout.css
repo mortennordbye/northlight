@@ -89,6 +89,90 @@ main {
   font-weight: 500;
 }
 
+/* A logo replaces the dot and the wordmark entirely. Height is capped rather than
+   width, so wide and square marks both sit on the same baseline as the nav. */
+.brand-logo {
+  height: 26px;
+  width: auto;
+  display: block;
+}
+
+/* --- nested menu ---------------------------------------------------------- */
+/* A <details> disclosure, not a hover dropdown: it works by touch and by keyboard
+   with no JavaScript, and it closes on Escape for free. */
+.nav-group {
+  position: relative;
+}
+
+.nav-group > summary {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 14px;
+  font-weight: 450;
+  color: var(--fg-2);
+  padding: 7px var(--space-3);
+  border-radius: 7px;
+  cursor: pointer;
+  list-style: none;
+  transition:
+    color var(--dur-color),
+    background var(--dur-color);
+}
+
+/* Safari still paints its own triangle without this. */
+.nav-group > summary::-webkit-details-marker {
+  display: none;
+}
+
+.nav-group > summary:hover,
+.nav-group[open] > summary {
+  color: var(--fg);
+  background: var(--surface-2);
+}
+
+.nav-group > summary.is-active {
+  color: var(--fg);
+  font-weight: 500;
+}
+
+.nav-group > summary .icon {
+  width: 0.9em;
+  height: 0.9em;
+  transition: transform var(--dur-card);
+}
+
+.nav-group[open] > summary .icon {
+  transform: rotate(180deg);
+}
+
+.nav-group-items {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 20;
+  min-width: 170px;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-1);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-thumb);
+  box-shadow: var(--shadow-pop);
+}
+
+/* On a narrow screen the header wraps and an absolutely positioned panel would sit
+   on top of the page. Let it push the layout instead. */
+@media (max-width: 640px) {
+  .nav-group-items {
+    position: static;
+    border: 0;
+    box-shadow: none;
+    padding: 0 0 0 var(--space-3);
+    min-width: 0;
+  }
+}
+
 /* --- footer --------------------------------------------------------------- */
 
 .site-footer {

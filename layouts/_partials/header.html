@@ -4,14 +4,42 @@
        and search is the one feature allowed to disappear without JavaScript. */ -}}
 <header class="site-header">
   <div class="wrap header-bar">
+    {{- /* A logo replaces the dot and the wordmark together, because a mark next to a
+           name next to a dot is three brand elements competing. logoDark is optional;
+           with only `logo` set, the same file is used in both modes, which is correct
+           for anything with transparency and enough contrast either way. */ -}}
     <a class="brand" href="{{ site.Home.RelPermalink }}">
-      <span class="brand-dot" aria-hidden="true"></span>{{ site.Title }}
+      {{- with partial "image-url.html" $cfg.logo }}
+        <img class="brand-logo{{ if $cfg.logoDark }} img-light{{ end }}" src="{{ . }}" alt="{{ site.Title }}">
+        {{- with partial "image-url.html" $cfg.logoDark }}
+          <img class="brand-logo img-dark" src="{{ . }}" alt="{{ site.Title }}">
+        {{- end }}
+      {{- else }}
+        <span class="brand-dot" aria-hidden="true"></span>{{ site.Title }}
+      {{- end }}
     </a>
 
     <nav class="site-nav" aria-label="{{ i18n "mainNavigation" }}">
+      {{- /* One level of nesting. An entry with children renders as a <details>
+             disclosure rather than a hover dropdown: hover menus are unreachable by
+             touch and awkward by keyboard, while details gives both for free and needs
+             no JavaScript. Deeper nesting is not supported on purpose. A blog that
+             needs three levels wants a landing page, not a bigger menu. */ -}}
       {{- range site.Menus.main }}
         {{- $active := or ($.IsMenuCurrent "main" .) ($.HasMenuCurrent "main" .) }}
-        <a href="{{ .URL }}"{{ if $active }} aria-current="page"{{ end }}>{{ .Name }}</a>
+        {{- if .HasChildren }}
+          <details class="nav-group">
+            <summary{{ if $active }} class="is-active"{{ end }}>{{ .Name }}{{ partial "icon.html" "chevron-down" }}</summary>
+            <div class="nav-group-items">
+              {{- range .Children }}
+                {{- $childActive := or ($.IsMenuCurrent "main" .) ($.HasMenuCurrent "main" .) }}
+                <a href="{{ .URL }}"{{ if $childActive }} aria-current="page"{{ end }}>{{ .Name }}</a>
+              {{- end }}
+            </div>
+          </details>
+        {{- else }}
+          <a href="{{ .URL }}"{{ if $active }} aria-current="page"{{ end }}>{{ .Name }}</a>
+        {{- end }}
       {{- end }}
 
       {{- if $cfg.enableSearch }}

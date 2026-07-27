@@ -16,8 +16,17 @@
   <div class="meta-line">
     {{- $items := slice -}}
     {{- if and $a.showDate (not .Date.IsZero) -}}
-      {{- $items = $items | append (printf `<time datetime="%s">%s</time>` (.Date.Format "2006-01-02") (.Date.Format "2 Jan 2006")) -}}
+      {{- $items = $items | append (printf `<time datetime="%s">%s</time>` (.Date.Format "2006-01-02") (.Date.Format $cfg.dateFormat)) -}}
     {{- end -}}
+
+    {{- /* The updated date is only worth showing when it says something the publication
+           date does not. Hugo defaults Lastmod to Date, so without this comparison every
+           post would claim to have been updated on the day it was written. */ -}}
+    {{- if and $a.showDateUpdated (not .Lastmod.IsZero) (gt .Lastmod.Unix .Date.Unix) -}}
+      {{- $stamp := printf `<time datetime="%s">%s</time>` (.Lastmod.Format "2006-01-02") (.Lastmod.Format $cfg.dateFormat) -}}
+      {{- $items = $items | append (i18n "updatedOn" ($stamp | safeHTML)) -}}
+    {{- end -}}
+
     {{- if $a.showReadingTime -}}
       {{- $items = $items | append (i18n "readingTime" .ReadingTime) -}}
     {{- end -}}
@@ -29,4 +38,18 @@
       <span>{{ $item | safeHTML }}</span>
     {{- end }}
   </div>
+
+  {{- /* Edit link. Only rendered when a base URL is configured, because a link that
+         goes nowhere is worse than no link. editAppendPath is on by default, so the
+         configured value is the repository's content root rather than a per-post URL,
+         which is what nearly every site wants. */ -}}
+  {{- if and $a.showEdit $a.editURL }}
+    {{- $url := $a.editURL -}}
+    {{- if and $a.editAppendPath .File }}
+      {{- $url = printf "%s/%s" (strings.TrimSuffix "/" $a.editURL) .File.Path -}}
+    {{- end }}
+    <a class="edit-link" href="{{ $url }}" rel="noopener" target="_blank">
+      {{ partial "icon.html" "pencil" }}{{ i18n "editThisPage" }}
+    </a>
+  {{- end }}
 </div>

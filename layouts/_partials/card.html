@@ -1,6 +1,13 @@
 {{- /* A post card: cover, title, summary, date and first tag. Used by the home page
        grid and by taxonomy term pages. */ -}}
-<a class="card" href="{{ .RelPermalink }}">
+{{- /* externalUrl points a listing entry at somewhere else: a piece published on
+       another site, a link-blog entry. The card links straight out rather than to a
+       local page that only says "this is elsewhere". rel and target mark it as
+       leaving, and the icon says so before the click. */ -}}
+{{- $href := .RelPermalink -}}
+{{- $external := false -}}
+{{- with .Params.externalUrl }}{{ $href = . }}{{ $external = true }}{{ end -}}
+<a class="card{{ if $external }} is-external{{ end }}" href="{{ $href }}"{{ if $external }} rel="noopener" target="_blank"{{ end }}>
   {{- with .Resources.GetMatch "{cover,featured}.*" }}
     {{- $img := . }}
     {{- if in (slice "png" "jpeg" "gif" "webp") .MediaType.SubType }}{{ $img = .Resize "500x q80" }}{{ end }}
@@ -8,7 +15,7 @@
          width="{{ $img.Width }}" height="{{ $img.Height }}" loading="lazy" decoding="async">
   {{- end }}
   <div class="card-body">
-    <h3 class="card-title">{{ if .Draft }}<span class="draft-label">{{ i18n "draft" }}</span>{{ end }}{{ .LinkTitle }}</h3>
+    <h3 class="card-title">{{ if .Draft }}<span class="draft-label">{{ i18n "draft" }}</span>{{ end }}{{ .LinkTitle }}{{ if $external }} {{ partial "icon.html" "external" }}{{ end }}</h3>
     {{- with .Description }}<p class="card-text">{{ . }}</p>{{ end }}
     <div class="card-foot">
       {{ partial "post-meta.html" (dict "ctx" .) }}

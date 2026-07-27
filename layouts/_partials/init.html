@@ -41,7 +41,11 @@
 -}}
 
 {{- $article = merge $article (dict
-  "showProgress" (partial "param-bool.html" (dict "map" $a "key" "showProgress" "default" true))
+  "showProgress"    (partial "param-bool.html" (dict "map" $a "key" "showProgress"    "default" true))
+  "showDateUpdated" (partial "param-bool.html" (dict "map" $a "key" "showDateUpdated" "default" false))
+  "showEdit"        (partial "param-bool.html" (dict "map" $a "key" "showEdit"        "default" false))
+  "editURL"         ($a.editURL | default "")
+  "editAppendPath"  (partial "param-bool.html" (dict "map" $a "key" "editAppendPath"  "default" true))
 ) -}}
 
 {{- $footer := dict
@@ -49,9 +53,19 @@
   "showThemeAttribution" (partial "param-bool.html" (dict "map" $f "key" "showThemeAttribution" "default" true))
 -}}
 
+{{- /* The date format is a param because "2 Jan 2006" is an English convention, not a
+       universal one. Hugo's reference date stays the mechanism; only the pattern
+       moves into config. */ -}}
+{{- $dateFormat := site.Params.dateFormat | default "2 Jan 2006" -}}
+
 {{- return dict
   "palette" $palette
   "defaultAppearance" $appearance
+  "dateFormat" $dateFormat
+  "rtl" (partial "param-bool.html" (dict "map" site.Params "key" "rtl" "default" false))
+  "logo" (site.Params.logo | default "")
+  "logoDark" (site.Params.logoDark | default "")
+  "verification" (site.Params.verification | default dict)
   "autoSwitchAppearance" (partial "param-bool.html" (dict "map" site.Params "key" "autoSwitchAppearance" "default" true))
   "enableSearch" (partial "param-bool.html" (dict "map" site.Params "key" "enableSearch" "default" true))
   "enableCodeCopy" (partial "param-bool.html" (dict "map" site.Params "key" "enableCodeCopy" "default" true))

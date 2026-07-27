@@ -8,7 +8,11 @@
   gain in recall.
 */ -}}
 {{- $index := slice -}}
-{{- range where site.RegularPages "Section" "in" site.Params.mainSections -}}
+{{- /* excludeFromSearch keeps a page out of the index without keeping it out of the
+       site. Its sibling sitemap_exclude does the same for the sitemap; the two are
+       separate because "do not index this" and "do not surface this in site search"
+       are different intentions. */ -}}
+{{- range where (where site.RegularPages "Section" "in" site.Params.mainSections) "Params.excludeFromSearch" "!=" true -}}
   {{- $thumb := "" -}}
   {{- with .Resources.GetMatch "{cover,featured}.*" -}}
     {{- $img := . -}}
@@ -24,7 +28,7 @@
   {{- $index = $index | append (dict
       "title" .Title
       "url" .RelPermalink
-      "date" (.Date.Format "2 Jan 2006")
+      "date" (.Date.Format (partialCached "init.html" .).dateFormat)
       "readingTime" .ReadingTime
       "tags" $tags
       "summary" (cond (ne .Description "") .Description (.Summary | plainify | chomp))

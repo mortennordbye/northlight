@@ -1,6 +1,6 @@
 {{- $cfg := partialCached "init.html" . -}}
 <!doctype html>
-<html lang="{{ site.Language.Lang }}"
+<html lang="{{ site.Language.Lang }}"{{ if $cfg.rtl }} dir="rtl"{{ end }}
       data-palette="{{ $cfg.palette }}"
       data-appearance-default="{{ $cfg.defaultAppearance }}"
       data-appearance-auto="{{ $cfg.autoSwitchAppearance }}">
