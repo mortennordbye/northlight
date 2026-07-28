@@ -46,6 +46,39 @@
   vertical-align: -0.14em;
 }
 
+/* --- keyword / keywordList -------------------------------------------------- */
+
+/* Same wrap-don't-scroll reasoning as .swatches: a set of keywords has no reading order
+   worth preserving on one line. */
+.keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-6) 0;
+}
+
+/* Shares .badge's chip shape on purpose — both are "a small label" — but sits a step up
+   in size and padding, because a keyword is read as one of a set rather than as an aside
+   inside a sentence. */
+.keyword {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 13.5px;
+  line-height: var(--leading-ui);
+  color: var(--fg-2);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-chip);
+  padding: 5px 11px;
+}
+
+/* The pills are laid out by .keywords' flex row, so the paragraph Hugo wraps the nested
+   shortcodes in would otherwise become a single flex item holding all of them. */
+.keywords > p {
+  display: contents;
+}
+
 /* --- swatches -------------------------------------------------------------- */
 
 /* Wraps rather than scrolls: a row of chips has no reading order to preserve, so

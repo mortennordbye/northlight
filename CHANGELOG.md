@@ -10,6 +10,12 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **`keyword` and `keywordList`** — a wrapping row of labelled pills, for a set of things listed
+  together: the stack behind a project, the topics a post covers. `keyword` takes an optional
+  `icon`. It shares a shape with `badge` on purpose, since both are small labels and a reader
+  should not have to learn two visual languages for that, but a badge marks one thing inside a
+  sentence where a keyword is one of a set. Inner text is required: an icon alone would be a pill
+  whose meaning the reader has to guess, so omitting the label fails the build.
 - **`icon`** — puts one of the theme's inline SVG icons into content, taking the name
   positionally. No size parameter and none needed: an icon is 1em square, so it takes the size
   of the text around it and its colour from `currentColor`. This makes the icon names a public

@@ -1,0 +1,29 @@
+{{- /*
+  keyword — one labelled pill, optionally with an icon.
+
+  Larger and quieter than `badge`, and for a different job: a badge marks one thing in a
+  sentence, a keyword is one of a set being listed together. They deliberately share a
+  shape so a reader is not learning two visual languages, but a keyword is not a link and
+  is not a tag either — tags carry link behaviour and a taxonomy behind them.
+
+  The icon is optional and decorative. It is aria-hidden inside the pill, which is right,
+  because the word next to it is the label. An icon-only keyword would be a pill whose
+  meaning a reader has to guess, so the inner text is required.
+
+  Parameters:
+    icon   optional icon name, from the set in `_partials/icon.html`
+
+  Call:  {{< keyword icon="github" >}}Open source{{< /keyword >}}
+*/ -}}
+{{- $inner := trim .Inner " \n\r\t" -}}
+{{- if not $inner -}}
+  {{- errorf "keyword shortcode: inner text is required — an icon alone is not a label (%s)" .Position -}}
+{{- end -}}
+<span class="keyword">
+  {{- with .Get "icon" -}}
+    <span class="icon-inline">{{- partial "icon.html" . -}}</span>
+  {{- end -}}
+  {{- $inner | $.Page.RenderString -}}
+</span>
+{{- /* Inline, so the trailing newline has to go: it collapses to a visible space and
+       renders as "keyword ." at the end of a sentence. */ -}}

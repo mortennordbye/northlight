@@ -199,6 +199,39 @@ where you can see it working.
 Without the inner `ltr`, the trailing path and punctuation of that command get pulled
 around by the bidirectional algorithm and the line becomes unreadable.
 
+## `keyword` and `keywordList`
+
+A wrapping row of labelled pills, for a set of things listed together: the stack behind a
+project, the topics a post covers, the tools a piece of work used.
+
+```text
+{{</* keywordList */>}}
+{{</* keyword icon="github" */>}}Open source{{</* /keyword */>}}
+{{</* keyword */>}}Hugo{{</* /keyword */>}}
+{{</* keyword */>}}No JavaScript framework{{</* /keyword */>}}
+{{</* /keywordList */>}}
+```
+
+{{< keywordList >}}
+{{< keyword icon="github" >}}Open source{{< /keyword >}}
+{{< keyword >}}Hugo{{< /keyword >}}
+{{< keyword >}}No JavaScript framework{{< /keyword >}}
+{{< /keywordList >}}
+
+| Parameter | Required | What it does |
+|---|---|---|
+| `icon` | no | An icon name from the [`icon`](#icon) set, shown before the label |
+
+A keyword deliberately shares a shape with [`badge`](#badge), because both are small
+labels and a reader should not have to learn two visual languages for that. They are not
+interchangeable though: a badge marks one thing inside a sentence, a keyword is one of a
+set. Neither is a tag — tags carry link behaviour and a taxonomy behind them.
+
+The inner text is required. An icon on its own would be a pill whose meaning the reader
+has to guess, so leaving the label out fails the build rather than rendering it.
+
+The row wraps at narrow widths rather than scrolling.
+
 ## `icon`
 
 Puts one of the theme's inline SVG icons into your content.

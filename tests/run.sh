@@ -308,6 +308,16 @@ else
       "partial: $(printf '%s' "$ICONS_DEFINED" | tr '\n' ' ') / docs: $(printf '%s' "$ICONS_SHOWN" | tr '\n' ' ')"
 fi
 
+# keyword: Hugo wraps the nested shortcodes in a <p>, which would become one flex item
+# holding every pill and collapse the row to a single line item. `.keywords > p` is set to
+# `display: contents` to let the pills be the flex items instead. Assert the <p> is really
+# there, because the CSS rule that neutralises it looks like dead code otherwise and is
+# exactly the kind of thing a later cleanup deletes.
+assert_grep '<div class=keywords><p><span class=keyword>' "$SHORTCODES" \
+  "keywordList wraps its pills in the paragraph the CSS expects"
+KEYWORDS=$(grep -o '<span class=keyword>' "$SHORTCODES" | wc -l | tr -d ' ')
+assert_count 3 "$KEYWORDS" "keywordList renders every pill"
+
 BLANK=$(grep -o '<a class=button[^>]*_blank[^>]*>' "$SHORTCODES" | head -1)
 case "$BLANK" in
   *noopener*) ok "button with target=_blank sets rel=noopener" ;;

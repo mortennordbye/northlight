@@ -181,7 +181,7 @@ duplicated as shortcodes — and every shortcode is additive, replacing no Markd
 | Email | **Have** | Obfuscated at build time, so it works with scripting off and keeps copy and paste |
 | Swatches | **Have** | Variadic rather than the three the reference caps at; each chip labelled with its hex |
 | LTR/RTL | **Have** | A `dir` attribute rather than a CSS property, so it survives without the stylesheet |
-| Keyword | Gap | Needs the icon shortcode first for its optional icon |
+| Keyword | **Have** | Shares `badge`'s shape; inner text required so a pill always carries a label |
 | Icon | **Have** | Exposes the internal icon partial; the names are a public surface from now on |
 | Article · List · Figure | Gap | Wrap partials the theme already has |
 | Alert | Gap | Only if it can reuse the admonition render hook's colours; a second syntax for the same thing is not worth the surface |

@@ -190,7 +190,7 @@ No JavaScript, no new dependencies, small CSS.
       `layouts/_shortcodes/` directory, the shortcode CSS entry point and the docs page all work
       before anything harder lands.
 - [x] **`badge`** — small inline pill for metadata. Inner text. Branch `feat/shortcode-badge`.
-- [ ] **`keyword` / `keywordList`** — a wrapping row of labelled pills, optionally with an icon.
+- [x] **`keyword` / `keywordList`** — a wrapping row of labelled pills, optionally with an icon.
       Container plus item. Depends on A1 `badge` for its CSS foundation and on A2 `icon` for the
       optional icon. Branch `feat/shortcode-keywords`.
 - [x] **`swatches`** — renders colour chips from hex values. Takes up to three positional
@@ -568,3 +568,19 @@ silently.
   Also: the suite greps `layouts`, `assets`, `i18n` and `README.md` for AI tool names, and a
   comment in the first draft of this shortcode cited the repo guidance file by name and tripped
   it. Cite `docs/EXPANSION-PLAN.md` for a decision instead.
+
+- **`feat/shortcode-keywords`** — `keyword` and `keywordList`. Reuses `badge`'s chip shape a step
+  larger, and the `icon-inline` wrapper from the item above for the optional icon.
+
+  **A container shortcode whose children are shortcodes gets a `<p>` it did not ask for.**
+  `RenderString` with block display wraps the nested calls in a paragraph, so `.keywords`' flex
+  row saw one child holding every pill rather than a row of them. Fixed with `display: contents`
+  on `.keywords > p`. Any later container/item pair — `timeline`, `accordion`, `tabs`, `gallery`
+  — will hit exactly this, so budget for it rather than rediscovering it four more times.
+
+  There is a test asserting the `<p>` is present. That reads backwards until you notice the CSS
+  rule neutralising it looks like dead code without one, and dead-looking CSS is what a later
+  cleanup deletes.
+
+  Inner text is required and its absence fails the build: an icon-only pill is one whose meaning
+  the reader has to guess. Confirmed the failure path.

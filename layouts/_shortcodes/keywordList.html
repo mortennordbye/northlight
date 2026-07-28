@@ -1,0 +1,12 @@
+{{- /*
+  keywordList — a wrapping row of keyword pills.
+
+  Container only. It exists to give the pills a flex row with a gap; the pills
+  themselves are `keyword`.
+
+  Inner content is rendered as a block, because what goes inside is a set of nested
+  shortcodes rather than a sentence.
+
+  Call:  {{< keywordList >}}{{< keyword >}}Go{{< /keyword >}}{{< /keywordList >}}
+*/ -}}
+<div class="keywords">{{ .Inner | .Page.RenderString (dict "display" "block") }}</div>
