@@ -1,6 +1,6 @@
 {{- $cfg := partialCached "init.html" . -}}
 <!doctype html>
-<html lang="{{ site.Language.Lang }}"{{ if $cfg.rtl }} dir="rtl"{{ end }} data-header="{{ $cfg.headerLayout }}"{{ with $cfg.imagePosition }} style="--image-position: {{ . }}"{{ end }}{{ if $cfg.layoutBackgroundBlur }} data-bg-blur{{ end }}{{ if $cfg.layoutBackgroundHeaderSpace }} data-bg-header-space{{ end }}
+<html lang="{{ site.Language.Lang }}"{{ if $cfg.rtl }} dir="rtl"{{ end }} data-header="{{ $cfg.headerLayout }}"{{ with $cfg.imagePosition }} style="--image-position: {{ . }}"{{ end }}{{ if $cfg.smartTOCHideUnfocusedChildren }} data-toc-collapse{{ end }}{{ if not $cfg.enableStyledScrollbar }} data-plain-scrollbar{{ end }}{{ if $cfg.layoutBackgroundBlur }} data-bg-blur{{ end }}{{ if $cfg.layoutBackgroundHeaderSpace }} data-bg-header-space{{ end }}
       data-palette="{{ $cfg.palette }}"
       data-appearance-default="{{ $cfg.defaultAppearance }}"
       data-appearance-auto="{{ $cfg.autoSwitchAppearance }}">
@@ -22,9 +22,11 @@
 
   {{ partial "footer.html" . }}
 
+  {{- if $cfg.footer.showScrollToTop }}
   <button class="back-to-top" id="back-to-top" type="button" aria-label="{{ i18n "backToTop" }}" hidden>
     {{ partial "icon.html" "arrow-up" }}
   </button>
+  {{- end }}
 
   {{- if $cfg.enableSearch }}{{ partial "search-modal.html" . }}{{ end }}
 
@@ -54,9 +56,10 @@
   {{- if $cfg.enableLightbox }}{{ $scripts = $scripts | append (resources.Get "js/lightbox.js") }}{{ end -}}
   {{- if $cfg.article.showZenMode }}{{ $scripts = $scripts | append (resources.Get "js/zen.js") }}{{ end -}}
   {{- if and site.Params.firebase (or $cfg.article.showViews $cfg.article.showLikes) }}{{ $scripts = $scripts | append (resources.Get "js/counters.js") }}{{ end -}}
+  {{- if and (gt (len hugo.Sites) 1) site.Params.languageRedirect }}{{ $scripts = $scripts | append (resources.Get "js/language-redirect.js") }}{{ end -}}
   {{- $js := $scripts | resources.Concat "js/northlight.js" -}}
   {{- if hugo.IsProduction }}{{ $js = $js | minify }}{{ end -}}
-  {{- $js = $js | fingerprint "sha512" }}
+  {{- $js = $js | fingerprint $cfg.fingerprintAlgorithm }}
   <script src="{{ $js.RelPermalink }}" integrity="{{ $js.Data.Integrity }}" crossorigin="anonymous" defer></script>
 
   {{- /* Mermaid, only where there is a diagram to draw. The library is 3.5MB, which is
@@ -74,33 +77,50 @@
   {{- /* Chart.js, on the same terms as mermaid below: vendored, self-hosted, and emitted
          only where a chart exists. Two plain deferred scripts run in document order, so
          the init script can rely on `Chart` existing by the time it runs. */ -}}
+  {{- /* The typewriter effect. Gated like mermaid and chart, but with no vendored library
+         behind it: the obvious one is GPL-3.0 and this theme is MIT, so the effect is
+         written in assets/js/typeit-init.js instead. See the note at the top of that
+         file. */ -}}
+  {{- if .HasShortcode "typeit" }}
+    {{- with resources.Get "js/typeit-init.js" }}
+      {{- $init := . }}
+      {{- if hugo.IsProduction }}{{ $init = $init | minify }}{{ end }}
+      {{- $init = $init | fingerprint $cfg.fingerprintAlgorithm }}
+      <script src="{{ $init.RelPermalink }}" integrity="{{ $init.Data.Integrity }}" crossorigin="anonymous" defer></script>
+    {{- end }}
+  {{- end }}
+
   {{- if .HasShortcode "chart" }}
     {{- with resources.Get "js/vendor/chart.umd.min.js" }}
-      {{- $lib := . | fingerprint "sha512" }}
+      {{- $lib := . | fingerprint $cfg.fingerprintAlgorithm }}
       <script src="{{ $lib.RelPermalink }}" integrity="{{ $lib.Data.Integrity }}" crossorigin="anonymous" defer></script>
     {{- end }}
     {{- with resources.Get "js/chart-init.js" }}
       {{- $init := . }}
       {{- if hugo.IsProduction }}{{ $init = $init | minify }}{{ end }}
-      {{- $init = $init | fingerprint "sha512" }}
+      {{- $init = $init | fingerprint $cfg.fingerprintAlgorithm }}
       <script src="{{ $init.RelPermalink }}" integrity="{{ $init.Data.Integrity }}" crossorigin="anonymous" defer></script>
     {{- end }}
   {{- end }}
 
   {{- if .HasShortcode "mermaid" }}
     {{- with resources.Get "js/vendor/mermaid.min.js" }}
-      {{- $lib := . | fingerprint "sha512" }}
+      {{- $lib := . | fingerprint $cfg.fingerprintAlgorithm }}
       <script src="{{ $lib.RelPermalink }}" integrity="{{ $lib.Data.Integrity }}" crossorigin="anonymous" defer></script>
     {{- end }}
     {{- with resources.Get "js/mermaid-init.js" }}
       {{- $init := . }}
       {{- if hugo.IsProduction }}{{ $init = $init | minify }}{{ end }}
-      {{- $init = $init | fingerprint "sha512" }}
+      {{- $init = $init | fingerprint $cfg.fingerprintAlgorithm }}
       <script src="{{ $init.RelPermalink }}" integrity="{{ $init.Data.Integrity }}" crossorigin="anonymous" defer></script>
     {{- end }}
   {{- end }}
 
   {{ partial "analytics.html" . }}
+
+  {{ partial "monetisation.html" . }}
+
+  {{ partial "language-redirect.html" . }}
 
   {{ partial "extend-footer.html" . }}
 </body>

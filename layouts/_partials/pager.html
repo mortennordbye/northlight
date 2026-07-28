@@ -2,8 +2,15 @@
        .NextInSection is the *newer* post and .PrevInSection the older one. The labels
        are written from the reader's point of view — "Older" and "Newer" — because
        "Previous" against a date-sorted list is ambiguous every time. */ -}}
+{{- /* invertPagination swaps which side each post lands on. Some sites read their
+       archive oldest-first, and for those "older" on the left is backwards. The labels
+       swap with the links, so the arrow and the word never disagree. */ -}}
 {{- $older := .PrevInSection -}}
 {{- $newer := .NextInSection -}}
+{{- if (partialCached "init.html" .).article.invertPagination -}}
+  {{- $older = .NextInSection -}}
+  {{- $newer = .PrevInSection -}}
+{{- end -}}
 {{- if or $older $newer }}
 <nav class="pager" aria-label="{{ i18n "postNavigation" }}">
   {{- with $older }}

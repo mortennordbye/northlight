@@ -229,6 +229,48 @@ Like [`gallery`](#gallery), it has no image handling of its own — it scrolls n
 Reach for a gallery when the images are a set the reader should see at once, and this when
 they are a sequence.
 
+## `typeit`
+
+Text typed out when it scrolls into view.
+
+```text
+{{</* typeit */>}}This sentence types itself.{{</* /typeit */>}}
+```
+
+{{< typeit >}}This sentence types itself.{{< /typeit >}}
+
+**The finished text is in the markup**, and the script removes it to retype it. So the
+fallback is not really a fallback: with JavaScript off, or under `prefers-reduced-motion`,
+the sentence is simply already there and complete. A typewriter effect is motion with no
+information in it, so a reader who asked for less of it should lose nothing — and does not.
+
+While it types, the element is `aria-hidden`: a screen reader announcing a partial sentence
+on every character is worse than useless. The finished text is announced once, at the end.
+
+**There is no library behind this.** The obvious one is GPL-3.0 and this theme is MIT, so
+vendoring it would push every site using the theme onto a copyleft licence for the sake of
+a decorative animation. The effect is about twenty lines and lives in
+`assets/js/typeit-init.js`.
+
+## `codeimporter` and `mdimporter`
+
+Pull a file from a URL at build time: `codeimporter` renders it as a code block,
+`mdimporter` renders it as Markdown into the page.
+
+```text
+{{</* codeimporter url="https://example.com/main.go" type="go" lines="1-20" */>}}
+{{</* mdimporter url="https://example.com/shared/notice.md" */>}}
+```
+
+Same terms as the repository cards: **the reader fetches nothing**, the content is baked in
+during the build, and a failed fetch degrades to a link rather than failing an offline
+build. `lines` takes an inclusive range counted from 1, and out-of-range bounds are clamped
+rather than erroring — a file that grew is not a reason to break somebody's build.
+
+> [!CAUTION]
+> `mdimporter` renders **somebody else's content as your own**, including any raw HTML in
+> it if your site allows that. Point it at something you control.
+
 ## `gist`
 
 A GitHub Gist, fetched at build time and rendered as an ordinary code block.

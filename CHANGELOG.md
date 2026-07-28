@@ -10,6 +10,29 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **The last twenty rows.** Toggles for chrome the theme rendered unconditionally
+  (`footer.showAppearanceSwitcher`, `footer.showScrollToTop`, `enableStyledScrollbar`,
+  `disableTextInHeader`), per-page and per-site overrides (`showHeadingAnchors`,
+  `showDateOnlyInArticle`, `invertPagination`, `externalLinkForceNewTab`,
+  `sitemap.excludedKinds`), image handling (`backgroundImageWidth`, `hotlinkFeatureImage`),
+  `fingerprintAlgorithm`, `smartTOCHideUnfocusedChildren`, an `extend-article-link.html` hook,
+  a client-side `languageRedirect`, RSSNext feed attribution, AdSense and BuyMeACoffee, the
+  `codeimporter` and `mdimporter` shortcodes, and `typeit`.
+  **Every one defaults to what the theme already did**, so an existing site is unchanged.
+  - `disableTextInHeader` gives the home link an `aria-label`, or a logo-only header would be
+    an unlabelled link on every page.
+  - `hotlinkFeatureImage` stays off because a remote image is a third-party request on page
+    view, and nothing is fetched at build time, so the box cannot be reserved. Both costs are
+    stated rather than glossed.
+  - `smartTOCHideUnfocusedChildren` is built with `:has()` — no script, no transition. The
+    standing objection to it was motion, and this adds none.
+  - `languageRedirect` is off by default, runs once, and is home-page-only by default: rewriting
+    a deep link that was shared deliberately in one language loses what was shared.
+  - **`typeit` ships with no library.** The obvious one is GPL-3.0 and this theme is MIT, so
+    vendoring it would push every site using the theme onto a copyleft licence for the sake of a
+    decorative animation. The effect is written directly, in about twenty lines, and the suite
+    asserts the GPL file never reappears. The finished text is in the markup and the script
+    retypes it, so JavaScript-off and `prefers-reduced-motion` readers get the whole sentence.
 - **Views and likes** — `[params.firebase]` plus `article.showViews` / `showLikes`, both
   overridable per post. Backed by Cloud Firestore through its **REST API, with no Firebase
   SDK**: several hundred kilobytes to increment an integer is not a trade worth making, and

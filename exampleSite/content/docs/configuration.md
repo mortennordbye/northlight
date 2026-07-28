@@ -24,6 +24,12 @@ default inline, so every default below lives in exactly one place in the source.
 | `autoSwitchAppearance` | `true` | Follow the reader's operating system. |
 | `enableSearch` | `true` | The ⌘K modal. Needs `JSON` in `[outputs].home`. |
 | `enableCodeCopy` | `true` | Copy button on code blocks. |
+| `fingerprintAlgorithm` | `"sha512"` | `md5`, `sha256`, `sha384` or `sha512`. Changing it renames every asset at once — a cache bust, not a stale asset, but worth knowing. |
+| `disableTextInHeader` | `false` | Logo-only header. The home link keeps an `aria-label`, or it would be unlabelled on every page. |
+| `enableStyledScrollbar` | `true` | Hand the scrollbar back to the operating system when off. |
+| `smartTOCHideUnfocusedChildren` | `false` | Collapse TOC child lists except under the current heading. Off by default: extra motion in a component whose job is to stay still. |
+| `backgroundImageWidth` | `1600` | Scale target for the full-bleed background image, the largest image on any page that uses one. |
+| `hotlinkFeatureImage` | `false` | Allow `featureImageURL` in front matter to point at a remote image. Off, because that is a third-party request on page view. |
 | `imagePosition` | `"center"` | `object-position` for cropped images — the avatar and card thumbnails. Covers are never cropped, so it does not affect the hero. |
 | `disableImageOptimization` | `false` | Hand raster images to the browser unresized. For a site whose images are already optimised upstream. |
 | `layoutBackgroundBlur` | `false` | Blurs background and hero artwork. Applied to the image, not the block, so text over it stays sharp. |
@@ -113,6 +119,10 @@ bio never renders as a code block.
 | `showComments` | `false` | Comments. Also needs `[params.comments.giscus]`. |
 | `showAuthorsBadges` | `false` | Link each byline name to its author page. Needs `author = "authors"` under `[taxonomies]`. |
 | `showAuthorBottom` | `false` | Author card at the foot of a post: avatar, name, headline, links. Adds to the byline rather than replacing it. |
+| `showDateOnlyInArticle` | `false` | Date on the article page but not on listings. |
+| `showHeadingAnchors` | `true` | Anchor links beside headings. Overridable per page. |
+| `invertPagination` | `false` | Swap which side older and newer land on. Labels swap with the links. |
+| `externalLinkForceNewTab` | `true` | External links open in a new tab. `rel="noopener"` is kept either way. |
 | `showZenMode` | `false` | A control that hides the header, the TOC rail and both footers, leaving the prose. Escape leaves. Not persisted. |
 | `showViews` | `false` | View counter. Needs `[params.firebase]`. |
 | `showLikes` | `false` | Like button. Needs `[params.firebase]`. |
@@ -168,6 +178,9 @@ browsers.
 | `list.groupByYear` | `true` | Year headings in the post index, grouped within each page of results. |
 | `list.orderByWeight` | `false` | Sort the section index by weight instead of date. Replaces the date sort entirely; unweighted pages go last. |
 | `footer.showMenu` | `true` | The footer menu. |
+| `footer.showAppearanceSwitcher` | `true` | The light/dark control. |
+| `footer.showScrollToTop` | `true` | The back-to-top button. |
+| `sitemap.excludedKinds` | `["taxonomy", "term"]` | Which page kinds stay out of `sitemap.xml`. Replaces the list rather than adding to it. |
 | `list.cardView` | `false` | Render the section index as a card grid instead of a list. Year grouping does not apply to a grid, so this wins over `list.groupByYear`. |
 | `taxonomy.showTermCount` | `true` | Article count beside each term. |
 | `taxonomy.cardView` | `true` | Term pages as a card grid. Set `false` for the same row list the section index uses. |

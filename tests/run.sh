@@ -747,6 +747,80 @@ refute_grep 'Updated <time' "$PUBLIC/blog/two-modes/index.html" "no updated date
 # says nothing twice.
 refute_grep 'Updated <time' "$WRITING" "no updated date when it renders as the same day"
 
+# --- the tail: toggles, hooks, importers, typeit ------------------------------------
+
+# Every one of these defaults to the theme's existing behaviour, so what is asserted is the
+# default. A toggle that silently changed what a site already renders is the failure mode.
+assert_grep 'class=back-to-top' "$PUBLIC/index.html" "the scroll-to-top control renders by default"
+assert_grep 'data-toggle-appearance' "$PUBLIC/index.html" "the appearance switcher renders by default"
+# The brand link exists either way; what disableTextInHeader removes is the title inside
+# it. Asserting the link kept the assertion green with the wordmark gone.
+assert_grep '<span class=brand-dot aria-hidden=true></span>Northlight' "$PUBLIC/index.html" \
+  "the header keeps its wordmark by default"
+# ...and with the text hidden the link would need its own accessible name, or it becomes an
+# unlabelled link on every page.
+assert_grep 'disableTextInHeader }} aria-label=' "$ROOT/layouts/_partials/header.html" \
+  "a logo-only header still names its home link"
+refute_grep 'data-plain-scrollbar' "$PUBLIC/index.html" "scrollbars stay styled by default"
+refute_grep 'data-toc-collapse' "$PUBLIC/index.html" "TOC children stay visible by default"
+assert_grep 'class=heading-anchor' "$WRITING" "heading anchors render by default"
+assert_grep 'rel=noopener target=_blank' "$SHORTCODES" "external links open in a new tab by default"
+
+# showDateOnlyInArticle takes the date off listings only; the article page has its own
+# meta line, so the flag is honoured in exactly one partial.
+assert_grep 'showDateOnlyInArticle' "$ROOT/layouts/_partials/post-meta.html" \
+  "the listing meta honours showDateOnlyInArticle"
+
+# fingerprintAlgorithm has to reach every fingerprint call or assets hash inconsistently.
+if without_comments "$ROOT/layouts/baseof.html" | grep -q 'fingerprint "sha512"'; then
+  bad "every asset uses the configured fingerprint algorithm" "a hardcoded sha512 remains in baseof.html"
+else
+  ok "every asset uses the configured fingerprint algorithm"
+fi
+
+# invertPagination swaps the links and the labels together, so the arrow and the word
+# never disagree.
+assert_grep 'invertPagination' "$ROOT/layouts/_partials/pager.html" "the pager can be inverted"
+
+# sitemap.excludedKinds replaces the built-in list rather than adding to it.
+assert_grep 'excludedKinds' "$ROOT/layouts/sitemap.xml" "sitemap kinds are configurable"
+
+# The third escape hatch, and the only per-entry one. Empty by default, like the others.
+assert_file "$ROOT/layouts/_partials/extend-article-link.html" "the article-link hook exists"
+EAL=$(without_comments "$ROOT/layouts/_partials/extend-article-link.html" | tr -d '[:space:]')
+if [ -z "$EAL" ]; then
+  ok "the article-link hook ships empty"
+else
+  bad "the article-link hook ships empty" "it has content, so it is a feature rather than a hook"
+fi
+
+# Monetisation and RSSNext: opt-in, and absent from the built demo.
+# Anchored to the CDN hostnames, not the vendor names: the integrations page documents
+# both, and a bare word matches its own documentation. Same trap as the Plausible check.
+for host in pagead2.googlesyndication cdnjs.buymeacoffee.com; do
+  if grep -rq "$host" "$PUBLIC" 2>/dev/null; then
+    bad "no monetisation script fires unconfigured ($host)" "found $host in the built output"
+  else
+    ok "no monetisation script fires unconfigured ($host)"
+  fi
+done
+refute_grep 'follow_challenge' "$PUBLIC/index.xml" "no RSSNext block without configuration"
+
+# Language redirect: off by default even on the multilingual demo, because a redirect the
+# reader did not ask for breaks a deliberately shared link.
+refute_grep 'data-language-redirect' "$PUBLIC/index.html" "the language redirect is off by default"
+
+# typeit ships the finished text, so JS-off and reduced-motion readers get the whole
+# sentence. An empty element filled by script would fail both.
+assert_grep '>This sentence types itself.<' "$SHORTCODES" "typeit ships the finished text"
+# ...and no GPL library came with it. The theme is MIT; vendoring copyleft here would push
+# every site using it onto GPL for a decorative animation.
+if [ -e "$ROOT/assets/js/vendor/typeit.umd.js" ]; then
+  bad "no GPL-licensed library is vendored" "typeit.umd.js is GPL-3.0 and this theme is MIT"
+else
+  ok "no GPL-licensed library is vendored"
+fi
+
 # --- this batch: menus, listing order, backgrounds, images, zen, gist, counters ------
 
 # footer.showMenu. The menu has always rendered; only the switch is new, so the default

@@ -53,6 +53,7 @@
       </div>
     {{- end }}
     {{ partial "post-meta.html" (dict "ctx" . "showWords" true) }}
+    {{ partial "extend-article-link.html" . }}
   </div>
 </a>
 {{- end -}}

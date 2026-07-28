@@ -132,6 +132,57 @@ no accounts behind it.
 With JavaScript off, nothing renders. A counter that cannot count should not leave a zero
 on the page pretending to be a number.
 
+## Advertising and tipping
+
+Both are opt-in, both render nothing unless configured, and both put somebody else's script
+on your page.
+
+```toml {file="hugo.toml"}
+[params.advertisement]
+  adsense = "ca-pub-XXXXXXXXXXXXXXXX"
+
+[params.buymeacoffee]
+  identifier = "yourname"
+  globalWidget = true
+  globalWidgetMessage = "Thanks for reading"
+  globalWidgetColor = "#5F7FFF"
+  globalWidgetPosition = "Right"
+```
+
+> [!CAUTION]
+> **AdSense profiles your readers across sites.** A site enabling it will almost certainly
+> need a consent banner, and this theme does not ship one — that is your obligation, and
+> pretending otherwise would be worse than saying so plainly.
+
+## Feed ownership
+
+RSSNext (Folo) reads two values from the feed to attribute it to its owner. Emitted only
+when set, so a feed without them carries nothing extra.
+
+```toml {file="hugo.toml"}
+[params.rssnext]
+  feedId = "..."
+  userId = "..."
+```
+
+## Language redirect
+
+On a multilingual site, send a first-time visitor to the language their browser asks for.
+
+```toml {file="hugo.toml"}
+[params.languageRedirect]
+  enabled = true
+  storageKey = "northlight-language"      # optional
+  fallbackLanguage = "en"                 # optional
+  browserRedirectHomeOnly = true          # default
+```
+
+**Off by default, and worth leaving off unless you need it.** A redirect the reader did not
+ask for is disorienting, and it silently rewrites a link that was shared in one language on
+purpose. It runs once — the choice is remembered, so navigating back is not undone — and
+`browserRedirectHomeOnly` keeps it to the home page, which is the one place where "take me
+to my language" is a safe guess.
+
 ## The escape hatches
 
 Three partials exist to be overridden, and all three survive theme upgrades.
@@ -141,6 +192,7 @@ Three partials exist to be overridden, and all three survive theme upgrades.
 | `_partials/extend-head.html` | Anything in `<head>`: a verification tag, a preconnect, a font. |
 | `_partials/extend-footer.html` | Anything at the end of `<body>`: a deferred widget, a script needing the DOM. |
 | `_partials/comments.html` | Any comment system. |
+| `_partials/extend-article-link.html` | Anything after each entry in a post list. The only hook that runs per entry rather than per page. |
 
 Copy one into your site's `layouts/_partials/` and yours wins.
 

@@ -20,6 +20,7 @@
     {{- with .Description }}<p class="card-text">{{ . }}</p>{{ end }}
     <div class="card-foot">
       {{ partial "post-meta.html" (dict "ctx" .) }}
+    {{ partial "extend-article-link.html" . }}
       {{- with .GetTerms "tags" }}
         {{- $first := index . 0 }}
         <span class="tag">{{ with $first.Data.Term }}{{ . }}{{ else }}{{ $first.LinkTitle }}{{ end }}</span>

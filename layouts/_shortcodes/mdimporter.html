@@ -1,0 +1,33 @@
+{{- /*
+  mdimporter — pull Markdown from a URL at build time and render it into the page.
+
+  The one shortcode here that renders *somebody else's content as your own*, so it is worth
+  being clear about what that means: whatever the remote file says becomes part of your
+  page, including any raw HTML in it if your site allows that. Point it at something you
+  control.
+
+  Rendered through the page's own `RenderString`, so it obeys this site's Markdown
+  configuration rather than arriving as a foreign island. Same fetch-failure handling as
+  the rest: degrade to a link, warn under a suppressible id, never fail an offline build.
+
+  Call:  {{< mdimporter url="https://example.com/shared/notice.md" >}}
+*/ -}}
+{{- $url := .Get "url" -}}
+{{- if not $url -}}{{ errorf "mdimporter shortcode: url is required (%s)" .Position }}{{ end -}}
+
+{{- $res := "" -}}{{- $offline := "" -}}
+{{- with try (resources.GetRemote $url) -}}
+  {{- with .Err -}}{{ $offline = printf "%s" . }}{{- else -}}{{ $res = .Value }}{{- end -}}
+{{- end -}}
+{{- with $offline -}}
+  {{- warnidf "repo-card-offline" "mdimporter: could not reach %q (%s) — falling back to a link" $url . -}}
+{{- end -}}
+{{- if and (not $res) (not $offline) -}}
+  {{- warnidf "repo-card-missing" "mdimporter: %q returned nothing — falling back to a link" $url -}}
+{{- end -}}
+
+{{- with $res -}}
+  <div class="md-import">{{ $.Page.RenderString .Content }}</div>
+{{- else -}}
+  <p class="gist gist-offline"><a href="{{ $url }}" rel="noopener" target="_blank">{{ $url }}</a></p>
+{{- end -}}

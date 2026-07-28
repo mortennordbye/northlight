@@ -79,7 +79,7 @@
 {{- if hugo.IsProduction -}}
   {{- $css = $css | minify -}}
 {{- end -}}
-{{- $css = $css | fingerprint "sha512" }}
+{{- $css = $css | fingerprint $cfg.fingerprintAlgorithm }}
 <link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}" crossorigin="anonymous">
 
 {{- /* Only the body face is preloaded. The mono face is not on the critical path:

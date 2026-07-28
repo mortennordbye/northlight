@@ -37,10 +37,28 @@
        The fallback is a plain path rather than a page resource, so it cannot be resized
        or measured here; `$raster` below is therefore false for it and it renders without
        srcset. That is the right trade for a decorative default. */ -}}
+{{- /* `hotlinkFeatureImage` lets front matter point at a remote URL instead of a page
+       resource. It is off by default and stays off for a reason worth stating: an image
+       served from somebody else's host is a third-party request on page view, which is the
+       one thing this theme does not do on a reader's behalf. A site turning it on has
+       decided that trade for itself.
+
+       Nothing is fetched at build time here — the URL is written into the src as given, so
+       the dimensions are unknown and the box cannot be reserved. That is the cost, and it
+       is why a page resource remains the better answer. */ -}}
+{{- $hotlink := "" -}}
+{{- if (partialCached "init.html" $ctx).hotlinkFeatureImage -}}
+  {{- with $ctx.Params.featureImageURL -}}{{ $hotlink = . }}{{ end -}}
+{{- end -}}
 {{- $fallback := "" -}}
 {{- if not $cover }}{{ $fallback = partial "image-url.html" (partialCached "init.html" $ctx).defaultFeaturedImage }}{{ end -}}
 
-{{- if and (not $cover) $fallback -}}
+{{- if and (not $cover) $hotlink -}}
+  {{- $img := printf `<img src="%s" alt="%s" fetchpriority="high">` $hotlink (htmlEscape ($ctx.Params.coverAlt | default "")) -}}
+  <figure class="article-cover{{ if eq $style "big" }} article-cover-big{{ end }}">
+    {{ $img | safeHTML }}
+  </figure>
+{{- else if and (not $cover) $fallback -}}
   {{- $img := printf `<img src="%s" alt="" fetchpriority="high">` $fallback -}}
   {{- if eq $style "background" -}}
     <div class="article-hero-bg">

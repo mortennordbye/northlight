@@ -39,6 +39,10 @@
   "replyByEmail"        (partial "param-bool.html" (dict "map" $a "key" "replyByEmail"        "default" false))
   "seriesOpened"        (partial "param-bool.html" (dict "map" $a "key" "seriesOpened"        "default" false))
   "showZenMode"         (partial "param-bool.html" (dict "map" $a "key" "showZenMode"         "default" false))
+  "showDateOnlyInArticle" (partial "param-bool.html" (dict "map" $a "key" "showDateOnlyInArticle" "default" false))
+  "showHeadingAnchors"  (partial "param-bool.html" (dict "map" $a "key" "showHeadingAnchors"  "default" true))
+  "invertPagination"    (partial "param-bool.html" (dict "map" $a "key" "invertPagination"    "default" false))
+  "externalLinkForceNewTab" (partial "param-bool.html" (dict "map" $a "key" "externalLinkForceNewTab" "default" true))
   "showViews"           (partial "param-bool.html" (dict "map" $a "key" "showViews"           "default" false))
   "showLikes"           (partial "param-bool.html" (dict "map" $a "key" "showLikes"           "default" false))
   "showAuthorsBadges"   (partial "param-bool.html" (dict "map" $a "key" "showAuthorsBadges"   "default" false))
@@ -82,6 +86,20 @@
        `disableImageOptimization` stops Hugo resizing raster images, handing the original
        to the browser instead. Worth having for a site whose images are already optimised
        by something upstream; costly otherwise, which is why it is off by default. */ -}}
+{{- /* `fingerprintAlgorithm` is the one setting here that can break caching if changed
+       carelessly: every asset URL contains the hash, so switching algorithm renames every
+       file at once. That is fine — it is a cache bust, not a stale asset — but it is worth
+       knowing before flipping it. Restricted to what Hugo actually supports. */ -}}
+{{- $fingerprintAlgorithm := site.Params.fingerprintAlgorithm | default "sha512" -}}
+{{- if not (in (slice "md5" "sha256" "sha384" "sha512") $fingerprintAlgorithm) -}}
+  {{- $fingerprintAlgorithm = "sha512" -}}
+{{- end -}}
+{{- $smartTOCHideUnfocusedChildren := partial "param-bool.html" (dict "map" site.Params "key" "smartTOCHideUnfocusedChildren" "default" false) -}}
+{{- $backgroundImageWidth := int (site.Params.backgroundImageWidth | default 1600) -}}
+{{- $hotlinkFeatureImage := partial "param-bool.html" (dict "map" site.Params "key" "hotlinkFeatureImage" "default" false) -}}
+{{- $disableTextInHeader := partial "param-bool.html" (dict "map" site.Params "key" "disableTextInHeader" "default" false) -}}
+{{- $enableStyledScrollbar := partial "param-bool.html" (dict "map" site.Params "key" "enableStyledScrollbar" "default" true) -}}
+
 {{- $imagePosition := site.Params.imagePosition | default "" -}}
 {{- $disableImageOptimization := partial "param-bool.html" (dict "map" site.Params "key" "disableImageOptimization" "default" false) -}}
 
@@ -111,6 +129,8 @@
 {{- $footer := dict
   "showCopyright"        (partial "param-bool.html" (dict "map" $f "key" "showCopyright"        "default" true))
   "showMenu"             (partial "param-bool.html" (dict "map" $f "key" "showMenu"             "default" true))
+  "showAppearanceSwitcher" (partial "param-bool.html" (dict "map" $f "key" "showAppearanceSwitcher" "default" true))
+  "showScrollToTop"      (partial "param-bool.html" (dict "map" $f "key" "showScrollToTop"      "default" true))
   "showThemeAttribution" (partial "param-bool.html" (dict "map" $f "key" "showThemeAttribution" "default" true))
   "themeURL"             ($f.themeURL | default "")
 -}}
@@ -141,6 +161,12 @@
   "list" $list
   "taxonomy" $taxonomy
   "headerLayout" $headerLayout
+  "smartTOCHideUnfocusedChildren" $smartTOCHideUnfocusedChildren
+  "backgroundImageWidth" $backgroundImageWidth
+  "hotlinkFeatureImage" $hotlinkFeatureImage
+  "fingerprintAlgorithm" $fingerprintAlgorithm
+  "disableTextInHeader" $disableTextInHeader
+  "enableStyledScrollbar" $enableStyledScrollbar
   "imagePosition" $imagePosition
   "disableImageOptimization" $disableImageOptimization
   "layoutBackgroundBlur" $layoutBackgroundBlur

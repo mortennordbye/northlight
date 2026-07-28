@@ -734,3 +734,26 @@ a.tag:hover {
 .counter-like[aria-pressed="true"] .icon {
   fill: currentColor;
 }
+
+/* --- TOC: collapse unfocused children --------------------------------------- */
+
+/* `smartTOCHideUnfocusedChildren`, off by default. This theme's own view is recorded in
+   docs/FEATURE-SURVEY.md — extra motion in a component whose job is to stay still — which
+   is why the default has not changed. It is here because a deep page with many h3s under
+   each h2 is a genuinely different problem from the one that opinion was formed against.
+
+   The child list collapses unless it contains the current heading or its own parent is
+   current. `:has()` is what makes that expressible in CSS at all; without it this would
+   need the script to walk ancestors and set classes. */
+html[data-toc-collapse] .toc ul ul {
+  display: none;
+}
+
+html[data-toc-collapse] .toc ul ul:has(.is-current),
+html[data-toc-collapse] .toc li:has(> a.is-current) > ul {
+  display: block;
+}
+
+/* Nothing animates. A list that grows and shrinks as the reader scrolls is exactly the
+   motion the default opinion objects to; collapsing without transition keeps the rail
+   still even when it changes. */

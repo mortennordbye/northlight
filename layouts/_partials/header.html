@@ -8,14 +8,17 @@
            name next to a dot is three brand elements competing. logoDark is optional;
            with only `logo` set, the same file is used in both modes, which is correct
            for anything with transparency and enough contrast either way. */ -}}
-    <a class="brand" href="{{ site.Home.RelPermalink }}">
+    <a class="brand" href="{{ site.Home.RelPermalink }}"{{ if $cfg.disableTextInHeader }} aria-label="{{ site.Title }}"{{ end }}>
       {{- with partial "image-url.html" $cfg.logo }}
         <img class="brand-logo{{ if $cfg.logoDark }} img-light{{ end }}" src="{{ . }}" alt="{{ site.Title }}">
         {{- with partial "image-url.html" $cfg.logoDark }}
           <img class="brand-logo img-dark" src="{{ . }}" alt="{{ site.Title }}">
         {{- end }}
       {{- else }}
-        <span class="brand-dot" aria-hidden="true"></span>{{ site.Title }}
+        {{- /* The dot is decorative and the title is the accessible name, so hiding the
+               text means the link needs a name of its own — otherwise the site logo
+               becomes an unlabelled link on every page. */ -}}
+        <span class="brand-dot" aria-hidden="true"></span>{{ if not $cfg.disableTextInHeader }}{{ site.Title }}{{ end }}
       {{- end }}
     </a>
 
@@ -72,10 +75,12 @@
         </button>
       {{- end }}
 
+      {{- if $cfg.footer.showAppearanceSwitcher }}
       <button class="icon-button" type="button" data-toggle-appearance hidden aria-label="{{ i18n "switchColourMode" }}">
         <span class="only-light">{{ partial "icon.html" "moon" }}</span>
         <span class="only-dark">{{ partial "icon.html" "sun" }}</span>
       </button>
+      {{- end }}
     </nav>
   </div>
 </header>

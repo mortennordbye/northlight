@@ -1,0 +1,44 @@
+{{- /*
+  Advertising and tipping. Both are opt-in, both render nothing unless configured, and both
+  are third-party scripts — so the theme's default remains what it has always been: nothing
+  requested, nothing shown.
+
+  These live apart from analytics.html because they are a different kind of decision. An
+  analytics beacon measures; these two put somebody else's content on your page, and one of
+  them tracks readers across sites to do it. That is worth a separate file and a separate
+  paragraph in the docs rather than a fourth entry in a list of vendors.
+
+    [params.advertisement]
+      adsense = "ca-pub-XXXXXXXXXXXXXXXX"
+
+    [params.buymeacoffee]
+      identifier = "yourname"
+      globalWidget = true
+      globalWidgetMessage = "Thanks for reading"
+      globalWidgetColor = "#5F7FFF"
+      globalWidgetPosition = "Right"
+*/ -}}
+
+{{- with site.Params.advertisement -}}
+  {{- with .adsense -}}
+    {{- /* AdSense sets cookies and profiles readers across sites. A site enabling it will
+           almost certainly need a consent banner, and the theme does not ship one — that
+           is the site's obligation, and pretending otherwise would be worse than saying
+           so. */ -}}
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ . }}"
+            crossorigin="anonymous"></script>
+  {{- end -}}
+{{- end -}}
+
+{{- with site.Params.buymeacoffee -}}
+  {{- if and .identifier (partial "param-bool.html" (dict "map" . "key" "globalWidget" "default" false)) -}}
+    <script data-name="BMC-Widget" data-cfasync="false"
+            src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
+            data-id="{{ .identifier }}"
+            data-description="{{ .globalWidgetMessage | default "" }}"
+            data-message="{{ .globalWidgetMessage | default "" }}"
+            data-color="{{ .globalWidgetColor | default "#5F7FFF" }}"
+            data-position="{{ .globalWidgetPosition | default "Right" }}"
+            data-x_margin="18" data-y_margin="18" defer></script>
+  {{- end -}}
+{{- end -}}

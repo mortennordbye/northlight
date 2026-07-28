@@ -85,10 +85,10 @@ Useful, narrower toggles.
 | 30 | ~~**`imagePosition`**~~ **DONE** | Applies to the avatar and thumbnails, which are real crops. Inert on covers by design, since those are never cropped | Small |
 | 31 | ~~**Image optimisation toggles**~~ **DONE** | `disableImageOptimization`, honoured in all six partials that resize a cover. The MD variant was dropped: prose images go through one render hook, so the single flag already covers them | Small |
 | 32 | ~~**Gist embed**~~ **DONE** | Fetched at build time, so the reader loads no GitHub script and the code gets this theme's highlighting in both colour modes | Small |
-| 33 | **BuyMeACoffee** `[opt-in]` | Global widget: message, colour, position | Small |
-| 34 | **`externalLinkForceNewTab`** | External Markdown links open in a new tab | Small |
-| 35 | **`invertPagination`** | Swap next/previous direction | Small |
-| 36 | **`hotlinkFeatureImage`** `[opt-in]` | Use a remote URL as the feature image | Small |
+| 33 | ~~**BuyMeACoffee**~~ **DONE** | Global widget, opt-in, in `monetisation.html` alongside AdSense | Small |
+| 34 | ~~**`externalLinkForceNewTab`**~~ **DONE** | Default true, which is what the link hook already did. `rel="noopener"` is kept either way | Small |
+| 35 | ~~**`invertPagination`**~~ **DONE** | Labels swap with the links, so the arrow and the word never disagree | Small |
+| 36 | ~~**`hotlinkFeatureImage`**~~ **DONE** | Off by default: a remote image is a third-party request on page view. Nothing is fetched at build time, so the box cannot be reserved — the cost is stated | Small |
 
 ## Found on the second pass
 
@@ -99,7 +99,7 @@ non-findings worth recording so nobody re-checks them.
 | # | Feature | What it gives you | Effort |
 |---|---|---|---|
 | 53 | ~~**Google Analytics**~~ **DONE** | Through Hugo's own `[services.googleAnalytics]` key and template, not a theme param — a theme param would be a second key that does nothing | Small |
-| 54 | **`extend-article-link.html`** | A hook to inject content after each entry in a listing, the way `extend-head` and `extend-footer` work for the page | Small |
+| 54 | ~~**`extend-article-link.html`**~~ **DONE** | The third escape hatch, and the only per-entry one. Ships empty, and the suite asserts it stays empty | Small |
 
 **Not gaps, checked and dismissed:**
 
@@ -119,22 +119,22 @@ Cosmetic, one-line, or narrow enough that nobody will notice its absence.
 
 | # | Feature | What it gives you | Effort |
 |---|---|---|---|
-| 37 | **`showDateOnlyInArticle`** | Date in the body but not the listing | Small |
-| 38 | **`showHeadingAnchors` in front matter** | Per-page override; ours is site-level | Small |
+| 37 | ~~**`showDateOnlyInArticle`**~~ **DONE** | Honoured in `post-meta.html`, which is the listing meta; the article page has its own | Small |
+| 38 | ~~**`showHeadingAnchors` in front matter**~~ **DONE** | Per-page override of the site default | Small |
 | 39 | ~~**Per-page `xml`**~~ **ALREADY HAD IT** | Same capability under a different key: `sitemap_exclude`. Was in the scrape by mistake | Small |
-| 40 | **`sitemap.excludedKinds`** | Exclude whole content kinds | Small |
-| 41 | **`footer.showAppearanceSwitcher` / `showScrollToTop`** | Toggles for chrome we render unconditionally | Small |
-| 42 | **`disableTextInHeader`** | Logo-only header | Small |
-| 43 | **`backgroundImageWidth`** | Scale target for background images | Small |
-| 44 | **`enableStyledScrollbar`** | A toggle; we already style it unconditionally | Small |
-| 45 | **`fingerprintAlgorithm`** | Choose the asset hash algorithm | Small |
-| 46 | **`smartTOCHideUnfocusedChildren`** | Collapse unfocused TOC levels | Small |
-| 47 | **TypeIt** `[opt-in]` | Typewriter animation. Owes `prefers-reduced-motion` a static fallback | Small |
-| 48 | **Code importer** `[opt-in]` | Pull code from a URL at build time | Small |
-| 49 | **Markdown importer** `[opt-in]` | Pull Markdown from a URL at build time | Small |
-| 50 | **Language redirect** | Client-side browser-language redirect. Row 1 is now done, so this is unblocked | Small |
-| 51 | **RSSNext** | `feedId` / `userId` in the feed | Small |
-| 52 | **AdSense** `[opt-in]` | `advertisement.adsense` publisher ID | Small |
+| 40 | ~~**`sitemap.excludedKinds`**~~ **DONE** | Replaces the built-in list rather than adding to it, so taxonomies can be put back in | Small |
+| 41 | ~~**`footer.showAppearanceSwitcher` / `showScrollToTop`**~~ **DONE** | Both default true | Small |
+| 42 | ~~**`disableTextInHeader`**~~ **DONE** | The home link gains an `aria-label`, or it would be unlabelled on every page | Small |
+| 43 | ~~**`backgroundImageWidth`**~~ **DONE** | Resizes the full-bleed background, which is the largest image on any page that has one. SVG and remote URLs pass through | Small |
+| 44 | ~~**`enableStyledScrollbar`**~~ **DONE** | Off hands the scrollbar back to the OS | Small |
+| 45 | ~~**`fingerprintAlgorithm`**~~ **DONE** | Reaches all six fingerprint calls; asserted, since a missed one would hash inconsistently | Small |
+| 46 | ~~**`smartTOCHideUnfocusedChildren`**~~ **DONE** | Built with `:has()`, no script and no transition — the objection to it was motion, and this adds none | Small |
+| 47 | ~~**TypeIt**~~ **DONE, WITHOUT THE LIBRARY** | TypeIt is GPL-3.0 and this theme is MIT, so vendoring it would push every site using the theme onto copyleft for a decorative animation. Written directly instead, in ~20 lines | Small |
+| 48 | ~~**Code importer**~~ **DONE** | Build-time fetch with `lines` range; out-of-range bounds clamp rather than erroring | Small |
+| 49 | ~~**Markdown importer**~~ **DONE** | Rendered through the page's own `RenderString`. Documented as rendering somebody else's content as your own | Small |
+| 50 | ~~**Language redirect**~~ **DONE** | Off by default; runs once; home-page-only by default, because rewriting a deliberately shared deep link loses what was shared | Small |
+| 51 | ~~**RSSNext**~~ **DONE** | Emitted only when configured | Small |
+| 52 | ~~**AdSense**~~ **DONE** | Opt-in, and documented as needing a consent banner the theme does not ship | Small |
 
 ---
 
