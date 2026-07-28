@@ -45,7 +45,7 @@
       | jsonify | safeJS -}}
   </script>
 
-  {{- $scripts := slice (resources.Get "js/strings.js") (resources.Get "js/toggle.js") (resources.Get "js/scroll.js") (resources.Get "js/toc.js") (resources.Get "js/comments.js") -}}
+  {{- $scripts := slice (resources.Get "js/strings.js") (resources.Get "js/toggle.js") (resources.Get "js/scroll.js") (resources.Get "js/toc.js") (resources.Get "js/comments.js") (resources.Get "js/tabs.js") -}}
   {{- if $cfg.enableCodeCopy }}{{ $scripts = $scripts | append (resources.Get "js/code-copy.js") }}{{ end -}}
   {{- if $cfg.enableSearch }}{{ $scripts = $scripts | append (resources.Get "js/search.js") }}{{ end -}}
   {{- $js := $scripts | resources.Concat "js/northlight.js" -}}

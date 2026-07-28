@@ -10,6 +10,13 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **`tabs` and `tab`** — tabbed panels, with an optional `group` so sets sharing a name switch
+  together. **The served markup is not a tab strip**: it is a plain sequence of headed
+  `<section>` elements with every panel visible, which is a complete document for a reader with
+  scripting off. `assets/js/tabs.js` then upgrades it in place to a real tablist with
+  `role="tablist"`, `aria-selected`, `aria-controls`, roving `tabindex` and arrow-key, Home and
+  End navigation, hiding the headings only once the tab buttons carrying the same text exist.
+  Built the other way round, a reader without JavaScript gets a stack of unlabelled boxes.
 - **`gallery`** — a responsive grid of images, taking `cols` of 2 or 3. It has no image handling
   of its own: it grids whatever `figure` shortcodes are nested inside it, so a gallery image gets
   the same `srcset`, intrinsic dimensions, dark variants and captions as any other and there is

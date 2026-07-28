@@ -241,7 +241,7 @@ These wrap existing partials, so they are mostly plumbing and docs.
       Branch `feat/shortcode-accordion`.
 - [x] **`gallery`** — responsive image grid. Reuse the image pipeline; every image needs its
       aspect ratio declared, per the no-layout-shift rule. Branch `feat/shortcode-gallery`.
-- [ ] **`tabs` / `tab`** — tabbed panels. Needs real ARIA (`role="tablist"`, arrow-key
+- [x] **`tabs` / `tab`** — tabbed panels. Needs real ARIA (`role="tablist"`, arrow-key
       navigation, `aria-selected`) and must render all panels as sequential headed sections with
       JS off. Optional `group` syncs tabs across a page. Branch `feat/shortcode-tabs`.
       The most accessibility-sensitive item in Part A — do not ship a `<div>` soup version.

@@ -426,6 +426,27 @@ else
   ok "the gallery never crops its images"
 fi
 
+# tabs: the served markup must be the *fallback*, not the tab strip. A reader with no
+# JavaScript gets a sequence of headed <section> elements with every panel visible; the
+# script builds the tablist afterwards. These assertions are on the server output, so they
+# are checking exactly what that reader receives.
+#
+# This is the most easily broken thing in the set: someone "tidying" the heading away, or
+# moving role=tablist into the template, would look identical in a browser with scripting
+# on and silently destroy the no-JavaScript version.
+assert_grep '<section class=tab-panel data-tab-label=' "$SHORTCODES" \
+  "tabs are served as headed sections, not as a tab strip"
+assert_grep '<h3 class=tab-heading>' "$SHORTCODES" \
+  "each panel carries a real heading for the no-JavaScript reader"
+refute_grep 'role=tablist' "$SHORTCODES" \
+  "the tablist is built by script, never served as markup"
+refute_grep '<section class=tab-panel[^>]*hidden' "$SHORTCODES" \
+  "no panel is hidden before the script runs"
+
+# The panel headings are h3 for the same reason list's items are: a page's own sections
+# are h2, and an h2 here would read as ending the section the tabs sit inside.
+assert_grep 'class=tab-heading' "$SHORTCODES" "panel headings nest under the page's sections"
+
 BLANK=$(grep -o '<a class=button[^>]*_blank[^>]*>' "$SHORTCODES" | head -1)
 case "$BLANK" in
   *noopener*) ok "button with target=_blank sets rel=noopener" ;;

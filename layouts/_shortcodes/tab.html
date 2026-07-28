@@ -1,0 +1,20 @@
+{{- /*
+  tab — one panel of a `tabs` set.
+
+  Renders as a headed <section>. The heading is what makes the no-JavaScript version
+  readable, and `tabs.js` hides it once it has built the tab button that replaces it.
+
+  Parameters:
+    label  the tab's name (required)
+    icon   an icon name shown before the label
+
+  Call:  {{< tab label="Submodule" >}}Markdown.{{< /tab >}}
+*/ -}}
+{{- $label := .Get "label" -}}
+{{- if not $label -}}
+  {{- errorf "tab shortcode: label is required — an unlabelled tab cannot be selected (%s)" .Position -}}
+{{- end -}}
+<section class="tab-panel" data-tab-label="{{ $label }}"{{ with .Get "icon" }} data-tab-icon="{{ . }}"{{ end }}>
+  <h3 class="tab-heading">{{ $label }}</h3>
+  <div class="tab-body">{{ .Inner | .Page.RenderString (dict "display" "block") }}</div>
+</section>

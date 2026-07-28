@@ -66,6 +66,75 @@
   box-shadow: none;
 }
 
+/* --- tabs ------------------------------------------------------------------- */
+
+/* The unenhanced state is the default and is deliberately plain: a sequence of headed
+   sections, which is exactly what the markup is. Everything that makes it look like a
+   tab strip hangs off .is-enhanced, which `tabs.js` adds only after it has built the
+   tablist. Style it the other way round and a reader with no JavaScript sees panels
+   dressed as tabs that do not switch. */
+.tabs {
+  margin: var(--space-6) 0;
+}
+
+.tabs > .tab-panel + .tab-panel {
+  margin-top: var(--space-6);
+}
+
+.tab-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  border-bottom: 1px solid var(--line);
+  margin-bottom: var(--space-4);
+}
+
+.tab-button {
+  appearance: none;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  padding: var(--space-2) var(--space-3);
+  font: inherit;
+  font-size: 15px;
+  color: var(--fg-2);
+  cursor: pointer;
+}
+
+.tab-button:hover {
+  color: var(--fg);
+}
+
+/* The selected tab is marked by colour *and* an underline, so it is not identified by
+   colour alone. */
+.tab-button[aria-selected="true"] {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.tab-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  border-radius: var(--radius-chip);
+}
+
+/* The panel is focusable so a keyboard reader can move from the strip into the content;
+   it should not draw a permanent ring for that. */
+.is-enhanced .tab-panel:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: var(--radius-chip);
+}
+
+.is-enhanced > .tab-panel + .tab-panel {
+  margin-top: 0;
+}
+
+.tab-body > :last-child {
+  margin-bottom: 0;
+}
+
 /* --- gallery ---------------------------------------------------------------- */
 
 /* auto-fit with a floor rather than a fixed column count, so the grid reflows on its own

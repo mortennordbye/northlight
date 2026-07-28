@@ -199,6 +199,68 @@ where you can see it working.
 Without the inner `ltr`, the trailing path and punctuation of that command get pulled
 around by the bidirectional algorithm and the line becomes unreadable.
 
+## `tabs`
+
+Tabbed panels, for showing variants of the same step.
+
+```text
+{{</* tabs group="install" */>}}
+{{</* tab label="Submodule" */>}}
+`git submodule add …`
+{{</* /tab */>}}
+{{</* tab label="Hugo Module" */>}}
+`hugo mod init …`
+{{</* /tab */>}}
+{{</* /tabs */>}}
+```
+
+{{< tabs group="install" >}}
+{{< tab label="Submodule" >}}
+No Go toolchain needed, which is why it is the recommended route.
+
+```bash
+git submodule add https://github.com/you/northlight themes/northlight
+```
+{{< /tab >}}
+{{< tab label="Hugo Module" >}}
+Needs Go available wherever you build.
+
+```bash
+hugo mod init github.com/you/your-site
+```
+{{< /tab >}}
+{{< /tabs >}}
+
+| Parameter | On | Required | What it does |
+|---|---|---|---|
+| `group` | `tabs` | no | Sets sharing a group switch together across the page |
+| `label` | `tab` | yes | The tab's name |
+| `icon` | `tab` | no | An [icon](#icon) before the label |
+
+**Turn JavaScript off and this page still works.** What the server sends is not a tab
+strip: it is a plain sequence of headed sections, every panel visible one after another,
+each under its own heading. That is a complete document. The script then upgrades it in
+place into a real tablist, with `role="tablist"`, `aria-selected`, `aria-controls` and
+arrow-key navigation, and hides the headings once the tab buttons carrying the same text
+exist.
+
+Built the other way round — shipping a tab strip and using script to make it usable — a
+reader without JavaScript gets a stack of unlabelled boxes. This is the reason the heading
+is in the markup at all.
+
+Sets sharing a `group` switch together, so a page documenting two steps of the same choice
+does not make you pick twice. This second set is in the same `install` group as the one
+above; switch either and both move:
+
+{{< tabs group="install" >}}
+{{< tab label="Submodule" >}}
+Remember `submodules: recursive` on your CI checkout step.
+{{< /tab >}}
+{{< tab label="Hugo Module" >}}
+No checkout flag needed; the module is fetched at build time.
+{{< /tab >}}
+{{< /tabs >}}
+
 ## `gallery`
 
 A responsive grid of images.
