@@ -10,6 +10,13 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **`footer.themeURL`** — links the theme name in the footer attribution. Unset, it renders as
+  plain text, which is what the theme shipped with, so nothing changes for an existing site. The
+  theme cannot default it to its own repository: that URL contains the author's name, and no file
+  under `layouts/`, `assets/` or `static/` may carry an author-specific value. The `builtWith`
+  string now takes both names as values (`.Hugo` and `.Theme`) rather than concatenating one in
+  the template, so a translation controls the order of both, and the theme's name moves into its
+  own `themeName` key where a translation can transliterate it.
 - **Ten home page layouts**, selected by `home.layout`: `stack`, `page`, `profile`, `hero`,
   `card`, `background`, `split`, `gallery`, `archive` and `custom`. This reverses the earlier
   decision to ship one homepage; the reasoning is recorded as FLAG-6 in

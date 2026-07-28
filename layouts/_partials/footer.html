@@ -4,12 +4,18 @@
     {{- if $cfg.footer.showCopyright }}
     <p class="footer-copy">
       &copy; {{ now.Format "2006" }} {{ site.Title }}
-      {{- /* Hugo is linked; the theme name is not. The theme's own repository URL
-             contains its author's name, and nothing under layouts/ is allowed to carry
-             an author-specific value — `make check` greps for exactly that. Site
-             authors who want to link it can override this partial. */ -}}
+      {{- /* Hugo is linked unconditionally. The theme name is linked only when a site sets
+             `footer.themeURL`, because the theme's own repository URL contains its author's
+             name and nothing under layouts/ may carry an author-specific value — `make check`
+             greps for exactly that. Left unset it stays plain text, which is what the theme
+             shipped with. */ -}}
       {{- if $cfg.footer.showThemeAttribution }} &middot;
-        {{ i18n "builtWith" (`<a href="https://gohugo.io/" rel="noopener">Hugo</a>` | safeHTML) | safeHTML }}
+        {{- $hugo := `<a href="https://gohugo.io/" rel="noopener">Hugo</a>` -}}
+        {{- $theme := i18n "themeName" -}}
+        {{- with $cfg.footer.themeURL -}}
+          {{- $theme = printf `<a href="%s" rel="noopener">%s</a>` (. | safeURL) (i18n "themeName") -}}
+        {{- end }}
+        {{ i18n "builtWith" (dict "Hugo" ($hugo | safeHTML) "Theme" ($theme | safeHTML)) | safeHTML }}
       {{- end }}
     </p>
     {{- end }}

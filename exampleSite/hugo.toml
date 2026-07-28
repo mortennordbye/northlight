@@ -11,7 +11,7 @@
 baseURL = "https://example.com/"
 locale = "en"                      # replaces languageCode, deprecated in Hugo 0.158
 defaultContentLanguage = "en"
-title = "Example Blog"
+title = "Northlight"
 theme = "northlight"
 
 enableRobotsTXT = true
@@ -77,13 +77,12 @@ summaryLength = 30
   #   fediverse = "@you@instance.tld"   # Mastodon verified-author byline on link previews
 
   [params.author]
-    name = "Your Name"
-    headline = "What you do"
+    name = "Morten Victor Nordbye"
+    headline = "Writes about building things that stay simple"
     image = "images/profile.svg"   # square, 160px or larger; sized and cropped in CSS
     links = [
-      { linkedin = "https://www.linkedin.com/in/you" },
-      { github = "https://github.com/you" },
-      { link = "https://example.com" },
+      { github = "https://github.com/mortennordbye" },
+      { link = "https://nordbye.it" },
     ]
 
   [params.home]
@@ -123,6 +122,10 @@ summaryLength = 30
     groupByYear = true
 
   [params.footer]
+    # Links the theme name in the footer attribution. The theme cannot default this to its
+    # own repository: that URL carries its author's name, and no theme file may. Unset, the
+    # name renders as plain text.
+    themeURL = "https://github.com/mortennordbye/northlight"
     showCopyright = true
     showThemeAttribution = true
 

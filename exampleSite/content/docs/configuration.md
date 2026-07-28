@@ -78,7 +78,8 @@ own repository, built from `editURL` plus the content path.
 |---|---|---|
 | `list.groupByYear` | `true` | Year headings in the post index, grouped within each page of results. |
 | `footer.showCopyright` | `true` | Copyright line. |
-| `footer.showThemeAttribution` | `true` | The "built with Hugo" line. |
+| `footer.showThemeAttribution` | `true` | The "built with Hugo and the Northlight theme" line. |
+| `footer.themeURL` | — | Links the theme name in that line to a URL. Unset, the name is plain text. The theme cannot default this to its own repository, because that URL contains its author's name and no theme file is allowed to carry one. |
 
 ## `[params.verification]`
 

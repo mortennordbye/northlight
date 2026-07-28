@@ -51,6 +51,7 @@
 {{- $footer := dict
   "showCopyright"        (partial "param-bool.html" (dict "map" $f "key" "showCopyright"        "default" true))
   "showThemeAttribution" (partial "param-bool.html" (dict "map" $f "key" "showThemeAttribution" "default" true))
+  "themeURL"             ($f.themeURL | default "")
 -}}
 
 {{- /* The date format is a param because "2 Jan 2006" is an English convention, not a
