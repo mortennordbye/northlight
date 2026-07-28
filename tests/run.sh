@@ -1748,6 +1748,22 @@ else
   ok "TOC rail uses logical borders"
 fi
 
+# Print: chrome hidden, code wrapping, links carrying their destination. Asserted in
+# the built bundle, not only the source, so dropping the file from the concat list is
+# caught too.
+assert_grep '@media print' "$ROOT/assets/css/print.css" "print styles exist"
+[ -n "$CSS_REF" ] && assert_grep '@media print' "$PUBLIC/$CSS_REF" "print styles reach the bundle"
+
+# theme-color is a copy of the --bg pair from tokens.css (palettes recolour accents,
+# not the page). A copy needs an assertion that keeps it honest.
+BG_LINE=$(grep -- '--bg: light-dark(' "$TOKENS" | head -1)
+BG_LIGHT=$(printf '%s' "$BG_LINE" | sed -E 's/.*light-dark\((#[0-9a-f]+), *(#[0-9a-f]+)\).*/\1/')
+BG_DARK=$(printf '%s' "$BG_LINE" | sed -E 's/.*light-dark\((#[0-9a-f]+), *(#[0-9a-f]+)\).*/\2/')
+assert_grep "prefers-color-scheme: light) *\" content=\"$BG_LIGHT\"" "$ROOT/layouts/_partials/head.html" \
+  "light theme-color matches the --bg token"
+assert_grep "prefers-color-scheme: dark) *\" content=\"$BG_DARK\"" "$ROOT/layouts/_partials/head.html" \
+  "dark theme-color matches the --bg token"
+
 # --------------------------------------------------------------------------------
 group "Template guards"
 

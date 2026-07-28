@@ -1,0 +1,78 @@
+/* ============================================================================
+   Print.
+
+   A reader printing a post wants the words, not the chrome. Everything here
+   follows from that: navigation and controls disappear, the article takes the
+   full measure, code wraps instead of scrolling (an overflow box prints as a
+   truncated one), and external links carry their destination, because on paper
+   "here" points nowhere.
+
+   Rides at the end of the bundle inside one @media print block, so it costs
+   screen rendering nothing and needs no extra request.
+   ============================================================================ */
+
+@media print {
+  /* Paper is light. color-scheme resolves every light-dark() token to its light
+     value, whatever the reader's toggle said on screen. */
+  :root {
+    color-scheme: light;
+  }
+
+  /* Screen chrome off: navigation, controls, and every block whose purpose is to
+     take the reader somewhere else. */
+  .site-header,
+  .site-footer,
+  .skip-link,
+  .reading-progress,
+  .back-to-top,
+  .search-modal,
+  .toc,
+  .share,
+  .counters,
+  .reply-by-email,
+  .pager,
+  .related,
+  .comments,
+  .copy-button {
+    display: none;
+  }
+
+  /* The article takes the full measure with the rail gone — same collapse zen mode
+     uses. */
+  .article-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* External links show where they go. Internal anchors are excluded: a printed
+     fragment is only noise. */
+  .prose a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.85em;
+    word-break: break-all;
+  }
+
+  /* Wide content wraps rather than truncates. */
+  pre.chroma,
+  pre.mermaid {
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow: visible;
+  }
+
+  /* No heading orphaned at the foot of a page, no figure or callout split across
+     two. */
+  h1,
+  h2,
+  h3,
+  h4 {
+    break-after: avoid;
+  }
+
+  figure,
+  pre,
+  table,
+  blockquote,
+  .admonition {
+    break-inside: avoid;
+  }
+}

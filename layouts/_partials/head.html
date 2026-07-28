@@ -6,6 +6,13 @@
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+{{- /* Tints the browser's own chrome to match the page. The pair is the --bg token
+       from tokens.css — palettes recolour accents and washes, not the page, so two
+       values cover all of them; the test suite asserts this copy stays equal to the
+       token. The media attribute follows the OS scheme, which is the right source
+       for browser chrome: the in-page toggle styles the page, not the browser. */}}
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0b0b0e">
 <title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} · {{ site.Title }}{{ end }}</title>
 {{- with $desc }}
 <meta name="description" content="{{ . }}">
@@ -63,6 +70,7 @@
       (resources.Get "css/interaction.css")
       (resources.Get "css/shortcodes.css")
       (resources.Get "css/home-layouts.css")
+      (resources.Get "css/print.css")
 -}}
 {{- /* The site's own stylesheet, if it has one. Nothing in this theme provides
        assets/css/custom.css, so this resolves only against the consuming site — which

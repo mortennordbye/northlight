@@ -6,6 +6,59 @@ and versions follow [semantic versioning](https://semver.org/).
 **Config keys are API.** A key is never renamed or repurposed without a major version bump. New
 keys are added with defaults that preserve existing behaviour.
 
+## [Unreleased]
+
+### Added
+
+- **Print stylesheet.** Printing a post hides the chrome — header, footer, table of contents,
+  sharing, pagination — lets the article take the full measure, wraps code instead of
+  truncating it, prints each external link's destination after it, and renders everything on
+  the light palette, because paper is light. No configuration.
+- **`theme-color` meta tags.** The browser's own chrome tints to the page background in both
+  colour modes. The pair is a copy of the `--bg` token, and the test suite asserts the copy
+  stays equal to it.
+
+### Fixed
+
+- View and like counters work when enabled per post: `counters.js` now loads whenever
+  firebase is configured, so a page-level `showViews`/`showLikes` override no longer renders
+  markup whose script never arrives.
+- Zen mode hides the table of contents; its selector targeted a class nothing renders.
+- The TOC scroll-spy accent renders under RTL — the active edge used a physical
+  `border-left` against a logical rail.
+- `layoutBackgroundBlur` now blurs the home background layout: the image renders on its own
+  layer the blur can target without taking the scrim and text with it.
+- Arrow keys on a synced tab group no longer start from a stale index after the sync.
+- An explicitly empty `mainSections = []` no longer fails the build.
+- The search modal is keyboard- and screen-reader-complete: Tab reaches the close button
+  instead of being hijacked for result selection, and the input is a real combobox whose
+  `aria-activedescendant` announces what the arrow keys select.
+- The analytics options `fathom.domain`, `umami.domain`, `umami.scriptName` and
+  `plausible.host` were read from page front matter rather than site config and never fired.
+- The last reader-facing English went through the catalogue: the search modal's keyboard
+  hints and empty state, reading time in search results and related cards, related cards'
+  date format, and the default admonition labels (new `admonition*` keys).
+- The hotlinked cover URL and the search-result reading time are escaped like the values
+  beside them.
+- The search panel's shadow rides the shadow tokens, so it deepens in dark mode.
+- The TOC scroll-spy trigger line follows `header.layout` instead of assuming the fixed
+  header's height.
+
+### Changed
+
+- og:/twitter: descriptions honour `seo.metaDescriptionOrder` like the meta description
+  always has. Output is identical for sites that leave the order unset.
+- The search-index thumbnail honours `disableImageOptimization` like every other surface.
+- The two-column home layouts collapse at the same 960px breakpoint as the rest of the
+  theme; they previously used 992px.
+- Search results render their reading time through the catalogue (`readingTimeShort`), and
+  related cards through `readingTime` — "5 min read" — like every other meta line.
+
+### Removed
+
+- The dead `defaultBackgroundImage` param (never documented or read;
+  `home.backgroundImage` is the real key) and the unread `externalPost` catalogue key.
+
 ## [0.4.1](https://github.com/mortennordbye/northlight/compare/v0.4.0...v0.4.1) (2026-07-30)
 
 Shipped in [#28](https://github.com/mortennordbye/northlight/pull/28).
