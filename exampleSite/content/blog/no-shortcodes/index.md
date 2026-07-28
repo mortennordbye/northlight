@@ -3,6 +3,7 @@ title: "Why This Theme Has No Shortcodes"
 description: "An audit of the theme this one replaces found roughly two thirds of it unused. Shortcodes were the largest single share of that."
 date: 2025-11-12
 draft: false
+heroStyle: "big"
 tags: ["design", "example"]
 ---
 

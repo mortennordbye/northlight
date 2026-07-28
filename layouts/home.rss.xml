@@ -12,6 +12,17 @@
 {{- if ge $limit 1 }}{{ $pages = first $limit $pages }}{{ end -}}
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
+    {{- /* RSSNext (Folo) reads these to attribute a feed to its owner. Emitted only when
+           configured, so a site that does not use it ships a feed with nothing extra in
+           it. Neither value is a secret; both identify a feed, not a person's account. */ -}}
+    {{- with site.Params.rssnext }}
+      {{- with .feedId }}
+    <follow_challenge>
+      <feedId>{{ . }}</feedId>
+      <userId>{{ $.Site.Params.rssnext.userId }}</userId>
+    </follow_challenge>
+      {{- end }}
+    {{- end }}
     <title>{{ site.Title }}</title>
     <link>{{ site.Home.Permalink }}</link>
     {{- with site.Params.description }}

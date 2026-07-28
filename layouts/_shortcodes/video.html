@@ -1,0 +1,137 @@
+{{- /*
+  video — a self-hosted video player, with a caption and no third-party contact.
+
+  The sibling of `youtube-lite`, for the case where the file is yours. Nothing here
+  reaches another host: the source and the poster are both resolved out of the page
+  bundle or `assets/`, so a page carrying this shortcode makes exactly as many
+  third-party requests as one carrying none.
+
+  **There is deliberately no autoplay.** CSS cannot stop playback, so a
+  `prefers-reduced-motion` promise could only be kept with JavaScript, and every script
+  in this theme has to degrade to something sane with scripting off. An autoplay that
+  silently ignores the reader's stated preference whenever JS is unavailable is not a
+  promise the theme can keep, so the parameter does not exist. A reader who wants the
+  video presses play.
+
+  **Never cropped**, on the same terms as covers and galleries. The box is an exact
+  `aspect-ratio` and a clip whose own ratio differs from it letterboxes rather than
+  crops. That needs no `object-fit`: the HTML spec already requires video content to be
+  centred at the largest size that fits the playback area with its aspect ratio
+  preserved, which is what `contain` would have asked for. Leaving it unset also keeps
+  `shortcodes.css` free of the `object-fit` declaration the gallery's never-crop test
+  forbids, for the same underlying reason.
+
+  `poster` is strongly recommended. Without one the player paints a black rectangle
+  until the first frame decodes, which is a layout-shift-free but ugly hole in the page.
+
+  Parameters:
+    src       page resource or path under assets/ (required)
+    poster    a still, same resolution rules as src. Strongly recommended
+    caption   figcaption text, rendered as inline Markdown
+    ratio     the box, as W/H. Default 16/9
+    controls  show the player controls. Default true — false needs a reason
+    loop      restart on end. Default false
+    muted     start muted. Default false
+    preload   none | metadata | auto. Default metadata
+    start     seek to this many seconds on load
+    end       stop at this many seconds
+
+  Call:  {{< video src="clip.mp4" poster="clip.jpg" caption="Eight seconds of north light" >}}
+*/ -}}
+{{- $src := .Get "src" -}}
+{{- if not $src -}}
+  {{- errorf "video shortcode: src is required (%s)" .Position -}}
+{{- end -}}
+
+{{- with $src -}}
+  {{- /* Page bundle first, then assets/ — the same resolution order as `figure`, so
+         moving a file between the two does not change which shortcode finds it. */ -}}
+  {{- $file := $.Page.Resources.GetMatch . -}}
+  {{- if not $file -}}{{ $file = resources.Get . }}{{ end -}}
+  {{- if not $file -}}
+    {{- errorf "video shortcode: no video found at %q — looked in the page bundle and assets/ (%s)" . $.Position -}}
+  {{- else -}}
+
+    {{- /* Poster is optional but resolved the same way, and a path that resolves to
+           nothing is an error rather than a silently dropped attribute: a missing
+           poster is invisible in the output and shows up as a black box weeks later. */ -}}
+    {{- $poster := "" -}}
+    {{- with $.Get "poster" -}}
+      {{- $p := $.Page.Resources.GetMatch . -}}
+      {{- if not $p -}}{{ $p = resources.Get . }}{{ end -}}
+      {{- if not $p -}}
+        {{- errorf "video shortcode: no poster found at %q — looked in the page bundle and assets/ (%s)" . $.Position -}}
+      {{- else -}}
+        {{- $poster = $p.RelPermalink -}}
+      {{- end -}}
+    {{- end -}}
+
+    {{- /* Media fragment, per the W3C syntax the browser already implements. `start`
+           alone seeks; `start` with `end` bounds the clip. Both are forced through
+           `int` so a non-numeric value fails the build here rather than becoming an
+           inert fragment nobody notices. */ -}}
+    {{- $frag := "" -}}
+    {{- with $.Get "start" -}}
+      {{- $frag = printf "#t=%d" (int .) -}}
+      {{- with $.Get "end" -}}{{ $frag = printf "%s,%d" $frag (int .) }}{{ end -}}
+    {{- else -}}
+      {{- with $.Get "end" -}}{{ $frag = printf "#t=0,%d" (int .) }}{{ end -}}
+    {{- end -}}
+
+    {{- /* The ratio goes into a style attribute. No `safeCSS` — Go's contextual escaper
+           already guards this, and adding safeCSS would switch that guard off.
+
+           The ratio is emitted as two *numbers* rather than as the author's string, and
+           that is load-bearing rather than tidiness. The escaper rejects an interpolated
+           string in a CSS value and substitutes `ZgotmplZ`, so `style="aspect-ratio: {{ $s }}"`
+           renders a collapsed box and no error: measured, `16/9` as a string came out
+           `aspect-ratio:ZgotmplZ`, while the same value split and converted came out
+           `aspect-ratio:16/9`. Converting first keeps the escaper on and gets a working
+           box out of it.
+
+           The regex is therefore diagnostics *and* a precondition for the conversion:
+           `float` on a non-numeric value fails the build, which is the loud failure the
+           silent one is being traded for. */ -}}
+    {{- $ratio := $.Get "ratio" | default "16/9" -}}
+    {{- if not (findRE `^[0-9]+(\.[0-9]+)?[ ]*/[ ]*[0-9]+(\.[0-9]+)?$` $ratio) -}}
+      {{- errorf "video shortcode: ratio %q is not W/H, e.g. 16/9 (%s)" $ratio $.Position -}}
+    {{- end -}}
+    {{- $rparts := split $ratio "/" -}}
+    {{- $rw := float (trim (index $rparts 0) " ") -}}
+    {{- $rh := float (trim (index $rparts 1) " ") -}}
+
+    {{- /* Shortcode parameters are strings, and "false" is a truthy string in a Go
+           template, so these are compared rather than passed through `param-bool.html`.
+           Same reasoning as `accordionItem.html`. */ -}}
+    {{- $controls := in (slice "true" "yes" "1") (lower ($.Get "controls" | default "true")) -}}
+    {{- $loop := in (slice "true" "yes" "1") (lower ($.Get "loop" | default "false")) -}}
+    {{- $muted := in (slice "true" "yes" "1") (lower ($.Get "muted" | default "false")) -}}
+
+    {{- /* preload is a closed set in the HTML spec. An unrecognised value is not
+           forwarded — browsers treat it as `auto`, which is the opposite of what
+           somebody typing a typo like `metadta` was reaching for. */ -}}
+    {{- $preload := $.Get "preload" | default "metadata" -}}
+    {{- if not (in (slice "none" "metadata" "auto") $preload) -}}
+      {{- errorf "video shortcode: preload %q must be none, metadata or auto (%s)" $preload $.Position -}}
+    {{- end -}}
+
+    <figure class="video-figure">
+      <div class="video-box" style="aspect-ratio: {{ $rw }} / {{ $rh }}">
+        <video
+          src="{{ $file.RelPermalink }}{{ $frag }}"
+          {{- with $poster }} poster="{{ . }}"{{ end }}
+          preload="{{ $preload }}"
+          playsinline
+          {{- if $controls }} controls{{ end }}
+          {{- if $loop }} loop{{ end }}
+          {{- if $muted }} muted{{ end }}>
+          {{- /* The fallback is a download link rather than a line of prose, because a
+                 browser that cannot play the container can still hand the file to
+                 something that can. */ -}}
+          <a href="{{ $file.RelPermalink }}" download>{{ i18n "downloadVideo" }}</a>
+        </video>
+      </div>
+      {{- with $.Get "caption" }}<figcaption>{{ . | $.Page.RenderString }}</figcaption>{{ end -}}
+    </figure>
+  {{- end -}}
+{{- end -}}

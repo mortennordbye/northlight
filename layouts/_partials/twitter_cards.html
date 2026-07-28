@@ -14,6 +14,9 @@
 
 {{- $image := "" -}}
 {{- with .Resources.GetMatch "{cover,featured}.*" }}{{ $image = .Permalink }}{{ end -}}
+{{- /* A page with no cover of its own falls back to the site-wide social image, so a
+       link to it still previews as a card rather than as bare text. */ -}}
+{{- if not $image }}{{ with partial "image-url.html" (partialCached "init.html" .).defaultSocialImage }}{{ $image = . | absURL }}{{ end }}{{ end -}}
 {{- if not $image }}{{ with site.Params.image }}{{ $image = . | absURL }}{{ end }}{{ end -}}
 
 <meta name="twitter:card" content="{{ cond (ne $image "") "summary_large_image" "summary" }}">

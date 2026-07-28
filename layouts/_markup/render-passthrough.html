@@ -1,0 +1,32 @@
+{{- /*
+  Maths, rendered at build time.
+
+  Hugo has KaTeX built in — `transform.ToMath` runs it during the build — so this theme
+  ships **no maths library at all**. No JavaScript, no stylesheet, no font files, and
+  nothing to load on a page that has an equation. That is not a compromise version of
+  client-side rendering; it is better on every axis: the equation is in the HTML the
+  server sends, so it is there with scripting off, there for a feed reader, and there
+  for anything that reads the page without executing it.
+
+  Output is MathML, which browsers lay out natively. The alternative, `htmlAndMathml`,
+  additionally emits KaTeX's own HTML, which then needs KaTeX's stylesheet and around
+  sixty font files to look right — the exact weight this avoids. MathML Core has been in
+  every current engine for years, so the fallback case is narrow and the saving is large.
+
+  **This needs the passthrough extension turned on in site config**, which is the site's
+  decision rather than the theme's — see the Writing page. Without it Goldmark never
+  produces passthrough nodes and this hook is never called, so a site that wants no maths
+  pays nothing and configures nothing.
+
+  A malformed expression fails the build. `errorf` rather than a silent pass-through:
+  an equation rendered as its own raw LaTeX is the kind of thing an author notices weeks
+  later, and the build knows immediately.
+*/ -}}
+{{- $display := eq .Type "block" -}}
+{{- with try (transform.ToMath .Inner (dict "output" "mathml" "displayMode" $display)) -}}
+  {{- with .Err -}}
+    {{- errorf "render-passthrough.html: could not render the maths %q — %s (%s)" $.Inner . $.Position -}}
+  {{- else -}}
+    {{- if $display }}<div class="math math-block">{{ .Value }}</div>{{ else }}<span class="math math-inline">{{ .Value }}</span>{{ end -}}
+  {{- end -}}
+{{- end -}}

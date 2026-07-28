@@ -1,41 +1,120 @@
 {{- /*
-  The post cover.
+  The post cover, in one of four hero treatments.
 
   Covers are 1200x630 with the title baked into the artwork, so a crop cuts the title
-  in half. The image renders in an exact aspect-ratio box with object-fit: contain —
-  see .article-cover in article.css — which means a cover that is not 1200x630
-  letterboxes rather than losing its edges. This is the single bug that forced a local
-  hero override on the theme Northlight replaces; do not reintroduce a fixed-height
-  band with object-fit: cover.
+  in half. **Every style here keeps the image whole.** The box is an exact
+  aspect-ratio: 1200/630 with object-fit: contain — see .article-cover in article.css —
+  which means a cover that is not 1200x630 letterboxes rather than losing its edges.
+  This is the single bug that forced a local hero override on the theme Northlight
+  replaces; do not reintroduce a fixed-height band with object-fit: cover in any of them.
+
+  That constraint is also why `background` looks the way it does. A background hero
+  elsewhere fills an arbitrary band and crops to fit; here the whole cover is shown and
+  the header sits over a scrim on top of it. If your artwork already carries the title,
+  `background` shows that title twice — use `basic`, or take the text out of the art.
+
+  Styles:
+    basic               the cover as a bordered card above the body. The default
+    big                 the same, breaking out past the text measure
+    background          the cover behind the header, title over a scrim
+    thumbAndBackground  both: behind the header, and again as a card
 
   Accepts cover.* or featured.* as a page-bundle resource. featured.* is supported
   because that is what the reference blog already uses; cover.* is the documented name.
 
   width and height come from the real image so the box is reserved before the bytes
   arrive, which is what keeps the page from jumping as it loads.
+
+  Takes a dict:  {{ partial "cover.html" (dict "ctx" . "style" "big") }}
 */ -}}
-{{- $cover := .Resources.GetMatch "{cover,featured}.*" -}}
+{{- $ctx := .ctx -}}
+{{- $style := .style | default "basic" -}}
+{{- $cover := $ctx.Resources.GetMatch "{cover,featured}.*" -}}
+{{- /* A post with no cover of its own falls back to the site-wide default, so a listing
+       or a hero is not half-illustrated. Resolved through image-url.html, which returns
+       nothing for a configured-but-missing file rather than a 404 on every such page.
+
+       The fallback is a plain path rather than a page resource, so it cannot be resized
+       or measured here; `$raster` below is therefore false for it and it renders without
+       srcset. That is the right trade for a decorative default. */ -}}
+{{- /* `hotlinkFeatureImage` lets front matter point at a remote URL instead of a page
+       resource. It is off by default and stays off for a reason worth stating: an image
+       served from somebody else's host is a third-party request on page view, which is the
+       one thing this theme does not do on a reader's behalf. A site turning it on has
+       decided that trade for itself.
+
+       Nothing is fetched at build time here — the URL is written into the src as given, so
+       the dimensions are unknown and the box cannot be reserved. That is the cost, and it
+       is why a page resource remains the better answer. */ -}}
+{{- $hotlink := "" -}}
+{{- if (partialCached "init.html" $ctx).hotlinkFeatureImage -}}
+  {{- with $ctx.Params.featureImageURL -}}{{ $hotlink = . }}{{ end -}}
+{{- end -}}
+{{- $fallback := "" -}}
+{{- if not $cover }}{{ $fallback = partial "image-url.html" (partialCached "init.html" $ctx).defaultFeaturedImage }}{{ end -}}
+
+{{- if and (not $cover) $hotlink -}}
+  {{- $img := printf `<img src="%s" alt="%s" fetchpriority="high">` $hotlink (htmlEscape ($ctx.Params.coverAlt | default "")) -}}
+  <figure class="article-cover{{ if eq $style "big" }} article-cover-big{{ end }}">
+    {{ $img | safeHTML }}
+  </figure>
+{{- else if and (not $cover) $fallback -}}
+  {{- $img := printf `<img src="%s" alt="" fetchpriority="high">` $fallback -}}
+  {{- if eq $style "background" -}}
+    <div class="article-hero-bg">
+      {{ $img | safeHTML }}
+      <div class="article-hero-scrim">
+        <header class="article-head article-head-on-cover">
+          {{ partial "article-head.html" $ctx }}
+        </header>
+      </div>
+    </div>
+  {{- else -}}
+    <figure class="article-cover{{ if eq $style "big" }} article-cover-big{{ end }}">
+      {{ $img | safeHTML }}
+    </figure>
+  {{- end -}}
+{{- end -}}
+
 {{- with $cover -}}
   {{- $raster := in (slice "png" "jpeg" "gif" "webp" "tiff" "bmp") .MediaType.SubType -}}
-  <figure class="article-cover">
-    {{- if $raster -}}
-      {{- $widths := slice 480 800 1200 -}}
-      {{- $srcset := slice -}}
-      {{- range $widths -}}
-        {{- if le . $cover.Width -}}
-          {{- $r := $cover.Resize (printf "%dx q85" .) -}}
-          {{- $srcset = $srcset | append (printf "%s %dw" $r.RelPermalink .) -}}
-        {{- end -}}
+  {{- $alt := htmlEscape ($ctx.Params.coverAlt | default "") -}}
+
+  {{- /* The <img> is identical in every style; only its container changes. Built once
+         here so a srcset fix cannot land in one treatment and miss the others. */ -}}
+  {{- $img := "" -}}
+  {{- if $raster -}}
+    {{- $srcset := slice -}}
+    {{- range (slice 480 800 1200) -}}
+      {{- if le . $cover.Width -}}
+        {{- $r := $cover.Resize (printf "%dx q85" .) -}}
+        {{- $srcset = $srcset | append (printf "%s %dw" $r.RelPermalink .) -}}
       {{- end -}}
-      <img
-        src="{{ .RelPermalink }}"
-        {{ with $srcset }}srcset="{{ delimit . ", " }}"
-        sizes="(max-width: 960px) 100vw, 848px"{{ end }}
-        width="{{ .Width }}" height="{{ .Height }}"
-        alt="{{ $.Params.coverAlt | default "" }}"
-        fetchpriority="high" decoding="async">
-    {{- else -}}
-      <img src="{{ .RelPermalink }}" alt="{{ $.Params.coverAlt | default "" }}" fetchpriority="high">
     {{- end -}}
-  </figure>
+    {{- $img = printf `<img src="%s"%s width="%d" height="%d" alt="%s" fetchpriority="high" decoding="async">`
+        .RelPermalink
+        (cond (gt (len $srcset) 0) (printf ` srcset="%s" sizes="(max-width: 960px) 100vw, 848px"` (delimit $srcset ", ")) "")
+        .Width .Height $alt -}}
+  {{- else -}}
+    {{- $img = printf `<img src="%s" alt="%s" fetchpriority="high">` .RelPermalink $alt -}}
+  {{- end -}}
+
+  {{- if eq $style "background" -}}
+    <div class="article-hero-bg">
+      {{ $img | safeHTML }}
+      {{- /* The scrim carries fixed light-on-dark text, for the same reason
+             `.home-bg-scrim` does: the artwork underneath does not invert when the
+             palette does, so a header that followed the theme would be legible in one
+             mode and illegible in the other over the same image. */ -}}
+      <div class="article-hero-scrim">
+        <header class="article-head article-head-on-cover">
+          {{ partial "article-head.html" $ctx }}
+        </header>
+      </div>
+    </div>
+  {{- else -}}
+    <figure class="article-cover{{ if eq $style "big" }} article-cover-big{{ end }}">
+      {{ $img | safeHTML }}
+    </figure>
+  {{- end -}}
 {{- end -}}

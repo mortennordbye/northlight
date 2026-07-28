@@ -1,0 +1,12 @@
+{{- /* A codeberg repository card. codeberg runs the Gitea API, so this and its siblings share
+       one response shape; only the default host differs. Set `host` for a self-hosted
+       instance.
+
+       Call:  {{< codeberg repo="owner/name" >}} */ -}}
+{{- $repo := .Get "repo" | default (.Get 0) -}}
+{{- if not $repo -}}{{ errorf "codeberg shortcode: repo is required, as owner/name (%s)" .Position }}{{ end -}}
+{{- $host := .Get "host" | default "codeberg.org" -}}
+{{ partial "repo-card.html" (dict
+    "url"   (printf "https://%s/%s" $host $repo)
+    "api"   (printf "https://%s/api/v1/repos/%s" $host $repo)
+    "shape" "gitea" "icon" "link" "label" $repo) }}

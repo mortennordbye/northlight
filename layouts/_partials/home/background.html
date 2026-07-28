@@ -16,10 +16,30 @@
   The author still owns the image. No scrim rescues text over a photograph with a bright
   patch exactly where the heading sits, which is why the documentation says to check it.
 */ -}}
+{{- $page := .ctx -}}
 {{- $bg := .home.backgroundImage -}}
 {{- $recentCount := int (.home.recentCount | default 6) -}}
 {{- $url := "" -}}
-{{- with $bg }}{{ $url = partial "image-url.html" . }}{{ end -}}
+{{- /* `backgroundImageWidth` scales the artwork down before it ships. A full-bleed
+       background is the largest image on the page by a wide margin, and an unresized
+       photograph here can outweigh everything else the site sends put together.
+
+       Only raster images can be scaled: an SVG has no pixels to resample, and a remote
+       URL is not ours to process. Both fall through to image-url.html untouched, which is
+       what this partial did for every case before the setting existed. */ -}}
+{{- with $bg -}}
+  {{- $res := resources.Get (strings.TrimPrefix "/" .) -}}
+  {{- if and $res (in (slice "png" "jpeg" "webp" "tiff" "bmp") $res.MediaType.SubType) -}}
+    {{- $w := (partialCached "init.html" $page).backgroundImageWidth -}}
+    {{- if lt $w $res.Width -}}
+      {{- $url = ($res.Resize (printf "%dx q82" $w)).RelPermalink -}}
+    {{- else -}}
+      {{- $url = $res.RelPermalink -}}
+    {{- end -}}
+  {{- else -}}
+    {{- $url = partial "image-url.html" . -}}
+  {{- end -}}
+{{- end -}}
 
 {{- if $url -}}
   <section class="home-bg" style="background-image:url({{ $url }})">

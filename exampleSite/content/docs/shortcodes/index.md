@@ -229,6 +229,261 @@ Like [`gallery`](#gallery), it has no image handling of its own — it scrolls n
 Reach for a gallery when the images are a set the reader should see at once, and this when
 they are a sequence.
 
+## `typeit`
+
+Text typed out when it scrolls into view.
+
+```text
+{{</* typeit */>}}This sentence types itself.{{</* /typeit */>}}
+```
+
+{{< typeit >}}This sentence types itself.{{< /typeit >}}
+
+**The finished text is in the markup**, and the script removes it to retype it. So the
+fallback is not really a fallback: with JavaScript off, or under `prefers-reduced-motion`,
+the sentence is simply already there and complete. A typewriter effect is motion with no
+information in it, so a reader who asked for less of it should lose nothing — and does not.
+
+While it types, the element is `aria-hidden`: a screen reader announcing a partial sentence
+on every character is worse than useless. The finished text is announced once, at the end.
+
+**There is no library behind this.** The obvious one is GPL-3.0 and this theme is MIT, so
+vendoring it would push every site using the theme onto a copyleft licence for the sake of
+a decorative animation. The effect is about twenty lines and lives in
+`assets/js/typeit-init.js`.
+
+## `oembed`
+
+A rich card for any URL whose provider publishes an oEmbed endpoint.
+
+```text
+{{</* oembed url="https://vimeo.com/76979871" endpoint="https://vimeo.com/api/oembed.json" */>}}
+```
+
+{{< oembed url="https://vimeo.com/76979871" endpoint="https://vimeo.com/api/oembed.json" >}}
+
+**The `html` field is deliberately not used.** That is the field oEmbed exists to deliver,
+and it is almost always a third-party iframe or script — exactly what this theme does not
+put on a page. What is rendered instead is the metadata: title, author, provider, and the
+thumbnail, which is **downloaded at build time and served from your own domain** rather
+than hotlinked.
+
+So this is a facade, on the same terms as `youtube-lite`: it looks like the thing, links to
+the thing, and loads nothing until the reader chooses to go there.
+
+`endpoint` is required and there is no discovery step. Discovery means fetching the page
+first to read a `<link>` out of it — two requests to learn something the author already
+knows.
+
+## `codeimporter` and `mdimporter`
+
+Pull a file from a URL at build time: `codeimporter` renders it as a code block,
+`mdimporter` renders it as Markdown into the page.
+
+```text
+{{</* codeimporter url="https://example.com/main.go" type="go" lines="1-20" */>}}
+{{</* mdimporter url="https://example.com/shared/notice.md" */>}}
+```
+
+Same terms as the repository cards: **the reader fetches nothing**, the content is baked in
+during the build, and a failed fetch degrades to a link rather than failing an offline
+build. `lines` takes an inclusive range counted from 1, and out-of-range bounds are clamped
+rather than erroring — a file that grew is not a reason to break somebody's build.
+
+> [!CAUTION]
+> `mdimporter` renders **somebody else's content as your own**, including any raw HTML in
+> it if your site allows that. Point it at something you control.
+
+## `gist`
+
+A GitHub Gist, fetched at build time and rendered as an ordinary code block.
+
+```text
+{{</* gist user="octocat" id="6cad326836d38bd3a7ae" */>}}
+```
+
+{{< gist user="octocat" id="6cad326836d38bd3a7ae" >}}
+
+**The reader requests nothing.** The usual Gist embed is a third-party script that runs on
+page view; this reads the Gist during the build, so what arrives is a code block that gets
+this theme's own syntax highlighting rather than GitHub's stylesheet — and it looks right
+in both colour modes, which an embedded Gist does not.
+
+`file` picks a file when the Gist has several; the first is used otherwise. A deleted Gist
+warns and fails the gate; being offline degrades to a plain link, on the same terms as the
+repository cards.
+
+## Repository cards
+
+A card for a repository, with its description and counts read **at build time**.
+
+```text
+{{</* github repo="gohugoio/hugo" */>}}
+```
+
+{{< github repo="gohugoio/hugo" >}}
+
+Seven forges share one mechanism: `github`, `gitlab`, `codeberg`, `gitea`, `forgejo`,
+`huggingface` and `ansible`. The Gitea-family three take a `host` for a self-hosted
+instance.
+
+{{< codeberg repo="forgejo/forgejo" >}}
+
+**The reader fetches nothing.** The numbers are baked into the HTML during the build, so a
+card costs a visitor no third-party request at all — which is the whole reason this is a
+build-time fetch rather than a script.
+
+**The build does fetch, and that is the trade.** Two things follow, and both are handled
+rather than hoped about:
+
+- Nothing is requested unless a page actually uses one of these, so a site that does not
+  still builds with no network access at all.
+- **A failed fetch is not a build failure.** Offline, rate-limited, renamed or deleted, the
+  card degrades to a plain link with the repository's name — the useful part — and the
+  build carries on. It does warn, and `make check` turns warnings into failures, so a
+  broken card fails CI where someone can fix it rather than rotting quietly.
+
+Hugo caches the responses, so a rebuild does not re-fetch and a forge's rate limit is not
+hit once per build. `hugo --gc` clears the cache.
+
+## `chart`
+
+A chart drawn from data, using Chart.js.
+
+```text
+{{</* chart alt="Build time in seconds, falling from 42 to 9 over five releases" */>}}
+{
+  "type": "line",
+  "data": {
+    "labels": ["0.1", "0.2", "0.3", "0.4", "0.5"],
+    "datasets": [{ "label": "Build time (s)", "data": [42, 31, 22, 14, 9], "tension": 0.3 }]
+  }
+}
+{{</* /chart */>}}
+```
+
+{{< chart alt="Build time in seconds, falling from 42 to 9 over five releases" caption="Nothing here is real data. It is a chart." >}}
+{
+  "type": "line",
+  "data": {
+    "labels": ["0.1", "0.2", "0.3", "0.4", "0.5"],
+    "datasets": [{ "label": "Build time (s)", "data": [42, 31, 22, 14, 9], "tension": 0.3 }]
+  }
+}
+{{< /chart >}}
+
+| Parameter | Required | What it does |
+|---|---|---|
+| `alt` | yes | What the chart shows, in words |
+| `ratio` | no | The box, as `W/H`. Default `16/9` |
+| `caption` | no | Figure caption, rendered as inline Markdown |
+
+**`alt` is required and the build fails without it.** A `<canvas>` is a picture to
+everything that is not a sighted reader — a screen reader, a text browser, a feed — so a
+chart with no text alternative is a chart most of your readers cannot read at all.
+Describe the shape and the point, not the mechanics: "falling from 42 to 9 over five
+releases" is useful, "a line chart" is not.
+
+**Reach for a table first.** A table is readable by everything, sorts, copies, survives
+with JavaScript off and needs no library. Use a chart when the *shape* of the data is the
+point and the numbers are not.
+
+The body is Chart.js configuration as JSON, and it is **parsed at build time** — malformed
+JSON fails the build with a position rather than rendering an empty rectangle nobody
+notices. It reaches the browser on a `data-` attribute rather than in an inline script, so
+a site running a strict Content-Security-Policy is unaffected.
+
+**Colours come from the palette.** A dataset with no colours of its own gets the accent, so
+a chart looks like the rest of the site rather than like Chart.js; set them in the config
+and yours are kept. Charts follow the colour mode, and the entry animation is dropped
+entirely under `prefers-reduced-motion`.
+
+Like `mermaid`, the library is loaded **only on pages that use this** and never from the
+shared bundle. It is self-hosted and fingerprinted; nothing is fetched from a CDN.
+
+## `mermaid`
+
+A diagram written as text, rendered in the browser.
+
+```text
+{{</* mermaid */>}}
+graph LR
+  A[Markdown] --> B{Shortcode?}
+  B -->|no| C[Render hook]
+  B -->|yes| D[Theme syntax]
+  C --> E[Portable]
+  D --> F[Theme-specific]
+{{</* /mermaid */>}}
+```
+
+{{< mermaid >}}
+graph LR
+  A[Markdown] --> B{Shortcode?}
+  B -->|no| C[Render hook]
+  B -->|yes| D[Theme syntax]
+  C --> E[Portable]
+  D --> F[Theme-specific]
+{{< /mermaid >}}
+
+**The library is only loaded on pages that use this.** Mermaid is 3.5MB — more than the
+rest of the theme's assets put together — so the script is gated on the page actually
+containing a diagram. Every other page on this site loads none of it. It is self-hosted
+and fingerprinted like every other asset here; nothing is fetched from a CDN.
+
+**With JavaScript off you get the diagram's source**, in a code block, because that is
+what the shortcode emits and the script replaces it in place. For a flowchart or a
+sequence diagram that text is genuinely readable — `A --> B` says what it means — which is
+why the fallback is the source rather than an empty box.
+
+The diagram follows the colour mode. Mermaid bakes its palette into the SVG it generates,
+so switching modes re-renders from the source rather than restyling what is there; the
+theme's own `northlight:appearance` event is what triggers it.
+
+Inner content is taken raw rather than rendered as Markdown. Diagram syntax is full of
+characters Goldmark would otherwise treat as markup — `-->`, `|`, `#`, underscores — and a
+diagram quietly reformatted into emphasis is a bug with no error message.
+
+A diagram with a syntax error renders mermaid's own error in place rather than taking the
+page down. That is more use to whoever wrote it than a blank space.
+
+## `video`
+
+A self-hosted video player. The file is yours, so nothing here contacts another host.
+
+```text
+{{</* video src="clip.mp4" poster="clip.jpg" caption="Eight seconds of north light" */>}}
+```
+
+{{< video src="clip.mp4" poster="clip.jpg" caption="Eight seconds of north light" >}}
+
+| Parameter | Required | What it does |
+|---|---|---|
+| `src` | yes | The video, a page resource or `assets/` path |
+| `poster` | no | A still shown before play. Strongly recommended |
+| `caption` | no | Figure caption, rendered as inline Markdown |
+| `ratio` | no | The box, as `W/H`. Default `16/9` |
+| `controls` | no | Player controls. Default `true` |
+| `loop` | no | Restart on end. Default `false` |
+| `muted` | no | Start muted. Default `false` |
+| `preload` | no | `none`, `metadata` or `auto`. Default `metadata` |
+| `start` | no | Seek to this many seconds on load |
+| `end` | no | Stop at this many seconds |
+
+**There is deliberately no `autoplay`.** CSS cannot stop playback, so honouring
+`prefers-reduced-motion` would take JavaScript, and every script in this theme has to
+degrade to something sane when scripting is off. An autoplay that quietly ignores a
+reader's stated preference whenever JS is unavailable is not a promise the theme can
+keep, so the parameter does not exist rather than existing and being unreliable.
+
+The box is an exact `aspect-ratio`, so it reserves its space before any video arrives and
+the page does not shift when the metadata lands. A clip whose own ratio differs from the
+box letterboxes rather than crops, on the same never-crop terms as covers and galleries.
+
+Without a `poster` the player paints a flat rectangle until the first frame decodes. That
+is layout-shift-free but ugly, which is why the parameter is recommended rather than
+merely available. A browser that cannot play the file gets a download link, so it can
+hand the video to something that can.
+
 ## `youtube-lite`
 
 A YouTube embed that contacts nobody until the reader asks it to.
@@ -628,11 +883,14 @@ one as a breaking change, the same as renaming a config key.
 | | | | |
 |---|---|---|---|
 | {{< icon "github" >}} `github` | {{< icon "linkedin" >}} `linkedin` | {{< icon "reddit" >}} `reddit` | {{< icon "rss" >}} `rss` |
-| {{< icon "link" >}} `link` | {{< icon "external" >}} `external` | {{< icon "search" >}} `search` | {{< icon "pencil" >}} `pencil` |
-| {{< icon "arrow-left" >}} `arrow-left` | {{< icon "arrow-right" >}} `arrow-right` | {{< icon "arrow-up" >}} `arrow-up` | {{< icon "chevron-down" >}} `chevron-down` |
-| {{< icon "moon" >}} `moon` | {{< icon "sun" >}} `sun` | {{< icon "copy" >}} `copy` | {{< icon "check" >}} `check` |
-| {{< icon "info" >}} `info` | {{< icon "bulb" >}} `bulb` | {{< icon "megaphone" >}} `megaphone` | {{< icon "alert" >}} `alert` |
-| {{< icon "octagon" >}} `octagon` | | | |
+| {{< icon "mastodon" >}} `mastodon` | {{< icon "bluesky" >}} `bluesky` | {{< icon "hackernews" >}} `hackernews` | {{< icon "email" >}} `email` |
+| {{< icon "x" >}} `x` | {{< icon "facebook" >}} `facebook` | {{< icon "telegram" >}} `telegram` | {{< icon "whatsapp" >}} `whatsapp` |
+| {{< icon "pinterest" >}} `pinterest` | {{< icon "link" >}} `link` | {{< icon "external" >}} `external` | {{< icon "search" >}} `search` |
+| {{< icon "pencil" >}} `pencil` | {{< icon "arrow-left" >}} `arrow-left` | {{< icon "arrow-right" >}} `arrow-right` | {{< icon "arrow-up" >}} `arrow-up` |
+| {{< icon "chevron-down" >}} `chevron-down` | {{< icon "moon" >}} `moon` | {{< icon "sun" >}} `sun` | {{< icon "copy" >}} `copy` |
+| {{< icon "check" >}} `check` | {{< icon "info" >}} `info` | {{< icon "bulb" >}} `bulb` | {{< icon "megaphone" >}} `megaphone` |
+| {{< icon "alert" >}} `alert` | {{< icon "octagon" >}} `octagon` | {{< icon "underline" >}} `underline` | {{< icon "zen" >}} `zen` |
+| {{< icon "eye" >}} `eye` | {{< icon "heart" >}} `heart` | | |
 
 The last five are the admonition marks, and they are drawn to be told apart by outline
 alone rather than by the colour beside them.

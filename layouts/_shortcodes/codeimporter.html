@@ -1,0 +1,46 @@
+{{- /*
+  codeimporter — pull a file from a URL at build time and render it as a code block.
+
+  Same build-time-fetch terms as the repository cards, and the same reason: the reader
+  requests nothing, and the code arrives styled by this theme's own highlighter rather
+  than by whatever the source host serves.
+
+  `lines` takes a range like "10-24", counted from 1 and inclusive, for quoting part of a
+  long file. Out-of-range bounds are clamped rather than erroring: a file that grew is not
+  a reason to fail somebody's build.
+
+  A fetch that fails degrades to a link, warns under the shared `repo-card-missing` id, and
+  does not fail an offline build. See repo-card.html for why those are separate.
+
+  Call:  {{< codeimporter url="https://example.com/main.go" type="go" lines="1-20" >}}
+*/ -}}
+{{- $url := .Get "url" -}}
+{{- if not $url -}}{{ errorf "codeimporter shortcode: url is required (%s)" .Position }}{{ end -}}
+{{- $type := .Get "type" | default "text" -}}
+{{- $opts := .Get "options" | default "" -}}
+
+{{- $res := "" -}}{{- $offline := "" -}}
+{{- with try (resources.GetRemote $url) -}}
+  {{- with .Err -}}{{ $offline = printf "%s" . }}{{- else -}}{{ $res = .Value }}{{- end -}}
+{{- end -}}
+{{- with $offline -}}
+  {{- warnidf "repo-card-offline" "codeimporter: could not reach %q (%s) — falling back to a link" $url . -}}
+{{- end -}}
+{{- if and (not $res) (not $offline) -}}
+  {{- warnidf "repo-card-missing" "codeimporter: %q returned nothing — falling back to a link" $url -}}
+{{- end -}}
+
+{{- with $res -}}
+  {{- $content := .Content -}}
+  {{- with $.Get "lines" -}}
+    {{- $bounds := split . "-" -}}
+    {{- $all := split $content "\n" -}}
+    {{- $from := math.Max 1 (int (index $bounds 0)) -}}
+    {{- $to := cond (gt (len $bounds) 1) (int (index $bounds 1)) (len $all) -}}
+    {{- $to = math.Min (len $all) $to -}}
+    {{- $content = delimit (first (add (sub $to $from) 1) (after (sub $from 1) $all)) "\n" -}}
+  {{- end -}}
+  {{ highlight $content $type $opts }}
+{{- else -}}
+  <p class="gist gist-offline"><a href="{{ $url }}" rel="noopener" target="_blank">{{ $url }}</a></p>
+{{- end -}}

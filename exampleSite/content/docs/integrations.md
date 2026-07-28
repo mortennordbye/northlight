@@ -41,23 +41,147 @@ Using utterances, Cusdis, Remark42 or a static form instead? Copy
 
 ## Analytics
 
-Cloudflare Web Analytics is the one provider wired directly, because it sets no cookies
-and needs no consent banner.
+**Nothing is sent unless you configure a provider.** With none set the theme makes no
+third-party request at all, and that is the shipped default.
+
+Six providers are wired directly. Configure any subset:
 
 ```toml {file="hugo.toml"}
 [params.analytics.cloudflare]
   token = "your-32-character-beacon-token"
+
+[params.analytics.fathom]
+  site = "ABCDEFGH"
+  domain = "cdn.example.com"          # optional custom domain
+
+[params.analytics.umami]
+  websiteId = "your-uuid"
+  domain = "analytics.example.com"    # optional self-hosted instance
+  scriptName = "u.js"                 # optional, for ad-block resilience
+
+[params.analytics.plausible]
+  domain = "example.com"              # the site being measured
+  host = "plausible.example.com"      # optional self-hosted instance
+
+[params.analytics.seline]
+  token = "your-token"
 ```
 
-Set no token and the beacon is not emitted at all.
+**Google Analytics uses Hugo's own key, not a theme param.** Hugo ships that template and
+reads the ID from its own config, so a theme param here would be a second key that
+silently did nothing:
+
+```toml {file="hugo.toml"}
+[services.googleAnalytics]
+  ID = "G-XXXXXXXXXX"
+```
+
+The first five set no cookies and need no consent banner. Google Analytics does, and most
+sites using it will be obliged to say so — it is wired for completeness, not preference.
 
 > [!NOTE]
-> The beacon token is not a secret. It appears in the page source of every site using
-> it and identifies a site rather than authorising anything. It still belongs in your
-> site's config and never in the theme.
+> None of these identifiers is a secret. Every one appears in the page source of every
+> site using it and identifies a site rather than authorising anything. They still belong
+> in your site's config and never in the theme.
 
-Every other provider goes through an escape hatch. A theme that ships five analytics
-vendors makes four of them dead weight for everyone who uses it.
+Anything else — a self-hosted instance, a provider not listed, a server-side tag — goes
+through `extend-head.html` or `extend-footer.html` below. All six here load at the end of
+`<body>` with `defer`, so none can delay the first paint.
+
+## Views and likes
+
+> [!CAUTION]
+> **This is the only feature in the theme that records what a reader does.** Everything
+> else here either sends nothing or sends it only when you configure a vendor. Turning
+> this on is a decision about your readers, not about your build.
+
+Counters are backed by Cloud Firestore and read through its REST API. There is **no
+Firebase SDK** — several hundred kilobytes to increment an integer is not a trade worth
+making, and `fetch` is built in.
+
+```toml {file="hugo.toml"}
+[params.firebase]
+  projectId = "your-project"
+  apiKey = "your-web-api-key"
+  collection = "pages"       # optional, defaults to "pages"
+
+[params.article]
+  showViews = true
+  showLikes = true
+```
+
+Both are per-post overridable in front matter.
+
+**The project id and API key are not secrets.** They identify a project and appear in the
+page source of every site using them. What protects your data is Firestore **security
+rules**, which are yours to write — at minimum, allow the counter fields to be incremented
+and nothing else to be written:
+
+```js {file="firestore.rules"}
+match /pages/{page} {
+  allow read: if true;
+  allow write: if request.resource.data.keys().hasOnly(['views', 'likes']);
+}
+```
+
+Counts are incremented server-side in a single transaction, so two readers arriving
+together both count. A like is remembered in the reader's own browser, not on the server,
+so it is per-device rather than per-person — which is the honest limit of a counter with
+no accounts behind it.
+
+With JavaScript off, nothing renders. A counter that cannot count should not leave a zero
+on the page pretending to be a number.
+
+## Advertising and tipping
+
+Both are opt-in, both render nothing unless configured, and both put somebody else's script
+on your page.
+
+```toml {file="hugo.toml"}
+[params.advertisement]
+  adsense = "ca-pub-XXXXXXXXXXXXXXXX"
+
+[params.buymeacoffee]
+  identifier = "yourname"
+  globalWidget = true
+  globalWidgetMessage = "Thanks for reading"
+  globalWidgetColor = "#5F7FFF"
+  globalWidgetPosition = "Right"
+```
+
+> [!CAUTION]
+> **AdSense profiles your readers across sites.** A site enabling it will almost certainly
+> need a consent banner, and this theme does not ship one — that is your obligation, and
+> pretending otherwise would be worse than saying so plainly.
+
+## Feed ownership
+
+RSSNext (Folo) reads two values from the feed to attribute it to its owner. Emitted only
+when set, so a feed without them carries nothing extra.
+
+```toml {file="hugo.toml"}
+[params.rssnext]
+  feedId = "..."
+  userId = "..."
+```
+
+## Language redirect
+
+On a multilingual site, send a first-time visitor to the language their browser asks for.
+
+```toml {file="hugo.toml"}
+[params.languageRedirect]
+  enabled = true
+  storageKey = "northlight-language"      # optional
+  fallbackLanguage = "en"                 # optional
+  browserRedirectHomeOnly = true          # default
+```
+
+**Off by default, and worth leaving off unless you need it.** A redirect the reader did not
+ask for is disorienting, and it silently rewrites a link that was shared in one language on
+purpose. It runs once — the choice is remembered, so navigating back is not undone — and
+`browserRedirectHomeOnly` keeps it to the home page, which is the one place where "take me
+to my language" is a safe guess.
 
 ## The escape hatches
 
@@ -68,6 +192,7 @@ Three partials exist to be overridden, and all three survive theme upgrades.
 | `_partials/extend-head.html` | Anything in `<head>`: a verification tag, a preconnect, a font. |
 | `_partials/extend-footer.html` | Anything at the end of `<body>`: a deferred widget, a script needing the DOM. |
 | `_partials/comments.html` | Any comment system. |
+| `_partials/extend-article-link.html` | Anything after each entry in a post list. The only hook that runs per entry rather than per page. |
 
 Copy one into your site's `layouts/_partials/` and yours wins.
 

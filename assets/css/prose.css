@@ -73,12 +73,12 @@
 .prose ul,
 .prose ol {
   margin: 0 0 var(--space-5);
-  padding-left: 22px;
+  padding-inline-start: 22px;
 }
 
 .prose li {
   margin-bottom: var(--space-2);
-  padding-left: var(--space-1);
+  padding-inline-start: var(--space-1);
 }
 
 .prose li::marker {
@@ -87,7 +87,7 @@
 
 /* Accent wash and a soft left edge rather than a grey box. */
 .prose blockquote {
-  border-left: 3px solid var(--accent-pastel);
+  border-inline-start: 3px solid var(--accent-pastel);
   background: var(--accent-tint);
   border-radius: 0 var(--radius-thumb) var(--radius-thumb) 0;
   padding: var(--space-4) var(--space-5);
@@ -227,7 +227,7 @@ html[data-theme="dark"] .img-dark {
 .admonition {
   --adm: var(--adm-note);
   --adm-bg: var(--adm-note-tint);
-  border-left: 3px solid var(--adm);
+  border-inline-start: 3px solid var(--adm);
   background: var(--adm-bg);
   border-radius: 0 var(--radius-thumb) var(--radius-thumb) 0;
   padding: var(--space-4) var(--space-5);
@@ -289,7 +289,10 @@ html[data-theme="dark"] .img-dark {
 
 .prose th,
 .prose td {
-  text-align: left;
+  /* `start`, not `left`: under `dir="rtl"` — the site-wide rtl param or the `rtl`
+     shortcode — a physical `left` pins every cell to the wrong edge while the rest of
+     the block flips. Identical to `left` under LTR. */
+  text-align: start;
   padding: var(--space-2) var(--space-3);
   border-bottom: 1px solid var(--line);
 }
@@ -331,7 +334,7 @@ html[data-theme="dark"] .img-dark {
 
 .heading-anchor {
   position: absolute;
-  left: -24px;
+  inset-inline-start: -24px;
   top: 50%;
   transform: translateY(-50%);
   color: var(--fg-3);
@@ -359,4 +362,23 @@ html[data-theme="dark"] .img-dark {
   .heading-anchor {
     display: none;
   }
+}
+
+/* --- maths ------------------------------------------------------------------ */
+
+/* Rendered at build time into MathML, so there is no stylesheet or font file to load and
+   nothing here is compensating for a library. The browser lays the equation out itself;
+   this only gives a display equation the room and the centring it expects, and lets a wide
+   one scroll rather than push the column sideways. */
+.math-block {
+  margin: var(--space-5) 0;
+  text-align: center;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* An inline equation sits in the run of the text and inherits its size, so it needs
+   nothing — except not breaking mid-expression when the line wraps. */
+.math-inline {
+  white-space: nowrap;
 }

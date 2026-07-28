@@ -124,3 +124,21 @@ textarea {
     scroll-behavior: auto !important;
   }
 }
+
+/* --- scrollbar opt-out ------------------------------------------------------ */
+
+/* `enableStyledScrollbar` is on by default, which is what the rules above already did.
+   Turning it off hands the scrollbar back to the operating system — worth having for a
+   reader whose OS scrollbar is tuned for their own needs, and for anyone who simply
+   prefers the native one. Written as an override rather than by putting the original
+   rules behind a selector, so a site that sets nothing is byte-identical to before. */
+html[data-plain-scrollbar] {
+  scrollbar-color: auto;
+  scrollbar-width: auto;
+}
+
+html[data-plain-scrollbar] ::-webkit-scrollbar,
+html[data-plain-scrollbar] ::-webkit-scrollbar-thumb,
+html[data-plain-scrollbar] ::-webkit-scrollbar-track {
+  all: revert;
+}

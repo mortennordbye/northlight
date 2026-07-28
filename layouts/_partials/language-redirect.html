@@ -1,0 +1,27 @@
+{{- /*
+  Client-side language redirect. Renders nothing on a single-language site, and nothing at
+  all unless `languageRedirect.enabled` is set.
+
+  Everything the script needs is on this element rather than in a script block, so the
+  theme stays usable under a strict Content-Security-Policy — the same choice the chart
+  shortcode makes.
+
+  It is off by default deliberately. A redirect the reader did not ask for is disorienting,
+  and it breaks a link that was shared in one language on purpose. `browserRedirectHomeOnly`
+  is on by default for the same reason: the home page is the one place where "take me to my
+  language" is a safe guess.
+*/ -}}
+{{- $cfg := partialCached "init.html" . -}}
+{{- $lr := site.Params.languageRedirect | default dict -}}
+{{- if and (gt (len hugo.Sites) 1) (partial "param-bool.html" (dict "map" $lr "key" "enabled" "default" false)) -}}
+  {{- $langs := slice -}}
+  {{- range hugo.Sites }}{{ $langs = $langs | append .Language.Lang }}{{ end -}}
+  <div hidden data-language-redirect
+       data-languages="{{ delimit $langs "," }}"
+       data-current="{{ site.Language.Lang }}"
+       data-storage-key="{{ $lr.storageKey | default "northlight-language" }}"
+       {{ with $lr.fallbackLanguage }}data-fallback="{{ . }}"{{ end }}
+       {{ if partial "param-bool.html" (dict "map" $lr "key" "browserRedirectHomeOnly" "default" true) }}data-home-only{{ end }}
+       {{ if .IsHome }}data-is-home{{ end }}
+       {{ range hugo.Sites }}data-home-{{ .Language.Lang }}="{{ .Home.RelPermalink }}" {{ end }}></div>
+{{- end -}}

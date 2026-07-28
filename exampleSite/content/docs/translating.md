@@ -24,6 +24,52 @@ Your site's `i18n/` wins over the theme's, and any key you leave out falls back 
 theme's English, so a partial translation degrades one string at a time rather than
 producing blanks.
 
+## Several languages at once
+
+Translating the chrome is one thing; running the site in more than one language is another,
+and Hugo does most of it. Declare the languages and the theme supplies the rest — a
+switcher in the header, `hreflang` alternates in `<head>`, a search index per language, and
+per-language date formats.
+
+```toml {file="hugo.toml"}
+[languages]
+  [languages.en]
+    label = "English"
+    weight = 1
+    [languages.en.params]
+      displayName = "English"
+
+  [languages.nb]
+    label = "Norsk bokmål"
+    weight = 2
+    [languages.nb.params]
+      displayName = "Norsk"
+      dateFormat = "2. Jan 2006"
+```
+
+> [!CAUTION]
+> **Put this block at the end of your config.** In TOML every key after a `[table]` header
+> belongs to that table, so a `[languages]` block near the top silently swallows `theme`,
+> your whole `[params]` and your menus into `languages.<last>.params`. The build then fails
+> with something like *"template for shortcode button not found"*, which says nothing about
+> the real cause.
+
+`displayName` is what the switcher shows, and it should be each language's name **in that
+language** — a reader looking for Norwegian is looking for "Norsk", not "Norwegian".
+
+**The switcher links to the translation of the page you are on**, not to the other
+language's home page. Where a page has no translation it falls back to that language's home
+page, because the alternative is a dead link. The language you are already reading renders
+as text rather than as a link to the page you are on.
+
+Menus are per-language as well. Defining `[languages.nb.menus]` **replaces** the top-level
+`[menu]` for that language rather than adding to it, which is usually what you want: a
+language with fewer translated pages should have a shorter menu.
+
+Content is paired by filename — `index.md` and `index.nb.md` in the same page bundle are
+two translations of one page, and that pairing is what the switcher and the `hreflang`
+alternates both read.
+
 ## Plurals
 
 Entries with `one` and `other` are pluralised by Hugo from the count passed in, rather

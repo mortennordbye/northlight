@@ -1,0 +1,14 @@
+{{- /* An Ansible Galaxy role or collection card. Galaxy's v3 API returns a different
+       envelope from the forges, but the useful fields map onto the Gitea shape closely
+       enough that the mechanism is shared rather than duplicated.
+
+       Call:  {{< ansible namespace="community" name="general" >}} */ -}}
+{{- $ns := .Get "namespace" -}}
+{{- $name := .Get "name" -}}
+{{- if or (not $ns) (not $name) -}}
+  {{- errorf "ansible shortcode: namespace and name are both required (%s)" .Position -}}
+{{- end -}}
+{{ partial "repo-card.html" (dict
+    "url"   (printf "https://galaxy.ansible.com/ui/repo/published/%s/%s/" $ns $name)
+    "api"   (printf "https://galaxy.ansible.com/api/v3/plugin/ansible/content/published/collections/index/%s/%s/" $ns $name)
+    "shape" "gitea" "icon" "link" "label" (printf "%s.%s" $ns $name)) }}

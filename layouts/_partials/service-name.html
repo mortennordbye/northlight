@@ -1,0 +1,19 @@
+{{- /*
+  The display name for a service key: "linkedin" becomes "LinkedIn", "github" becomes
+  "GitHub", "hackernews" becomes "Hacker News".
+
+  Exists because `title` gets these wrong — it produces "Linkedin", "Github" and
+  "Hackernews" — and because a name built in a template is invisible to a translator.
+  The catalogue is the source of truth; anything without an entry falls back to `title`,
+  so adding an icon does not oblige anyone to add a string before it can be used.
+
+  One `return`, at the top level. Hugo evaluates a partial's `return` as the value of the
+  whole template, and putting it inside a `with`/`else` made this hand back the raw key
+  instead of the resolved name.
+
+  Call: {{ partial "service-name.html" "linkedin" }}
+*/ -}}
+{{- $key := . -}}
+{{- $resolved := i18n (printf "serviceName%s" (title $key)) -}}
+{{- if not $resolved -}}{{ $resolved = title $key }}{{- end -}}
+{{- return $resolved -}}

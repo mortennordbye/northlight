@@ -12,7 +12,7 @@
 */ -}}
 
 {{- $palette := site.Params.colorScheme | default "periwinkle" -}}
-{{- if not (in (slice "periwinkle" "sage" "clay") $palette) -}}
+{{- if not (in (slice "periwinkle" "sage" "clay" "plum" "slate" "rose") $palette) -}}
   {{- $palette = "periwinkle" -}}
 {{- end -}}
 
@@ -36,8 +36,21 @@
   "showRelated"         (partial "param-bool.html" (dict "map" $a "key" "showRelated"         "default" true))
   "showPagination"      (partial "param-bool.html" (dict "map" $a "key" "showPagination"      "default" true))
   "showComments"        (partial "param-bool.html" (dict "map" $a "key" "showComments"        "default" false))
+  "replyByEmail"        (partial "param-bool.html" (dict "map" $a "key" "replyByEmail"        "default" false))
+  "seriesOpened"        (partial "param-bool.html" (dict "map" $a "key" "seriesOpened"        "default" false))
+  "showZenMode"         (partial "param-bool.html" (dict "map" $a "key" "showZenMode"         "default" false))
+  "showDateOnlyInArticle" (partial "param-bool.html" (dict "map" $a "key" "showDateOnlyInArticle" "default" false))
+  "showHeadingAnchors"  (partial "param-bool.html" (dict "map" $a "key" "showHeadingAnchors"  "default" true))
+  "invertPagination"    (partial "param-bool.html" (dict "map" $a "key" "invertPagination"    "default" false))
+  "externalLinkForceNewTab" (partial "param-bool.html" (dict "map" $a "key" "externalLinkForceNewTab" "default" true))
+  "showViews"           (partial "param-bool.html" (dict "map" $a "key" "showViews"           "default" false))
+  "showLikes"           (partial "param-bool.html" (dict "map" $a "key" "showLikes"           "default" false))
+  "showAuthorsBadges"   (partial "param-bool.html" (dict "map" $a "key" "showAuthorsBadges"   "default" false))
+  "heroStyle"           (cond (in (slice "basic" "big" "background" "thumbAndBackground") ($a.heroStyle | default "basic")) ($a.heroStyle | default "basic") "basic")
+  "showAuthorBottom"    (partial "param-bool.html" (dict "map" $a "key" "showAuthorBottom"    "default" false))
   "relatedLimit"        (int ($a.relatedLimit | default 3))
   "sharingLinks"        ($a.sharingLinks | default (slice "linkedin" "reddit"))
+  "mastodonInstance"    ($a.mastodonInstance | default "")
 -}}
 
 {{- $article = merge $article (dict
@@ -48,8 +61,77 @@
   "editAppendPath"  (partial "param-bool.html" (dict "map" $a "key" "editAppendPath"  "default" true))
 ) -}}
 
+{{- /* `groupByYear` is still resolved in section.html, where it predates this file. It is
+       left alone rather than moved, because moving it is a refactor and not this change. */ -}}
+{{- $l := site.Params.list | default dict -}}
+{{- $list := dict
+  "showSummary" (partial "param-bool.html" (dict "map" $l "key" "showSummary" "default" false))
+  "cardView"    (partial "param-bool.html" (dict "map" $l "key" "cardView"    "default" false))
+  "orderByWeight" (partial "param-bool.html" (dict "map" $l "key" "orderByWeight" "default" false))
+-}}
+
+{{- /* Header treatment. `fixed` is the current behaviour and therefore the default: the
+       header is sticky and follows the reader down the page. `basic` lets it scroll away,
+       which suits a long-form site where the chrome is in the way after the first screen.
+       An unknown value falls back, as everywhere else here. */ -}}
+{{- /* Background treatments, shared by the home background layout and the article hero.
+       Both are visual-only and both default off, so nothing changes for an existing site. */ -}}
+{{- /* Image handling.
+
+       `imagePosition` sets object-position on feature images. It only does anything when
+       an image is being cropped, and covers in this theme are never cropped — so on the
+       article hero it is inert by design. It applies to the avatar and to card thumbnails,
+       which *are* square crops, and that is where a site actually needs it.
+
+       `disableImageOptimization` stops Hugo resizing raster images, handing the original
+       to the browser instead. Worth having for a site whose images are already optimised
+       by something upstream; costly otherwise, which is why it is off by default. */ -}}
+{{- /* `fingerprintAlgorithm` is the one setting here that can break caching if changed
+       carelessly: every asset URL contains the hash, so switching algorithm renames every
+       file at once. That is fine — it is a cache bust, not a stale asset — but it is worth
+       knowing before flipping it. Restricted to what Hugo actually supports. */ -}}
+{{- $fingerprintAlgorithm := site.Params.fingerprintAlgorithm | default "sha512" -}}
+{{- if not (in (slice "md5" "sha256" "sha384" "sha512") $fingerprintAlgorithm) -}}
+  {{- $fingerprintAlgorithm = "sha512" -}}
+{{- end -}}
+{{- $smartTOCHideUnfocusedChildren := partial "param-bool.html" (dict "map" site.Params "key" "smartTOCHideUnfocusedChildren" "default" false) -}}
+{{- $backgroundImageWidth := int (site.Params.backgroundImageWidth | default 1600) -}}
+{{- $hotlinkFeatureImage := partial "param-bool.html" (dict "map" site.Params "key" "hotlinkFeatureImage" "default" false) -}}
+{{- $disableTextInHeader := partial "param-bool.html" (dict "map" site.Params "key" "disableTextInHeader" "default" false) -}}
+{{- $enableStyledScrollbar := partial "param-bool.html" (dict "map" site.Params "key" "enableStyledScrollbar" "default" true) -}}
+
+{{- $imagePosition := site.Params.imagePosition | default "" -}}
+{{- $disableImageOptimization := partial "param-bool.html" (dict "map" site.Params "key" "disableImageOptimization" "default" false) -}}
+
+{{- $layoutBackgroundBlur := partial "param-bool.html" (dict "map" site.Params "key" "layoutBackgroundBlur" "default" false) -}}
+{{- $layoutBackgroundHeaderSpace := partial "param-bool.html" (dict "map" site.Params "key" "layoutBackgroundHeaderSpace" "default" false) -}}
+
+{{- $h := site.Params.header | default dict -}}
+{{- $showSubNav := partial "param-bool.html" (dict "map" $h "key" "showSubNav" "default" false) -}}
+{{- $headerLayout := $h.layout | default "fixed" -}}
+{{- if not (in (slice "basic" "fixed") $headerLayout) -}}
+  {{- $headerLayout = "fixed" -}}
+{{- end -}}
+
+{{- /* Taxonomy options. The term count has always rendered; only the switch is new, so
+       the default is true and an existing site sees no change. */ -}}
+{{- /* Term pages have always rendered cards, so taxonomy.cardView defaults to true and
+       turning it off is what changes anything. The section index is the mirror image: a
+       list by default, cards when list.cardView is on.
+
+       (Second time this file has grown a comment inside a dict literal, which parses as an
+       operand and fails with "unexpected { in operand". Comments go above the dict.) */ -}}
+{{- $t := site.Params.taxonomy | default dict -}}
+{{- $taxonomy := dict
+  "showTermCount" (partial "param-bool.html" (dict "map" $t "key" "showTermCount" "default" true))
+  "cardView"      (partial "param-bool.html" (dict "map" $t "key" "cardView"      "default" true))
+-}}
+
 {{- $footer := dict
   "showCopyright"        (partial "param-bool.html" (dict "map" $f "key" "showCopyright"        "default" true))
+  "showMenu"             (partial "param-bool.html" (dict "map" $f "key" "showMenu"             "default" true))
+  "showAppearanceSwitcher" (partial "param-bool.html" (dict "map" $f "key" "showAppearanceSwitcher" "default" true))
+  "showScrollToTop"      (partial "param-bool.html" (dict "map" $f "key" "showScrollToTop"      "default" true))
   "showThemeAttribution" (partial "param-bool.html" (dict "map" $f "key" "showThemeAttribution" "default" true))
   "themeURL"             ($f.themeURL | default "")
 -}}
@@ -59,6 +141,10 @@
        moves into config. */ -}}
 {{- $dateFormat := site.Params.dateFormat | default "2 Jan 2006" -}}
 
+{{- /* Site-wide image fallbacks. Each is a path resolved the same way the author avatar
+       is, so a configured-but-missing file renders nothing rather than a 404 on every page
+       that falls back to it. A comment cannot sit inside the dict literal below — it parses
+       as an operand and fails with "unexpected { in operand". */ -}}
 {{- return dict
   "palette" $palette
   "defaultAppearance" $appearance
@@ -70,7 +156,26 @@
   "autoSwitchAppearance" (partial "param-bool.html" (dict "map" site.Params "key" "autoSwitchAppearance" "default" true))
   "enableSearch" (partial "param-bool.html" (dict "map" site.Params "key" "enableSearch" "default" true))
   "enableCodeCopy" (partial "param-bool.html" (dict "map" site.Params "key" "enableCodeCopy" "default" true))
+  "enableA11y" (partial "param-bool.html" (dict "map" site.Params "key" "enableA11y" "default" false))
+  "enableLightbox" (partial "param-bool.html" (dict "map" site.Params "key" "enableLightbox" "default" false))
   "article" $article
+  "list" $list
+  "taxonomy" $taxonomy
+  "headerLayout" $headerLayout
+  "showSubNav" $showSubNav
+  "smartTOCHideUnfocusedChildren" $smartTOCHideUnfocusedChildren
+  "backgroundImageWidth" $backgroundImageWidth
+  "hotlinkFeatureImage" $hotlinkFeatureImage
+  "fingerprintAlgorithm" $fingerprintAlgorithm
+  "disableTextInHeader" $disableTextInHeader
+  "enableStyledScrollbar" $enableStyledScrollbar
+  "imagePosition" $imagePosition
+  "disableImageOptimization" $disableImageOptimization
+  "layoutBackgroundBlur" $layoutBackgroundBlur
+  "layoutBackgroundHeaderSpace" $layoutBackgroundHeaderSpace
+  "defaultFeaturedImage" (site.Params.defaultFeaturedImage | default "")
+  "defaultSocialImage" (site.Params.defaultSocialImage | default "")
+  "defaultBackgroundImage" (site.Params.defaultBackgroundImage | default "")
   "footer" $footer
   "author" (site.Params.author | default dict)
 -}}

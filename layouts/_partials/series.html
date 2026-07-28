@@ -1,0 +1,64 @@
+{{- /*
+  Series navigation for a multi-part post: where this one sits, and every other part.
+
+  Sits above the article body rather than below it, because its job is to answer "am I
+  starting in the middle of something?" before the reader commits to the text.
+
+  A <details>, so it collapses with no JavaScript at all — the same choice the nested menu
+  makes. `article.seriesOpened` picks the default state. Collapsed is the default because
+  a reader who arrived at part 3 deliberately does not need the whole list expanded over
+  the top of what they came for; the summary line alone already tells them it is part 3.
+
+  **Needs the taxonomy configured.** `series = "series"` under `[taxonomies]`, and Hugo
+  will not create the term pages otherwise. Guarded on `site.Taxonomies.series` rather
+  than assumed, so a site that has not configured it renders nothing instead of failing.
+
+  Order comes from `series_order` in front matter. Without it Hugo has nothing to sort on
+  and the parts come out in an arbitrary order, which is worse than useless for a series —
+  so a series page missing it warns at build time, and the gate treats warnings as errors.
+*/ -}}
+{{- $cfg := partialCached "init.html" . -}}
+{{- if site.Taxonomies.series -}}
+  {{- with .GetTerms "series" -}}
+    {{- range . -}}
+      {{- $term := . -}}
+      {{- $parts := sort $term.Pages "Params.series_order" -}}
+      {{- /* .Data.Term is the series name as the author wrote it. .LinkTitle is
+             Hugo's title-cased version, which turns "Design decisions" into
+             "Design Decisions" — the same trap the tag row documents. */ -}}
+      {{- $name := $term.LinkTitle -}}
+      {{- with $term.Data.Term }}{{ $name = . }}{{ end -}}
+      {{- $total := len $parts -}}
+
+      {{- /* One index pass, so the summary line can name this post's position without
+             the template walking the list twice. */ -}}
+      {{- $position := 0 -}}
+      {{- range $i, $p := $parts -}}
+        {{- if not $p.Params.series_order -}}
+          {{- warnf "series.html: %q is in the series %q but has no series_order, so the parts cannot be put in order" $p.File.Filename $name -}}
+        {{- end -}}
+        {{- if eq $p.RelPermalink $.RelPermalink -}}{{ $position = add $i 1 }}{{ end -}}
+      {{- end -}}
+
+      {{- if gt $total 1 -}}
+      <details class="series"{{ if $cfg.article.seriesOpened }} open{{ end }}>
+        <summary class="series-summary">
+          {{ i18n "seriesPart" (dict "Part" $position "Total" $total "Series" $name) }}
+        </summary>
+        <ol class="series-list">
+          {{- range $parts }}
+            {{- if eq .RelPermalink $.RelPermalink }}
+              {{- /* The current part is text, not a link. A link to the page you are
+                     already on is a dead end for a keyboard or screen-reader user, and
+                     aria-current is what says "you are here" without one. */ -}}
+              <li class="series-item is-current" aria-current="page">{{ .LinkTitle }}</li>
+            {{- else }}
+              <li class="series-item"><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
+            {{- end }}
+          {{- end }}
+        </ol>
+      </details>
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}

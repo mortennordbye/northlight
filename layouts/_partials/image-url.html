@@ -17,7 +17,29 @@
   {{- else -}}
     {{- $clean := strings.TrimPrefix "/" $path -}}
     {{- with resources.Get $clean -}}
-      {{- $url = .RelPermalink -}}
+      {{- /* Raster avatars go through Hugo's pipeline; SVG does not, because there are no
+             pixels to resample and `.Resize` errors on it rather than passing it through.
+             That split is the whole reason this partial did no processing at all before:
+             the theme's own demo avatar is an SVG, and a blanket resize would have broken
+             it. Both paths are exercised in exampleSite for exactly that reason.
+
+             `imageQuality` is a *lossy-format* setting. PNG is lossless, so Hugo ignores
+             the quality argument for it entirely — measured, a PNG avatar came out byte
+             for byte identical at q20 and q85, which is a silently useless knob. The
+             resize still applies to PNG; only the quality does not. The demo avatar is a
+             JPEG so the setting is actually exercised: 9057 bytes at q85, 1209 at q20.
+
+             The width is fixed at 160 —
+             twice the largest place an avatar is drawn, which is the 48px author card at
+             2x. Making the width configurable too would be a second knob controlling the
+             same picture. */ -}}
+      {{- $img := . -}}
+      {{- if in (slice "png" "jpeg" "webp" "tiff" "bmp") .MediaType.SubType -}}
+        {{- $q := int ((site.Params.author).imageQuality | default 85) -}}
+        {{- if or (lt $q 1) (gt $q 100) -}}{{ $q = 85 }}{{ end -}}
+        {{- if gt .Width 160 -}}{{ $img = .Resize (printf "160x q%d" $q) }}{{ end -}}
+      {{- end -}}
+      {{- $url = $img.RelPermalink -}}
     {{- else -}}
       {{- if os.FileExists (printf "static/%s" $clean) -}}
         {{- $url = $clean | relURL -}}

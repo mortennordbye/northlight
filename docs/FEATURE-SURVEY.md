@@ -7,8 +7,13 @@ larger than the site it served needs.
 
 Read it to answer two questions: *does the reference theme do something we should?* and *has
 this already been decided?* Where a row says **Rejected**, the reason is in `BACKLOG.md` under
-"Deliberately not built" or in the notes here — reopening one needs an argument that did not
-exist when the decision was made.
+"Deliberately not built" or in the notes here.
+
+> **The Rejected rows are being reopened.** `docs/GAP-LIST.md` is now the build order, and it
+> puts every gap in scope — including rows marked Rejected here. Until a feature actually lands,
+> the row below still describes what the theme *does*, which is what this document is for; the
+> **status** is what is stale. Each row gets corrected in the commit that builds it. Where the
+> two disagree about intent, `docs/GAP-LIST.md` is current.
 
 **Before building anything off this page**, read "Shipping a feature" in `CONTRIBUTING.md`. A
 feature here is not done when it works: it needs its default resolved in `init.html`, its strings
@@ -36,7 +41,7 @@ author can do. It is not a measure of effort.
 | Feature | Status | Value | Note |
 |---|---|---|---|
 | Table of contents | **Have** | — | Scroll-spy, sticky rail on desktop, card on mobile |
-| TOC hides unfocused children | Rejected | — | Extra motion in a component whose job is to stay still |
+| TOC hides unfocused children | **Have** | — | `smartTOCHideUnfocusedChildren`, off by default. Built with `:has()` — no script and no transition, so the original objection (extra motion) does not apply |
 | Reading time | **Have** | — | |
 | Word count | **Have** | — | |
 | Reading progress bar | **Have** | — | 2px, respects `prefers-reduced-motion` |
@@ -49,14 +54,14 @@ author can do. It is not a measure of effort.
 | Prev/next pagination | **Have** | — | |
 | Related content | **Have** | — | |
 | Tag display | **Have** | — | |
-| Share links | **Partial** | Low | LinkedIn and Reddit. Reference theme offers 11 |
+| Share links | **Have** | — | Eleven providers, all plain URLs with no script. Mastodon needs `article.mastodonInstance`, since it is federated |
 | **Admonitions / callouts** | **Have** | — | Five types via GitHub `> [!NOTE]` syntax, colours outside the palette system |
 | **Responsive images in prose** | **Have** | — | `render-image.html`: intrinsic dimensions, srcset, lazy, async |
 | Image captions | **Have** | — | Markdown title becomes a `<figcaption>` |
-| Image zoom / lightbox | Rejected | Low | JS weight for a gesture the browser already offers |
-| Zen / focus mode | Rejected | — | The layout is already the focus mode |
-| Reply by email link | Gap | Low | |
-| oEmbed rich cards | Rejected | Low | Remote requests at build time |
+| Image zoom / lightbox | **Have** | — | `enableLightbox`, off by default. A `<dialog>`, so the focus trap and Escape handling are the browser's rather than hand-rolled |
+| Zen / focus mode | **Have** | — | `article.showZenMode`. Escape leaves; the toggle survives the hiding |
+| Reply by email link | **Have** | — | `article.replyByEmail` plus `author.email`. A `mailto:` with the title prefilled: no third party, no script, works with JS off |
+| oEmbed rich cards | **Have** | — | Metadata and a build-time thumbnail, not the `html` field — that is almost always a third-party iframe. A facade, like `youtube-lite` |
 
 ## 2. Content model and front matter
 
@@ -73,9 +78,9 @@ author can do. It is not a measure of effort.
 | **Edit this page link** | **Have** | — | `showEdit`, `editURL`, `editAppendPath` |
 | `externalUrl` link posts | **Have** | — | Listing entries link off-site, with an icon before the click |
 | Custom `summary` | **Have** | — | Hugo built-in |
-| Series / `series_order` | Rejected | — | Zero posts use it. See `BACKLOG.md` |
-| Multiple authors | Rejected | — | Single-author theme by design |
-| Author taxonomy and badges | Rejected | — | Follows from the above |
+| Series / `series_order` | **Have** | — | Navigation block above the body, a `<details>` so it needs no JS. `series_order` is required; a post missing it fails the build |
+| Multiple authors | **Have** | — | `authors` front matter resolved from `data/authors/`. Falls back to the single `[params.author]`, so existing sites are unaffected |
+| Author taxonomy and badges | **Have** | — | `author = "authors"` under `[taxonomies]` plus `showAuthorsBadges` |
 | Categories as a second taxonomy | Rejected | — | `taxonomy.html` is generic, so a site can add one in config without theme changes |
 | Custom taxonomies | **Have** | — | Hugo config; `taxonomy.html` is generic |
 
@@ -86,11 +91,11 @@ author can do. It is not a measure of effort.
 | Main menu | **Have** | — | |
 | Footer menu | **Have** | — | |
 | **Nested / dropdown menus** | **Have** | — | One level, as a `<details>` disclosure rather than a hover dropdown |
-| Sub-navigation bar | Rejected | Low | Second nav for a six-post blog |
-| Header layout variants (fixed, fill, blur) | Rejected | — | Four variants where one considered choice is better |
+| Sub-navigation bar | **Have** | — | `header.showSubNav`, off by default. Renders only when the `subnav` menu has entries |
+| Header layout variants | **Have** | — | Two, not four: `fixed` (sticky, the default) and `basic`. The fill and blur variants were not built — they are decoration on a bar that exists to stay out of the way |
 | Homepage layouts | **Have** | — | Ten, selected by `home.layout`. Defaults to `stack`, the original homepage, verified byte-identical |
-| Hero styles (basic/big/background/thumb) | Rejected | — | Covers are 1200×630 with the title baked in; only one treatment is correct |
-| Card vs list view switches | Rejected | — | See `BACKLOG.md` |
+| Hero styles (basic/big/background/thumb) | **Have** | — | All four, with the never-crop rule intact in every one. `background` suits textless artwork, since it puts the title over the image |
+| Card vs list view switches | **Have** | — | `list.cardView` and `taxonomy.cardView`, both defaulting to current behaviour |
 | `groupByYear` on the index | **Have** | — | |
 | Pagination | **Have** | — | |
 | Constrain item width | **Have** | — | Fixed measure, not configurable |
@@ -104,14 +109,14 @@ author can do. It is not a measure of effort.
 | Light / dark modes | **Have** | — | `light-dark()`, no flash, follows system |
 | Appearance toggle | **Have** | — | |
 | Colour palettes | **Have** | — | Three: periwinkle, sage, clay |
-| Built-in palette count | Rejected | — | Every accent is measured against its own background in both modes. That does not scale to sixteen |
+| Built-in palette count | **Have** | — | Six. Each accent measured against its own tint before shipping; a seventh candidate was dropped for measuring below every existing palette |
 | **User `custom.css` hook** | **Have** | — | Auto-detected, folded into the fingerprinted bundle |
 | Custom palettes from the site repo | **Have** | — | Retune tokens in `custom.css` |
 | Self-hosted fonts | **Have** | — | Metric-matched fallbacks, zero layout shift |
 | Custom fonts from the site repo | **Have** | — | Same hook |
 | Styled scrollbars | **Have** | — | |
 | Icon set | **Have** | — | Inline SVG, `_partials/icon.html` |
-| Custom icons from the site repo | Gap | Low | |
+| Custom icons from the site repo | **Have** | — | `assets/icons/name.svg`; a site file wins over a built-in of the same name |
 | Tailwind rebuild pipeline | Rejected | — | There is no Tailwind. That is the point |
 | Logo / secondary logo | **Have** | — | `logo` and optional `logoDark`, replacing the dot and wordmark together |
 
@@ -127,7 +132,7 @@ author can do. It is not a measure of effort.
 | OpenGraph / Twitter cards | **Have** | — | Theme-owned, correct tag casing |
 | JSON-LD article schema | **Have** | — | |
 | **BreadcrumbList schema** | **Have** | — | Emitted alongside the page schema wherever the page has ancestors |
-| Meta description fallback order | **Partial** | Low | Fixed order; reference theme makes it configurable |
+| Meta description fallback order | **Have** | — | `seo.metaDescriptionOrder`, defaulting to the order the theme always used |
 | **Search engine verification tags** | **Have** | — | `[params.verification]`, including `fediverse:creator` |
 | Canonical URL | **Have** | — | |
 | Favicons | **Have** | — | Overridable partial |
@@ -139,23 +144,23 @@ author can do. It is not a measure of effort.
 | Comments (giscus) | **Have** | — | GitHub Discussions, params-driven, follows the appearance toggle, partial overridable |
 | `extend-head.html` | **Have** | — | |
 | **`extend-footer.html`** | **Have** | — | End-of-body twin of the head hook |
-| `extend-head-uncached.html` | Gap | Low | |
-| Analytics: Cloudflare Web Analytics | **Have** | — | `params.analytics.cloudflare.token`. Cookieless, so no consent banner |
-| Analytics: Fathom, Umami, Seline, GA, Plausible | Rejected | — | `extend-head.html` is the supported route. A theme should not ship five vendors |
-| Firebase view and like counters | Rejected | — | Adds a backend to a static site |
-| Buy Me A Coffee widget | Rejected | — | |
-| AdSense | Rejected | — | |
-| RSSNext / Follow ownership tags | Gap | Low | |
+| `extend-head-uncached.html` | Not applicable | — | The reference theme needs an uncached variant because its `extend-head` is cached. Ours is called with plain `partial` from an uncached `head.html`, so per-page injection already works and a second hook would be two names for one behaviour |
+| Analytics: Cloudflare · Fathom · Umami · Seline · Plausible · Google | **Have** | — | Six providers as config blocks; GA through Hugo's own `[services.googleAnalytics]`. Nothing is emitted unless configured |
+| Analytics: Fathom · Umami · Seline · Plausible · GA | **Have** | — | All wired as config blocks. Anything else still goes through `extend-head.html` |
+| Firebase view and like counters | **Have** | — | Firestore REST, no SDK. Off unless configured; the only feature that records reader activity |
+| Buy Me A Coffee widget | **Have** | — | `buymeacoffee`, opt-in global widget |
+| AdSense | **Have** | — | `advertisement.adsense`, opt-in. Documented as profiling readers across sites and needing a consent banner the theme does not ship |
+| RSSNext / Follow ownership tags | **Have** | — | `rssnext.feedId` / `userId`, emitted only when set |
 
 ## 7. Internationalisation
 
 | Feature | Status | Value | Note |
 |---|---|---|---|
 | **Translatable UI strings** | **Have** | — | `i18n/en.toml`. Nothing user-facing is hardcoded, plurals included |
-| Multilingual sites | Rejected | — | Full multi-language routing is out of scope per `docs/SPEC.md` |
-| RTL support | **Partial** | Low | `rtl = true` sets `dir`. Layout mirrors, but this has had no real-world exercise |
+| Multilingual sites | **Have** | — | Switcher, `hreflang` + `x-default`, per-language index, menus and date formats. Renders nothing on a single-language site |
+| RTL support | **Have** | — | Per site and per page. Measured against a full Arabic page in `exampleSite`: nineteen declarations converted to logical properties, code pinned LTR. Two deliberate exceptions marked in the source |
 | Configurable date format | **Have** | — | `dateFormat`, a Go reference layout |
-| Browser language redirect | Rejected | Low | Client-side redirects on a static site |
+| Browser language redirect | **Have** | Low | `languageRedirect`, off by default, runs once, home-page-only by default — rewriting a deliberately shared deep link loses what was shared |
 
 ## 8. Shortcodes
 
@@ -192,11 +197,11 @@ duplicated as shortcodes — and every shortcode is additive, replacing no Markd
 | Gallery | **Have** | Grids nested `figure` calls, so one image path; never crops |
 | Tabs | **Have** | Headed sections upgraded to an ARIA tablist; full keyboard support, readable with JS off |
 | Carousel | **Have** | Built with CSS scroll-snap instead: no JavaScript, no autoplay, so neither objection applies |
-| Video · YouTube Lite | Gap | Local files only; the YouTube one as a click-to-load facade, so nothing is requested on page view |
-| Repository cards (six forges) · Ansible · Hugging Face · Code importer · Markdown importer | Rejected | Each calls a third-party API during the build. `docs/SPEC.md` §1 requires the theme to build with no network access |
-| Gist | Rejected | Third-party script on page view; the code fence with a filename bar covers it locally |
-| Chart · Mermaid · TypeIt | Rejected | Each needs a rendering library shipped to every page that uses it. `extend-head.html` is the route |
-| KaTeX | Rejected | Already decided in `BACKLOG.md`, for the same reason |
+| Video · YouTube Lite | **Have** | `video` for local files, `youtube-lite` as a click-to-load facade. Neither requests anything on page view; `video` has no autoplay, because CSS cannot honour `prefers-reduced-motion` for playback |
+| Repository cards (seven services) | **Have** | — | One build-time fetch mechanism; the reader requests nothing. A 404 fails the gate, offline does not |
+| Gist | **Have** | — | Fetched at build time and highlighted by the theme, so the reader loads no GitHub script |
+| Chart · Mermaid · TypeIt | **Have** | — | Chart and mermaid vendored and gated on `.HasShortcode`, so nothing loads on a page without one. TypeIt written directly: the library is GPL-3.0 and this theme is MIT |
+| KaTeX | **Have** | — | Rendered at build time by Hugo's own KaTeX into MathML. No library, no stylesheet, no fonts shipped |
 
 Of the rejected ones, **diagrams as text** has the strongest claim if this is ever reopened — a
 technical blog has a real use for it. It would still put a large renderer on the page.
@@ -210,9 +215,14 @@ seven rows are still Gap or Partial, all Low value or narrow:
 
 * **RTL** is Partial. `rtl = true` sets `dir` and the layout mirrors, but nothing here has
   been exercised by someone actually reading right to left. That is the row most likely
-  to be wrong.
-* **Share links** covers LinkedIn and Reddit. More providers are trivial to add and worth
-  adding when someone asks for a specific one.
+  to be wrong — and it has now been wrong once in a way worth recording: table cells and
+  the "next" pager used physical `text-align`, so they stayed pinned to the left edge
+  while everything around them flipped. Fixed, and `tests/run.sh` now refuses any
+  `text-align: left|right` in the CSS so it cannot creep back. The lesson generalises: the
+  remaining RTL risk is other physical properties, not `dir` itself.
+* **Share links** now covers eleven providers. The limit is not effort but the no-script
+  rule: a provider needing an SDK would put a third-party request on every article page for
+  a button most readers never press.
 * **Meta description fallback order** is fixed rather than configurable.
 * `extend-head-uncached.html`, custom icons from the site repo, reply-by-email, and
   RSSNext ownership tags are all unbuilt and none has been asked for.

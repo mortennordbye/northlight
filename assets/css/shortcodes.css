@@ -157,6 +157,48 @@
   color: var(--fg-2);
 }
 
+/* --- video ------------------------------------------------------------------ */
+
+/* The self-hosted sibling of youtube-lite. <figure> and <figcaption> come from
+   prose.css, as they do for `figure`, so only the box is declared here. */
+.video-figure {
+  margin: var(--space-6) 0;
+}
+
+/* The ratio itself is an inline style, because it is a per-call parameter; this carries
+   everything that does not vary. The box reserves its space before a single byte of
+   video arrives, which is what keeps the no-layout-shift rule true for a <video> whose
+   dimensions are not known until the metadata loads. */
+.video-box {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-pager);
+  /* The same fixed dark in both colour modes, and for the same reason as
+     `.home-bg-scrim`: what shows through here is letterbox bars around the video, and
+     the video does not invert when the palette does. A mode-aware token would make this
+     `--fg`, which is near-white in dark mode — a bright slab framing a dark video on a
+     dark page. Measured before it was fixed: rgb(242 242 245) in dark mode. */
+  background: rgb(12 12 16);
+}
+
+/* `.prose video` already carries margin-block, a radius and height:auto, and it matches
+   this selector's specificity — so without resetting them here the last stylesheet loaded
+   wins and the result is arbitrary. Measured before the reset: the video sat 20px below
+   the top of its own box and overflowed the bottom by the same 20px, clipped and looking
+   like a rendering fault. The box owns the geometry and the radius; the video fills it.
+   No object-fit: the HTML spec already centres video content at the largest size that
+   fits with its aspect ratio preserved, so a clip that does not match the box letterboxes
+   rather than crops — the never-crop rule, kept for free. Declaring object-fit here would
+   also trip the gallery's never-crop assertion in tests/run.sh. */
+.video-box video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border-radius: 0;
+}
+
 /* --- tabs ------------------------------------------------------------------- */
 
 /* The unenhanced state is the default and is deliberately plain: a sequence of headed
@@ -549,4 +591,143 @@
 
 .prose a.button:hover {
   box-shadow: none;
+}
+
+/* --- mermaid ---------------------------------------------------------------- */
+
+/* Before the script runs — and permanently, with JavaScript off — this is a <pre> holding
+   the diagram's own source. That text is the fallback, and for a flowchart it is genuinely
+   readable, so it is styled as a code block rather than hidden. Hiding it would trade a
+   readable fallback for a blank space. */
+pre.mermaid {
+  margin: var(--space-6) 0;
+  padding: var(--space-4);
+  background: var(--surface-2);
+  border-radius: var(--radius-pager);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-x: auto;
+}
+
+/* Once mermaid has replaced the text with an SVG, the code-block treatment is wrong: the
+   diagram brings its own background and needs to centre rather than sit in a tinted slab.
+   `data-processed` is mermaid's own marker, so this switches over at exactly the moment
+   the content stops being text. */
+pre.mermaid[data-processed] {
+  padding: 0;
+  background: none;
+  text-align: center;
+}
+
+pre.mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* --- chart ------------------------------------------------------------------ */
+
+/* Same shape as the video box, and for the same reason: the ratio is an inline style
+   because it is a per-call parameter, and the box reserves its space before the script
+   runs so the page does not jump when the chart draws. */
+.chart-figure {
+  margin: var(--space-6) 0;
+}
+
+.chart-box {
+  position: relative;
+  width: 100%;
+}
+
+/* Chart.js sizes the canvas itself against its parent, so the canvas fills the box and
+   the box owns the geometry. base.css blockifies canvas along with the other media. */
+.chart-box canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* --- repository cards -------------------------------------------------------- */
+
+/* The numbers are fetched at build time and baked into the HTML, so a card costs the
+   reader no third-party request. `.is-offline` marks a card whose fetch failed: it keeps
+   the name and the link, which is the useful part, and simply carries no counts. */
+.repo-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: var(--space-6) 0;
+  padding: var(--space-4);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pager);
+  color: inherit;
+}
+
+.repo-card:hover {
+  border-color: var(--line-strong);
+}
+
+/* Same collision `button`, `article` and `list` all hit: `.prose a` is two classes to
+   this one, so inside content the whole card came out accent-coloured and underlined. */
+.prose a.repo-card,
+.prose a.repo-card:hover {
+  color: inherit;
+  box-shadow: none;
+}
+
+.repo-card-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.repo-card-name {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.repo-card-desc {
+  font-size: 14.5px;
+  color: var(--fg-2);
+}
+
+.repo-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  font-size: 13.5px;
+  color: var(--fg-3);
+}
+
+/* --- gist ------------------------------------------------------------------- */
+
+/* The code block comes from Hugo's own highlighter, so it already matches every other
+   code block on the site. Only the attribution line below it is new. */
+.gist {
+  margin: var(--space-6) 0;
+}
+
+.gist figcaption {
+  margin-top: var(--space-2);
+  font-size: 14px;
+  color: var(--fg-3);
+}
+
+.gist-offline {
+  padding: var(--space-4);
+  background: var(--surface-2);
+  border-radius: var(--radius-pager);
+  font-size: 14.5px;
+}
+
+/* --- oembed ----------------------------------------------------------------- */
+
+/* Reuses the repository card's shape, since it is the same thing: a fetched-at-build-time
+   summary that links out. Only the thumbnail is new. */
+.oembed-thumb {
+  display: block;
+  width: 100%;
+  border-radius: var(--radius-thumb);
+  margin-bottom: var(--space-2);
 }

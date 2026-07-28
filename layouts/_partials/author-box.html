@@ -1,0 +1,32 @@
+{{- /*
+  The author card at the foot of a post: avatar, name, headline and links, one per author.
+
+  Off by default (`article.showAuthorBottom`). The meta line at the top already credits
+  everybody; this is the fuller version, for a site where knowing who wrote it matters
+  more than getting to the first paragraph — a multi-author blog, usually, which is why
+  it arrived alongside the authors array.
+
+  It does not replace the byline at the top, it adds to it. The reference theme moves the
+  credit down; that loses the answer to "who wrote this" from where a reader looks for it
+  first, which is worth more than the duplication costs.
+*/ -}}
+{{- $cfg := partialCached "init.html" . -}}
+{{- if $cfg.article.showAuthorBottom -}}
+  {{- $authors := partial "authors.html" . -}}
+  {{- with $authors }}
+  <div class="author-box">
+    {{- range . }}
+    <div class="author-card">
+      {{- with partial "image-url.html" .image }}
+        <img class="author-card-avatar" src="{{ . }}" alt="" width="48" height="48" loading="lazy">
+      {{- end }}
+      <div class="author-card-body">
+        <b class="author-card-name">{{ .name }}</b>
+        {{- with .headline }}<span class="author-card-headline">{{ . }}</span>{{ end }}
+        {{ partial "social-links.html" (dict "links" .links "class" "author-card-socials") }}
+      </div>
+    </div>
+    {{- end }}
+  </div>
+  {{- end }}
+{{- end -}}

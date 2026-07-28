@@ -63,7 +63,20 @@
     {{- end -}}
     <figure{{ with $.Get "class" }} class="{{ . }}"{{ end }}>
       {{- with $.Get "href" -}}
-        <a href="{{ . }}">{{ $tag | safeHTML }}</a>
+        {{- /* A link whose only content is an image with empty alt has no accessible name
+               — it announces as "link" and nothing else. Found by the structural sweep on
+               this theme's own docs page, where exactly that markup shipped.
+
+               The caption is the natural name: it already describes the figure, and using
+               it means the author does not have to write the same words twice. With no
+               caption and no alt there is nothing to name it with, so that fails the build
+               rather than shipping an unnamed link. */ -}}
+        {{- $name := $alt -}}
+        {{- if not $name }}{{ $name = htmlEscape ($.Get "caption" | default "") }}{{ end -}}
+        {{- if not $name -}}
+          {{- errorf "figure shortcode: a linked figure needs alt text or a caption — without either the link has no accessible name and announces as just \"link\" (%s)" $.Position -}}
+        {{- end -}}
+        <a href="{{ . }}"{{ if not $alt }} aria-label="{{ $name | safeHTMLAttr }}"{{ end }}>{{ $tag | safeHTML }}</a>
       {{- else -}}
         {{ $tag | safeHTML }}
       {{- end -}}

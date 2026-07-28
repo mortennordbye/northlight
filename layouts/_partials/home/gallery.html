@@ -19,9 +19,10 @@
       <a class="home-gallery-item" href="{{ $p.RelPermalink }}">
         {{- with $p.Resources.GetMatch "{cover,featured}.*" }}
           {{- $img := . }}
-          {{- if in (slice "png" "jpeg" "gif" "webp") .MediaType.SubType }}{{ $img = .Resize "600x q80" }}{{ end }}
+          {{- $raster := in (slice "png" "jpeg" "gif" "webp") .MediaType.SubType -}}
+      {{- if and $raster (not (partialCached "init.html" .).disableImageOptimization) }}{{ $img = .Resize "600x q80" }}{{ end }}
           <img src="{{ $img.RelPermalink }}" alt=""
-               width="{{ $img.Width }}" height="{{ $img.Height }}"
+               {{ if $raster }}width="{{ $img.Width }}" height="{{ $img.Height }}"{{ end }}
                {{ if eq $i 0 }}fetchpriority="high"{{ else }}loading="lazy"{{ end }} decoding="async">
         {{- else }}
           {{- /* A post with no cover still gets a tile the size of one. Skipping it would

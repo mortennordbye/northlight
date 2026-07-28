@@ -81,7 +81,102 @@ carousel = "Image carousel"
 # site: with scripting off the facade is a plain link to YouTube.
 watchOnYouTube = "Watch on YouTube"
 
+# The fallback inside a self-hosted <video>, shown only by a browser that cannot play
+# the file. A download link rather than an apology, because such a browser can still
+# hand the file to something that can play it.
+downloadVideo = "Download the video"
+
+# The like button's accessible name. The visible content is an icon and a number, neither
+# of which says what pressing it does.
+likeThisPost = "Like this post"
+
+# The optional second navigation row. Named "section" rather than "sub" because that is
+# what it is for: the pages inside the section you are in.
+sectionNavigation = "Section"
+
+# Zen mode: hides everything that is not the article. Named as a mode rather than by its
+# effect because "zen mode" is the established term for exactly this and a reader looking
+# for it will recognise it.
+zenMode = "Zen mode"
+
+# The lightbox. Both strings only exist after a click, so they are rendered into the JSON
+# block in baseof.html and read at runtime rather than into the markup.
+viewFullSize = "View full size"
+closeLightbox = "Close image"
+
+# The underline-links control. Named for what it does rather than as an "accessibility
+# mode": a control whose effect a reader cannot predict is not an accessibility feature.
+underlineLinks = "Underline links"
+
+# Accessible name for the language switcher. The visible text is the current language's
+# own name, which says what is selected but not what the control does.
+changeLanguage = "Change language"
+
+# Separator between co-author names in a byline. A key rather than a literal comma,
+# because the punctuation between names is not the same in every language, and neither
+# is the spacing around it.
+authorSeparator = ", "
+
+# The summary line on a multi-part series. Takes .Part, .Total and .Series, so a
+# translation controls the whole sentence rather than being handed three fragments to
+# reassemble in an order its grammar may not allow.
+seriesPart = "Part {{ .Part }} of {{ .Total }} in {{ .Series }}"
+
+# The reply-by-email link at the foot of an article. An invitation rather than a label,
+# because it is asking for something: the quiet alternative to a comment box.
+replyByEmail = "Reply by email"
+
+# Accessible name for each sharing link. The visible text is only the service name, which
+# out of context reads as a link to that service rather than an action, so the button
+# carries this as its aria-label. Takes the service name as its value.
+shareOn = "Share on {{ . }}"
+
+# The same, for the mail option — the destination is the reader's own mail client.
+shareByEmail = "Share by email"
+
+# Service names, used by both the sharing row and the social links beside an author.
+# They live here rather than being title-cased from the config key for two reasons:
+# `title` turns "linkedin" into "Linkedin" and "hackernews" into "Hackernews", both of
+# which are wrong; and a translation may need to transliterate a name, which is the same
+# reason `themeName` is a key rather than a literal. These are proper nouns, so most
+# translations will leave them untouched.
+#
+# A name with no key here falls back to title-casing, so adding an icon does not oblige
+# anyone to add a string before it can be used.
+serviceNameLinkedin = "LinkedIn"
+serviceNameReddit = "Reddit"
+serviceNameMastodon = "Mastodon"
+serviceNameBluesky = "Bluesky"
+serviceNameHackernews = "Hacker News"
+serviceNameEmail = "Email"
+serviceNameX = "X"
+serviceNameFacebook = "Facebook"
+serviceNameTelegram = "Telegram"
+serviceNameWhatsapp = "WhatsApp"
+serviceNamePinterest = "Pinterest"
+serviceNameGithub = "GitHub"
+serviceNameRss = "RSS"
+serviceNameLink = "Website"
+
 # --- Pluralised. Keep these last; see the note at the top. --------------------
+# Repository card counts. Pluralised because "1 stars" is wrong in English and the rules
+# differ elsewhere; the number arrives as the value.
+[starCount]
+one = "{{ . }} star"
+other = "{{ . }} stars"
+
+[forkCount]
+one = "{{ . }} fork"
+other = "{{ . }} forks"
+
+[likeCount]
+one = "{{ . }} like"
+other = "{{ . }} likes"
+
+[downloadCount]
+one = "{{ . }} download"
+other = "{{ . }} downloads"
+
 [readingTime]
 one = "{{ . }} min read"
 other = "{{ . }} min read"

@@ -33,6 +33,43 @@ Three, set with `colorScheme`:
 | `periwinkle` | The default. Cool, quiet blue-violet. |
 | `sage` | Muted green. |
 | `clay` | Warm terracotta. |
+| `plum` | Deep purple. |
+| `slate` | Desaturated blue. |
+| `rose` | Muted pink-red. |
+
+### Your own icons
+
+Drop `name.svg` into your site's `assets/icons/` and call it by name — `{{</* icon "name" */>}}`,
+or `partial "icon.html" "name"` from a template. A site file wins over a built-in of the
+same name, so this overrides as well as adds.
+
+The file is inlined rather than referenced, which is what lets it take `currentColor` and
+size in `em` like every built-in icon. An `<img>` would do neither.
+
+### Right-to-left
+
+`rtl = true` sets the direction site-wide, and `rtl: true` in front matter sets it for one
+page — a site in one direction can still carry a page in the other. The
+[direction test page]({{< ref "/docs/rtl" >}}) on this site is that case, and it exists to
+be *measured* rather than assumed: every directional property in the CSS is a logical one,
+verified against it.
+
+Two things stay physical on purpose, and both are marked in the source with a
+`/* physical: … */` note the test suite reads:
+
+- **Code blocks** are left-to-right on a right-to-left page, because the code is not
+  Arabic. Without that, the bidirectional algorithm reorders punctuation inside lines.
+- **The series caret** is two edges of a square rotated into an arrowhead. Swapping them
+  would rotate the caret rather than mirror the layout.
+
+Every accent is **measured before it ships**, not chosen by eye. The binding case is not
+the page background — almost anything clears that — but the accent sitting on its own
+`--accent-tint`, which is where a featured card's eyebrow lands. Measured there in light
+mode: `periwinkle` 4.90, `plum` 4.82, `rose` 4.63, `slate` 4.54, `sage` 4.17, `clay` 4.16.
+
+A fourth candidate, an ochre, measured 4.40 — below every palette already shipped — and was
+dropped rather than tuned. A palette that needs special pleading to be added will need it
+again the next time something changes.
 
 Three considered palettes rather than sixteen. Every accent is measured against its own
 background in both modes, which is work that does not scale to a colour picker.

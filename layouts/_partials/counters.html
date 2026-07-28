@@ -1,0 +1,40 @@
+{{- /*
+  View and like counters.
+
+  **The only feature in this theme that sends a reader's activity anywhere.** It renders
+  nothing at all unless `[params.firebase]` is configured *and* the article opts in, so the
+  shipped default is unchanged: no request, no record, nothing.
+
+  It talks to Firestore's REST API rather than loading the Firebase SDK — several hundred
+  kilobytes to increment an integer is not a trade worth making, and `fetch` is built in.
+
+  The block ships `hidden` and is revealed by the script once it has a real number. A
+  counter that cannot reach its backend should leave nothing on the page rather than a zero
+  pretending to be a count.
+
+  The page id is the permalink path, slashes replaced: a Firestore document id cannot
+  contain a slash, and the path is stable across title changes in a way a slug is not.
+*/ -}}
+{{- $cfg := partialCached "init.html" . -}}
+{{- $fb := site.Params.firebase | default dict -}}
+{{- $showViews := partial "param-bool.html" (dict "map" .Params "key" "showViews" "default" $cfg.article.showViews) -}}
+{{- $showLikes := partial "param-bool.html" (dict "map" .Params "key" "showLikes" "default" $cfg.article.showLikes) -}}
+{{- if and $fb.projectId $fb.apiKey (or $showViews $showLikes) -}}
+  {{- $id := strings.TrimPrefix "/" .RelPermalink | strings.TrimSuffix "/" | replaceRE "/" "_" | default "home" -}}
+  <div class="counters" hidden data-counters
+       data-project="{{ $fb.projectId }}"
+       data-api-key="{{ $fb.apiKey }}"
+       {{ with $fb.collection }}data-collection="{{ . }}"{{ end }}
+       data-page-id="{{ $id }}"
+       {{ if $showViews }}data-count-views{{ end }}>
+    {{- if $showViews }}
+      <span class="counter">{{ partial "icon.html" "eye" }}<span data-views>0</span></span>
+    {{- end }}
+    {{- if $showLikes }}
+      <button class="counter counter-like" type="button" data-like aria-pressed="false"
+              aria-label="{{ i18n "likeThisPost" }}">
+        {{ partial "icon.html" "heart" }}<span data-likes>0</span>
+      </button>
+    {{- end }}
+  </div>
+{{- end -}}

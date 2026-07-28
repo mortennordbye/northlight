@@ -765,13 +765,18 @@ const POSTS = [
 ];
 const scrim = document.getElementById('scrim'), q = document.getElementById('q'), out = document.getElementById('results');
 let sel = 0;
+// Matches the escaping in assets/js/search.js. Nothing here is served, but an
+// unescaped innerHTML in the reference artifact reads as the pattern to copy.
+function esc(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
 function render(){
   const term = q.value.trim().toLowerCase();
   const hits = term ? POSTS.filter(p => (p.t + ' ' + p.k).toLowerCase().includes(term)) : POSTS;
   sel = 0;
   out.innerHTML = hits.length
-    ? hits.map((p,i) => `<a class="result${i===0?' sel':''}" href="#"><span class="cov cov-${p.c}"></span><span><b>${p.t}</b><span>${p.d}</span></span></a>`).join('')
-    : `<p class="empty">No posts match “${q.value}”.</p>`;
+    ? hits.map((p,i) => `<a class="result${i===0?' sel':''}" href="#"><span class="cov cov-${esc(p.c)}"></span><span><b>${esc(p.t)}</b><span>${esc(p.d)}</span></span></a>`).join('')
+    : `<p class="empty">No posts match “${esc(q.value)}”.</p>`;
 }
 function openSearch(){ scrim.classList.add('open'); q.value=''; render(); q.focus(); }
 function closeSearch(){ scrim.classList.remove('open'); }

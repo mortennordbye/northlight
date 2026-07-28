@@ -11,6 +11,14 @@
 baseURL = "https://example.com/"
 locale = "en"                      # replaces languageCode, deprecated in Hugo 0.158
 defaultContentLanguage = "en"
+
+# The repository cards on the Shortcodes page fetch at build time. A 404 warns, and
+# `make check` turns warnings into failures, so a renamed or deleted repository is caught
+# in CI. Being *offline* is a different thing: it is an environment problem the person
+# building already knows about, and failing the gate for it would mean this site could not
+# be built without a network — which docs/SPEC.md §1 forbids. Hugo's own suppression key
+# is the right tool, and it is scoped to that one message.
+ignoreLogs = ['repo-card-offline', 'repo-card-missing']
 title = "Northlight"
 theme = "northlight"
 
@@ -27,6 +35,12 @@ summaryLength = 30
 
 [taxonomies]
   tag = "tags"
+  # Registering this is what makes the series navigation appear. Without it Hugo
+  # builds no term pages and the partial renders nothing.
+  series = "series"
+  # Gives every author a page listing what they wrote. Only needed for multi-author
+  # sites; article.showAuthorsBadges then links each byline name to their page.
+  author = "authors"
 
 [sitemap]
   changefreq = "daily"
@@ -37,7 +51,18 @@ summaryLength = 30
 # Both of these are REQUIRED by the theme.
 
 [markup]
-  [markup.goldmark.parser]
+  # Maths. Goldmark hands $...$ and $$...$$ through untouched, and the theme's
+# _markup/render-passthrough.html renders them with Hugo's built-in KaTeX at build time.
+# No JavaScript, no stylesheet and no font files are shipped for this — the equation is in
+# the HTML the server sends. Leave this out and the theme renders no maths and costs
+# nothing for it.
+[markup.goldmark.extensions.passthrough]
+  enable = true
+  [markup.goldmark.extensions.passthrough.delimiters]
+    block  = [["\\[", "\\]"], ["$$", "$$"]]
+    inline = [["\\(", "\\)"]]
+
+[markup.goldmark.parser]
     wrapStandAloneImageWithinParagraph = false
     [markup.goldmark.parser.attribute]
       block = true
@@ -61,6 +86,18 @@ summaryLength = 30
   enableSearch = true          # ⌘K modal; needs JSON in [outputs].home (default: true)
   enableCodeCopy = true        # copy button on code blocks     (default: true)
 
+  # Shows a control that underlines every link on the page. Named for what it does rather
+  # than as an "accessibility mode": a control whose effect a reader cannot predict is not
+  # an accessibility feature. Off by default, because the theme's own link styling is a
+  # deliberate decision and this overrides it site-wide.
+  enableA11y = true            # underline-links control        (default: false)
+
+  # Click a prose image to see it full size. Opt-in: the browser already offers "open
+  # image in new tab", and a lightbox with a bad focus trap is worse than none. This one
+  # uses a <dialog>, so the modal semantics, backdrop, focus trap and Escape handling come
+  # from the browser rather than from this theme.
+  enableLightbox = true        # click prose images to enlarge  (default: false)
+
   mainSections = ["blog"]      # which sections appear in lists (default: ["blog"])
                                # `docs` is deliberately absent: the manual should not
                                # appear in the blog index, the feed or the archive.
@@ -76,9 +113,75 @@ summaryLength = 30
   #   bing = "..."
   #   fediverse = "@you@instance.tld"   # Mastodon verified-author byline on link previews
 
+  # Site-wide image fallbacks. Each is optional; a configured-but-missing file renders
+  # nothing rather than a 404 on every page that would have fallen back to it.
+  defaultFeaturedImage = "images/example.svg"   # cover for posts that have none
+  defaultSocialImage = "images/example.svg"     # OpenGraph/Twitter card image
+
+  # View and like counters, backed by Cloud Firestore. Commented out on purpose, and more
+  # deliberately than the analytics blocks below: this is the only feature in the theme
+  # that records a reader's activity, and turning it on is a choice about your readers
+  # rather than about your build.
+  #
+  # The project id and API key are not secrets — they identify a project and appear in the
+  # page source of every site using them. What protects the data is Firestore security
+  # rules, which are yours to write. See the Integrations page.
+  #
+  # [params.firebase]
+  #   projectId = "your-project"
+  #   apiKey = "your-web-api-key"
+  #   collection = "pages"       # optional, defaults to "pages"
+  #
+  # Then per site or per post:
+  #   [params.article]
+  #     showViews = true
+  #     showLikes = true
+
+  # Analytics. Every one of these is commented out on purpose: uncommenting one starts
+  # sending data to a third party, and that has to be the site owner's deliberate act
+  # rather than something inherited from an example config. With all of them off, the
+  # theme makes no third-party request at all.
+  #
+  # [params.analytics.cloudflare]
+  #   token = "your-32-character-beacon-token"
+  # [params.analytics.fathom]
+  #   site = "ABCDEFGH"
+  #   domain = "cdn.example.com"          # optional custom domain
+  # [params.analytics.umami]
+  #   websiteId = "your-uuid"
+  #   domain = "analytics.example.com"    # optional self-hosted instance
+  #   scriptName = "u.js"                 # optional, for ad-block resilience
+  # [params.analytics.plausible]
+  #   domain = "example.com"              # the site being measured
+  #   host = "plausible.example.com"      # optional self-hosted instance
+  # [params.analytics.seline]
+  #   token = "your-token"
+  #
+  # Google Analytics uses Hugo's own key, not a theme param — Hugo ships that template
+  # and reads the ID from its own config:
+  #
+  # [services.googleAnalytics]
+  #   ID = "G-XXXXXXXXXX"
+
   [params.author]
     name = "Morten Victor Nordbye"
     headline = "Writes about building things that stay simple"
+
+    # A paragraph, rendered as Markdown, shown on the `profile` home layout. The headline
+    # says what you do in one line; this says who you are. Both are optional.
+    #
+    # The continuation lines are flush left on purpose. TOML keeps the indentation inside
+    # a """ string, and Markdown reads four leading spaces as a code block — indent these
+    # to match the keys around them and the bio renders as a grey <pre> slab.
+    bio = """
+Builds small, boring tools and writes about why they stayed small. Currently thinking \
+about static sites, colour contrast, and how much of a framework you can delete before \
+anyone notices."""
+
+    # Used by the reply-by-email link when `article.replyByEmail` is on. Nothing renders
+    # if either is missing, because a reply link with no address is worse than none.
+    email = "hello@example.com"
+
     image = "images/profile.svg"   # square, 160px or larger; sized and cropped in CSS
     links = [
       { linkedin = "https://www.linkedin.com/in/morten-victor-nordbye" },
@@ -112,15 +215,47 @@ summaryLength = 30
     showRelated = true
     relatedLimit = 3
     showPagination = true      # prev / next
-    sharingLinks = ["linkedin", "reddit"]
+    # Eleven providers are supported; the order here is the order they render in.
+    # Every one is a plain share URL, so nothing is requested until a reader clicks.
+    # Supported: linkedin, reddit, mastodon, bluesky, hackernews, email, x, facebook,
+    #            telegram, whatsapp, pinterest
+    sharingLinks = ["mastodon", "bluesky", "linkedin", "reddit", "hackernews", "email"]
+
+    # Mastodon is federated, so there is no central share URL — name the instance to
+    # post to. Listing "mastodon" above without this fails the build rather than
+    # silently dropping the button.
+    mastodonInstance = "mastodon.social"
     showComments = false       # giscus is built in; see [params.comments.giscus] below
+
+    # A "reply by email" link at the foot of each post: no third party, no script, and it
+    # works with JavaScript off. Needs [params.author].email to be set.
+    replyByEmail = true        # (default: false)
+
+    # Hides the header, the table of contents rail and both footers, leaving the prose.
+    # Escape leaves. Not persisted: zen is for one piece, and remembering it would mean
+    # arriving at a site with its navigation missing.
+    showZenMode = true         # (default: false)
+
+    # Multi-author options. Authors come from data/authors/<key>.toml, referenced by
+    # `authors = ["morten", "ada"]` in a post's front matter. A post with no `authors`
+    # falls back to [params.author], so a single-author site needs none of this.
+    showAuthorsBadges = true   # link byline names to their author page  (default: false)
+    showAuthorBottom = true    # author card at the foot of a post       (default: false)
 
     showEdit = true            # "Edit this page" link                  (default: false)
     editURL = "https://github.com/mortennordbye/northlight/edit/main/exampleSite/content"
     editAppendPath = true      # append the post's own path to editURL  (default: true)
 
+  [params.header]
+    showSubNav = true          # second navigation row  (default: false)
+
   [params.list]
     groupByYear = true
+
+    # Fall back to the post's summary on listings when it has no `description`.
+    # Off by default, because turning it on changes every listing on an existing site.
+    # "A Post With No Description" in the index is the entry that exercises it.
+    showSummary = true             # (default: false)
 
   [params.footer]
     # Links the theme name in the footer attribution. The theme cannot default this to its
@@ -169,6 +304,26 @@ summaryLength = 30
 # dropdown, so it works by touch and by keyboard without JavaScript. One level deep.
 
 [menu]
+  # The optional second row, off unless header.showSubNav is set. It names the pages inside
+  # the current section, which is what makes it worth having on a docs site and not on a
+  # six-post blog.
+  [[menu.subnav]]
+    name = "Getting started"
+    pageRef = "docs/getting-started"
+    weight = 1
+  [[menu.subnav]]
+    name = "Configuration"
+    pageRef = "docs/configuration"
+    weight = 2
+  [[menu.subnav]]
+    name = "Writing"
+    pageRef = "docs/writing"
+    weight = 3
+  [[menu.subnav]]
+    name = "Shortcodes"
+    pageRef = "docs/shortcodes"
+    weight = 4
+
   [[menu.main]]
     name = "Blog"
     pageRef = "blog"
@@ -194,6 +349,11 @@ summaryLength = 30
     name = "Writing content"
     pageRef = "docs/writing"
     weight = 3
+  [[menu.main]]
+    parent = "docs"
+    name = "اختبار الاتجاه"
+    pageRef = "docs/rtl"
+    weight = 8
   [[menu.main]]
     parent = "docs"
     name = "Shortcodes"
@@ -248,3 +408,47 @@ summaryLength = 30
   [[related.indices]]
     name = "date"
     weight = 10
+
+# Two languages, so the switcher, the hreflang alternates and the per-language search
+# index are exercised rather than only described. A single-language site needs none of
+# this: leave the whole block out and the switcher renders nothing.
+#
+# This block sits at the END of the file on purpose. In TOML every key after a [table]
+# header belongs to that table, so putting it up top silently swallowed `theme`, every
+# [params] key and the whole menu into languages.nb.params — and the build failed with
+# "template for shortcode button not found", which says nothing about the real cause.
+#
+# `displayName` is what the switcher shows. It is each language's name *in that language*,
+# because a reader looking for their language is looking for its own name.
+[languages]
+  [languages.en]
+    label = "English"
+    weight = 1
+    title = "Northlight"
+    [languages.en.params]
+      displayName = "English"
+
+  [languages.nb]
+    label = "Norsk bokmål"
+    weight = 2
+    title = "Northlight"
+    # Translated chrome lives in exampleSite/i18n/nb.toml. Anything left out of it falls
+    # back to the theme's English, one string at a time.
+    [languages.nb.params]
+      displayName = "Norsk"
+      description = "Et rolig, lesbart Hugo-tema for teknisk skriving."
+      # Date formats are a language decision, not a site-wide one.
+      dateFormat = "2. Jan 2006"
+
+    # Menus are per-language too. Defining one here replaces the top-level [menu] for
+    # Norwegian rather than adding to it, so this lists everything the nb site should
+    # show — which is less than the English one, because the manual is not translated.
+    [languages.nb.menus]
+      [[languages.nb.menus.main]]
+        name = "Blogg"
+        pageRef = "blog"
+        weight = 10
+      [[languages.nb.menus.main]]
+        name = "Emneknagger"
+        pageRef = "tags"
+        weight = 20

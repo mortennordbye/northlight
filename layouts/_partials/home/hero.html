@@ -43,10 +43,19 @@
     </div>
     {{- with $cover }}
       {{- $img := . }}
-      {{- if in (slice "png" "jpeg" "gif" "webp") .MediaType.SubType }}{{ $img = .Resize "900x q85" }}{{ end }}
-      <a class="home-hero-media" href="{{ $lead.RelPermalink }}">
+      {{- $raster := in (slice "png" "jpeg" "gif" "webp") .MediaType.SubType -}}
+      {{- if and $raster (not (partialCached "init.html" .).disableImageOptimization) }}{{ $img = .Resize "900x q85" }}{{ end }}
+      {{- /* The title beside this links to the same post, so this one is a second route
+             to a destination already named. A screen reader reading both announces the
+             post twice, and the image-only one announces as an unnamed link — it has no
+             text and its alt is empty because the artwork is decorative here.
+
+             aria-hidden with tabindex="-1" is the pair that fixes it: hidden from the
+             accessibility tree *and* out of the tab order, because a focusable element
+             inside aria-hidden is a keyboard trap that announces nothing. */ -}}
+      <a class="home-hero-media" href="{{ $lead.RelPermalink }}" aria-hidden="true" tabindex="-1">
         <img src="{{ $img.RelPermalink }}" alt=""
-             width="{{ $img.Width }}" height="{{ $img.Height }}"
+             {{ if $raster }}width="{{ $img.Width }}" height="{{ $img.Height }}"{{ end }}
              fetchpriority="high" decoding="async">
       </a>
     {{- end }}

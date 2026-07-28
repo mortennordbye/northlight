@@ -1,3 +1,13 @@
+{{- /*
+  The sharing row. Every entry is a plain URL the browser navigates to — no script, no
+  SDK, no widget, and nothing contacted until the reader clicks. That is the reason the
+  list is limited to services with a documented share URL: a provider needing a script
+  would put a third-party request on every article page for a button most readers never
+  press.
+
+  Order comes from the site's own `sharingLinks`, not from this file, so an author who
+  wants Mastodon first gets Mastodon first.
+*/ -}}
 {{- $cfg := partialCached "init.html" . -}}
 {{- $url := .Permalink -}}
 {{- $title := .Title -}}
@@ -6,16 +16,63 @@
   <span class="share-label">{{ i18n "share" }}</span>
   {{- range $name := . }}
     {{- $href := "" -}}
+    {{- $label := "" -}}
+    {{- $mail := false -}}
+
     {{- if eq $name "linkedin" -}}
       {{- $href = printf "https://www.linkedin.com/sharing/share-offsite/?url=%s" ($url | urlquery) -}}
     {{- else if eq $name "reddit" -}}
       {{- $href = printf "https://www.reddit.com/submit?url=%s&title=%s" ($url | urlquery) ($title | urlquery) -}}
+    {{- else if eq $name "hackernews" -}}
+      {{- $href = printf "https://news.ycombinator.com/submitlink?u=%s&t=%s" ($url | urlquery) ($title | urlquery) -}}
+    {{- else if eq $name "x" -}}
+      {{- $href = printf "https://x.com/intent/tweet?url=%s&text=%s" ($url | urlquery) ($title | urlquery) -}}
+    {{- else if eq $name "bluesky" -}}
+      {{- /* Bluesky's compose intent takes one free-text field rather than separate url
+             and text parameters, so the title and the link are joined into it. */ -}}
+      {{- $href = printf "https://bsky.app/intent/compose?text=%s" (printf "%s %s" $title $url | urlquery) -}}
+    {{- else if eq $name "facebook" -}}
+      {{- $href = printf "https://www.facebook.com/sharer/sharer.php?u=%s" ($url | urlquery) -}}
+    {{- else if eq $name "telegram" -}}
+      {{- $href = printf "https://t.me/share/url?url=%s&text=%s" ($url | urlquery) ($title | urlquery) -}}
+    {{- else if eq $name "whatsapp" -}}
+      {{- $href = printf "https://wa.me/?text=%s" (printf "%s %s" $title $url | urlquery) -}}
+    {{- else if eq $name "pinterest" -}}
+      {{- $href = printf "https://www.pinterest.com/pin/create/button/?url=%s&description=%s" ($url | urlquery) ($title | urlquery) -}}
+
+    {{- else if eq $name "email" -}}
+      {{- /* Not an external site: this opens the reader's own mail client. It therefore
+             gets no target or rel — opening a mailto in a new tab leaves an empty tab
+             behind in most browsers — and its own accessible name, because "Share on
+             Email" reads as a service and "Share by email" as an action. */ -}}
+      {{- $href = printf "mailto:?subject=%s&body=%s" ($title | urlquery) ($url | urlquery) -}}
+      {{- $mail = true -}}
+      {{- $label = i18n "shareByEmail" -}}
+
+    {{- else if eq $name "mastodon" -}}
+      {{- /* Mastodon is federated, so there is no single host to post to — the share URL
+             belongs to the reader's *own* instance, which a static site cannot know.
+             Rather than route through a third-party instance picker, which would be a
+             call to somebody else's server on every click, the site names the instance
+             it wants. Listing mastodon without one is a build failure rather than a
+             silently missing button: the gate runs --panicOnWarning. */ -}}
+      {{- with $cfg.article.mastodonInstance -}}
+        {{- $host := . | strings.TrimPrefix "https://" | strings.TrimPrefix "http://" | strings.TrimSuffix "/" -}}
+        {{- $href = printf "https://%s/share?text=%s" $host (printf "%s %s" $title $url | urlquery) -}}
+      {{- else -}}
+        {{- warnf "share.html: %q is in sharingLinks but article.mastodonInstance is not set — Mastodon has no central share URL, so the instance to post to has to be named (%s)" $name $.File.Filename -}}
+      {{- end -}}
+
     {{- else -}}
-      {{- warnf "share.html: unknown sharing link %q — supported: linkedin, reddit" $name -}}
+      {{- warnf "share.html: unknown sharing link %q — supported: linkedin, reddit, mastodon, bluesky, hackernews, email, x, facebook, telegram, whatsapp, pinterest" $name -}}
     {{- end -}}
+
     {{- with $href }}
-      <a class="button" href="{{ . }}" rel="noopener" target="_blank">
-        {{ partial "icon.html" $name }}<span>{{ $name | title }}</span>
+      {{- $service := partial "service-name.html" $name -}}
+      {{- if not $label }}{{ $label = i18n "shareOn" $service }}{{ end -}}
+      <a class="button" href="{{ . }}" aria-label="{{ $label }}"
+         {{- if not $mail }} rel="noopener" target="_blank"{{ end }}>
+        {{ partial "icon.html" $name }}<span>{{ $service }}</span>
       </a>
     {{- end }}
   {{- end }}

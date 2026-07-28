@@ -1,0 +1,35 @@
+{{- /*
+  typeit — text typed out on arrival.
+
+  **The finished text is in the markup**, not built by the script. That is the whole design
+  of this one: with JavaScript off, or under `prefers-reduced-motion`, the reader gets the
+  sentence immediately and complete. The animation replaces text that was already there
+  rather than filling an empty element, so nothing depends on the library arriving.
+
+  That matters more here than for most decoration. A typewriter effect is pure motion with
+  no informational content, so a reader who has asked for less of it should lose nothing at
+  all — and they do not.
+
+  **No library.** The obvious one for this is GPL-3.0 and this theme is MIT, so vendoring
+  it would force every site using the theme onto a copyleft licence — for a decorative
+  animation. The effect is written in assets/js/typeit-init.js, and it is shorter than the
+  loader would have been.
+
+  Parameters:
+    speed   milliseconds per character. Default 60
+    tag     element to render into. Default p
+
+  Call:  {{< typeit >}}Something typed.{{< /typeit >}}
+*/ -}}
+{{- $speed := int (.Get "speed" | default 60) -}}
+{{- $tag := .Get "tag" | default "p" -}}
+{{- $text := trim .Inner "\n" -}}
+{{- /* Built as a string and marked safe, not written as `<{{ $tag }}>`. Go's HTML escaper
+       cannot parse a tag whose name is a variable, so it treats the whole thing as text and
+       escapes it — the element arrived on the page as visible `&lt;p class="typeit"`. The
+       tag name is validated against a fixed list rather than trusted, since marking the
+       result safe switches the escaper off. */ -}}
+{{- if not (in (slice "p" "h1" "h2" "h3" "h4" "span" "div") $tag) -}}
+  {{- errorf "typeit shortcode: tag %q is not one of p, h1-h4, span, div (%s)" $tag .Position -}}
+{{- end -}}
+{{- printf `<%s class="typeit" data-typeit data-speed="%d">%s</%s>` $tag $speed (htmlEscape $text) $tag | safeHTML -}}

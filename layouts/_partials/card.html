@@ -1,3 +1,14 @@
+{{- /* Heading level is a parameter, as it is for post-item.html. A card on a term
+       page sits under the page's h1 with nothing between, so a fixed h3 skipped a
+       level on every tag, series and author page — twelve pages in this demo alone,
+       found by the structural sweep rather than by reading any one of them.
+
+       Takes `.ctx` and an optional `.level`; a bare page still works and defaults to
+       3, which is right where cards sit under a section heading on the home page. */ -}}
+{{- $ctx := . -}}
+{{- $level := 3 -}}
+{{- if reflect.IsMap . -}}{{ $ctx = .ctx }}{{ $level = int (.level | default 3) }}{{ end -}}
+{{- with $ctx -}}
 {{- /* A post card: cover, title, summary, date and first tag. Used by the home page
        grid and by taxonomy term pages. */ -}}
 {{- /* externalUrl points a listing entry at somewhere else: a piece published on
@@ -10,15 +21,17 @@
 <a class="card{{ if $external }} is-external{{ end }}" href="{{ $href }}"{{ if $external }} rel="noopener" target="_blank"{{ end }}>
   {{- with .Resources.GetMatch "{cover,featured}.*" }}
     {{- $img := . }}
-    {{- if in (slice "png" "jpeg" "gif" "webp") .MediaType.SubType }}{{ $img = .Resize "500x q80" }}{{ end }}
+    {{- $raster := in (slice "png" "jpeg" "gif" "webp") .MediaType.SubType -}}
+    {{- if and $raster (not (partialCached "init.html" .).disableImageOptimization) }}{{ $img = .Resize "500x q80" }}{{ end }}
     <img class="card-cover" src="{{ $img.RelPermalink }}" alt=""
-         width="{{ $img.Width }}" height="{{ $img.Height }}" loading="lazy" decoding="async">
+         {{ if $raster }}width="{{ $img.Width }}" height="{{ $img.Height }}" {{ end }}loading="lazy" decoding="async">
   {{- end }}
   <div class="card-body">
-    <h3 class="card-title">{{ if .Draft }}<span class="draft-label">{{ i18n "draft" }}</span>{{ end }}{{ .LinkTitle }}{{ if $external }} {{ partial "icon.html" "external" }}{{ end }}</h3>
+    <h{{ $level }} class="card-title">{{ if .Draft }}<span class="draft-label">{{ i18n "draft" }}</span>{{ end }}{{ .LinkTitle }}{{ if $external }} {{ partial "icon.html" "external" }}{{ end }}</h{{ $level }}>
     {{- with .Description }}<p class="card-text">{{ . }}</p>{{ end }}
     <div class="card-foot">
       {{ partial "post-meta.html" (dict "ctx" .) }}
+    {{ partial "extend-article-link.html" . }}
       {{- with .GetTerms "tags" }}
         {{- $first := index . 0 }}
         <span class="tag">{{ with $first.Data.Term }}{{ . }}{{ else }}{{ $first.LinkTitle }}{{ end }}</span>
@@ -26,3 +39,5 @@
     </div>
   </div>
 </a>
+
+{{- end -}}

@@ -4,6 +4,8 @@ description: "Measure, leading and scale are the whole job. A second post so pre
 date: 2026-02-08
 draft: false
 tags: ["typography", "example"]
+series: ["Design decisions"]
+series_order: 3
 ---
 
 A page of body copy is mostly one decision repeated: how far the eye travels before it
@@ -37,6 +39,11 @@ more and the steps stop being distinguishable, which defeats the point of having
 - Subsection at 20px
 - Lede at 19px, body at 17px
 - Meta at 13.5px
+
+### A third level, so the next one does not skip
+
+The scale runs without gaps for the same reason the measure does: skipping a level is a
+hole in the document outline, and the outline is how a screen reader navigates.
 
 #### A fourth level, for completeness
 

@@ -8,11 +8,17 @@
       <a class="related-card" href="{{ .RelPermalink }}">
         {{- with .Resources.GetMatch "{cover,featured}.*" }}
           {{- $thumb := . -}}
-          {{- if in (slice "png" "jpeg" "gif" "webp") .MediaType.SubType -}}
+          {{- $raster := in (slice "png" "jpeg" "gif" "webp") .MediaType.SubType -}}
+          {{- if and $raster (not (partialCached "init.html" .).disableImageOptimization) -}}
             {{- $thumb = .Resize "400x q80" -}}
           {{- end }}
+          {{- /* SVG has no pixel dimensions, so Hugo's .Width and .Height error on it rather
+       than returning zero. Emitting them only for rasters is what lets a site use an
+       SVG cover at all — before this guard, one SVG cover failed the whole build here,
+       in card.html and in post-item.html alike. The box's aspect ratio comes from CSS
+       either way, so nothing shifts as the image loads. */ -}}
           <img class="related-thumb" src="{{ $thumb.RelPermalink }}" alt=""
-               width="{{ $thumb.Width }}" height="{{ $thumb.Height }}" loading="lazy" decoding="async">
+               {{ if $raster }}width="{{ $thumb.Width }}" height="{{ $thumb.Height }}" {{ end }}loading="lazy" decoding="async">
         {{- end }}
         <h3 class="related-title">{{ .LinkTitle }}</h3>
         <p class="related-meta">

@@ -9,7 +9,10 @@
 {{- $cfg := partialCached "init.html" $p -}}
 {{- $a := $cfg.article -}}
 {{- $items := slice -}}
-{{- if and $a.showDate (not $p.Date.IsZero) -}}
+{{- /* showDateOnlyInArticle keeps the date on the article page and takes it off the
+       listings. This partial *is* the listing meta — the article page has its own richer
+       version in article-meta.html — so the flag only has to be honoured here. */ -}}
+{{- if and $a.showDate (not $a.showDateOnlyInArticle) (not $p.Date.IsZero) -}}
   {{- $items = $items | append (printf `<time datetime="%s">%s</time>` ($p.Date.Format "2006-01-02") ($p.Date.Format $cfg.dateFormat)) -}}
 {{- end -}}
 {{- if $a.showReadingTime -}}

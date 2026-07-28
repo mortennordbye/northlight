@@ -1,8 +1,23 @@
 {{- $cfg := partialCached "init.html" . -}}
+{{- /* The meta description, built from the first source that has anything in it.
+
+       The order is configurable because sites disagree about it honestly: one wants the
+       hand-written `description` always, another would rather show real opening prose than
+       a description written for a card. `seo.metaDescriptionOrder` takes any arrangement of
+       `description`, `summary` and `siteDescription`; the default is the order this theme
+       has always used, so nothing changes for a site that sets nothing.
+
+       An unknown name is skipped rather than failing the build — a typo here should cost
+       one fallback, not the site. */ -}}
+{{- $descOrder := (site.Params.seo).metaDescriptionOrder | default (slice "description" "summary" "siteDescription") -}}
 {{- $desc := "" -}}
-{{- with .Description }}{{ $desc = . }}
-{{- else }}{{ with .Summary }}{{ $desc = . | plainify | chomp }}
-{{- else }}{{ $desc = site.Params.description }}{{ end }}{{ end -}}
+{{- range $descOrder -}}
+  {{- if $desc -}}{{/* already found */}}
+  {{- else if eq . "description" -}}{{ with $.Description }}{{ $desc = . }}{{ end }}
+  {{- else if eq . "summary" -}}{{ with $.Summary }}{{ $desc = . | plainify | chomp }}{{ end }}
+  {{- else if eq . "siteDescription" -}}{{ with site.Params.description }}{{ $desc = . }}{{ end }}
+  {{- end -}}
+{{- end -}}
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -26,6 +41,22 @@
 
 {{- /* Inlined and placed before the stylesheet so the mode is pinned before first
        paint. Theme-owned code, hence safeJS. */ -}}
+{{- /* hreflang alternates. Search engines use these to serve the right language and to
+       avoid treating translations as duplicates of one another; without them a
+       multilingual site competes with itself.
+
+       x-default points at the site's first configured language, which is the one a
+       reader with no matching preference should land on. Emitted only when there is
+       more than one language, so a single-language site carries no dead metadata. */ -}}
+{{- if gt (len hugo.Sites) 1 }}
+  {{- range .AllTranslations }}
+  <link rel="alternate" hreflang="{{ .Language.Lang }}" href="{{ .Permalink }}">
+  {{- end }}
+  {{- with index hugo.Sites 0 }}
+  <link rel="alternate" hreflang="x-default" href="{{ .Home.Permalink }}">
+  {{- end }}
+{{- end }}
+
 {{- with resources.Get "js/appearance.js" | minify }}
 <script>{{ .Content | safeJS }}</script>
 {{- end }}
@@ -63,7 +94,7 @@
 {{- if hugo.IsProduction -}}
   {{- $css = $css | minify -}}
 {{- end -}}
-{{- $css = $css | fingerprint "sha512" }}
+{{- $css = $css | fingerprint $cfg.fingerprintAlgorithm }}
 <link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}" crossorigin="anonymous">
 
 {{- /* Only the body face is preloaded. The mono face is not on the critical path:

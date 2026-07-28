@@ -6,11 +6,17 @@
   http" — an absolute link to your own domain is not external and should not open in
   a new tab. Fragment, mailto and relative links fall through untouched.
 */ -}}
+{{- /* The new tab is now optional. It has always been unconditional here, so the default
+       is true and an existing site is unaffected; a site that would rather external links
+       stayed in the tab — which is the accessibility-friendlier default, since it leaves
+       the back button working — sets it false. rel="noopener" is kept either way: it costs
+       nothing and it is not what the flag is about. */ -}}
 {{- $u := urls.Parse .Destination -}}
 {{- $external := and $u.Host (ne $u.Host (urls.Parse site.BaseURL).Host) -}}
+{{- $newTab := (partialCached "init.html" .Page).article.externalLinkForceNewTab -}}
 <a href="{{ .Destination | safeURL }}"
   {{- with .Title }} title="{{ . }}"{{ end }}
-  {{- if $external }} rel="noopener" target="_blank"{{ end -}}
+  {{- if $external }} rel="noopener"{{ if $newTab }} target="_blank"{{ end }}{{ end -}}
 >{{ .Text }}</a>
 {{- /* Nothing after </a>, deliberately. Whitespace between inline elements collapses
        to a visible space, so a trailing newline here renders "[link](x)." as "link ."

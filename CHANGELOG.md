@@ -8,7 +8,280 @@ keys are added with defaults that preserve existing behaviour.
 
 ## [Unreleased]
 
-Nothing yet.
+### Added
+
+- **Right-to-left layout, measured rather than assumed.** `exampleSite` now carries a full
+  Arabic page, and `rtl` works per page as well as per site. Measuring against it found real
+  bugs: the blockquote and admonition accent edges sat on the left, list indents were on the
+  wrong side, and **code blocks inherited RTL**, which lets the bidirectional algorithm reorder
+  punctuation inside lines. Nineteen declarations became logical properties; code is pinned to
+  `direction: ltr` with `unicode-bidi: isolate`. Two declarations stay physical on purpose and
+  say so at the declaration, in a form the suite reads.
+- **Custom icons** — drop `name.svg` into your site's `assets/icons/` and call it by name. A
+  site file wins over a built-in of the same name. Inlined, so it takes `currentColor` and sizes
+  in `em` like every built-in one.
+- **`seo.metaDescriptionOrder`** — which source fills the meta description, first non-empty
+  wins. Defaults to the order the theme always used.
+- **`author.imageQuality`** — the avatar now goes through Hugo's image pipeline. SVG still
+  passes through untouched, because there are no pixels to resample and `.Resize` errors on it.
+  **Quality is a lossy-format setting:** a PNG is byte-identical at any value, so the demo uses
+  a JPEG, where it is 9057 bytes at q85 and 1209 at q20.
+- **`oembed`** — a rich card for any URL with an oEmbed endpoint. **The `html` field is
+  deliberately unused**, since it is almost always a third-party iframe or script; the card
+  renders the metadata and a thumbnail downloaded at build time and served from your own domain.
+  A facade, on the same terms as `youtube-lite`.
+- **`header.showSubNav`** — an optional second navigation row from a `subnav` menu, off by
+  default. The original objection holds for most sites — a second bar for a six-post blog is
+  chrome competing with the writing — but it earns its place on a documentation site.
+- **The last twenty rows.** Toggles for chrome the theme rendered unconditionally
+  (`footer.showAppearanceSwitcher`, `footer.showScrollToTop`, `enableStyledScrollbar`,
+  `disableTextInHeader`), per-page and per-site overrides (`showHeadingAnchors`,
+  `showDateOnlyInArticle`, `invertPagination`, `externalLinkForceNewTab`,
+  `sitemap.excludedKinds`), image handling (`backgroundImageWidth`, `hotlinkFeatureImage`),
+  `fingerprintAlgorithm`, `smartTOCHideUnfocusedChildren`, an `extend-article-link.html` hook,
+  a client-side `languageRedirect`, RSSNext feed attribution, AdSense and BuyMeACoffee, the
+  `codeimporter` and `mdimporter` shortcodes, and `typeit`.
+  **Every one defaults to what the theme already did**, so an existing site is unchanged.
+  - `disableTextInHeader` gives the home link an `aria-label`, or a logo-only header would be
+    an unlabelled link on every page.
+  - `hotlinkFeatureImage` stays off because a remote image is a third-party request on page
+    view, and nothing is fetched at build time, so the box cannot be reserved. Both costs are
+    stated rather than glossed.
+  - `smartTOCHideUnfocusedChildren` is built with `:has()` — no script, no transition. The
+    standing objection to it was motion, and this adds none.
+  - `languageRedirect` is off by default, runs once, and is home-page-only by default: rewriting
+    a deep link that was shared deliberately in one language loses what was shared.
+  - **`typeit` ships with no library.** The obvious one is GPL-3.0 and this theme is MIT, so
+    vendoring it would push every site using the theme onto a copyleft licence for the sake of a
+    decorative animation. The effect is written directly, in about twenty lines, and the suite
+    asserts the GPL file never reappears. The finished text is in the markup and the script
+    retypes it, so JavaScript-off and `prefers-reduced-motion` readers get the whole sentence.
+- **Views and likes** — `[params.firebase]` plus `article.showViews` / `showLikes`, both
+  overridable per post. Backed by Cloud Firestore through its **REST API, with no Firebase
+  SDK**: several hundred kilobytes to increment an integer is not a trade worth making, and
+  `fetch` is built in. Counts increment server-side in one transaction, so simultaneous readers
+  both count. **This is the only feature in the theme that records what a reader does**, it
+  renders nothing unless configured, and the docs say so plainly — including that the project id
+  and API key are not secrets and that Firestore security rules are what actually protect the
+  data. With JavaScript off nothing renders, rather than a zero pretending to be a count.
+- **Zen mode** — `article.showZenMode` adds a control that hides the header, the table of
+  contents rail and both footers, leaving the prose. Escape leaves, and the control itself
+  survives the hiding: a mode with no visible way out is a trap. Not persisted, because zen is
+  for one piece and remembering it would mean arriving at a site with its navigation gone.
+- **`gist`** — a GitHub Gist fetched at build time and rendered as an ordinary code block, so
+  the reader loads no GitHub script and the code gets this theme's own highlighting in both
+  colour modes, which an embedded Gist does not.
+- **`list.orderByWeight`** — sort the section index by weight instead of date. Replaces the date
+  sort rather than blending with it; unweighted pages go last.
+- **`footer.showMenu`** — the footer menu has always rendered; this is the switch. Default `true`.
+- **`imagePosition`** — `object-position` for images that are genuinely cropped: the avatar and
+  card thumbnails. It does nothing to a cover, deliberately, because covers are never cropped.
+- **`disableImageOptimization`** — hand raster images to the browser unresized, for a site whose
+  images are already optimised upstream. Honoured in all six partials that resize a cover.
+- **`layoutBackgroundBlur`** and **`layoutBackgroundHeaderSpace`** — background treatments, both
+  off by default. The blur is applied to the image rather than the block, so text over it stays
+  sharp, and it is static rather than scroll-driven: repainting an image every frame is expensive
+  for decoration.
+- **Repository cards** — `github`, `gitlab`, `codeberg`, `gitea`, `forgejo`, `huggingface` and
+  `ansible`, seven shortcodes over one fetch-and-render mechanism. The Gitea-family three take a
+  `host` for a self-hosted instance.
+  - **The reader fetches nothing.** Descriptions and counts are read during the build and baked
+    into the HTML, so a card costs a visitor no third-party request. That is the whole reason
+    this is a build-time fetch rather than a script.
+  - **The build does fetch, and a failure is not fatal.** A card that cannot be fetched degrades
+    to a plain link carrying the repository's name. Two failures are told apart deliberately: a
+    **404** warns, and `make check` turns warnings into failures, so a renamed or deleted
+    repository is caught in CI; being **offline** uses a suppressible log instead, because
+    failing there would mean the theme could not be built without a network, which
+    `docs/SPEC.md` §1 forbids. Verified by building with the container's network disabled.
+  - Nothing is requested at all unless a page uses one of these, so a site that does not is
+    entirely unaffected. Hugo caches the responses, so a rebuild does not re-fetch.
+- **`enableLightbox`** — click a prose image to see it full size. Built on `<dialog>`, so the
+  modal semantics, the backdrop, the focus trap and the Escape handler all come from the browser
+  rather than from this theme; those four are what hand-rolled lightboxes get wrong. Focus
+  returns to the image that opened it. An image that is already a link is left alone, since it
+  has a destination the author chose. Off by default — the browser already offers "open image in
+  new tab", and a lightbox with a bad focus trap is worse than none.
+- **`header.layout`** — `fixed` keeps the header sticky, which is the current behaviour and
+  therefore the default; `basic` lets it scroll away. The anchor offset follows the choice, so
+  `basic` does not leave a gap above every heading it jumps to.
+- **`list.cardView` and `taxonomy.cardView`** — the section index is a list and term pages are
+  cards, which is what the approved design shows; each can now be switched to the other. Both
+  defaults are unchanged. Year grouping does not apply to a card grid — a grid interrupted by
+  full-width headings reads as several grids — so `cardView` wins over `groupByYear`.
+- **`enableA11y`** — a control that underlines every link on the page. It is named for what it
+  does rather than presented as an "accessibility mode": a control whose effect a reader cannot
+  predict is not an accessibility feature. The reason it exists is WCAG 1.4.1 — a link
+  distinguished from its text by colour alone is invisible to a reader who cannot separate those
+  colours, and the theme's own faint prose rule does not extend to navigation, cards or footers.
+  Off by default, since it overrides a deliberate design decision site-wide. Ships `hidden` and
+  is revealed by its script, so a reader with no JavaScript is not shown a dead control.
+- **Four more analytics providers** — Fathom, Umami (with optional self-hosted domain and
+  renamed script for ad-block resilience) and Seline join Cloudflare as first-class config
+  blocks, and **Google Analytics** is wired through Hugo's own template. All four of the first
+  set cookies nothing and need no consent banner; GA does, and most sites using it will be
+  obliged to say so, so it is there for completeness rather than preference.
+  **Nothing is emitted unless a provider is configured**, which is still the shipped default and
+  is now asserted against the built demo site. GA uses Hugo's `[services.googleAnalytics]` key
+  rather than a theme param: Hugo owns that template and reads its own config, so a theme param
+  would have been a second key that silently did nothing.
+- **Three more colour palettes** — `plum`, `slate` and `rose`, taking the set to six. Each
+  accent was **measured before it shipped**, against its own `--accent-tint` rather than the
+  page background, which is the case that decided `clay`. Light mode: `plum` 4.82, `rose` 4.63,
+  `slate` 4.54, against `periwinkle` 4.90, `sage` 4.17, `clay` 4.16. A fourth candidate measured
+  4.40 — below every palette already shipped — and was dropped rather than tuned.
+- **`defaultFeaturedImage`, `defaultSocialImage`** — site-wide image fallbacks, so a post with
+  no cover of its own is still illustrated and still previews as a card when linked. A post with
+  its own cover is unaffected. A configured-but-missing file renders nothing rather than a 404.
+- **`taxonomy.showTermCount`** — the article count beside each term was already rendered; this
+  adds the switch. Default `true`, so nothing changes for an existing site.
+- **Multilingual sites.** Declare `[languages]` and the theme supplies the rest: a language
+  switcher in the header, `hreflang` alternates including `x-default` in `<head>`, a search
+  index per language, per-language date formats and menus. **The switcher links to the
+  translation of the page you are on**, falling back to that language's home page only where no
+  translation exists — being sent to the front page for asking to read the same article in
+  another language is the single most common thing this control gets wrong. It renders nothing
+  on a single-language site, so nothing changes for one. The switcher is a `<details>`
+  disclosure, the same mechanism the nested menu uses, so it needs no JavaScript.
+- **`article.heroStyle`** — four cover treatments: `basic` (the default, unchanged), `big`,
+  `background` and `thumbAndBackground`, overridable per post. **Every one keeps the cover
+  uncropped**, which is why this was previously ruled out: a background hero normally fills a
+  band and crops to fit, and a Northlight cover has its title in the artwork. Here the box stays
+  an exact 1200×630 with `object-fit: contain` and the header sits over a scrim, so the whole
+  image is visible. Below 720px the header moves under the image rather than over it. An unknown
+  value falls back to `basic`.
+- **Maths**, rendered at build time. Hugo has KaTeX built in, so the theme ships **no maths
+  library at all** — no JavaScript, no stylesheet, and none of the ~60 font files a client-side
+  renderer needs. The equation is in the HTML the server sends, so it is there with scripting
+  off, in a feed reader, and anywhere else that reads the page without executing it. Output is
+  MathML, which browsers lay out natively. Needs
+  `markup.goldmark.extensions.passthrough` enabled in **site** config, which is the site's
+  decision — a site that wants no maths configures nothing and pays nothing. A malformed
+  expression fails the build rather than rendering as raw LaTeX.
+- **`chart`** — a chart drawn from Chart.js configuration given as JSON in the shortcode body.
+  Vendored, self-hosted and loaded **only on pages that use it**, on the same terms as `mermaid`.
+  The JSON is parsed at build time, so a syntax error fails the build with a position instead of
+  rendering an empty rectangle. **`alt` is required and the build fails without it:** a `<canvas>`
+  is a picture to anything that is not a sighted reader. The config reaches the browser on a
+  `data-` attribute rather than in an inline script, so a strict Content-Security-Policy is
+  unaffected. Colours come from the palette tokens, charts follow the colour mode, and the entry
+  animation is dropped under `prefers-reduced-motion`.
+- **`mermaid`** — diagrams written as text, rendered in the browser. **The library is loaded
+  only on pages that contain a diagram**, gated on Hugo's own `.HasShortcode`, because mermaid is
+  3.5MB — more than the rest of the theme's assets put together — and it never enters the shared
+  bundle. It is **vendored under `assets/js/vendor/` and self-hosted**, not pulled from a CDN,
+  since a CDN reference is a third-party request on page view. Fingerprinted and integrity-hashed
+  like every other asset. With JavaScript off the reader gets the diagram's source in a code
+  block, which for a flowchart is genuinely readable; the script replaces it in place. Diagrams
+  follow the colour mode — mermaid bakes its palette into the SVG, so a mode change re-renders
+  from the source, driven by the theme's existing `northlight:appearance` event.
+  `assets/js/vendor/VENDOR.md` records what is vendored, at what version and under what licence,
+  and the suite asserts every file there has a row.
+- **Multiple authors** — `authors = ["alice", "bob"]` in front matter credits several people,
+  resolved from one file per person in `data/authors/`. The byline names them all, with
+  **`article.showAuthorsBadges`** linking each to an author page (register `author = "authors"`
+  under `[taxonomies]`), and **`article.showAuthorBottom`** adds a fuller card at the foot with
+  avatar, headline and links. **Backward compatible:** a post with no `authors` falls back to the
+  single `[params.author]`, so an existing site renders what it always did. A key with no matching
+  data file fails the build rather than dropping somebody's name from their own work.
+- **Series** — `series` and `series_order` in front matter group a post into a multi-part piece,
+  and each part gets a navigation block above its body: which part this is, how many there are,
+  and a link to the rest. Needs `series = "series"` under `[taxonomies]`. A `<details>`, so it
+  collapses with no JavaScript; **`article.seriesOpened`** sets whether it starts expanded, and
+  collapsed is the default because the summary line already says which part you are on. The
+  current part renders as text with `aria-current="page"` rather than as a link to itself.
+  **`series_order` is required:** Hugo has nothing else to sort on, and a scrambled series is
+  worse than none, so a post in a series without it fails the build. A one-post series renders
+  nothing.
+- **`author.bio`** — a paragraph, rendered as Markdown, on the `profile` home layout. `headline`
+  says what you do in one line; this says who you are. Note that a TOML `"""` string keeps its
+  indentation and Markdown reads four leading spaces as a code block, so the continuation lines
+  have to sit flush left; the suite asserts the bio never renders as a `<pre>`.
+- **`author.email`** and **`article.replyByEmail`** — a "reply by email" link at the foot of each
+  post. The quiet alternative to a comment system: a `mailto:` with the post title prefilled as
+  the subject, so no third party is contacted, no script loads, and it works with JavaScript off.
+  Off by default, and renders nothing unless both the flag and an address are set, because a
+  reply link with nowhere to reply to is worse than none.
+- **`list.showSummary`** — on listings, fall back to a post's summary when it has no
+  `description`. A `description` still always wins where one exists, since it is also the meta
+  description and the feed entry. The summary is stripped of markup and truncated before it is
+  printed, so an unclosed tag cannot leak formatting into the rest of the card. Off by default,
+  because turning it on changes every listing on an existing site.
+- **Nine more sharing providers**, taking `article.sharingLinks` from two to eleven: Mastodon,
+  Bluesky, Hacker News, email, X, Facebook, Telegram, WhatsApp and Pinterest join LinkedIn and
+  Reddit. They render in the order you list them. **Every one is a plain link** — no script, no
+  SDK, no widget — so nothing is requested from any of these services until a reader clicks; that
+  is why the list covers only services with a documented share URL.
+  - **`article.mastodonInstance`** — new. Mastodon is federated, so there is no central host to
+    share to. Rather than routing through a third-party instance picker, which would be a call to
+    somebody else's server on every click, the site names the instance. Listing `mastodon` in
+    `sharingLinks` without setting this fails the build rather than dropping the button silently.
+  - `email` is the one entry that opens a mail client rather than a website, so it carries no
+    `target="_blank"` — a `mailto:` opened in a new tab leaves an empty tab behind.
+  - Nine icons added to the set: `mastodon`, `bluesky`, `hackernews`, `email`, `x`, `facebook`,
+    `telegram`, `whatsapp`, `pinterest`. Icon names are a stable surface, so these are additive.
+
+- **`video`** — a self-hosted video player, the local-file sibling of `youtube-lite`. Source and
+  poster both resolve out of the page bundle or `assets/`, so a page carrying one makes no more
+  third-party requests than a page carrying none. Takes `src`, `poster`, `caption`, `ratio`,
+  `controls`, `loop`, `muted`, `preload` and `start`/`end` media fragments. The box is an exact
+  `aspect-ratio`, so it reserves its space before any video arrives and a clip whose own ratio
+  differs letterboxes rather than crops — no `object-fit` needed, since the HTML spec already
+  requires that. **There is deliberately no `autoplay`:** CSS cannot stop playback, so honouring
+  `prefers-reduced-motion` would take JavaScript, and an autoplay that ignores the reader's
+  stated preference whenever scripting is off is not a promise this theme can keep. This closes
+  the last unbuilt row of Part A in `docs/EXPANSION-PLAN.md`, which had been blocked on having a
+  sample file to demonstrate it with.
+
+### Fixed
+
+- **A rate-limited forge no longer fails the build.** `resources.GetRemote` returns no resource
+  for *any* non-2xx and exposes no status, so a deleted repository (404) and a rate-limited one
+  (403) are indistinguishable — and GitHub allows sixty unauthenticated calls an hour. The first
+  version hard-failed on both, which made the gate depend on someone else's rate limit and did go
+  red with nothing wrong in the content. Both now warn under `repo-card-missing`, which a site
+  can remove from `ignoreLogs` if it would rather a dead card broke CI.
+- **An SVG cover no longer fails the build.** Hugo's `.Width` errors on an SVG rather than
+  returning zero, and six partials read it unguarded — `related`, `card`, `post-item` and the
+  `hero`, `gallery` and `stack` home layouts. A single vector cover took the whole build down.
+  They now emit `width`/`height` only for rasters and let CSS hold the box, so nothing shifts as
+  the image loads. Found because the new hero demo posts use SVG covers.
+- **`make check` now refuses to run while a dev server is up**, which resolves the intermittent
+  large-block failures that had been recorded in `BACKLOG.md` as an unexplained flake. `make
+  serve` renders to disk, into the same `exampleSite/public` that `make check` builds and
+  `tests/run.sh` reads. With a server running and any file being edited, the watcher rebuilds
+  with `--buildDrafts` and a localhost baseURL while the gate rebuilds without them, and the
+  suite reads whichever finished last. Measured at **4 failures in 8 runs** with a server up and
+  a template being touched, against **0 in 55 runs** with no server — which is why it only ever
+  appeared during active development and always went green on a retry. It was never a bind-mount
+  race; host writes were separately confirmed visible to the container 5/5 at zero delay.
+- **Social link labels no longer come from title-casing either.** The same bug as the sharing
+  row, in the three places that render an author's social links: `aria-label="{{ $name | title }}"`
+  announced "Linkedin" and "Github". All three now go through one `social-links.html` partial and
+  resolve names from the catalogue, so the accessible name cannot drift between them again. The
+  `shareName*` keys generalised to `serviceName*` and gained GitHub, RSS and Website; anything
+  without an entry still falls back to title-casing, so adding an icon obliges nobody to add a
+  string first.
+- **Sharing link labels no longer come from title-casing the config key.** `{{ $name | title }}`
+  rendered `linkedin` as "Linkedin", and would have rendered `hackernews` as "Hackernews". It was
+  also a user-facing string built in a template, which makes it invisible to a translator. Service
+  names are now `shareName*` keys in `i18n/en.toml`, on the same reasoning as `themeName`: proper
+  nouns that most translations will leave alone but some need to transliterate. Each link also
+  gained an `aria-label` ("Share on LinkedIn"), because the visible text is only the service name,
+  which out of context reads as a link *to* that service rather than an action.
+- **Table cells and the "next" pager now follow the text direction.** `.prose th`, `.prose td`
+  and `.pager-next` used physical `text-align: left` / `right`, which ignores `dir`, so on a site
+  running `rtl = true` — or inside the `rtl` shortcode — every table cell and the next-post link
+  pinned themselves to the wrong edge while the surrounding block flipped. They now use the
+  logical `start` / `end`, which is identical under LTR. **Visible change for RTL sites only**,
+  and in the direction of correctness; LTR rendering is byte-identical.
+
+### Changed
+
+- `design/northlight.html`, the approved visual reference, now escapes the values its mock search
+  interpolates into `innerHTML`, matching what `assets/js/search.js` has always done. The file is
+  a local reference and is never served, so nothing shipped was affected, but an unescaped
+  `innerHTML` in the artifact people read as the target reads as the pattern to copy.
 
 ## [0.3.0](https://github.com/mortennordbye/northlight/compare/v0.2.0...v0.3.0) (2026-07-28)
 

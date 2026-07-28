@@ -1,0 +1,131 @@
+{{- /*
+  One fetch-and-render mechanism for every repository card. The per-forge shortcodes are
+  thin wrappers over this.
+
+  **This fetches at build time**, which is the one thing in the theme that does. Two
+  consequences, both handled rather than hoped about:
+
+    1. `docs/SPEC.md` §1 says the theme must build with no network access. That still holds
+       for every site that does not use one of these shortcodes — nothing is requested
+       unless a page calls one. For a site that does, a failed fetch is **not** a build
+       failure: the card degrades to a plain link to the repository, which is the useful
+       part of it anyway. Building on a train produces a working page, not a red build.
+
+    2. Hugo caches remote responses, so a rebuild does not re-fetch and a forge's rate
+       limit is not hit once per build. `hugo --gc` clears it.
+
+  Nothing is fetched by the *reader*. The numbers are baked into the HTML at build time,
+  so a card costs a visitor no third-party request at all — which is the whole reason this
+  is a build-time fetch rather than a script.
+
+  Takes a dict:
+    url    the human URL of the repository (required, and the degraded fallback)
+    api    the JSON endpoint to read (required)
+    shape  which response shape to read: "github", "gitea" or "huggingface"
+    label  the text to show when the fetch fails
+*/ -}}
+{{- $url := .url -}}
+{{- $api := .api -}}
+{{- $shape := .shape -}}
+{{- $label := .label | default $url -}}
+
+{{- $name := $label -}}
+{{- $desc := "" -}}
+{{- $stars := "" -}}
+{{- $forks := "" -}}
+{{- $lang := "" -}}
+{{- $live := false -}}
+
+{{- /* Three distinct failures, and only one of them used to be caught.
+
+       `resources.GetRemote` sets `.Err` for a transport failure — offline, DNS, timeout —
+       but for a 404 it returns **no resource at all**, with no error. The first version
+       here handled only `.Err`, so a renamed or deleted repository produced a silently
+       degraded card and a green build: precisely the quiet rot this warning exists to
+       prevent. Measured against a nonexistent repo, which built clean and said nothing.
+
+       So the resource is pulled out first and the empty case is checked on its own. */ -}}
+{{- $res := "" -}}
+{{- $offline := "" -}}
+{{- $missing := false -}}
+{{- with try (resources.GetRemote $api) -}}
+  {{- with .Err -}}
+    {{- $offline = printf "%s" . -}}
+  {{- else -}}
+    {{- $res = .Value -}}
+  {{- end -}}
+{{- end -}}
+{{- if and (not $res) (not $offline) -}}{{ $missing = true }}{{ end -}}
+
+{{- /* Only one of the two failures is worth failing a build over, and telling them apart
+       is what keeps `docs/SPEC.md` §1 true.
+
+       A **404** is a content problem: the repository has been renamed, moved or deleted,
+       the author does not know, and nobody will notice a quietly degraded card. That
+       warns, and `make check` turns warnings into failures, so it is caught in CI.
+
+       A **transport failure** — offline, DNS, a timeout — is an environment problem the
+       person building already knows about. Warning there would mean the theme's own gate
+       could not run without a network, which is exactly what §1 forbids. The card
+       degrades, the build stays green, and the page still works. */ -}}
+{{- with $missing -}}
+  {{- /* Suppressible, not a hard warning, and that is a correction rather than a
+         preference. `resources.GetRemote` returns no resource for *any* non-2xx and
+         exposes no status code, so a deleted repository (404) and a rate-limited one
+         (403) are indistinguishable here. GitHub allows sixty unauthenticated calls an
+         hour; a site with several cards, or a CI job that rebuilds often, will meet that
+         limit. Hard-failing on it would make the build non-deterministic — measured: this
+         gate went red on a 403 with nothing wrong in the content.
+
+         So it warns under its own id, and a site that wants a dead card to break CI
+         removes the id from `ignoreLogs`. The default is a build that does not fail for
+         somebody else's rate limit. */ -}}
+  {{- warnidf "repo-card-missing" "repo-card: %q returned nothing — the repository may have been renamed, moved or deleted, or the forge may be rate-limiting. The card has fallen back to a plain link." $api -}}
+{{- end -}}
+{{- with $offline -}}
+  {{- /* Deliberately not a warning. See above. */ -}}
+  {{- warnidf "repo-card-offline" "repo-card: could not reach %q (%s) — the card falls back to a plain link. This is not a build failure; a network was not available." $api . -}}
+{{- end -}}
+
+{{- with $res -}}
+    {{- with try (unmarshal .Content) -}}
+      {{- with .Err -}}
+        {{- warnf "repo-card: %q did not return usable JSON — %s" $api . -}}
+      {{- else with .Value -}}
+        {{- $live = true -}}
+        {{- if eq $shape "github" -}}
+          {{- $name = .full_name | default $label -}}
+          {{- $desc = .description | default "" -}}
+          {{- $stars = .stargazers_count -}}
+          {{- $forks = .forks_count -}}
+          {{- $lang = .language | default "" -}}
+        {{- else if eq $shape "gitea" -}}
+          {{- $name = .full_name | default $label -}}
+          {{- $desc = .description | default "" -}}
+          {{- $stars = .stars_count -}}
+          {{- $forks = .forks_count -}}
+          {{- $lang = .language | default "" -}}
+        {{- else if eq $shape "huggingface" -}}
+          {{- $name = .id | default $label -}}
+          {{- $desc = .pipeline_tag | default "" -}}
+          {{- $stars = .likes -}}
+          {{- $forks = .downloads -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+{{- end -}}
+
+<a class="repo-card{{ if not $live }} is-offline{{ end }}" href="{{ $url }}" rel="noopener" target="_blank">
+  <span class="repo-card-head">
+    {{ partial "icon.html" (.icon | default "link") }}
+    <b class="repo-card-name">{{ $name }}</b>
+  </span>
+  {{- with $desc }}<span class="repo-card-desc">{{ . }}</span>{{ end }}
+  {{- if $live }}
+    <span class="repo-card-meta">
+      {{- with $lang }}<span>{{ . }}</span>{{ end }}
+      {{- if ne $stars "" }}<span>{{ i18n (cond (eq $shape "huggingface") "likeCount" "starCount") $stars }}</span>{{ end }}
+      {{- if ne $forks "" }}<span>{{ i18n (cond (eq $shape "huggingface") "downloadCount" "forkCount") $forks }}</span>{{ end }}
+    </span>
+  {{- end }}
+</a>

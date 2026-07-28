@@ -1,0 +1,27 @@
+{{- /*
+  A row of social links: one icon per entry, each with an accessible name.
+
+  Extracted because three places render this — the home intro byline, the profile layout
+  and the author card — and the third copy was where the accessible names drifted. Each
+  copy built its label with `title`, which renders "linkedin" as "Linkedin" and "github"
+  as "Github"; names now come from the catalogue via `service-name.html`.
+
+  The icon is aria-hidden, as every icon in this theme is, so the aria-label on the link
+  is the only accessible name it has. Without one the link announces as its URL.
+
+  Takes the `links` array as configured: a slice of single-key tables, so the site
+  controls the order.
+
+  Call: {{ partial "social-links.html" (dict "links" $author.links "class" "profile-socials") }}
+*/ -}}
+{{- with .links }}
+<div class="socials{{ with $.class }} {{ . }}{{ end }}">
+  {{- range . }}
+    {{- range $name, $url := . }}
+      <a href="{{ $url }}" rel="noopener" target="_blank" aria-label="{{ partial "service-name.html" $name }}">
+        {{- partial "icon.html" $name -}}
+      </a>
+    {{- end }}
+  {{- end }}
+</div>
+{{- end -}}

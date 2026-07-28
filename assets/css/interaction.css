@@ -10,7 +10,7 @@
 
 .skip-link {
   position: absolute;
-  left: var(--space-3);
+  inset-inline-start: var(--space-3);
   top: -60px;
   z-index: 200;
   background: var(--bg);
@@ -95,7 +95,7 @@ html[data-theme="dark"] .only-light { display: none; }
 }
 
 .search-trigger kbd {
-  margin-left: auto;
+  margin-inline-start: auto;
   font-family: var(--font-sans);
   font-size: 11.5px;
   font-weight: 500;
@@ -127,7 +127,7 @@ html[data-theme="dark"] .only-light { display: none; }
 
 .back-to-top {
   position: fixed;
-  left: var(--space-5);
+  inset-inline-start: var(--space-5);
   bottom: var(--space-5);
   z-index: 70;
   width: 40px;
@@ -170,7 +170,7 @@ html[data-theme="dark"] .only-light { display: none; }
 .copy-button {
   position: absolute;
   top: var(--space-2);
-  right: var(--space-2);
+  inset-inline-end: var(--space-2);
   font-family: var(--font-sans);
   font-size: 12.5px;
   font-weight: 500;
@@ -391,4 +391,166 @@ body.is-modal-open {
     justify-content: center;
     padding: 0;
   }
+}
+
+/* --- underline links -------------------------------------------------------- */
+
+/* Set by a11y.js when the control is on. Underlines every link on the page, which is
+   WCAG 1.4.1: a link separated from its text only by colour is invisible to a reader who
+   cannot tell those colours apart.
+
+   `:where()` keeps this at zero specificity for the class slot so component rules still
+   win on colour, while `text-decoration` is inherited by the descendants that carry the
+   visible text. Excluded: links that are already an obvious control rather than a run of
+   text — buttons, tags, cards and icon-only links — where an underline reads as damage
+   rather than as an affordance. */
+html[data-underline-links] a:not(.button):not(.tag):not(.card):not(.icon-button):not(.brand):not(.yt-facade) {
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+/* The prose link already carries its own rule as a box-shadow. Two underlines on one link
+   is a smudge, so the shadow goes when the real underline arrives. */
+html[data-underline-links] .prose a {
+  box-shadow: none;
+}
+
+/* --- lightbox --------------------------------------------------------------- */
+
+/* A real box, not `display: contents`.
+ *
+ * The first version used contents so the button would vanish from layout and leave the
+ * prose rhythm untouched. Measured, that button was 0x0 and **could not be focused at
+ * all** — `.focus()` was a no-op and Tab skipped it — so the lightbox was unreachable by
+ * keyboard, which is the precise failure a <button> was chosen to avoid.
+ *
+ * So the button takes the block box and the image's own vertical margin moves onto it.
+ * The rhythm is identical either way; the difference is that this one is focusable. */
+.lightbox-trigger {
+  display: block;
+  width: 100%;
+  margin-block: var(--space-5);
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: zoom-in;
+}
+
+.lightbox-trigger img {
+  margin-block: 0;
+}
+
+.lightbox-trigger:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-thumb);
+}
+
+.lightbox {
+  border: 0;
+  padding: 0;
+  max-width: 100vw;
+  max-height: 100vh;
+  width: 100%;
+  height: 100%;
+  background: none;
+  overflow: hidden;
+}
+
+/* Centring goes on [open], not on the base rule: a <dialog> is display:none when closed,
+   and declaring display:flex unconditionally would make it visible all the time.
+
+   Flex rather than `margin: auto` on the image — auto margins centre horizontally in a
+   block container but not vertically, which left the image pinned to the top of the
+   viewport with its caption running over the page behind it. */
+.lightbox[open] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.lightbox::backdrop {
+  /* The same fixed dark as the video letterbox and the hero scrim, and for the same
+     reason: what sits behind it is a photograph, which does not invert with the palette. */
+  background: rgb(12 12 16 / 88%);
+}
+
+.lightbox-image {
+  display: block;
+  max-width: min(96vw, 1600px);
+  max-height: 88vh;
+  width: auto;
+  height: auto;
+  border-radius: var(--radius-thumb);
+  /* contain, never cover: an enlarged image exists to be seen whole. */
+  object-fit: contain;
+}
+
+.lightbox-caption {
+  margin: 0;
+  max-width: min(96vw, 1600px);
+  text-align: center;
+  font-size: 14.5px;
+  color: rgb(212 212 220);
+}
+
+.lightbox-close {
+  position: absolute;
+  top: var(--space-4);
+  inset-inline-end: var(--space-4);
+  width: 2.4rem;
+  height: 2.4rem;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: rgb(242 242 245);
+  background: rgb(255 255 255 / 12%);
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.lightbox-close:hover {
+  background: rgb(255 255 255 / 22%);
+}
+
+/* The dialog's own entrance. Suppressed entirely when asked — this is the only motion the
+   lightbox has, so honouring the preference costs nothing. */
+@media (prefers-reduced-motion: no-preference) {
+  .lightbox[open] {
+    animation: lightbox-in var(--dur-card) ease-out;
+  }
+
+  @keyframes lightbox-in {
+    from { opacity: 0; transform: scale(0.98); }
+    to   { opacity: 1; transform: none; }
+  }
+}
+
+/* --- zen mode --------------------------------------------------------------- */
+
+/* Everything that is not the article, hidden. The list is explicit rather than a blanket
+   rule on siblings, so a site adding a component does not silently get it hidden here too.
+
+   The toggle itself stays: a mode with no visible way out is a trap, and Escape alone is
+   not discoverable. */
+html[data-zen] .site-header > .wrap > *:not(.site-nav),
+html[data-zen] .site-nav > *:not([data-toggle-zen]),
+html[data-zen] .site-footer,
+html[data-zen] .toc-rail,
+html[data-zen] .article-foot {
+  display: none;
+}
+
+/* With the rail gone the column has the width to itself. */
+html[data-zen] .article-body {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+html[data-zen] .site-header {
+  border-bottom: 0;
+  background: none;
 }

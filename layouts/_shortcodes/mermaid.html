@@ -1,0 +1,23 @@
+{{- /*
+  mermaid — a diagram written as text, rendered in the browser.
+
+  The source goes into a <pre> verbatim. With JavaScript off that is what the reader gets:
+  the diagram's own text, which for a flowchart or a sequence diagram is genuinely
+  readable — `A --> B` says what it means. That is the whole reason this ships as a <pre>
+  rather than an empty <div> the script fills in.
+
+  **The library is only loaded on pages that use this.** `baseof.html` gates it on
+  `.HasShortcode "mermaid"`, so mermaid's 3.5MB is fetched by a reader looking at a page
+  with a diagram on it and by nobody else. It is self-hosted and fingerprinted like every
+  other asset here; nothing is requested from a CDN.
+
+  Inner content is taken raw rather than rendered as Markdown. Diagram syntax is full of
+  characters Goldmark would otherwise treat as markup — `-->`, `|`, `#`, underscores — and
+  a diagram silently reformatted into emphasis is a bug with no error message.
+
+  Call:  {{< mermaid >}} … diagram source … {{< /mermaid >}}
+
+  (Written without the Markdown escaping the docs page uses: that form contains `*​/`,
+  which ends a Go template comment early and fails the parse.)
+*/ -}}
+<pre class="mermaid">{{ trim .Inner "\n" }}</pre>

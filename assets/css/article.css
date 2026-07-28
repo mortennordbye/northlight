@@ -52,6 +52,15 @@
   padding-bottom: var(--space-6);
 }
 
+/* The wrapper exists so several avatars can overlap as one group rather than sitting in
+   the meta row as separate flex children. With a single author it must be invisible: it
+   is `display: flex` with no gap and no margin, so a lone avatar occupies exactly the box
+   it did before the wrapper existed. */
+.avatar-group {
+  display: flex;
+  align-items: center;
+}
+
 .avatar {
   width: 32px;
   height: 32px;
@@ -60,9 +69,81 @@
   border: 1px solid var(--line);
 }
 
+/* Co-authors overlap slightly, the way a stacked avatar group conventionally reads, and
+   each gets a ring in the page background so the one behind is still legible against it.
+   `:not(:first-child)` rather than `+ .avatar`, so the first avatar keeps a zero offset
+   and the group stays left-aligned with everything else in the row. */
+.avatar-group .avatar:not(:first-child) {
+  margin-inline-start: -10px;
+  box-shadow: 0 0 0 2px var(--bg);
+}
+
 .author-name {
   font-size: 14.5px;
   font-weight: 500;
+}
+
+.author-link {
+  color: inherit;
+}
+
+.author-link:hover {
+  color: var(--accent);
+}
+
+/* The comma between co-author names comes from i18n, so it is a real text node and needs
+   no styling of its own beyond not inheriting the link colour. */
+.author-sep {
+  font-weight: 400;
+}
+
+/* --- author box ------------------------------------------------------------ */
+
+/* The fuller credit at the foot of a post, behind article.showAuthorBottom. */
+.author-box {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-bottom: var(--space-7);
+}
+
+.author-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--surface-2);
+  border-radius: var(--radius-pager);
+}
+
+.author-card-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+.author-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.author-card-name {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.author-card-headline {
+  font-size: 14px;
+  color: var(--fg-2);
+}
+
+.author-card-socials {
+  margin-top: var(--space-2);
 }
 
 .meta-line {
@@ -81,7 +162,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
-  margin-left: auto;
+  margin-inline-start: auto;
   font-size: var(--text-meta);
   color: var(--fg-3);
   transition: color var(--dur-card);
@@ -127,6 +208,101 @@
   background: var(--surface);
 }
 
+/* `big` breaks out past the text measure while keeping the same never-crop box. The
+   negative inline margins are clamped so the cover can never push the page sideways on a
+   narrow screen — at 375px there is nothing to break out of and the clamp collapses to 0. */
+.article-cover-big {
+  --breakout: clamp(0px, calc((100vw - var(--measure)) / 2 - var(--space-5)), 120px);
+  margin-inline: calc(var(--breakout) * -1);
+  max-width: calc(100% + var(--breakout) * 2);
+}
+
+/* --- hero: background ------------------------------------------------------- */
+
+/* The cover behind the header. The image keeps its exact ratio and is still `contain`,
+   so nothing is cropped here either — a background hero that filled an arbitrary band
+   would crop, which is the one thing covers in this theme must never do. */
+.article-hero-bg {
+  position: relative;
+  margin-bottom: var(--space-8);
+  border-radius: var(--radius-panel);
+  overflow: hidden;
+  background: var(--surface-2);
+}
+
+.article-hero-bg > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1200 / 630;
+  object-fit: contain;
+}
+
+/* A flat scrim, and fixed light-on-dark text inside it, for the same reason
+   `.home-bg-scrim` carries them: the artwork underneath does not invert when the palette
+   does, so a header that followed the theme would be legible in one mode and illegible in
+   the other over the same image. These are the only colours in the article that do not
+   come from a mode-aware token, and that is deliberate. */
+.article-hero-scrim {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  background: rgb(12 12 16 / 62%);
+  padding: var(--space-5);
+}
+
+.article-head-on-cover {
+  padding-bottom: 0;
+  color: rgb(242 242 245);
+}
+
+.article-head-on-cover .article-title,
+.article-head-on-cover .lede,
+.article-head-on-cover .author-name,
+.article-head-on-cover .meta-line,
+.article-head-on-cover .breadcrumbs,
+.article-head-on-cover .breadcrumbs a,
+.article-head-on-cover .author-link {
+  color: rgb(242 242 245);
+}
+
+.article-head-on-cover .lede,
+.article-head-on-cover .meta-line,
+.article-head-on-cover .breadcrumbs {
+  color: rgb(212 212 220);
+}
+
+/* The edit link is chrome rather than part of the title block, and over artwork it reads
+   as clutter. It stays available on every other hero style. */
+.article-head-on-cover .edit-link {
+  display: none;
+}
+
+/* Below the measure the scrim would cover most of a short cover, so the header moves
+   under the image instead of over it. A title that is illegible is worse than a hero
+   that is less dramatic. */
+@media (max-width: 720px) {
+  .article-hero-scrim {
+    position: static;
+    background: none;
+    padding: var(--space-4) 0 0;
+  }
+
+  .article-head-on-cover,
+  .article-head-on-cover .article-title,
+  .article-head-on-cover .author-name,
+  .article-head-on-cover .author-link {
+    color: var(--fg);
+  }
+
+  .article-head-on-cover .lede,
+  .article-head-on-cover .meta-line,
+  .article-head-on-cover .breadcrumbs {
+    color: var(--fg-2);
+  }
+}
+
 /* --- body grid ------------------------------------------------------------- */
 
 .article-body {
@@ -146,6 +322,84 @@
 .article-main {
   min-width: 0;
   max-width: var(--measure);
+}
+
+/* --- series ---------------------------------------------------------------- */
+
+/* Sits above the prose, so it is deliberately quiet: a tinted card at small type that
+   reads as navigation rather than as the start of the article. A <details>, so it needs
+   no JavaScript; `article.seriesOpened` sets the default state. */
+.series {
+  margin-bottom: var(--space-6);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-2);
+  border-radius: var(--radius-pager);
+  font-size: 14px;
+}
+
+.series-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--fg-2);
+  cursor: pointer;
+  /* Both are needed: `list-style` covers Chrome and Firefox, the pseudo-element covers
+     Safari, exactly as .nav-group does. */
+  list-style: none;
+}
+
+.series-summary::-webkit-details-marker {
+  display: none;
+}
+
+/* The disclosure affordance, since the default marker is suppressed above. A caret drawn
+   in CSS rather than an inline SVG, because it is pure decoration next to a line of text
+   that already says what the control does.
+
+   These two borders stay *physical* on purpose. They are not layout — they are two edges
+   of a square, rotated 45° to make an arrowhead. Swapping them under RTL would rotate the
+   caret rather than mirror the layout, and a disclosure caret points down when open in
+   every direction. Geometry, not reading order. */
+.series-summary::before {
+  content: "";
+  width: 0.42em;
+  height: 0.42em;
+  border-right: 1.6px solid currentColor; /* physical: geometry, not layout */
+  border-bottom: 1.6px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform var(--dur-card);
+}
+
+.series[open] > .series-summary::before {
+  transform: rotate(45deg);
+}
+
+.series-summary:hover {
+  color: var(--fg);
+}
+
+.series-list {
+  margin: var(--space-3) 0 0;
+  padding-inline-start: var(--space-5);
+}
+
+.series-item {
+  margin-bottom: var(--space-1);
+  color: var(--fg-2);
+}
+
+.series-item a {
+  color: var(--fg-2);
+}
+
+.series-item a:hover {
+  color: var(--accent);
+}
+
+/* The part the reader is on. Not a link, so it needs to carry its own emphasis. */
+.series-item.is-current {
+  color: var(--fg);
+  font-weight: 500;
 }
 
 /* --- table of contents ----------------------------------------------------- */
@@ -179,7 +433,7 @@
   line-height: 1.4;
   color: var(--fg-2);
   padding: 6px 0 6px var(--space-4);
-  border-left: 2px solid var(--line);
+  border-inline-start: 2px solid var(--line);
   transition:
     color var(--dur-color),
     border-color var(--dur-color);
@@ -191,7 +445,7 @@
 }
 
 .toc ul ul a {
-  padding-left: 26px;
+  padding-inline-start: 26px;
   font-size: var(--text-meta);
 }
 
@@ -241,6 +495,14 @@ a.tag:hover {
 .share-label {
   font-size: 14px;
   color: var(--fg-3);
+}
+
+/* Sits between the share row and the pager, and takes the same bottom margin as .share so
+   the run of blocks at the foot of an article stays evenly spaced. Without it the button
+   collides with the pager card, because a bare <div> around an inline-flex button
+   contributes no spacing of its own. */
+.reply-by-email {
+  margin-bottom: var(--space-7);
 }
 
 .button {
@@ -310,7 +572,9 @@ a.tag:hover {
 }
 
 .pager-next {
-  text-align: right;
+  /* Logical, so the "next" pager follows the text direction rather than always
+     hugging the right edge. Identical to `right` under LTR. */
+  text-align: end;
 }
 
 .pager-next .pager-key {
@@ -396,12 +660,12 @@ a.tag:hover {
   }
 
   .toc a {
-    border-left: none;
-    padding-left: 0;
+    border-inline-start: none;
+    padding-inline-start: 0;
   }
 
   .toc ul ul a {
-    padding-left: var(--space-3);
+    padding-inline-start: var(--space-3);
   }
 }
 
@@ -412,10 +676,89 @@ a.tag:hover {
   }
 
   .pager-next {
-    text-align: left;
+    text-align: start;
   }
 
   .pager-next .pager-key {
     justify-content: flex-start;
   }
 }
+
+/* --- image position --------------------------------------------------------- */
+
+/* `imagePosition` sets object-position where an image is genuinely cropped. Covers are
+   never cropped in this theme, so it does nothing on the article hero — deliberately. The
+   avatar and the card thumbnail are square crops, and those are where a site needs it:
+   without it, a portrait whose subject is not centred loses their head. */
+.avatar,
+.author-card-avatar,
+.item-cover,
+.card-cover,
+.related-thumb {
+  object-position: var(--image-position);
+}
+
+/* --- counters --------------------------------------------------------------- */
+
+/* Ships hidden and is revealed by its script once it has a real number, so a page whose
+   backend is unreachable shows nothing rather than a zero pretending to be a count. */
+.counters {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+  font-size: 14px;
+  color: var(--fg-3);
+}
+
+.counter {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+}
+
+.counter-like {
+  cursor: pointer;
+}
+
+.counter-like:hover {
+  color: var(--accent);
+}
+
+/* The pressed state is the only thing distinguishing a liked post from an unliked one, so
+   it changes more than opacity: a filled heart reads at a glance and survives greyscale. */
+.counter-like[aria-pressed="true"] {
+  color: var(--accent);
+}
+
+.counter-like[aria-pressed="true"] .icon {
+  fill: currentColor;
+}
+
+/* --- TOC: collapse unfocused children --------------------------------------- */
+
+/* `smartTOCHideUnfocusedChildren`, off by default. This theme's own view is recorded in
+   docs/FEATURE-SURVEY.md — extra motion in a component whose job is to stay still — which
+   is why the default has not changed. It is here because a deep page with many h3s under
+   each h2 is a genuinely different problem from the one that opinion was formed against.
+
+   The child list collapses unless it contains the current heading or its own parent is
+   current. `:has()` is what makes that expressible in CSS at all; without it this would
+   need the script to walk ancestors and set classes. */
+html[data-toc-collapse] .toc ul ul {
+  display: none;
+}
+
+html[data-toc-collapse] .toc ul ul:has(.is-current),
+html[data-toc-collapse] .toc li:has(> a.is-current) > ul {
+  display: block;
+}
+
+/* Nothing animates. A list that grows and shrinks as the reader scrolls is exactly the
+   motion the default opinion objects to; collapsing without transition keeps the rail
+   still even when it changes. */

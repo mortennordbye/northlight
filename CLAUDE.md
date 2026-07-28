@@ -271,6 +271,27 @@ gap at some point.
 A feature that changes anything visual also needs measuring rather than eyeballing: contrast in
 both modes, and no horizontal overflow at 375px.
 
+### The three test layers
+
+`make check` runs the first two. `make fuzz` is separate, because it builds a site per case.
+
+| Layer | Catches | Cannot catch |
+|---|---|---|
+| `tests/run.sh` | A feature disappearing, a default flipping, an invariant dropped | Anything on a page nobody wrote an assertion for |
+| `tests/structure.py` | Malformed markup, duplicate ids, unlabelled controls, heading skips, dead internal links — on **every** page | Anything that is valid HTML but wrong |
+| `tests/fuzz.py` | A shortcode parameter that accepts hostile input, or silently accepts invalid input | Anything not reachable through a shortcode parameter |
+
+**A new shortcode parameter belongs in `tests/fuzz.py`.** Text parameters go in `ACCEPT` and
+must survive the corpus inert. Validated parameters go in `REJECT` and must fail the build.
+Two rules, both learned by getting them wrong:
+
+- **Isolate the case.** `{{< video src="c.mp4" ratio="banana" >}}` fails on the missing file
+  before the ratio is ever looked at, so the harness saw a failed build and called it a pass.
+  A silent ratio fallback went undetected until the scratch site carried real fixtures.
+- **Empty is not universally hostile.** Whether an empty value is a bug depends on whether the
+  parameter is required, and a corpus cannot know that. `alert title=""` is correct — it falls
+  back to the type name. `accordionItem title=""` is not. State it per shortcode.
+
 ### Environment variables
 
 Not applicable. A Hugo theme has no runtime environment and reads no secrets. Configuration is
