@@ -720,3 +720,14 @@ pre.mermaid svg {
   border-radius: var(--radius-pager);
   font-size: 14.5px;
 }
+
+/* --- oembed ----------------------------------------------------------------- */
+
+/* Reuses the repository card's shape, since it is the same thing: a fetched-at-build-time
+   summary that links out. Only the thumbnail is new. */
+.oembed-thumb {
+  display: block;
+  width: 100%;
+  border-radius: var(--radius-thumb);
+  margin-bottom: var(--space-2);
+}

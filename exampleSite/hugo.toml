@@ -246,6 +246,9 @@ anyone notices."""
     editURL = "https://github.com/mortennordbye/northlight/edit/main/exampleSite/content"
     editAppendPath = true      # append the post's own path to editURL  (default: true)
 
+  [params.header]
+    showSubNav = true          # second navigation row  (default: false)
+
   [params.list]
     groupByYear = true
 
@@ -301,6 +304,26 @@ anyone notices."""
 # dropdown, so it works by touch and by keyboard without JavaScript. One level deep.
 
 [menu]
+  # The optional second row, off unless header.showSubNav is set. It names the pages inside
+  # the current section, which is what makes it worth having on a docs site and not on a
+  # six-post blog.
+  [[menu.subnav]]
+    name = "Getting started"
+    pageRef = "docs/getting-started"
+    weight = 1
+  [[menu.subnav]]
+    name = "Configuration"
+    pageRef = "docs/configuration"
+    weight = 2
+  [[menu.subnav]]
+    name = "Writing"
+    pageRef = "docs/writing"
+    weight = 3
+  [[menu.subnav]]
+    name = "Shortcodes"
+    pageRef = "docs/shortcodes"
+    weight = 4
+
   [[menu.main]]
     name = "Blog"
     pageRef = "blog"
@@ -326,6 +349,11 @@ anyone notices."""
     name = "Writing content"
     pageRef = "docs/writing"
     weight = 3
+  [[menu.main]]
+    parent = "docs"
+    name = "اختبار الاتجاه"
+    pageRef = "docs/rtl"
+    weight = 8
   [[menu.main]]
     parent = "docs"
     name = "Shortcodes"

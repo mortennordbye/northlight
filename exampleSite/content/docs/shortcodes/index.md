@@ -252,6 +252,29 @@ vendoring it would push every site using the theme onto a copyleft licence for t
 a decorative animation. The effect is about twenty lines and lives in
 `assets/js/typeit-init.js`.
 
+## `oembed`
+
+A rich card for any URL whose provider publishes an oEmbed endpoint.
+
+```text
+{{</* oembed url="https://vimeo.com/76979871" endpoint="https://vimeo.com/api/oembed.json" */>}}
+```
+
+{{< oembed url="https://vimeo.com/76979871" endpoint="https://vimeo.com/api/oembed.json" >}}
+
+**The `html` field is deliberately not used.** That is the field oEmbed exists to deliver,
+and it is almost always a third-party iframe or script — exactly what this theme does not
+put on a page. What is rendered instead is the metadata: title, author, provider, and the
+thumbnail, which is **downloaded at build time and served from your own domain** rather
+than hotlinked.
+
+So this is a facade, on the same terms as `youtube-lite`: it looks like the thing, links to
+the thing, and loads nothing until the reader chooses to go there.
+
+`endpoint` is required and there is no discovery step. Discovery means fetching the page
+first to read a `<link>` out of it — two requests to learn something the author already
+knows.
+
 ## `codeimporter` and `mdimporter`
 
 Pull a file from a URL at build time: `codeimporter` renders it as a code block,

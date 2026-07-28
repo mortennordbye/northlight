@@ -10,6 +10,29 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **Right-to-left layout, measured rather than assumed.** `exampleSite` now carries a full
+  Arabic page, and `rtl` works per page as well as per site. Measuring against it found real
+  bugs: the blockquote and admonition accent edges sat on the left, list indents were on the
+  wrong side, and **code blocks inherited RTL**, which lets the bidirectional algorithm reorder
+  punctuation inside lines. Nineteen declarations became logical properties; code is pinned to
+  `direction: ltr` with `unicode-bidi: isolate`. Two declarations stay physical on purpose and
+  say so at the declaration, in a form the suite reads.
+- **Custom icons** — drop `name.svg` into your site's `assets/icons/` and call it by name. A
+  site file wins over a built-in of the same name. Inlined, so it takes `currentColor` and sizes
+  in `em` like every built-in one.
+- **`seo.metaDescriptionOrder`** — which source fills the meta description, first non-empty
+  wins. Defaults to the order the theme always used.
+- **`author.imageQuality`** — the avatar now goes through Hugo's image pipeline. SVG still
+  passes through untouched, because there are no pixels to resample and `.Resize` errors on it.
+  **Quality is a lossy-format setting:** a PNG is byte-identical at any value, so the demo uses
+  a JPEG, where it is 9057 bytes at q85 and 1209 at q20.
+- **`oembed`** — a rich card for any URL with an oEmbed endpoint. **The `html` field is
+  deliberately unused**, since it is almost always a third-party iframe or script; the card
+  renders the metadata and a thumbnail downloaded at build time and served from your own domain.
+  A facade, on the same terms as `youtube-lite`.
+- **`header.showSubNav`** — an optional second navigation row from a `subnav` menu, off by
+  default. The original objection holds for most sites — a second bar for a six-post blog is
+  chrome competing with the writing — but it earns its place on a documentation site.
 - **The last twenty rows.** Toggles for chrome the theme rendered unconditionally
   (`footer.showAppearanceSwitcher`, `footer.showScrollToTop`, `enableStyledScrollbar`,
   `disableTextInHeader`), per-page and per-site overrides (`showHeadingAnchors`,

@@ -1,6 +1,11 @@
 {{- $cfg := partialCached "init.html" . -}}
 <!doctype html>
-<html lang="{{ site.Language.Lang }}"{{ if $cfg.rtl }} dir="rtl"{{ end }} data-header="{{ $cfg.headerLayout }}"{{ with $cfg.imagePosition }} style="--image-position: {{ . }}"{{ end }}{{ if $cfg.smartTOCHideUnfocusedChildren }} data-toc-collapse{{ end }}{{ if not $cfg.enableStyledScrollbar }} data-plain-scrollbar{{ end }}{{ if $cfg.layoutBackgroundBlur }} data-bg-blur{{ end }}{{ if $cfg.layoutBackgroundHeaderSpace }} data-bg-header-space{{ end }}
+{{- /* Direction is per page as well as per site. A site in one direction can still carry
+       a page in the other — a translated notice, a language-learning post, or this theme's
+       own RTL test page — and `dir` on <html> is what drives the bidirectional algorithm,
+       list markers and punctuation together. */ -}}
+{{- $rtl := partial "param-bool.html" (dict "map" .Params "key" "rtl" "default" $cfg.rtl) -}}
+<html lang="{{ site.Language.Lang }}"{{ if $rtl }} dir="rtl"{{ end }} data-header="{{ $cfg.headerLayout }}"{{ with $cfg.imagePosition }} style="--image-position: {{ . }}"{{ end }}{{ if $cfg.smartTOCHideUnfocusedChildren }} data-toc-collapse{{ end }}{{ if not $cfg.enableStyledScrollbar }} data-plain-scrollbar{{ end }}{{ if $cfg.layoutBackgroundBlur }} data-bg-blur{{ end }}{{ if $cfg.layoutBackgroundHeaderSpace }} data-bg-header-space{{ end }}
       data-palette="{{ $cfg.palette }}"
       data-appearance-default="{{ $cfg.defaultAppearance }}"
       data-appearance-auto="{{ $cfg.autoSwitchAppearance }}">

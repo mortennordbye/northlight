@@ -90,6 +90,26 @@ Useful, narrower toggles.
 | 35 | ~~**`invertPagination`**~~ **DONE** | Labels swap with the links, so the arrow and the word never disagree | Small |
 | 36 | ~~**`hotlinkFeatureImage`**~~ **DONE** | Off by default: a remote image is a third-party request on page view. Nothing is fetched at build time, so the box cannot be reserved — the cost is stated | Small |
 
+## The tail, closed
+
+Five rows that lived only in `docs/FEATURE-SURVEY.md` rather than in this list, plus the
+`extend-article-link` hook from the second pass. All built.
+
+| Feature | Outcome |
+|---|---|
+| Custom icons from the site repo | `assets/icons/name.svg`, overriding built-ins of the same name |
+| Meta description fallback order | `seo.metaDescriptionOrder` |
+| `author.imageQuality` | Avatar through the image pipeline; SVG still passes through. Quality is lossy-format-only, which is now stated |
+| RTL physical properties | Nineteen converted, measured against a real Arabic page. Code pinned LTR |
+| oEmbed rich cards | Metadata facade, not the `html` field |
+| Sub-navigation bar | `header.showSubNav`, off by default |
+
+**One row is refused, and it is not a licence question.** The *Tailwind rebuild pipeline*
+cannot be built without adding Tailwind, and this theme's premise is that it has no CSS
+framework. Building it would not extend the theme; it would replace it. That is a
+contradiction rather than a disagreement, which is why it is the only thing on this page
+left undone.
+
 ## Found on the second pass
 
 Re-scraped 2026-07-28 after the top ten landed, covering the docs pages the first pass

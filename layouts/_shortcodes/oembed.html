@@ -1,0 +1,76 @@
+{{- /*
+  oembed — a rich card for any URL that publishes an oEmbed endpoint.
+
+  This was rejected once, for making a remote request at build time. That objection no
+  longer separates it from anything: repo cards, the gist and both importers all do the
+  same, and the handling for it — degrade to a link, warn suppressibly, never fail an
+  offline build — is settled. So this reuses that handling rather than inventing a third.
+
+  **The reader still fetches nothing.** oEmbed's usual value is the `html` field, which is
+  almost always a third-party iframe or script — exactly what this theme does not put on a
+  page. So the html is deliberately *not* used. What is rendered is the metadata: title,
+  author, provider and the thumbnail, downloaded at build time and served from your own
+  domain like every other image here.
+
+  That makes this a facade, on the same terms as `youtube-lite`: a card that looks like the
+  thing and links to it, with nothing loaded until the reader chooses to go.
+
+  Parameters:
+    url       the page to embed (required)
+    endpoint  the provider's oEmbed endpoint. Required — there is no discovery step,
+              because discovery means fetching the page first to read a <link> from it,
+              which doubles the requests to learn something the author already knows
+
+  Call:  {{< oembed url="https://vimeo.com/76979871" endpoint="https://vimeo.com/api/oembed.json" >}}
+*/ -}}
+{{- $url := .Get "url" -}}
+{{- $endpoint := .Get "endpoint" -}}
+{{- if or (not $url) (not $endpoint) -}}
+  {{- errorf "oembed shortcode: url and endpoint are both required (%s)" .Position -}}
+{{- end -}}
+{{- $api := printf "%s?url=%s&format=json" $endpoint (urlquery $url) -}}
+
+{{- $res := "" -}}{{- $offline := "" -}}
+{{- with try (resources.GetRemote $api) -}}
+  {{- with .Err -}}{{ $offline = printf "%s" . }}{{- else -}}{{ $res = .Value }}{{- end -}}
+{{- end -}}
+{{- with $offline -}}
+  {{- warnidf "repo-card-offline" "oembed: could not reach %q (%s) — falling back to a plain link" $api . -}}
+{{- end -}}
+{{- if and (not $res) (not $offline) -}}
+  {{- warnidf "repo-card-missing" "oembed: %q returned nothing — the provider may not support oEmbed for this URL, or may be rate-limiting" $api -}}
+{{- end -}}
+
+{{- $title := $url -}}{{- $author := "" -}}{{- $provider := "" -}}{{- $thumb := "" -}}{{- $live := false -}}
+{{- with $res -}}
+  {{- with try (unmarshal .Content) -}}
+    {{- with .Value -}}
+      {{- $live = true -}}
+      {{- $title = .title | default $url -}}
+      {{- $author = .author_name | default "" -}}
+      {{- $provider = .provider_name | default "" -}}
+      {{- with .thumbnail_url -}}
+        {{- /* Downloaded and served from this site, not hotlinked. A remote thumbnail
+               would be a third-party request on page view — the one thing the card is
+               built to avoid. */ -}}
+        {{- with try (resources.GetRemote .) -}}
+          {{- with .Value -}}{{ $thumb = .RelPermalink }}{{ end -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+<a class="repo-card oembed-card{{ if not $live }} is-offline{{ end }}" href="{{ $url }}" rel="noopener" target="_blank">
+  {{- with $thumb }}<img class="oembed-thumb" src="{{ . }}" alt="" loading="lazy" decoding="async">{{ end }}
+  <span class="repo-card-head">
+    {{ partial "icon.html" "external" }}
+    <b class="repo-card-name">{{ $title }}</b>
+  </span>
+  {{- if $live }}
+    <span class="repo-card-meta">
+      {{- with $author }}<span>{{ . }}</span>{{ end }}
+      {{- with $provider }}<span>{{ . }}</span>{{ end }}
+    </span>
+  {{- end }}
+</a>

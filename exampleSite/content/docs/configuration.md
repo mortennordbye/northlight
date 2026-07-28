@@ -30,6 +30,8 @@ default inline, so every default below lives in exactly one place in the source.
 | `smartTOCHideUnfocusedChildren` | `false` | Collapse TOC child lists except under the current heading. Off by default: extra motion in a component whose job is to stay still. |
 | `backgroundImageWidth` | `1600` | Scale target for the full-bleed background image, the largest image on any page that uses one. |
 | `hotlinkFeatureImage` | `false` | Allow `featureImageURL` in front matter to point at a remote image. Off, because that is a third-party request on page view. |
+| `seo.metaDescriptionOrder` | `["description", "summary", "siteDescription"]` | Which source fills the meta description, first non-empty wins. An unknown name is skipped rather than failing the build. |
+| `header.showSubNav` | `false` | A second navigation row from the `subnav` menu. Renders only when that menu has entries. |
 | `imagePosition` | `"center"` | `object-position` for cropped images — the avatar and card thumbnails. Covers are never cropped, so it does not affect the hero. |
 | `disableImageOptimization` | `false` | Hand raster images to the browser unresized. For a site whose images are already optimised upstream. |
 | `layoutBackgroundBlur` | `false` | Blurs background and hero artwork. Applied to the image, not the block, so text over it stays sharp. |
@@ -51,6 +53,7 @@ default inline, so every default below lives in exactly one place in the source.
 | `headline` | — | One line under the name on the home page. |
 | `bio` | — | A paragraph, rendered as Markdown, shown on the `profile` home layout. The headline says what you do; this says who you are. |
 | `email` | — | Used by the reply-by-email link. Nothing renders unless `article.replyByEmail` is also on. |
+| `imageQuality` | `85` | JPEG/WebP quality for the avatar. **Lossless formats ignore it** — a PNG is byte-identical at any value; only the resize applies there. |
 | `image` | — | Square avatar, 160px or larger. Looked up in `assets/` then `static/`; a missing file renders nothing rather than a broken image. |
 | `links` | — | Array of single-key tables. Supported: `linkedin`, `github`, `rss`, `link`. |
 

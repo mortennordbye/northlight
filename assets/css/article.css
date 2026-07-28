@@ -162,7 +162,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
-  margin-left: auto;
+  margin-inline-start: auto;
   font-size: var(--text-meta);
   color: var(--fg-3);
   transition: color var(--dur-card);
@@ -354,12 +354,17 @@
 
 /* The disclosure affordance, since the default marker is suppressed above. A caret drawn
    in CSS rather than an inline SVG, because it is pure decoration next to a line of text
-   that already says what the control does. */
+   that already says what the control does.
+
+   These two borders stay *physical* on purpose. They are not layout — they are two edges
+   of a square, rotated 45° to make an arrowhead. Swapping them under RTL would rotate the
+   caret rather than mirror the layout, and a disclosure caret points down when open in
+   every direction. Geometry, not reading order. */
 .series-summary::before {
   content: "";
   width: 0.42em;
   height: 0.42em;
-  border-right: 1.6px solid currentColor;
+  border-right: 1.6px solid currentColor; /* physical: geometry, not layout */
   border-bottom: 1.6px solid currentColor;
   transform: rotate(-45deg);
   transition: transform var(--dur-card);
@@ -428,7 +433,7 @@
   line-height: 1.4;
   color: var(--fg-2);
   padding: 6px 0 6px var(--space-4);
-  border-left: 2px solid var(--line);
+  border-inline-start: 2px solid var(--line);
   transition:
     color var(--dur-color),
     border-color var(--dur-color);
@@ -440,7 +445,7 @@
 }
 
 .toc ul ul a {
-  padding-left: 26px;
+  padding-inline-start: 26px;
   font-size: var(--text-meta);
 }
 
@@ -655,12 +660,12 @@ a.tag:hover {
   }
 
   .toc a {
-    border-left: none;
-    padding-left: 0;
+    border-inline-start: none;
+    padding-inline-start: 0;
   }
 
   .toc ul ul a {
-    padding-left: var(--space-3);
+    padding-inline-start: var(--space-3);
   }
 }
 

@@ -61,7 +61,7 @@ author can do. It is not a measure of effort.
 | Image zoom / lightbox | **Have** | — | `enableLightbox`, off by default. A `<dialog>`, so the focus trap and Escape handling are the browser's rather than hand-rolled |
 | Zen / focus mode | **Have** | — | `article.showZenMode`. Escape leaves; the toggle survives the hiding |
 | Reply by email link | **Have** | — | `article.replyByEmail` plus `author.email`. A `mailto:` with the title prefilled: no third party, no script, works with JS off |
-| oEmbed rich cards | Gap | Low | **Reasoning superseded.** This was rejected for making remote requests at build time — but the repository cards, the gist and both importers now do exactly that, with degradation and suppressible logging worked out. The objection no longer distinguishes this row from features that shipped; it is unbuilt, not decided against |
+| oEmbed rich cards | **Have** | — | Metadata and a build-time thumbnail, not the `html` field — that is almost always a third-party iframe. A facade, like `youtube-lite` |
 
 ## 2. Content model and front matter
 
@@ -91,7 +91,7 @@ author can do. It is not a measure of effort.
 | Main menu | **Have** | — | |
 | Footer menu | **Have** | — | |
 | **Nested / dropdown menus** | **Have** | — | One level, as a `<details>` disclosure rather than a hover dropdown |
-| Sub-navigation bar | Rejected | Low | Second nav for a six-post blog |
+| Sub-navigation bar | **Have** | — | `header.showSubNav`, off by default. Renders only when the `subnav` menu has entries |
 | Header layout variants | **Have** | — | Two, not four: `fixed` (sticky, the default) and `basic`. The fill and blur variants were not built — they are decoration on a bar that exists to stay out of the way |
 | Homepage layouts | **Have** | — | Ten, selected by `home.layout`. Defaults to `stack`, the original homepage, verified byte-identical |
 | Hero styles (basic/big/background/thumb) | **Have** | — | All four, with the never-crop rule intact in every one. `background` suits textless artwork, since it puts the title over the image |
@@ -116,7 +116,7 @@ author can do. It is not a measure of effort.
 | Custom fonts from the site repo | **Have** | — | Same hook |
 | Styled scrollbars | **Have** | — | |
 | Icon set | **Have** | — | Inline SVG, `_partials/icon.html` |
-| Custom icons from the site repo | Gap | Low | |
+| Custom icons from the site repo | **Have** | — | `assets/icons/name.svg`; a site file wins over a built-in of the same name |
 | Tailwind rebuild pipeline | Rejected | — | There is no Tailwind. That is the point |
 | Logo / secondary logo | **Have** | — | `logo` and optional `logoDark`, replacing the dot and wordmark together |
 
@@ -132,7 +132,7 @@ author can do. It is not a measure of effort.
 | OpenGraph / Twitter cards | **Have** | — | Theme-owned, correct tag casing |
 | JSON-LD article schema | **Have** | — | |
 | **BreadcrumbList schema** | **Have** | — | Emitted alongside the page schema wherever the page has ancestors |
-| Meta description fallback order | **Partial** | Low | Fixed order; reference theme makes it configurable |
+| Meta description fallback order | **Have** | — | `seo.metaDescriptionOrder`, defaulting to the order the theme always used |
 | **Search engine verification tags** | **Have** | — | `[params.verification]`, including `fediverse:creator` |
 | Canonical URL | **Have** | — | |
 | Favicons | **Have** | — | Overridable partial |
@@ -158,7 +158,7 @@ author can do. It is not a measure of effort.
 |---|---|---|---|
 | **Translatable UI strings** | **Have** | — | `i18n/en.toml`. Nothing user-facing is hardcoded, plurals included |
 | Multilingual sites | **Have** | — | Switcher, `hreflang` + `x-default`, per-language index, menus and date formats. Renders nothing on a single-language site |
-| RTL support | **Partial** | Low | `rtl = true` sets `dir`. Layout mirrors, and physical `text-align` is now gone from the CSS and asserted against, but this has still had no real-world exercise |
+| RTL support | **Have** | — | Per site and per page. Measured against a full Arabic page in `exampleSite`: nineteen declarations converted to logical properties, code pinned LTR. Two deliberate exceptions marked in the source |
 | Configurable date format | **Have** | — | `dateFormat`, a Go reference layout |
 | Browser language redirect | **Have** | Low | `languageRedirect`, off by default, runs once, home-page-only by default — rewriting a deliberately shared deep link loses what was shared |
 

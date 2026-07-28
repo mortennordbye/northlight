@@ -22,7 +22,7 @@
   border: 1px solid var(--tok-num);
   border-radius: var(--radius-chip);
   padding: 1px 7px;
-  margin-right: var(--space-2);
+  margin-inline-end: var(--space-2);
   vertical-align: middle;
 }
 

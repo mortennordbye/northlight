@@ -90,6 +90,10 @@ downloadVideo = "Download the video"
 # of which says what pressing it does.
 likeThisPost = "Like this post"
 
+# The optional second navigation row. Named "section" rather than "sub" because that is
+# what it is for: the pages inside the section you are in.
+sectionNavigation = "Section"
+
 # Zen mode: hides everything that is not the article. Named as a mode rather than by its
 # effect because "zen mode" is the established term for exactly this and a reader looking
 # for it will recognise it.

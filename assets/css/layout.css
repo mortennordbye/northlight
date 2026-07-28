@@ -149,7 +149,7 @@ main {
 .nav-group-items {
   position: absolute;
   top: calc(100% + 6px);
-  left: 0;
+  inset-inline-start: 0;
   z-index: 20;
   min-width: 170px;
   display: flex;
@@ -298,7 +298,7 @@ main {
 .lang-switch-items {
   position: absolute;
   top: calc(100% + 6px);
-  right: 0;
+  inset-inline-end: 0;
   z-index: 20;
   min-width: 150px;
   display: flex;
@@ -358,4 +358,47 @@ html[data-header="basic"] .site-header {
 
 html[data-header="basic"] {
   --sticky-offset: var(--space-5);
+}
+
+/* --- sub-navigation --------------------------------------------------------- */
+
+/* A quieter second row than the main bar: smaller type, no separators, a hairline above
+   the content. It has to read as subordinate to the menu above it or the two compete,
+   which is the objection that kept this unbuilt. */
+.subnav-bar {
+  border-top: 1px solid var(--line);
+  background: var(--bg);
+}
+
+.subnav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-block: var(--space-2);
+}
+
+/* No visible scrollbar on the overflow, but it still scrolls — a row of section links on a
+   phone is exactly the case where hiding the overflow entirely would lose entries. */
+.subnav::-webkit-scrollbar {
+  display: none;
+}
+
+.subnav a {
+  flex: none;
+  font-size: 14px;
+  color: var(--fg-3);
+  padding-block: 2px;
+  border-bottom: 2px solid transparent;
+  transition: color var(--dur-color), border-color var(--dur-color);
+}
+
+.subnav a:hover {
+  color: var(--fg-2);
+}
+
+.subnav a[aria-current="page"] {
+  color: var(--fg);
+  border-bottom-color: var(--accent);
 }

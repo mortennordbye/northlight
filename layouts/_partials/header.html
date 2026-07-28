@@ -83,4 +83,22 @@
       {{- end }}
     </nav>
   </div>
+
+  {{- /* A second row, from the `subnav` menu. Off by default, and the original objection
+         stands for most sites: a second navigation bar for a six-post blog is chrome
+         competing with the writing. It earns its place on a documentation site, where the
+         main menu names sections and this names the pages inside the current one.
+
+         It renders only when the menu has entries *and* the switch is on, so turning it on
+         without defining the menu shows nothing rather than an empty bar. */ -}}
+  {{- if and $cfg.showSubNav site.Menus.subnav }}
+  <div class="subnav-bar">
+    <nav class="wrap subnav" aria-label="{{ i18n "sectionNavigation" }}">
+      {{- range site.Menus.subnav }}
+        {{- $active := or ($.IsMenuCurrent "subnav" .) ($.HasMenuCurrent "subnav" .) }}
+        <a href="{{ .URL }}"{{ if $active }} aria-current="page"{{ end }}>{{ .Name }}</a>
+      {{- end }}
+    </nav>
+  </div>
+  {{- end }}
 </header>

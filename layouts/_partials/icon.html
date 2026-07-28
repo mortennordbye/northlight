@@ -46,8 +46,22 @@
   "chevron-down" `<path d="m6 9 6 6 6-6"/>`
   "external"    `<path d="M14 4h6v6M20 4l-8.5 8.5M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>`
 -}}
+{{- /* A site can add its own icons without forking: drop `name.svg` into your site's
+       assets/icons/ and call it by name. A site file wins over a built-in of the same
+       name, which is what makes it an override rather than only an addition.
+
+       The file is inlined rather than referenced, so it takes `currentColor` and sizes in
+       `em` like every built-in one — an <img> would do neither. It is *not* marked safe
+       beyond what Hugo already does for a resource's content, and a site putting a script
+       in its own icon file has only itself to answer to; this is the site's own asset
+       directory, not remote input. */ -}}
+{{- $custom := resources.Get (printf "icons/%s.svg" .) -}}
+{{- with $custom -}}
+  {{- .Content | safeHTML -}}
+{{- else -}}
 {{- with index $icons . -}}
   <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">{{ . | safeHTML }}</svg>
 {{- else -}}
-  {{- warnf "icon.html: no icon named %q" . -}}
+  {{- warnf "icon.html: no icon named %q — not in the built-in set and no assets/icons/%s.svg in your site" . . -}}
+{{- end -}}
 {{- end -}}

@@ -174,7 +174,13 @@ refute_grep '/docs/' "$PUBLIC/index.xml"  "docs stay out of the RSS feed"
 # every sitemap rather than the root one: that is what a crawler does, and it keeps this
 # assertion true whether or not the site has more than one language.
 DOC_URLS=$(find "$PUBLIC" -name 'sitemap.xml' -exec grep -ohE 'https?://[^<]*/docs/[a-z-]+/' {} + | sort -u | wc -l | tr -d ' ')
-assert_count 7 "$DOC_URLS" "all seven docs pages are in the sitemap"
+# Counted from the docs section itself rather than hardcoded: the number went from seven
+# to eight when the RTL page landed, and a literal here just moves the maintenance from
+# the sitemap to this line.
+# -mindepth 2 skips /docs/ itself: the URL pattern above matches sub-pages only, and
+# counting the section index made the two disagree by one.
+DOC_PAGES=$(find "$PUBLIC/docs" -mindepth 2 -maxdepth 2 -name 'index.html' | wc -l | tr -d ' ')
+assert_count "$DOC_PAGES" "$DOC_URLS" "every docs page is in the sitemap"
 
 # excludeFromSearch keeps a page out of the index without keeping it off the site.
 refute_grep 'a-link-post' "$PUBLIC/index.json" "excludeFromSearch keeps a post out of the index"
@@ -472,6 +478,36 @@ fi
 #
 # This is asserted across every stylesheet rather than prose alone because the bug was
 # in two files, and the reason it survived is that nothing was watching for it.
+# Directional properties, the wider sweep the text-align rule started. Nineteen
+# declarations were converted after being measured on the RTL page — the blockquote and
+# admonition accent edges sat on the left, and list indents were on the wrong side.
+#
+# Two files are exempt, and both exemptions are load-bearing rather than convenient:
+#   chroma.css  — a code block is left-to-right even on a right-to-left page, so its
+#                 line-number gutter belongs on the left in both directions.
+#   the caret   — .series-summary::before is two edges of a square rotated 45° into an
+#                 arrowhead. Swapping them rotates the caret rather than mirroring layout.
+# `border` is in the alternation. The first version left it out to accommodate the caret,
+# which meant `border-left` — the exact property the blockquote bug was in — went
+# unguarded, and regressing it kept the suite green. Exemptions are now marked at the
+# declaration with `/* physical: … */` and say why, rather than being whole-file excludes.
+PHYSDIR=$(grep -rnE '^[[:space:]]*(margin|padding|border)-(left|right)[[:space:]]*:|^[[:space:]]*(left|right)[[:space:]]*:' \
+  "$ROOT/assets/css/" | grep -v '/\* physical:' || true)
+if [ -n "$PHYSDIR" ]; then
+  bad "no physical directional properties survive in the CSS" \
+      "$(printf '%s' "$PHYSDIR" | head -3 | tr '\n' ' ')"
+else
+  ok "no physical directional properties survive in the CSS"
+fi
+
+# Code stays LTR inside an RTL page. Without this the bidirectional algorithm reorders
+# punctuation inside lines — `);` migrating to the wrong end of a statement.
+assert_grep 'direction: ltr' "$ROOT/assets/css/chroma.css" "code blocks stay left-to-right on an RTL page"
+
+# The RTL page itself, which is what made the sweep measurable rather than inferred.
+assert_grep 'dir=rtl' "$PUBLIC/docs/rtl/index.html" "the RTL demo page renders right-to-left"
+refute_grep 'dir=rtl' "$PUBLIC/docs/writing/index.html" "an LTR page is unaffected by the per-page flag"
+
 PHYSALIGN=$(grep -rnE '^[[:space:]]*text-align[[:space:]]*:[[:space:]]*(left|right)' "$ROOT/assets/css/" || true)
 if [ -n "$PHYSALIGN" ]; then
   bad "no physical text-align survives in the CSS" "$(printf '%s' "$PHYSALIGN" | head -3 | tr '\n' ' ')"
@@ -747,6 +783,31 @@ refute_grep 'Updated <time' "$PUBLIC/blog/two-modes/index.html" "no updated date
 # says nothing twice.
 refute_grep 'Updated <time' "$WRITING" "no updated date when it renders as the same day"
 
+# --- the last five --------------------------------------------------------------------
+
+# Custom icons: a site file wins over a built-in of the same name, which is what makes it
+# an override rather than only an addition.
+assert_grep 'resources.Get (printf "icons/%s.svg"' "$ROOT/layouts/_partials/icon.html" \
+  "a site can supply its own icons"
+
+# Meta description order is configurable, defaulting to what the theme always did.
+assert_grep 'metaDescriptionOrder' "$ROOT/layouts/_partials/head.html" \
+  "the meta description order is configurable"
+assert_grep '<meta name=description content="Four of the theme' "$MEASURING" \
+  "the default order still prefers the page description"
+
+# author.imageQuality. Both branches of image-url.html are exercised by the demo: Morten's
+# avatar is an SVG and passes through, Ada's is a JPEG and goes through the pipeline.
+# Quality is a lossy-format setting — a PNG comes out identical at q20 and q85 — so the
+# demo uses a JPEG deliberately.
+# Literal path, not $COAUTH: that variable is set further down this file, and using it
+# here failed with "unbound variable" under `set -u`.
+assert_grep 'src=/images/profile.svg' "$PUBLIC/blog/co-authored/index.html" \
+  "an SVG avatar passes through unprocessed"
+assert_grep 'src=/images/profile-raster_hu_' "$PUBLIC/blog/co-authored/index.html" \
+  "a raster avatar goes through the pipeline"
+assert_grep 'imageQuality' "$ROOT/layouts/_partials/image-url.html" "the avatar honours imageQuality"
+
 # --- the tail: toggles, hooks, importers, typeit ------------------------------------
 
 # Every one of these defaults to the theme's existing behaviour, so what is asserted is the
@@ -900,8 +961,16 @@ refute_grep 'firebasejs\|firebase-app' "$ROOT/assets/js/counters.js" \
 # after one was deleted, so the assertion could not catch a broken shortcode.
 # Anchored to the <a>, because `class=repo-card` also prefix-matches repo-card-head,
 # -name, -desc and -meta — five hits per card, so the first count said 10.
-REPO_CARDS=$(grep -o '<a class="\?repo-card' "$SHORTCODES" | wc -l | tr -d ' ')
+# `oembed` reuses the repo-card shape, so it matches a bare `repo-card` count too. The
+# forge cards carry the class alone; the oembed card carries `repo-card oembed-card`.
+# Counted by class list, not by quoting. Hugo quotes a class attribute only when it holds
+# more than one value, and whether a card gains `is-offline` depends on whether the forge
+# answered — so a pattern keyed on quotes counts differently on a rate-limited build.
+ALL_CARDS=$(grep -o '<a class="\?repo-card[^>]*' "$SHORTCODES" | wc -l | tr -d ' ')
+OEMBED_CARDS=$(grep -o '<a class="\?repo-card[^>]*' "$SHORTCODES" | grep -c 'oembed-card' | tr -d ' ')
+REPO_CARDS=$((ALL_CARDS - OEMBED_CARDS))
 assert_count 2 "$REPO_CARDS" "both repository cards render"
+assert_count 1 "$OEMBED_CARDS" "the oembed card renders"
 assert_grep 'href=https://github.com/gohugoio/hugo' "$SHORTCODES" "the card links to the repository"
 
 # The reader fetches nothing: the counts are baked in at build time, which is the whole

@@ -107,22 +107,27 @@
   padding: 0;
 }
 
-/* The gutter between the numbers and the code goes on .lnt rather than on the pre.
+/* These paddings stay *physical* on purpose. A code block is left-to-right even on a
+   right-to-left page — the code is not Arabic — so the line-number gutter belongs on the
+   left in both directions, and a logical property would move it to the right of the code
+   on an RTL page. The RTL test page carries a code block for exactly this check.
+
+   The gutter between the numbers and the code goes on .lnt rather than on the pre.
    .hl wraps .lnt, so padding inside it gets the highlight background; padding on the
    pre sits outside .hl and leaves a seam between the two columns on any line that is
    both numbered and highlighted. */
 .chroma .lntd:first-child pre.chroma {
-  padding-right: 0;
+  padding-right: 0; /* physical: code is LTR in both directions */
   overflow: visible;
 }
 
 .chroma .lnt,
 .chroma .ln {
-  padding-right: var(--space-3);
+  padding-right: var(--space-3); /* physical: code is LTR in both directions */
 }
 
 .chroma .lntd:last-child pre.chroma {
-  padding-left: 0;
+  padding-left: 0; /* physical: code is LTR in both directions */
 }
 
 .chroma .ln,
@@ -331,3 +336,20 @@
 .chroma .gt { color: var(--fg-2); }
 .chroma .gr { color: var(--fg); }
 .chroma .gl { text-decoration: underline; }
+
+/* --- direction -------------------------------------------------------------- */
+
+/* Code is left-to-right even on a right-to-left page, and it does not inherit that: a
+   <pre> inside `dir="rtl"` picks up RTL and the bidirectional algorithm then reorders
+   punctuation inside lines — `);` migrating to the wrong end of a statement, operators
+   swapping around their operands. Measured on the RTL test page before this was set.
+
+   `unicode-bidi: isolate` as well as `direction`, so a code block containing Arabic in a
+   string or a comment does not leak its direction back out into the surrounding page. */
+.chroma,
+.highlight pre,
+.prose pre,
+.prose code {
+  direction: ltr;
+  unicode-bidi: isolate;
+}

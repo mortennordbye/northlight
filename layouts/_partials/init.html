@@ -107,6 +107,7 @@
 {{- $layoutBackgroundHeaderSpace := partial "param-bool.html" (dict "map" site.Params "key" "layoutBackgroundHeaderSpace" "default" false) -}}
 
 {{- $h := site.Params.header | default dict -}}
+{{- $showSubNav := partial "param-bool.html" (dict "map" $h "key" "showSubNav" "default" false) -}}
 {{- $headerLayout := $h.layout | default "fixed" -}}
 {{- if not (in (slice "basic" "fixed") $headerLayout) -}}
   {{- $headerLayout = "fixed" -}}
@@ -161,6 +162,7 @@
   "list" $list
   "taxonomy" $taxonomy
   "headerLayout" $headerLayout
+  "showSubNav" $showSubNav
   "smartTOCHideUnfocusedChildren" $smartTOCHideUnfocusedChildren
   "backgroundImageWidth" $backgroundImageWidth
   "hotlinkFeatureImage" $hotlinkFeatureImage

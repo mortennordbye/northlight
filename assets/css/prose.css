@@ -73,12 +73,12 @@
 .prose ul,
 .prose ol {
   margin: 0 0 var(--space-5);
-  padding-left: 22px;
+  padding-inline-start: 22px;
 }
 
 .prose li {
   margin-bottom: var(--space-2);
-  padding-left: var(--space-1);
+  padding-inline-start: var(--space-1);
 }
 
 .prose li::marker {
@@ -87,7 +87,7 @@
 
 /* Accent wash and a soft left edge rather than a grey box. */
 .prose blockquote {
-  border-left: 3px solid var(--accent-pastel);
+  border-inline-start: 3px solid var(--accent-pastel);
   background: var(--accent-tint);
   border-radius: 0 var(--radius-thumb) var(--radius-thumb) 0;
   padding: var(--space-4) var(--space-5);
@@ -227,7 +227,7 @@ html[data-theme="dark"] .img-dark {
 .admonition {
   --adm: var(--adm-note);
   --adm-bg: var(--adm-note-tint);
-  border-left: 3px solid var(--adm);
+  border-inline-start: 3px solid var(--adm);
   background: var(--adm-bg);
   border-radius: 0 var(--radius-thumb) var(--radius-thumb) 0;
   padding: var(--space-4) var(--space-5);
@@ -334,7 +334,7 @@ html[data-theme="dark"] .img-dark {
 
 .heading-anchor {
   position: absolute;
-  left: -24px;
+  inset-inline-start: -24px;
   top: 50%;
   transform: translateY(-50%);
   color: var(--fg-3);

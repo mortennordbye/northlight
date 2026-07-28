@@ -4,7 +4,9 @@ name = "Ada Example"
 headline = "Invented the demo co-author"
 # A second avatar, so the stacked-avatar group in the byline is actually exercised
 # rather than only styled.
-image = "images/profile-ada.svg"
+# A raster avatar on purpose: Morten's is an SVG, so the two of them exercise both
+# branches of image-url.html — the resize path and the pass-through.
+image = "images/profile-raster.jpg"
 links = [
   { link = "https://example.com" },
 ]

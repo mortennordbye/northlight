@@ -9,53 +9,12 @@ Empty is the correct state for this file.
 
 ## Open
 
-### `author.imageQuality` is not implemented
+Nothing. Every entry that was here has been built or decided, and the record of each is in
+*Closed* below.
 
-**What.** `bio` and `email` landed as part of the author-fields row in `docs/GAP-LIST.md`.
-`imageQuality` did not.
-
-**Why deferred.** The avatar does not go through Hugo's image pipeline at all.
-`_partials/image-url.html` resolves a configured path to a URL and returns it untouched,
-deliberately: it has to pass an SVG through, and `exampleSite/` uses `profile.svg`. A quality
-setting only means something once raster avatars are routed through `.Resize`, which changes
-what that partial is for, needs a raster avatar in `exampleSite/` to be exercised, and needs the
-SVG path to keep working alongside it. That is a separate change with its own verification, not
-a parameter.
-
-**What unblocks it.** Deciding that the avatar should be processed. Then: branch `image-url.html`
-on media type, resize rasters at the configured quality, pass SVG through as now, add a raster
-avatar to `exampleSite/` so both branches are exercised, and assert both.
-
-**Where.** `layouts/_partials/image-url.html`; callers are `_partials/home/intro.html` and
-`_partials/home/profile.html`. Row 3 in `docs/GAP-LIST.md`.
-
----
-
-### Physical properties other than `text-align` are still an RTL risk
-
-**What.** `text-align: left|right` is gone from the CSS and `tests/run.sh` refuses to let it back
-in. The same class of bug remains in the properties nothing is watching: about twenty declarations
-of `margin-left`/`right`, `padding-left`/`right`, `border-left`/`right`, bare `left:`/`right:` and
-`float`, spread over `article.css` (6), `prose.css` (5), `interaction.css` (4), `chroma.css` (3),
-`list.css` (1) and `layout.css` (1). Each is a candidate to pin something to the wrong edge under
-`dir="rtl"`, exactly as the table cells did.
-
-**Why deferred.** Not the same job as the fix that was asked for. The `text-align` change was
-three declarations with an obvious logical equivalent and no consequence under LTR; this is
-roughly twenty, several load-bearing for spacing rather than direction. Converting them wholesale
-with no RTL page to check against would be changing rendering by inference, which is how the
-original bug got in.
-
-**What unblocks it.** An RTL page in `exampleSite/` to measure against — the `rtl` shortcode
-exercises a paragraph, but no table, code block, pager or sidebar. Build that first, then convert
-per property with a measurement each, widening the existing assertion as each one lands. One
-sweeping `logical-properties` commit is the wrong shape.
-
-**Where.** `assets/css/`, the six files above. The existing guard and its reasoning are in
-`tests/run.sh`, beside the gallery's never-crop check. `docs/FEATURE-SURVEY.md` records RTL as
-Partial for this reason.
-
----
+That is the intended state of this file, not an achievement to preserve — the next thing
+deferred belongs here, with what it is, why it was deferred, what would unblock it, and
+where the code lives.
 
 ## Closed
 
@@ -77,6 +36,8 @@ Kept as a short record so the same questions are not reopened from scratch.
 | `v0.1.0` not tagged | Tagged. |
 | `design/northlight.html` reinterpreted DOM text as HTML | Fixed. The mockup's mock search escapes what it interpolates, matching `assets/js/search.js`. Nothing shipped was affected — the file is a local reference and is never served — but an unescaped `innerHTML` in the artifact people read as the target reads as the pattern to copy. |
 | The `video` shortcode had no sample file | Built. The blocker was "no encoder on the host", and the answer was the rule the repo already lives by: run it in a container. A one-off `linuxserver/ffmpeg` produced an 8s, 116KB clip, which was then decoded frame by frame and watched playing in a browser before being committed, so "a sample nobody has watched play" stopped applying. |
+| `author.imageQuality` unimplemented | Built. The avatar goes through Hugo's pipeline for raster formats and still passes SVG through untouched. Quality turned out to be lossy-format-only — a PNG is byte-identical at q20 and q85 — so the demo avatar is a JPEG and the docs say so. |
+| Physical properties beyond `text-align` | Swept. An Arabic page was added to `exampleSite` first, so the conversion was measured rather than inferred — and it found three real bugs the inference would have missed, including code blocks inheriting RTL. Nineteen declarations converted; two stay physical and say why at the declaration. |
 | Table cells did not follow the text direction | Fixed. `prose.css` and `article.css` use logical `start`/`end`, verified by measurement: cell text moves from the left edge to the right edge when the block flips, and LTR rendering is unchanged. `tests/run.sh` refuses any physical `text-align`. The wider sweep it belongs to is the Open entry above. |
 
 ### Deliberately not built
