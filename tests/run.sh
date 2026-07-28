@@ -139,7 +139,7 @@ refute_grep '/docs/' "$PUBLIC/index.json" "docs stay out of the search index"
 refute_grep '/docs/' "$PUBLIC/index.xml"  "docs stay out of the RSS feed"
 # Host-agnostic: CI builds with the Pages base URL, not the demo's example.com.
 DOC_URLS=$(grep -oE 'https?://[^<]*/docs/[a-z-]+/' "$PUBLIC/sitemap.xml" | sort -u | wc -l | tr -d ' ')
-assert_count 6 "$DOC_URLS" "all six docs pages are in the sitemap"
+assert_count 7 "$DOC_URLS" "all seven docs pages are in the sitemap"
 
 # excludeFromSearch keeps a page out of the index without keeping it off the site.
 refute_grep 'a-link-post' "$PUBLIC/index.json" "excludeFromSearch keeps a post out of the index"
@@ -174,6 +174,27 @@ assert_grep 'loading=lazy'          "$WRITING" "prose images are lazy loaded"
 assert_grep 'class=img-light'       "$WRITING" "light image of a dark-variant pair"
 assert_grep 'class=img-dark'        "$WRITING" "dark image of a dark-variant pair"
 assert_grep '<figcaption>'          "$WRITING" "image captions render"
+
+# Whitespace between inline elements collapses to a visible space. A template that ends
+# with a newline after an inline closing tag therefore puts a space between it and
+# whatever follows — only noticeable, and then unmissable, when what follows is
+# punctuation: "see the docs ." instead of "see the docs."
+#
+# Every inline-producing template is a candidate, so this checks the whole build rather
+# than one page and every inline tag rather than one: it depends on how a sentence was
+# written, not on which template rendered it. The link render hook and the badge
+# shortcode have each shipped this bug.
+DANGLING=$(find "$PUBLIC" -name '*.html' | while read -r f; do
+  awk -v f="$f" '
+    p && /^[.,;:!?)]/ { print f; exit }
+    { p = /<\/(a|span|code|em|strong|abbr|kbd|small|sup|sub)>$/ }
+  ' "$f"
+done | head -1)
+if [ -n "$DANGLING" ]; then
+  bad "no space between an inline element and the punctuation after it" "${DANGLING#"$ROOT"/}"
+else
+  ok "no space between an inline element and the punctuation after it"
+fi
 assert_grep 'code-bar'              "$WRITING" "code fence filename bar renders"
 assert_grep 'table-wrap'            "$WRITING" "tables get a scroll container"
 assert_grep 'footnotes'             "$WRITING" "footnotes render"
@@ -185,6 +206,47 @@ if grep -o '<img [^>]*>' "$WRITING" | grep -qvE 'alt=|alt[ >]'; then
   bad "every rendered image has an alt attribute" "$(grep -o '<img [^>]*>' "$WRITING" | grep -vE 'alt=|alt[ >]' | head -1)"
 else
   ok "every rendered image has an alt attribute"
+fi
+
+# --------------------------------------------------------------------------------
+group "Shortcodes"
+
+SHORTCODES="$PUBLIC/docs/shortcodes/index.html"
+
+assert_file "$SHORTCODES" "the shortcodes documentation page builds"
+
+# Showing a shortcode call in a code fence needs the escaped form, {{</* … */>}}.
+# Without it Hugo executes the call even inside a fence, the example silently vanishes
+# from the documentation, and the page renders the feature where it meant to describe
+# it. Nothing else catches that: the build stays green and the page still looks fine.
+# The escaped form reaches the reader as {{&lt; … &gt;}}, so assert on that.
+assert_grep '{{&lt; lead &gt;}}' "$SHORTCODES" "shortcode calls shown in code fences stay literal"
+
+# lead: reuses the article lede class rather than defining a parallel one, so this
+# assertion also guards against someone giving it type tokens of its own.
+# Three, not two: the page's own `description` renders as a lede above the body, which
+# is exactly the overlap the shortcode's documentation warns about.
+LEADS=$(grep -o 'class=lede' "$SHORTCODES" | wc -l | tr -d ' ')
+assert_count 3 "$LEADS" "lead renders as a lede block"
+
+# badge: inline rendering is the whole point of the RenderString call — without the
+# inline display Hugo wraps the inner text in a <p>, which breaks the line box the
+# badge sits in. Assert on the markup rather than on the class alone.
+assert_grep '<span class=badge>' "$SHORTCODES" "badge renders as an inline chip"
+
+# button: pageRef must resolve to a real URL, not be echoed as written, and _blank must
+# bring rel=noopener with it or the opened page can reach back through window.opener.
+assert_grep 'class=button href=/docs/getting-started/' "$SHORTCODES" "button resolves pageRef to a URL"
+BLANK=$(grep -o '<a class=button[^>]*_blank[^>]*>' "$SHORTCODES" | head -1)
+case "$BLANK" in
+  *noopener*) ok "button with target=_blank sets rel=noopener" ;;
+  "") bad "button with target=_blank sets rel=noopener" "no target=_blank button found" ;;
+  *)  bad "button with target=_blank sets rel=noopener" "$BLANK" ;;
+esac
+if grep -o '<span class=badge>[^<]*<p' "$SHORTCODES" >/dev/null; then
+  bad "badge inner content stays inline" "inner content was wrapped in a paragraph"
+else
+  ok "badge inner content stays inline"
 fi
 
 # --------------------------------------------------------------------------------

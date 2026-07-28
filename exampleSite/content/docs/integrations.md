@@ -1,7 +1,7 @@
 ---
 title: "Integrations"
 description: "Comments, analytics, feeds, search, and the two escape hatches for everything else."
-weight: 5
+weight: 6
 date: 2026-07-27
 ---
 

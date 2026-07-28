@@ -159,30 +159,45 @@ author can do. It is not a measure of effort.
 
 ## 8. Shortcodes
 
-The reference theme ships **34**. `docs/SPEC.md` puts shortcodes out of scope, and the audit
-behind this theme found the reference blog used none of them.
+The reference theme ships **34**. This theme shipped none until 2026-07-27, on the grounds that
+`docs/SPEC.md` puts them out of scope and the audit behind this theme found the reference blog
+used none of them.
 
-The distinction that matters: a shortcode is theme-specific syntax that locks content to the
-theme, while a **render hook** enriches standard Markdown that renders fine anywhere. Admonitions
-and responsive images are listed as gaps above precisely because they can be render hooks. The
-following would all require inventing syntax:
+**That decision was reversed.** The audit finding is still true, but it describes one blog, and
+this theme is published for other people whose content is not that blog's. `docs/EXPANSION-PLAN.md`
+is the ordered build list and the progress record; the table below is the status.
 
-Alert · Accordion · Article · Badge · Button · Carousel · Chart · Code importer · Email · Figure ·
-Gallery · Gist · Repository cards for six different forges · Hugging Face card · Icon · KaTeX ·
-Keyword · Lead · List · LTR/RTL · Markdown importer · Mermaid · Swatches · Tabs · Timeline ·
-TypeIt · Video · YouTube Lite
+The distinction that drove the original decision still holds and still shapes the work: a
+shortcode is theme-specific syntax that locks content to the theme, while a **render hook**
+enriches standard Markdown that renders fine anywhere. So render hooks stay the documented default
+wherever both would work — admonitions and responsive images remain render hooks and are not being
+duplicated as shortcodes — and every shortcode is additive, replacing no Markdown path.
 
-Two are worth naming individually because a technical blog has a real claim on them:
+| Shortcode | Status | Note |
+|---|---|---|
+| Lead | **Have** | Reuses the `.lede` treatment rather than defining a parallel one |
+| Badge | **Have** | Same shape as a tag, without a tag's link behaviour |
+| Button | **Have** | Reuses the `.button` already used by the 404 page and the share row |
+| Email · Keyword · LTR/RTL · Swatches | Gap | Presentational primitives, no JS |
+| Icon · Article · List · Figure | Gap | Wrap partials the theme already has |
+| Alert | Gap | Only if it can reuse the admonition render hook's colours; a second syntax for the same thing is not worth the surface |
+| Accordion · Gallery · Tabs · Timeline | Gap | CSS-driven, JS-optional |
+| Carousel | Gap | Lowest priority and a candidate to drop — needs JS, and autoplay fights `prefers-reduced-motion` |
+| Video · YouTube Lite | Gap | Local files only; the YouTube one as a click-to-load facade, so nothing is requested on page view |
+| Repository cards (six forges) · Ansible · Hugging Face · Code importer · Markdown importer | Rejected | Each calls a third-party API during the build. `docs/SPEC.md` §1 requires the theme to build with no network access |
+| Gist | Rejected | Third-party script on page view; the code fence with a filename bar covers it locally |
+| Chart · Mermaid · TypeIt | Rejected | Each needs a rendering library shipped to every page that uses it. `extend-head.html` is the route |
+| KaTeX | Rejected | Already decided in `BACKLOG.md`, for the same reason |
 
-- **Mermaid** — diagrams as text. Would pull a large JS renderer onto every page that has one.
-  Belongs in `extend-head.html` for the sites that want it.
-- **KaTeX** — already decided in `BACKLOG.md` for the same reason.
+Of the rejected ones, **diagrams as text** has the strongest claim if this is ever reopened — a
+technical blog has a real use for it. It would still put a large renderer on the page.
 
 ---
 
 ## What is left
 
-Seven rows are still Gap or Partial, all Low value or narrow:
+Section 8 is tracked separately in `docs/EXPANSION-PLAN.md` and is not counted here. Outside it,
+seven rows are still Gap or Partial, all Low value or narrow:
 
 * **RTL** is Partial. `rtl = true` sets `dir` and the layout mirrors, but nothing here has
   been exercised by someone actually reading right to left. That is the row most likely

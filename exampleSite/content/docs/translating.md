@@ -1,7 +1,7 @@
 ---
 title: "Translating"
 description: "Every string the theme puts on screen lives in one file. Translating it means copying that file."
-weight: 6
+weight: 7
 date: 2026-07-27
 ---
 

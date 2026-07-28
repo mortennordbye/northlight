@@ -12,3 +12,6 @@
   {{- with .Title }} title="{{ . }}"{{ end }}
   {{- if $external }} rel="noopener" target="_blank"{{ end -}}
 >{{ .Text }}</a>
+{{- /* Nothing after </a>, deliberately. Whitespace between inline elements collapses
+       to a visible space, so a trailing newline here renders "[link](x)." as "link ."
+       — a space before the full stop, in every sentence that ends on a link. */ -}}

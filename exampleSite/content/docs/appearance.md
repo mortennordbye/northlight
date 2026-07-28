@@ -1,7 +1,7 @@
 ---
 title: "Appearance"
 description: "Palettes, colour modes, your own CSS, custom fonts and logos."
-weight: 4
+weight: 5
 date: 2026-07-27
 ---
 

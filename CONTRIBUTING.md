@@ -27,6 +27,13 @@ make test     # the test suite alone, against the current build
 make clean    # remove build output and caches
 ```
 
+`make check` bind-mounts this directory into the container. If your Docker daemon cannot see it —
+`DOCKER_HOST` pointing at another machine, or a daemon in its own VM without the repo on a shared
+path — the mount lands on an empty directory and the build fails with `failed to open dir
+/src/northlight/exampleSite`. `make check-remote` is the same gate for that case: same pinned
+image, same flags, same suite, with the source sent over the daemon socket instead of mounted.
+Prefer `make check` wherever it works.
+
 The theme is developed against `exampleSite/`, which doubles as the demo site and the integration
 test. If a feature cannot be exercised from `exampleSite/`, add content there until it can.
 
