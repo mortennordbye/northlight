@@ -41,7 +41,7 @@ author can do. It is not a measure of effort.
 | Feature | Status | Value | Note |
 |---|---|---|---|
 | Table of contents | **Have** | — | Scroll-spy, sticky rail on desktop, card on mobile |
-| TOC hides unfocused children | Rejected | — | Extra motion in a component whose job is to stay still |
+| TOC hides unfocused children | **Have** | — | `smartTOCHideUnfocusedChildren`, off by default. Built with `:has()` — no script and no transition, so the original objection (extra motion) does not apply |
 | Reading time | **Have** | — | |
 | Word count | **Have** | — | |
 | Reading progress bar | **Have** | — | 2px, respects `prefers-reduced-motion` |
@@ -61,7 +61,7 @@ author can do. It is not a measure of effort.
 | Image zoom / lightbox | **Have** | — | `enableLightbox`, off by default. A `<dialog>`, so the focus trap and Escape handling are the browser's rather than hand-rolled |
 | Zen / focus mode | **Have** | — | `article.showZenMode`. Escape leaves; the toggle survives the hiding |
 | Reply by email link | **Have** | — | `article.replyByEmail` plus `author.email`. A `mailto:` with the title prefilled: no third party, no script, works with JS off |
-| oEmbed rich cards | Rejected | Low | Remote requests at build time |
+| oEmbed rich cards | Gap | Low | **Reasoning superseded.** This was rejected for making remote requests at build time — but the repository cards, the gist and both importers now do exactly that, with degradation and suppressible logging worked out. The objection no longer distinguishes this row from features that shipped; it is unbuilt, not decided against |
 
 ## 2. Content model and front matter
 
@@ -92,10 +92,10 @@ author can do. It is not a measure of effort.
 | Footer menu | **Have** | — | |
 | **Nested / dropdown menus** | **Have** | — | One level, as a `<details>` disclosure rather than a hover dropdown |
 | Sub-navigation bar | Rejected | Low | Second nav for a six-post blog |
-| Header layout variants (fixed, fill, blur) | Rejected | — | Four variants where one considered choice is better |
+| Header layout variants | **Have** | — | Two, not four: `fixed` (sticky, the default) and `basic`. The fill and blur variants were not built — they are decoration on a bar that exists to stay out of the way |
 | Homepage layouts | **Have** | — | Ten, selected by `home.layout`. Defaults to `stack`, the original homepage, verified byte-identical |
 | Hero styles (basic/big/background/thumb) | **Have** | — | All four, with the never-crop rule intact in every one. `background` suits textless artwork, since it puts the title over the image |
-| Card vs list view switches | Rejected | — | See `BACKLOG.md` |
+| Card vs list view switches | **Have** | — | `list.cardView` and `taxonomy.cardView`, both defaulting to current behaviour |
 | `groupByYear` on the index | **Have** | — | |
 | Pagination | **Have** | — | |
 | Constrain item width | **Have** | — | Fixed measure, not configurable |
@@ -109,7 +109,7 @@ author can do. It is not a measure of effort.
 | Light / dark modes | **Have** | — | `light-dark()`, no flash, follows system |
 | Appearance toggle | **Have** | — | |
 | Colour palettes | **Have** | — | Three: periwinkle, sage, clay |
-| Built-in palette count | Rejected | — | Every accent is measured against its own background in both modes. That does not scale to sixteen |
+| Built-in palette count | **Have** | — | Six. Each accent measured against its own tint before shipping; a seventh candidate was dropped for measuring below every existing palette |
 | **User `custom.css` hook** | **Have** | — | Auto-detected, folded into the fingerprinted bundle |
 | Custom palettes from the site repo | **Have** | — | Retune tokens in `custom.css` |
 | Self-hosted fonts | **Have** | — | Metric-matched fallbacks, zero layout shift |
@@ -144,13 +144,13 @@ author can do. It is not a measure of effort.
 | Comments (giscus) | **Have** | — | GitHub Discussions, params-driven, follows the appearance toggle, partial overridable |
 | `extend-head.html` | **Have** | — | |
 | **`extend-footer.html`** | **Have** | — | End-of-body twin of the head hook |
-| `extend-head-uncached.html` | Gap | Low | |
+| `extend-head-uncached.html` | Not applicable | — | The reference theme needs an uncached variant because its `extend-head` is cached. Ours is called with plain `partial` from an uncached `head.html`, so per-page injection already works and a second hook would be two names for one behaviour |
 | Analytics: Cloudflare · Fathom · Umami · Seline · Plausible · Google | **Have** | — | Six providers as config blocks; GA through Hugo's own `[services.googleAnalytics]`. Nothing is emitted unless configured |
 | Analytics: Fathom · Umami · Seline · Plausible · GA | **Have** | — | All wired as config blocks. Anything else still goes through `extend-head.html` |
-| Firebase view and like counters | Rejected | — | Adds a backend to a static site |
-| Buy Me A Coffee widget | Rejected | — | |
-| AdSense | Rejected | — | |
-| RSSNext / Follow ownership tags | Gap | Low | |
+| Firebase view and like counters | **Have** | — | Firestore REST, no SDK. Off unless configured; the only feature that records reader activity |
+| Buy Me A Coffee widget | **Have** | — | `buymeacoffee`, opt-in global widget |
+| AdSense | **Have** | — | `advertisement.adsense`, opt-in. Documented as profiling readers across sites and needing a consent banner the theme does not ship |
+| RSSNext / Follow ownership tags | **Have** | — | `rssnext.feedId` / `userId`, emitted only when set |
 
 ## 7. Internationalisation
 
@@ -160,7 +160,7 @@ author can do. It is not a measure of effort.
 | Multilingual sites | **Have** | — | Switcher, `hreflang` + `x-default`, per-language index, menus and date formats. Renders nothing on a single-language site |
 | RTL support | **Partial** | Low | `rtl = true` sets `dir`. Layout mirrors, and physical `text-align` is now gone from the CSS and asserted against, but this has still had no real-world exercise |
 | Configurable date format | **Have** | — | `dateFormat`, a Go reference layout |
-| Browser language redirect | Rejected | Low | Client-side redirects on a static site |
+| Browser language redirect | **Have** | Low | `languageRedirect`, off by default, runs once, home-page-only by default — rewriting a deliberately shared deep link loses what was shared |
 
 ## 8. Shortcodes
 
@@ -200,8 +200,8 @@ duplicated as shortcodes — and every shortcode is additive, replacing no Markd
 | Video · YouTube Lite | **Have** | `video` for local files, `youtube-lite` as a click-to-load facade. Neither requests anything on page view; `video` has no autoplay, because CSS cannot honour `prefers-reduced-motion` for playback |
 | Repository cards (seven services) | **Have** | — | One build-time fetch mechanism; the reader requests nothing. A 404 fails the gate, offline does not |
 | Gist | **Have** | — | Fetched at build time and highlighted by the theme, so the reader loads no GitHub script |
-| Chart · Mermaid · TypeIt | Rejected | Each needs a rendering library shipped to every page that uses it. `extend-head.html` is the route |
-| KaTeX | Rejected | Already decided in `BACKLOG.md`, for the same reason |
+| Chart · Mermaid · TypeIt | **Have** | — | Chart and mermaid vendored and gated on `.HasShortcode`, so nothing loads on a page without one. TypeIt written directly: the library is GPL-3.0 and this theme is MIT |
+| KaTeX | **Have** | — | Rendered at build time by Hugo's own KaTeX into MathML. No library, no stylesheet, no fonts shipped |
 
 Of the rejected ones, **diagrams as text** has the strongest claim if this is ever reopened — a
 technical blog has a real use for it. It would still put a large renderer on the page.
