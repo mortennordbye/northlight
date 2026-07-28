@@ -695,6 +695,61 @@ refute_grep 'Updated <time' "$PUBLIC/blog/two-modes/index.html" "no updated date
 # says nothing twice.
 refute_grep 'Updated <time' "$WRITING" "no updated date when it renders as the same day"
 
+# Multiple authors. The co-authored post credits two people from data/authors/.
+COAUTH="$PUBLIC/blog/co-authored/index.html"
+assert_grep 'Morten Victor Nordbye</a><span class=author-sep>, </span>' "$COAUTH" \
+  "a co-authored post names both authors"
+assert_grep 'href=/authors/ada/>Ada Example' "$COAUTH" \
+  "showAuthorsBadges links a byline name to its author page"
+assert_file "$PUBLIC/authors/ada/index.html" "the authors taxonomy builds a page per author"
+
+# Two avatars, so the stacked-avatar rule in article.css is exercised by the demo site
+# rather than only declared. Both demo authors carry an image for exactly this reason; with
+# only one, `.avatar-group .avatar:not(:first-child)` would be dead CSS.
+# `class=avatar ` with the trailing space matches only the byline avatars; the card uses
+# `author-card-avatar`, which is a different class rather than a modifier, so there is no
+# need to carve the byline out of the page first.
+COAUTH_AVATARS=$(grep -o 'class=avatar ' "$COAUTH" | wc -l | tr -d ' ')
+assert_count 2 "$COAUTH_AVATARS" "a co-authored byline stacks both avatars"
+
+# The separator is an i18n string, not a comma in a template — the punctuation between
+# names is not the same in every language.
+assert_grep 'authorSeparator' "$ROOT/i18n/en.toml" "the co-author separator is translatable"
+
+# Backward compatibility is the whole risk here: every existing site has one author and no
+# data/authors/ directory, and must render exactly what it rendered before. A post with no
+# `authors` falls through to [params.author], so it gets a plain name and no separator.
+refute_grep 'author-sep' "$PUBLIC/blog/shipping-static/index.html" \
+  "a single-author post renders no separator"
+assert_grep 'class=author-name>Morten Victor Nordbye</span>' "$PUBLIC/blog/shipping-static/index.html" \
+  "a post with no authors falls back to the site-wide author"
+
+# An author key with no data file fails the build rather than dropping somebody's name
+# from their own work. Asserted on the template, since exampleSite has no broken key.
+assert_grep 'there is no data/authors' "$ROOT/layouts/_partials/authors.html" \
+  "an unknown author key fails the build"
+
+# hugo.Data, not site.Data — the latter was deprecated in 0.156 and the gate treats the
+# warning as an error, so this would be a build failure rather than a silent fallback.
+# Anchored to an assignment rather than the bare name: the comment above the lookup
+# explains why site.Data is wrong, and a plain refutation matches its own explanation.
+# That trap has now caught four assertions in this suite — object-fit, ytimg, autoplay,
+# and this one. If a refutation names the thing it forbids, anchor it to syntax.
+assert_grep 'hugo\.Data\.authors' "$ROOT/layouts/_partials/authors.html" \
+  "the author lookup uses the non-deprecated data API"
+refute_grep ':= site\.Data' "$ROOT/layouts/_partials/authors.html" \
+  "the author lookup does not read the deprecated site.Data"
+
+# Service names come from the catalogue in all three places that render a socials row, not
+# from title-casing. `title` renders "linkedin" as "Linkedin" and "github" as "Github".
+# The author card was where this drifted, which is why the three copies became one partial.
+if grep -rqE 'aria-label="?(Linkedin|Github|Hackernews)' "$PUBLIC"; then
+  bad "socials rows use catalogue service names" \
+      "$(grep -rhoE 'aria-label="?(Linkedin|Github|Hackernews)' "$PUBLIC" | head -1)"
+else
+  ok "socials rows use catalogue service names"
+fi
+
 # Series. The value is entirely in being correct about position: "Part 2 of 3" is the whole
 # feature, and an off-by-one or a bad sort makes it actively misleading rather than merely
 # absent. `measuring` is series_order 2 of 3.

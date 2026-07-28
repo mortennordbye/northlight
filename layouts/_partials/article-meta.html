@@ -2,15 +2,37 @@
 {{- $a := $cfg.article -}}
 {{- $author := $cfg.author -}}
 <div class="article-meta">
-  {{- if and $a.showAuthor $author.name }}
-    {{- /* Sized and cropped in CSS rather than by Hugo, so an SVG avatar works as well
-           as a raster one. Supply a square image, 160px or larger. Resolved through
+  {{- $authors := partial "authors.html" . -}}
+  {{- if and $a.showAuthor $authors }}
+    {{- /* Avatars are sized and cropped in CSS rather than by Hugo, so an SVG works as
+           well as a raster one. Supply a square image, 160px or larger. Resolved through
            image-url.html so a configured-but-missing file renders nothing instead of a
-           404 on every page. */ -}}
-    {{- with partial "image-url.html" $author.image }}
-      <img class="avatar" src="{{ . }}" alt="" width="32" height="32" loading="lazy">
+           404 on every page.
+
+           With several authors the avatars stack into one group and the names run as a
+           list, rather than repeating an avatar-plus-name pair per person — three of
+           those in a meta line reads as three separate bylines. */ -}}
+    {{- $avatars := slice -}}
+    {{- range $authors }}{{ with partial "image-url.html" .image }}{{ $avatars = $avatars | append . }}{{ end }}{{ end -}}
+    {{- with $avatars }}
+      <span class="avatar-group">
+        {{- range . }}<img class="avatar" src="{{ . }}" alt="" width="32" height="32" loading="lazy">{{ end }}
+      </span>
     {{- end }}
-    <span class="author-name">{{ $author.name }}</span>
+    <span class="author-name">
+      {{- range $i, $au := $authors -}}
+        {{- if $i }}<span class="author-sep">{{ i18n "authorSeparator" }}</span>{{ end -}}
+        {{- if and $a.showAuthorsBadges $au.term (index site.Taxonomies "authors") -}}
+          {{- with site.GetPage (printf "/authors/%s" ($au.term | urlize)) -}}
+            <a class="author-link" href="{{ .RelPermalink }}">{{ $au.name }}</a>
+          {{- else -}}
+            {{ $au.name }}
+          {{- end -}}
+        {{- else -}}
+          {{ $au.name }}
+        {{- end -}}
+      {{- end -}}
+    </span>
   {{- end }}
 
   <div class="meta-line">

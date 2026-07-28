@@ -51,6 +51,7 @@
           {{- end }}
         {{- end }}
 
+        {{ partial "author-box.html" . }}
         {{ partial "share.html" . }}
         {{ partial "reply-by-email.html" . }}
         {{ if $a.showPagination }}{{ partial "pager.html" . }}{{ end }}

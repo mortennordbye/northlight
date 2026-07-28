@@ -1,0 +1,59 @@
+{{- /*
+  Resolves the authors of a page to a slice of dicts, so every template that shows an
+  author reads the same shape whether the post has one author or five.
+
+  Returns entries of: name, headline, image, links, term (the taxonomy key, empty for the
+  site-wide author).
+
+  Two sources, in order:
+
+    1. `authors = ["alice", "bob"]` in the post's front matter. Each key is looked up in
+       `data/authors/<key>.toml`, which carries the same fields as `[params.author]`.
+    2. Failing that, the site-wide `[params.author]`.
+
+  Rule 2 is what keeps this backward compatible: a site that has never heard of
+  `data/authors/` renders exactly what it rendered before, because every post falls
+  through to the single configured author.
+
+  A key with no matching data file is a build failure rather than a silently dropped
+  byline. A post crediting somebody who then does not appear is the kind of bug nobody
+  notices until the person asks why their name is missing.
+
+  Call: {{ $authors := partial "authors.html" . }}
+*/ -}}
+{{- $cfg := partialCached "init.html" . -}}
+{{- $out := slice -}}
+
+{{- with .Params.authors -}}
+  {{- /* `hugo.Data`, not `site.Data` — the latter was deprecated in Hugo 0.156 and the
+         gate runs --panicOnWarning, so it is a build failure rather than a warning. */ -}}
+  {{- $data := hugo.Data.authors | default dict -}}
+  {{- range . -}}
+    {{- $key := . -}}
+    {{- with index $data $key -}}
+      {{- $out = $out | append (dict
+            "name"     (.name | default $key)
+            "headline" (.headline | default "")
+            "image"    (.image | default "")
+            "links"    (.links | default slice)
+            "term"     $key
+          ) -}}
+    {{- else -}}
+      {{- errorf "authors.html: %q is listed in the authors of %q but there is no data/authors/%s.toml" $key $.File.Filename $key -}}
+    {{- end -}}
+  {{- end -}}
+{{- else -}}
+  {{- with $cfg.author -}}
+    {{- if .name -}}
+      {{- $out = $out | append (dict
+            "name"     .name
+            "headline" (.headline | default "")
+            "image"    (.image | default "")
+            "links"    (.links | default slice)
+            "term"     ""
+          ) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- return $out -}}

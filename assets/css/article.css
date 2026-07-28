@@ -52,6 +52,15 @@
   padding-bottom: var(--space-6);
 }
 
+/* The wrapper exists so several avatars can overlap as one group rather than sitting in
+   the meta row as separate flex children. With a single author it must be invisible: it
+   is `display: flex` with no gap and no margin, so a lone avatar occupies exactly the box
+   it did before the wrapper existed. */
+.avatar-group {
+  display: flex;
+  align-items: center;
+}
+
 .avatar {
   width: 32px;
   height: 32px;
@@ -60,9 +69,81 @@
   border: 1px solid var(--line);
 }
 
+/* Co-authors overlap slightly, the way a stacked avatar group conventionally reads, and
+   each gets a ring in the page background so the one behind is still legible against it.
+   `:not(:first-child)` rather than `+ .avatar`, so the first avatar keeps a zero offset
+   and the group stays left-aligned with everything else in the row. */
+.avatar-group .avatar:not(:first-child) {
+  margin-inline-start: -10px;
+  box-shadow: 0 0 0 2px var(--bg);
+}
+
 .author-name {
   font-size: 14.5px;
   font-weight: 500;
+}
+
+.author-link {
+  color: inherit;
+}
+
+.author-link:hover {
+  color: var(--accent);
+}
+
+/* The comma between co-author names comes from i18n, so it is a real text node and needs
+   no styling of its own beyond not inheriting the link colour. */
+.author-sep {
+  font-weight: 400;
+}
+
+/* --- author box ------------------------------------------------------------ */
+
+/* The fuller credit at the foot of a post, behind article.showAuthorBottom. */
+.author-box {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-bottom: var(--space-7);
+}
+
+.author-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--surface-2);
+  border-radius: var(--radius-pager);
+}
+
+.author-card-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+.author-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.author-card-name {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.author-card-headline {
+  font-size: 14px;
+  color: var(--fg-2);
+}
+
+.author-card-socials {
+  margin-top: var(--space-2);
 }
 
 .meta-line {

@@ -1,0 +1,10 @@
+# A second author, so the demo site exercises the multi-author path rather than only
+# describing it. A co-authored post credits both.
+name = "Ada Example"
+headline = "Invented the demo co-author"
+# A second avatar, so the stacked-avatar group in the byline is actually exercised
+# rather than only styled.
+image = "images/profile-ada.svg"
+links = [
+  { link = "https://example.com" },
+]

@@ -10,6 +10,13 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **Multiple authors** — `authors = ["alice", "bob"]` in front matter credits several people,
+  resolved from one file per person in `data/authors/`. The byline names them all, with
+  **`article.showAuthorsBadges`** linking each to an author page (register `author = "authors"`
+  under `[taxonomies]`), and **`article.showAuthorBottom`** adds a fuller card at the foot with
+  avatar, headline and links. **Backward compatible:** a post with no `authors` falls back to the
+  single `[params.author]`, so an existing site renders what it always did. A key with no matching
+  data file fails the build rather than dropping somebody's name from their own work.
 - **Series** — `series` and `series_order` in front matter group a post into a multi-part piece,
   and each part gets a navigation block above its body: which part this is, how many there are,
   and a link to the rest. Needs `series = "series"` under `[taxonomies]`. A `<details>`, so it
@@ -70,6 +77,13 @@ keys are added with defaults that preserve existing behaviour.
   a template being touched, against **0 in 55 runs** with no server — which is why it only ever
   appeared during active development and always went green on a retry. It was never a bind-mount
   race; host writes were separately confirmed visible to the container 5/5 at zero delay.
+- **Social link labels no longer come from title-casing either.** The same bug as the sharing
+  row, in the three places that render an author's social links: `aria-label="{{ $name | title }}"`
+  announced "Linkedin" and "Github". All three now go through one `social-links.html` partial and
+  resolve names from the catalogue, so the accessible name cannot drift between them again. The
+  `shareName*` keys generalised to `serviceName*` and gained GitHub, RSS and Website; anything
+  without an entry still falls back to title-casing, so adding an icon obliges nobody to add a
+  string first.
 - **Sharing link labels no longer come from title-casing the config key.** `{{ $name | title }}`
   rendered `linkedin` as "Linkedin", and would have rendered `hackernews` as "Hackernews". It was
   also a user-facing string built in a template, which makes it invisible to a translator. Service

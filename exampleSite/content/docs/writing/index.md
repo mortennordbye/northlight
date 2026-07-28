@@ -32,6 +32,7 @@ trade before reaching for one.
 | `externalUrl` | Point the listing entry at another site. |
 | `editURL`, `editAppendPath` | Per-page override of the edit link. |
 | `series`, `series_order` | Group a post into a multi-part series. See below. |
+| `authors` | Credit several people, by key from `data/authors/`. Omit it and the post falls back to the site-wide author. |
 
 ## Series
 

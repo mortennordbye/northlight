@@ -29,15 +29,7 @@
       </span>
     </div>
 
-    {{- with $author.links }}
-    <div class="socials">
-      {{- range . }}
-        {{- range $name, $url := . }}
-          <a href="{{ $url }}" rel="noopener" target="_blank" aria-label="{{ $name | title }}">{{ partial "icon.html" $name }}</a>
-        {{- end }}
-      {{- end }}
-    </div>
-    {{- end }}
+    {{ partial "social-links.html" (dict "links" $author.links) }}
   </div>
   {{- end }}
 {{- if not $bare }}</div></section>{{ end -}}

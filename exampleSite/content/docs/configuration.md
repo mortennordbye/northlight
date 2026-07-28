@@ -41,6 +41,35 @@ default inline, so every default below lives in exactly one place in the source.
 | `image` | — | Square avatar, 160px or larger. Looked up in `assets/` then `static/`; a missing file renders nothing rather than a broken image. |
 | `links` | — | Array of single-key tables. Supported: `linkedin`, `github`, `rss`, `link`. |
 
+### Several authors
+
+`[params.author]` is the single, site-wide author, and a site that only ever has one needs
+nothing else. For more than one, put a file per person in `data/authors/` and name the keys
+in a post's front matter:
+
+```toml
+# data/authors/ada.toml
+name = "Ada Example"
+headline = "Invented the demo co-author"
+image = "images/ada.png"
+links = [{ link = "https://example.com" }]
+```
+
+```yaml
+# in the post
+authors: ["morten", "ada"]
+```
+
+A post that says nothing about `authors` falls back to `[params.author]`, which is what
+keeps this backward compatible: an existing site renders exactly what it rendered before.
+
+A key with no matching file **fails the build**. A post crediting somebody who then does
+not appear is the kind of bug nobody notices until the person asks why their name is
+missing.
+
+Registering `author = "authors"` under `[taxonomies]` gives each author a page listing
+what they wrote; `showAuthorsBadges` then links the byline names to them.
+
 **Writing a `bio` in TOML has one trap.** A `"""` string keeps its indentation, and
 Markdown reads four leading spaces as a code block, so a bio indented to line up with the
 keys around it renders as a grey `<pre>` slab rather than as prose. Keep the continuation
@@ -74,6 +103,8 @@ bio never renders as a code block.
 | `sharingLinks` | `["linkedin", "reddit"]` | Share buttons, rendered in the order you list them. See the eleven supported names below. An unknown name warns at build time and renders nothing. |
 | `mastodonInstance` | — | The Mastodon instance to post to, e.g. `mastodon.social`. Required if `sharingLinks` includes `mastodon`. |
 | `showComments` | `false` | Comments. Also needs `[params.comments.giscus]`. |
+| `showAuthorsBadges` | `false` | Link each byline name to its author page. Needs `author = "authors"` under `[taxonomies]`. |
+| `showAuthorBottom` | `false` | Author card at the foot of a post: avatar, name, headline, links. Adds to the byline rather than replacing it. |
 | `seriesOpened` | `false` | Whether the series navigation starts expanded. Collapsed by default: the summary line already says which part you are on. |
 | `replyByEmail` | `false` | A "reply by email" link at the foot of each post. Needs `[params.author].email`; renders nothing without it. No third party, no script, and it works with JavaScript off. |
 | `showEdit` | `false` | "Edit this page" link. |

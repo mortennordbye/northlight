@@ -30,6 +30,9 @@ summaryLength = 30
   # Registering this is what makes the series navigation appear. Without it Hugo
   # builds no term pages and the partial renders nothing.
   series = "series"
+  # Gives every author a page listing what they wrote. Only needed for multi-author
+  # sites; article.showAuthorsBadges then links each byline name to their page.
+  author = "authors"
 
 [sitemap]
   changefreq = "daily"
@@ -146,6 +149,12 @@ anyone notices."""
     # A "reply by email" link at the foot of each post: no third party, no script, and it
     # works with JavaScript off. Needs [params.author].email to be set.
     replyByEmail = true        # (default: false)
+
+    # Multi-author options. Authors come from data/authors/<key>.toml, referenced by
+    # `authors = ["morten", "ada"]` in a post's front matter. A post with no `authors`
+    # falls back to [params.author], so a single-author site needs none of this.
+    showAuthorsBadges = true   # link byline names to their author page  (default: false)
+    showAuthorBottom = true    # author card at the foot of a post       (default: false)
 
     showEdit = true            # "Edit this page" link                  (default: false)
     editURL = "https://github.com/mortennordbye/northlight/edit/main/exampleSite/content"

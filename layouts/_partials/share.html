@@ -68,7 +68,7 @@
     {{- end -}}
 
     {{- with $href }}
-      {{- $service := i18n (printf "shareName%s" (title $name)) -}}
+      {{- $service := partial "service-name.html" $name -}}
       {{- if not $label }}{{ $label = i18n "shareOn" $service }}{{ end -}}
       <a class="button" href="{{ . }}" aria-label="{{ $label }}"
          {{- if not $mail }} rel="noopener" target="_blank"{{ end }}>
