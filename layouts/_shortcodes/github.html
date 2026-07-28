@@ -1,0 +1,10 @@
+{{- /* A GitHub repository card. See _partials/repo-card.html for the mechanism, the
+       build-time fetch and what happens when it fails.
+
+       Call:  {{< github repo="gohugoio/hugo" >}} */ -}}
+{{- $repo := .Get "repo" | default (.Get 0) -}}
+{{- if not $repo -}}{{ errorf "github shortcode: repo is required, as owner/name (%s)" .Position }}{{ end -}}
+{{ partial "repo-card.html" (dict
+    "url"   (printf "https://github.com/%s" $repo)
+    "api"   (printf "https://api.github.com/repos/%s" $repo)
+    "shape" "github" "icon" "github" "label" $repo) }}

@@ -11,6 +11,14 @@
 baseURL = "https://example.com/"
 locale = "en"                      # replaces languageCode, deprecated in Hugo 0.158
 defaultContentLanguage = "en"
+
+# The repository cards on the Shortcodes page fetch at build time. A 404 warns, and
+# `make check` turns warnings into failures, so a renamed or deleted repository is caught
+# in CI. Being *offline* is a different thing: it is an environment problem the person
+# building already knows about, and failing the gate for it would mean this site could not
+# be built without a network — which docs/SPEC.md §1 forbids. Hugo's own suppression key
+# is the right tool, and it is scoped to that one message.
+ignoreLogs = ['repo-card-offline']
 title = "Northlight"
 theme = "northlight"
 

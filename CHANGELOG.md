@@ -10,6 +10,20 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **Repository cards** — `github`, `gitlab`, `codeberg`, `gitea`, `forgejo`, `huggingface` and
+  `ansible`, seven shortcodes over one fetch-and-render mechanism. The Gitea-family three take a
+  `host` for a self-hosted instance.
+  - **The reader fetches nothing.** Descriptions and counts are read during the build and baked
+    into the HTML, so a card costs a visitor no third-party request. That is the whole reason
+    this is a build-time fetch rather than a script.
+  - **The build does fetch, and a failure is not fatal.** A card that cannot be fetched degrades
+    to a plain link carrying the repository's name. Two failures are told apart deliberately: a
+    **404** warns, and `make check` turns warnings into failures, so a renamed or deleted
+    repository is caught in CI; being **offline** uses a suppressible log instead, because
+    failing there would mean the theme could not be built without a network, which
+    `docs/SPEC.md` §1 forbids. Verified by building with the container's network disabled.
+  - Nothing is requested at all unless a page uses one of these, so a site that does not is
+    entirely unaffected. Hugo caches the responses, so a rebuild does not re-fetch.
 - **`enableLightbox`** — click a prose image to see it full size. Built on `<dialog>`, so the
   modal semantics, the backdrop, the focus trap and the Escape handler all come from the browser
   rather than from this theme; those four are what hand-rolled lightboxes get wrong. Focus

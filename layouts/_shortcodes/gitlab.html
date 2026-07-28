@@ -1,0 +1,11 @@
+{{- /* A GitLab project card. GitLab's API takes the project path URL-encoded rather than
+       as a path segment, which is why the id is escaped here.
+
+       Call:  {{< gitlab repo="gitlab-org/gitlab" >}} */ -}}
+{{- $repo := .Get "repo" | default (.Get 0) -}}
+{{- if not $repo -}}{{ errorf "gitlab shortcode: repo is required, as group/name (%s)" .Position }}{{ end -}}
+{{- $host := .Get "host" | default "gitlab.com" -}}
+{{ partial "repo-card.html" (dict
+    "url"   (printf "https://%s/%s" $host $repo)
+    "api"   (printf "https://%s/api/v4/projects/%s" $host (urlquery $repo))
+    "shape" "gitea" "icon" "link" "label" $repo) }}

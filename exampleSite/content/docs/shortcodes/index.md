@@ -229,6 +229,39 @@ Like [`gallery`](#gallery), it has no image handling of its own — it scrolls n
 Reach for a gallery when the images are a set the reader should see at once, and this when
 they are a sequence.
 
+## Repository cards
+
+A card for a repository, with its description and counts read **at build time**.
+
+```text
+{{</* github repo="gohugoio/hugo" */>}}
+```
+
+{{< github repo="gohugoio/hugo" >}}
+
+Seven forges share one mechanism: `github`, `gitlab`, `codeberg`, `gitea`, `forgejo`,
+`huggingface` and `ansible`. The Gitea-family three take a `host` for a self-hosted
+instance.
+
+{{< codeberg repo="forgejo/forgejo" >}}
+
+**The reader fetches nothing.** The numbers are baked into the HTML during the build, so a
+card costs a visitor no third-party request at all — which is the whole reason this is a
+build-time fetch rather than a script.
+
+**The build does fetch, and that is the trade.** Two things follow, and both are handled
+rather than hoped about:
+
+- Nothing is requested unless a page actually uses one of these, so a site that does not
+  still builds with no network access at all.
+- **A failed fetch is not a build failure.** Offline, rate-limited, renamed or deleted, the
+  card degrades to a plain link with the repository's name — the useful part — and the
+  build carries on. It does warn, and `make check` turns warnings into failures, so a
+  broken card fails CI where someone can fix it rather than rotting quietly.
+
+Hugo caches the responses, so a rebuild does not re-fetch and a forge's rate limit is not
+hit once per build. `hugo --gc` clears the cache.
+
 ## `chart`
 
 A chart drawn from data, using Chart.js.

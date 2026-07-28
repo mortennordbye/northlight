@@ -146,6 +146,24 @@ serviceNameRss = "RSS"
 serviceNameLink = "Website"
 
 # --- Pluralised. Keep these last; see the note at the top. --------------------
+# Repository card counts. Pluralised because "1 stars" is wrong in English and the rules
+# differ elsewhere; the number arrives as the value.
+[starCount]
+one = "{{ . }} star"
+other = "{{ . }} stars"
+
+[forkCount]
+one = "{{ . }} fork"
+other = "{{ . }} forks"
+
+[likeCount]
+one = "{{ . }} like"
+other = "{{ . }} likes"
+
+[downloadCount]
+one = "{{ . }} download"
+other = "{{ . }} downloads"
+
 [readingTime]
 one = "{{ . }} min read"
 other = "{{ . }} min read"

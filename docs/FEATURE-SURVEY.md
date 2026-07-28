@@ -198,7 +198,7 @@ duplicated as shortcodes — and every shortcode is additive, replacing no Markd
 | Tabs | **Have** | Headed sections upgraded to an ARIA tablist; full keyboard support, readable with JS off |
 | Carousel | **Have** | Built with CSS scroll-snap instead: no JavaScript, no autoplay, so neither objection applies |
 | Video · YouTube Lite | **Have** | `video` for local files, `youtube-lite` as a click-to-load facade. Neither requests anything on page view; `video` has no autoplay, because CSS cannot honour `prefers-reduced-motion` for playback |
-| Repository cards (six forges) · Ansible · Hugging Face · Code importer · Markdown importer | Rejected | Each calls a third-party API during the build. `docs/SPEC.md` §1 requires the theme to build with no network access |
+| Repository cards (seven services) | **Have** | — | One build-time fetch mechanism; the reader requests nothing. A 404 fails the gate, offline does not |
 | Gist | Rejected | Third-party script on page view; the code fence with a filename bar covers it locally |
 | Chart · Mermaid · TypeIt | Rejected | Each needs a rendering library shipped to every page that uses it. `extend-head.html` is the route |
 | KaTeX | Rejected | Already decided in `BACKLOG.md`, for the same reason |

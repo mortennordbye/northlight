@@ -515,9 +515,16 @@ fi
 # this shortcode landed and nothing noticed, which is the same failure the icon check below
 # exists for: prose that counts something is a second copy of it. Spelled out rather than
 # numeric because that is how the sentence reads.
-DOCCOUNT=$(grep -c '^## `' "$ROOT/exampleSite/content/docs/shortcodes/index.md")
+# Counted from the shortcode files, not from headings on the docs page. The two used to
+# agree until the repository cards arrived: seven shortcodes documented under one heading,
+# after which a heading count understated the surface by six. The files are what a site
+# author can actually call, so they are what the number should mean.
+DOCCOUNT=$(ls "$ROOT/layouts/_shortcodes"/*.html | wc -l | tr -d ' ')
 DOCWORD=$(awk -v n="$DOCCOUNT" 'BEGIN{
-  split("zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty twenty-one twenty-two twenty-three twenty-four twenty-five", w, " ")
+  # Runs to fifty. The list stopped at twenty-five and the shortcode count passed it the
+  # moment the repository cards landed, which produced an empty word and a failure that
+  # looked like a stale README rather than a short lookup table.
+  split("zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty twenty-one twenty-two twenty-three twenty-four twenty-five twenty-six twenty-seven twenty-eight twenty-nine thirty thirty-one thirty-two thirty-three thirty-four thirty-five thirty-six thirty-seven thirty-eight thirty-nine forty forty-one forty-two forty-three forty-four forty-five forty-six forty-seven forty-eight forty-nine fifty", w, " ")
   print w[n+1]
 }')
 # README names the count twice — once in the Overview table and once in the docs links —
@@ -739,6 +746,43 @@ refute_grep 'Updated <time' "$PUBLIC/blog/two-modes/index.html" "no updated date
 # Nor when lastmod is later but renders as the same day: "27 Jul 2026 - Updated 27 Jul 2026"
 # says nothing twice.
 refute_grep 'Updated <time' "$WRITING" "no updated date when it renders as the same day"
+
+# Repository cards. Seven shortcodes over one fetch-and-render mechanism.
+# Counted, not merely present: with two cards on the page, "a card renders" stayed true
+# after one was deleted, so the assertion could not catch a broken shortcode.
+# Anchored to the <a>, because `class=repo-card` also prefix-matches repo-card-head,
+# -name, -desc and -meta — five hits per card, so the first count said 10.
+REPO_CARDS=$(grep -o '<a class="\?repo-card' "$SHORTCODES" | wc -l | tr -d ' ')
+assert_count 2 "$REPO_CARDS" "both repository cards render"
+assert_grep 'href=https://github.com/gohugoio/hugo' "$SHORTCODES" "the card links to the repository"
+
+# The reader fetches nothing: the counts are baked in at build time, which is the whole
+# reason this is a build-time fetch rather than a script. No forge API may appear in a
+# src/href in the output.
+if grep -oE '(src|href)="?https?://(api\.github\.com|[^" >]*api/v1/repos)[^" >]*' "$SHORTCODES" | grep -q .; then
+  bad "repository cards cost the reader no request" "an API URL reached the page"
+else
+  ok "repository cards cost the reader no request"
+fi
+
+# All seven forges exist and share the one mechanism, rather than each hand-rolling a fetch.
+for f in github gitlab codeberg gitea forgejo huggingface ansible; do
+  if grep -q 'partial "repo-card.html"' "$ROOT/layouts/_shortcodes/$f.html" 2>/dev/null; then
+    ok "the $f card uses the shared mechanism"
+  else
+    bad "the $f card uses the shared mechanism" "missing or hand-rolled"
+  fi
+done
+
+# A 404 is a content problem and must fail the build; being offline is an environment
+# problem and must not, or the theme could not be built without a network — which
+# docs/SPEC.md §1 forbids. The two paths are separate in the source.
+assert_grep 'warnf "repo-card' "$ROOT/layouts/_partials/repo-card.html" \
+  "a missing repository warns, so a dead card fails CI"
+assert_grep 'warnidf "repo-card-offline"' "$ROOT/layouts/_partials/repo-card.html" \
+  "an unreachable network uses a suppressible log, not a hard warning"
+assert_grep "ignoreLogs = \['repo-card-offline'\]" "$ROOT/exampleSite/hugo.toml" \
+  "the demo site can be built with no network"
 
 # Lightbox. The parts that make it a feature rather than an accessibility regression are
 # all in the source, since nothing here opens a browser: a real <dialog> (which brings the

@@ -64,7 +64,7 @@ Substantial author control over presentation, or a visible reader feature.
 | 16 | ~~**Accessibility toggle**~~ **DONE** | `enableA11y` shows an underline-links control, named for its actual effect. WCAG 1.4.1: the theme's faint prose rule does not reach nav, cards or footers | Medium |
 | 17 | ~~**Image zoom / lightbox**~~ **DONE** | Built on `<dialog>`, so the focus trap, backdrop and Escape handling are the browser's. Focus returns to the opener; linked images are left alone | Medium |
 | 18 | **Views and likes** `[opt-in]` | Firebase-backed counters. The only row needing a backend and credentials; those are site config, never theme files | Large |
-| 19 | **Repository cards** `[opt-in]` | GitHub, GitLab, Codeberg, Gitea, Forgejo, Ansible Galaxy, Hugging Face. One fetch-and-render mechanism, seven skins — build the mechanism once | Medium once, Small each |
+| 19 | ~~**Repository cards**~~ **DONE** | All seven over one mechanism. Build-time fetch, so the reader requests nothing; a 404 fails CI while being offline does not, which keeps SPEC §1 true | Medium once, Small each |
 | 20 | ~~**`taxonomy.showTermCount`**~~ **DONE** | The count already rendered; this is the switch. Default true | Small |
 | 21 | ~~**Reply by email**~~ **DONE** | Built alongside row 3, because `author.email` on its own would have been a param nothing reads | Small |
 

@@ -1,0 +1,15 @@
+{{- /* A Hugging Face model or dataset card. The counts mean different things here —
+       likes and downloads rather than stars and forks — so the shape is its own.
+
+       Call:  {{< huggingface id="bert-base-uncased" >}}
+              {{< huggingface id="squad" kind="datasets" >}} */ -}}
+{{- $id := .Get "id" | default (.Get 0) -}}
+{{- if not $id -}}{{ errorf "huggingface shortcode: id is required (%s)" .Position }}{{ end -}}
+{{- $kind := .Get "kind" | default "models" -}}
+{{- if not (in (slice "models" "datasets") $kind) -}}
+  {{- errorf "huggingface shortcode: kind %q must be models or datasets (%s)" $kind .Position -}}
+{{- end -}}
+{{ partial "repo-card.html" (dict
+    "url"   (printf "https://huggingface.co/%s%s" (cond (eq $kind "datasets") "datasets/" "") $id)
+    "api"   (printf "https://huggingface.co/api/%s/%s" $kind $id)
+    "shape" "huggingface" "icon" "link" "label" $id) }}
