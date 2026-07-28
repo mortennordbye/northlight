@@ -611,9 +611,13 @@ refute_grep '\.Get "autoplay"' "$ROOT/layouts/_shortcodes/video.html" \
 
 # A browser that cannot decode the container still gets the file, rather than an empty
 # player and no way forward.
-assert_grep '<a href=/docs/shortcodes/clip.mp4 download>' "$SHORTCODES" \
+#
+# Host-agnostic, like the sitemap and button checks: CI builds with the Pages base URL,
+# which carries a path prefix, so a leading `/docs/` only matches on a site served from
+# the root.
+assert_grep '<a href=[^ >]*/docs/shortcodes/clip.mp4 download>' "$SHORTCODES" \
   "an unplayable video degrades to a download link"
-assert_grep 'poster=/docs/shortcodes/clip.jpg' "$SHORTCODES" \
+assert_grep 'poster=[^ >]*/docs/shortcodes/clip.jpg' "$SHORTCODES" \
   "the poster is served, so the player is not a blank rectangle"
 
 # The sample has to actually be a video. A zero-byte or truncated placeholder would satisfy
@@ -802,9 +806,9 @@ assert_grep '<meta name=description content="Four of the theme' "$MEASURING" \
 # demo uses a JPEG deliberately.
 # Literal path, not $COAUTH: that variable is set further down this file, and using it
 # here failed with "unbound variable" under `set -u`.
-assert_grep 'src=/images/profile.svg' "$PUBLIC/blog/co-authored/index.html" \
+assert_grep 'src=[^ >]*/images/profile.svg' "$PUBLIC/blog/co-authored/index.html" \
   "an SVG avatar passes through unprocessed"
-assert_grep 'src=/images/profile-raster_hu_' "$PUBLIC/blog/co-authored/index.html" \
+assert_grep 'src=[^ >]*/images/profile-raster_hu_' "$PUBLIC/blog/co-authored/index.html" \
   "a raster avatar goes through the pipeline"
 assert_grep 'imageQuality' "$ROOT/layouts/_partials/image-url.html" "the avatar honours imageQuality"
 
@@ -1087,13 +1091,16 @@ fi
 # Site-wide image fallbacks. The point is that a coverless post is still illustrated and
 # still previews as a card when linked, without every post needing its own artwork.
 COAUTH_PAGE="$PUBLIC/blog/co-authored/index.html"
-assert_grep 'figure class=article-cover><img src=/images/example.svg' "$COAUTH_PAGE" \
+assert_grep 'figure class=article-cover><img src=[^ >]*/images/example.svg' "$COAUTH_PAGE" \
   "a post with no cover falls back to defaultFeaturedImage"
-assert_grep 'og:image" content="https://example.com/images/example.svg"' "$COAUTH_PAGE" \
+# og:image is an absolute URL by definition, so the host is whatever built the site — the
+# demo's example.com locally, the Pages host in CI. Match the path and leave the origin
+# open; pinning example.com asserts the builder rather than the feature.
+assert_grep 'og:image" content="[^"]*/images/example.svg"' "$COAUTH_PAGE" \
   "a post with no cover falls back to defaultSocialImage"
 
 # ...and a post with its own cover is untouched, which is what makes this non-breaking.
-assert_grep 'og:image" content="https://example.com/blog/measuring/cover.png"' "$MEASURING" \
+assert_grep 'og:image" content="[^"]*/blog/measuring/cover.png"' "$MEASURING" \
   "a post with its own cover ignores the fallbacks"
 
 # taxonomy.showTermCount. The count already rendered; only the switch is new, so the
@@ -1120,12 +1127,12 @@ assert_file "$PUBLIC/nb/index.json" "each language gets its own search index"
 # The switcher must link to the *translation of this page*, not to the other language's
 # home page. Being sent to the front page for asking to read the same article in another
 # language is the single most common thing this control gets wrong.
-assert_grep 'lang-switch-items><a href=/blog/two-modes/ hreflang=en' "$NB_POST" \
+assert_grep 'lang-switch-items><a href=[^ >]*/blog/two-modes/ hreflang=en' "$NB_POST" \
   "the switcher links to the translation of the current page"
 
 # ...and falls back to that language's home page when there is no translation, rather than
 # rendering a dead link. `measuring` exists only in English.
-assert_grep 'href=/nb/ hreflang=nb' "$MEASURING" \
+assert_grep 'href=[^ >]*/nb/ hreflang=nb' "$MEASURING" \
   "an untranslated page falls back to the other language's home"
 
 # The language you are reading is text, not a link to the page you are already on.
@@ -1288,7 +1295,7 @@ assert_grep '<pre class=mermaid>graph LR' "$SHORTCODES" "the diagram source is s
 COAUTH="$PUBLIC/blog/co-authored/index.html"
 assert_grep 'Morten Victor Nordbye</a><span class=author-sep>, </span>' "$COAUTH" \
   "a co-authored post names both authors"
-assert_grep 'href=/authors/ada/>Ada Example' "$COAUTH" \
+assert_grep 'href=[^ >]*/authors/ada/>Ada Example' "$COAUTH" \
   "showAuthorsBadges links a byline name to its author page"
 assert_file "$PUBLIC/authors/ada/index.html" "the authors taxonomy builds a page per author"
 
@@ -1358,7 +1365,7 @@ refute_grep 'Design Decisions' "$MEASURING" "the series keeps the author's own c
 # The first version of this test did exactly that and could not fail.
 SERIES_SEQ=$(grep -o 'class=series-list>.*</ol>' "$MEASURING" \
   | sed 's|<li|\n<li|g' | grep '<li' \
-  | sed -e 's|.*is-current.*|CURRENT|' -e 's|.*href=/blog/\([a-z-]*\)/.*|\1|' \
+  | sed -e 's|.*is-current.*|CURRENT|' -e 's|.*href=[^ >]*/blog/\([a-z-]*\)/.*|\1|' \
   | tr '\n' ' ')
 if [ "$SERIES_SEQ" = "two-modes CURRENT reading-long-form " ]; then
   ok "series parts are ordered by series_order, not by date"
