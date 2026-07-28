@@ -77,7 +77,7 @@ Useful, narrower toggles.
 | 22 | **`layoutBackgroundBlur`** | Background image blurs on scroll | Small |
 | 23 | **`layoutBackgroundHeaderSpace`** | Space between header and body | Small |
 | 24 | **`footer.showMenu`** | A menu in the footer | Small |
-| 25 | **Per-page `robots`** | Crawler directives in front matter | Small |
+| 25 | ~~**Per-page `robots`**~~ **ALREADY HAD IT** | `robots` in front matter, and it cascades from a section. Was in the scrape by mistake | Small |
 | 26 | **`menu` in front matter** | A page pushes itself into a menu | Small |
 | 27 | **`orderByWeight`** | Sort listings by weight rather than date | Small |
 | 28 | **`highlightCurrentMenuArea`** | Mark the active menu section | Small |
@@ -90,6 +90,29 @@ Useful, narrower toggles.
 | 35 | **`invertPagination`** | Swap next/previous direction | Small |
 | 36 | **`hotlinkFeatureImage`** `[opt-in]` | Use a remote URL as the feature image | Small |
 
+## Found on the second pass
+
+Re-scraped 2026-07-28 after the top ten landed, covering the docs pages the first pass
+missed: Partials, Thumbnails and Homepage Layout. Two genuinely new rows, and two
+non-findings worth recording so nobody re-checks them.
+
+| # | Feature | What it gives you | Effort |
+|---|---|---|---|
+| 53 | **Google Analytics** | Hugo ships the template, so this is a config block and two lines. The theme currently wires Cloudflare only, on the stated grounds that shipping five vendors makes four of them dead weight — that reasoning is now superseded by this page | Small |
+| 54 | **`extend-article-link.html`** | A hook to inject content after each entry in a listing, the way `extend-head` and `extend-footer` work for the page | Small |
+
+**Not gaps, checked and dismissed:**
+
+- **`extend-head-uncached.html`.** Theirs needs an uncached variant because its
+  `extend-head` is cached. Ours is called with plain `partial` from a `head.html` that is
+  itself uncalled-cached, so per-page injection already works and a second hook would be
+  two names for one behaviour.
+- **Homepage layouts.** Theirs documents six; this theme has ten, including a `custom`
+  escape hatch. Already ahead.
+- **Thumbnails.** Naming (`feature*`/`cover*`), per-page `showHero`, and hero override are
+  all present. Their page documents no optimisation or responsive behaviour; ours does
+  both.
+
 ## Tier 4 — Low
 
 Cosmetic, one-line, or narrow enough that nobody will notice its absence.
@@ -98,7 +121,7 @@ Cosmetic, one-line, or narrow enough that nobody will notice its absence.
 |---|---|---|---|
 | 37 | **`showDateOnlyInArticle`** | Date in the body but not the listing | Small |
 | 38 | **`showHeadingAnchors` in front matter** | Per-page override; ours is site-level | Small |
-| 39 | **Per-page `xml`** | Per-article sitemap inclusion | Small |
+| 39 | ~~**Per-page `xml`**~~ **ALREADY HAD IT** | Same capability under a different key: `sitemap_exclude`. Was in the scrape by mistake | Small |
 | 40 | **`sitemap.excludedKinds`** | Exclude whole content kinds | Small |
 | 41 | **`footer.showAppearanceSwitcher` / `showScrollToTop`** | Toggles for chrome we render unconditionally | Small |
 | 42 | **`disableTextInHeader`** | Logo-only header | Small |
@@ -109,7 +132,7 @@ Cosmetic, one-line, or narrow enough that nobody will notice its absence.
 | 47 | **TypeIt** `[opt-in]` | Typewriter animation. Owes `prefers-reduced-motion` a static fallback | Small |
 | 48 | **Code importer** `[opt-in]` | Pull code from a URL at build time | Small |
 | 49 | **Markdown importer** `[opt-in]` | Pull Markdown from a URL at build time | Small |
-| 50 | **Language redirect** | Client-side browser-language redirect. Depends on row 1 | Small |
+| 50 | **Language redirect** | Client-side browser-language redirect. Row 1 is now done, so this is unblocked | Small |
 | 51 | **RSSNext** | `feedId` / `userId` in the feed | Small |
 | 52 | **AdSense** `[opt-in]` | `advertisement.adsense` publisher ID | Small |
 
