@@ -624,3 +624,25 @@ pre.mermaid svg {
   max-width: 100%;
   height: auto;
 }
+
+/* --- chart ------------------------------------------------------------------ */
+
+/* Same shape as the video box, and for the same reason: the ratio is an inline style
+   because it is a per-call parameter, and the box reserves its space before the script
+   runs so the page does not jump when the chart draws. */
+.chart-figure {
+  margin: var(--space-6) 0;
+}
+
+.chart-box {
+  position: relative;
+  width: 100%;
+}
+
+/* Chart.js sizes the canvas itself against its parent, so the canvas fills the box and
+   the box owns the geometry. base.css blockifies canvas along with the other media. */
+.chart-box canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

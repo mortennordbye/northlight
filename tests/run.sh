@@ -725,6 +725,59 @@ refute_grep 'Updated <time' "$PUBLIC/blog/two-modes/index.html" "no updated date
 # says nothing twice.
 refute_grep 'Updated <time' "$WRITING" "no updated date when it renders as the same day"
 
+# chart. Same gating as mermaid: the library is only worth vendoring if it is only loaded
+# where it is used.
+assert_grep 'vendor/chart' "$SHORTCODES" "the chart library loads on a page with a chart"
+refute_grep 'vendor/chart' "$PUBLIC/index.html" "the home page loads no chart library"
+if [ -n "$JS_REF" ] && grep -q 'Chart' "$PUBLIC/$JS_REF" 2>/dev/null; then
+  bad "chart.js is not in the main bundle" "found Chart in $JS_REF"
+else
+  ok "chart.js is not in the main bundle"
+fi
+
+# A <canvas> is a picture to anything that is not a sighted reader, so the alt text is the
+# accessible name and the shortcode refuses to build without one.
+assert_grep 'canvas class=chart role=img aria-label=' "$SHORTCODES" \
+  "the chart canvas carries its text alternative"
+assert_grep 'alt is required' "$ROOT/layouts/_shortcodes/chart.html" \
+  "a chart with no alt fails the build"
+
+# The config rides on a data- attribute rather than in an inline <script>, so a site with a
+# strict Content-Security-Policy is unaffected.
+assert_grep 'data-chart=' "$SHORTCODES" "the chart config is a data attribute, not inline script"
+
+# Colour tokens are light-dark() pairs, and reading one with getPropertyValue hands back
+# that function as text, which Chart.js cannot parse — it then silently falls back to its
+# light-mode defaults and draws black on a dark page. The fix resolves the token through a
+# probe element; this stops the direct read coming back.
+# Anchored to the *call*, not the bare name — the comment above the fix explains why
+# getPropertyValue is wrong, and a plain refutation matches its own explanation. Fifth
+# time this trap has bitten in this suite. The rule, again: if a refutation names the
+# thing it forbids, anchor it to syntax.
+refute_grep '\.getPropertyValue(' "$ROOT/assets/js/chart-init.js" \
+  "chart colours are resolved, not read as raw custom properties"
+
+# Maths. Rendered at build time by Hugo's own KaTeX, so the equation is in the HTML the
+# server sends and the theme ships no maths library at all. These assertions are what stop
+# that quietly regressing into a client-side renderer.
+assert_grep 'class="math math-inline"' "$WRITING" "inline maths renders"
+assert_grep 'class="math math-block"'  "$WRITING" "display maths renders"
+assert_grep '<math xmlns="http://www.w3.org/1998/Math/MathML"' "$WRITING" \
+  "maths is real MathML, laid out by the browser"
+
+# No library, no stylesheet, no fonts. `htmlAndMathml` output would need KaTeX's CSS and
+# around sixty font files; MathML output needs none of it, and that saving is the reason
+# for the choice.
+if grep -rq 'katex\.min\.\(js\|css\)\|katex/dist' "$PUBLIC" 2>/dev/null; then
+  bad "no KaTeX library or stylesheet is shipped" "found a katex asset in the output"
+else
+  ok "no KaTeX library or stylesheet is shipped"
+fi
+
+# The equation survives with scripting off, which is the whole point of build-time
+# rendering. Asserted by there being no script involved in producing it.
+refute_grep 'renderMathInElement\|auto-render' "$WRITING" "maths needs no client-side renderer"
+
 # mermaid. The whole justification for vendoring 3.5MB is that it is loaded only where a
 # diagram exists. If that gate ever breaks, the theme quietly becomes the heaviest thing on
 # the reader's page, on every page — so this is the assertion that matters most here.

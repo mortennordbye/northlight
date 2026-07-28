@@ -10,6 +10,22 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **Maths**, rendered at build time. Hugo has KaTeX built in, so the theme ships **no maths
+  library at all** — no JavaScript, no stylesheet, and none of the ~60 font files a client-side
+  renderer needs. The equation is in the HTML the server sends, so it is there with scripting
+  off, in a feed reader, and anywhere else that reads the page without executing it. Output is
+  MathML, which browsers lay out natively. Needs
+  `markup.goldmark.extensions.passthrough` enabled in **site** config, which is the site's
+  decision — a site that wants no maths configures nothing and pays nothing. A malformed
+  expression fails the build rather than rendering as raw LaTeX.
+- **`chart`** — a chart drawn from Chart.js configuration given as JSON in the shortcode body.
+  Vendored, self-hosted and loaded **only on pages that use it**, on the same terms as `mermaid`.
+  The JSON is parsed at build time, so a syntax error fails the build with a position instead of
+  rendering an empty rectangle. **`alt` is required and the build fails without it:** a `<canvas>`
+  is a picture to anything that is not a sighted reader. The config reaches the browser on a
+  `data-` attribute rather than in an inline script, so a strict Content-Security-Policy is
+  unaffected. Colours come from the palette tokens, charts follow the colour mode, and the entry
+  animation is dropped under `prefers-reduced-motion`.
 - **`mermaid`** — diagrams written as text, rendered in the browser. **The library is loaded
   only on pages that contain a diagram**, gated on Hugo's own `.HasShortcode`, because mermaid is
   3.5MB — more than the rest of the theme's assets put together — and it never enters the shared

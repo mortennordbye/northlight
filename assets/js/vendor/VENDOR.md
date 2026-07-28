@@ -13,6 +13,8 @@ every file here has a row below.
 
 | File | Version | Licence | Upstream | Loaded by |
 |---|---|---|---|---|
+| `chart.umd.min.js` | 4.5.1
+version | MIT | https://github.com/chartjs/Chart.js | `_shortcodes/chart.html`, gated on `.HasShortcode` in `baseof.html` |
 | `mermaid.min.js` | 11.16.0
 version | MIT | https://github.com/mermaid-js/mermaid | `_shortcodes/mermaid.html`, gated on `.HasShortcode` in `baseof.html` |
 

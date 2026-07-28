@@ -44,8 +44,8 @@ Unlocks content, audiences or authorship that is impossible today.
 | 3 | ~~**Author profile fields**~~ **MOSTLY DONE** | `bio` and `email` built. **`imageQuality` deferred** — the avatar deliberately does not go through Hugo's image pipeline, because `image-url.html` also has to pass SVG through untouched, and routing rasters through `.Resize` is a separate change. Tracked in `BACKLOG.md` | Small |
 | 4 | ~~**Series**~~ **DONE** | Navigation block above the body, `<details>` so no JS. `series_order` required — a scrambled series is worse than none, so a post missing it fails the build. A one-post series renders nothing | Medium |
 | 5 | ~~**Mermaid diagrams**~~ **DONE** | Vendored and self-hosted, loaded only on pages with a diagram via `.HasShortcode` — never in the shared bundle. JS-off fallback is the diagram source; follows the colour mode | Medium |
-| 6 | **Maths rendering** `[opt-in]` | KaTeX. Site config (`markup.goldmark.extensions.passthrough`) plus a renderer | Medium |
-| 7 | **Charts** `[opt-in]` | Chart.js from structured data in the shortcode body | Medium |
+| 6 | ~~**Maths rendering**~~ **DONE** | Hugo's built-in KaTeX renders it at build time to MathML. **No library, no stylesheet, no fonts shipped** — better than the reference theme's client-side version, and it works with JS off | Medium |
+| 7 | ~~**Charts**~~ **DONE** | Vendored Chart.js, gated on `.HasShortcode`. JSON parsed at build time; `alt` required; config on a data attribute so a strict CSP is unaffected; colours from the palette | Medium |
 | 8 | ~~**Sharing providers**~~ **DONE** | 2 → 11. Every one a plain URL, no script. Added `article.mastodonInstance`, since Mastodon is federated and has no central share host. Also fixed labels coming from `title`-casing the config key, which rendered "Linkedin" | Small |
 | 9 | ~~**List summaries**~~ **DONE** | `list.showSummary`. Falls back to the post summary when there is no `description`; a `description` still wins. Stripped and truncated, so markup cannot leak into the card | Small |
 

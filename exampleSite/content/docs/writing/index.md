@@ -69,6 +69,43 @@ carrying `aria-current="page"` — a link to the page you are already on is a de
 
 A series with only one post in it renders nothing. That is not a series yet.
 
+## Maths
+
+Equations are rendered **at build time**, so the theme ships no maths library: no
+JavaScript, no stylesheet, and none of the font files a client-side renderer needs. The
+equation is in the HTML the server sends, which means it is there with scripting off, in a
+feed reader, and anywhere else that reads the page without executing it.
+
+Inline maths uses `\(` and `\)`:
+
+The quadratic formula is \(x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}\), which every schoolchild
+is made to memorise.
+
+Display maths uses `$$`:
+
+$$
+\sum_{i=1}^{n} i = \frac{n(n+1)}{2}
+$$
+
+**Turn it on in your own config**, because Goldmark has to be told to hand the delimiters
+through untouched. This is site config rather than a theme setting, and a site that wants
+no maths configures nothing and pays nothing:
+
+```toml
+[markup.goldmark.extensions.passthrough]
+  enable = true
+  [markup.goldmark.extensions.passthrough.delimiters]
+    block  = [["\\[", "\\]"], ["$$", "$$"]]
+    inline = [["\\(", "\\)"]]
+```
+
+Output is MathML, which browsers lay out natively. Hugo can also emit KaTeX's own HTML
+alongside it, but that needs KaTeX's stylesheet and around sixty font files to look right —
+the exact weight this approach avoids.
+
+A malformed expression **fails the build** rather than rendering as its own raw LaTeX,
+which is the kind of thing an author notices weeks later.
+
 ## Admonitions
 
 Callouts use GitHub's alert syntax. Paste any of these into a GitHub README and they

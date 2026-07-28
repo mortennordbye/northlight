@@ -43,7 +43,18 @@ summaryLength = 30
 # Both of these are REQUIRED by the theme.
 
 [markup]
-  [markup.goldmark.parser]
+  # Maths. Goldmark hands $...$ and $$...$$ through untouched, and the theme's
+# _markup/render-passthrough.html renders them with Hugo's built-in KaTeX at build time.
+# No JavaScript, no stylesheet and no font files are shipped for this — the equation is in
+# the HTML the server sends. Leave this out and the theme renders no maths and costs
+# nothing for it.
+[markup.goldmark.extensions.passthrough]
+  enable = true
+  [markup.goldmark.extensions.passthrough.delimiters]
+    block  = [["\\[", "\\]"], ["$$", "$$"]]
+    inline = [["\\(", "\\)"]]
+
+[markup.goldmark.parser]
     wrapStandAloneImageWithinParagraph = false
     [markup.goldmark.parser.attribute]
       block = true

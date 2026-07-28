@@ -1,0 +1,60 @@
+{{- /*
+  chart — a chart drawn from data in the shortcode body.
+
+  The body is Chart.js configuration as JSON. It is parsed at build time rather than being
+  handed to the browser as a blob of text, so a malformed chart fails the build with a
+  position rather than rendering an empty rectangle nobody notices.
+
+  **The library is only loaded on pages that use this**, gated on `.HasShortcode` in
+  `baseof.html`, and it never enters the shared bundle. It is vendored and self-hosted;
+  see `assets/js/vendor/VENDOR.md`.
+
+  **A chart is not accessible on its own.** A `<canvas>` is a picture to everything that
+  is not a sighted reader, so `alt` is required and the build fails without it — the same
+  rule the `figure` shortcode applies to images, for the same reason. Reach for a table
+  first: a table is readable by everything, sorts, copies, and needs no JavaScript.
+
+  Parameters:
+    alt     what the chart shows, in words (required)
+    ratio   the box, as W/H. Default 16/9
+    caption figcaption text, rendered as inline Markdown
+
+  Call:  {{< chart alt="Downloads per month, rising from 10 to 90" >}} … JSON … {{< /chart >}}
+*/ -}}
+{{- $alt := .Get "alt" -}}
+{{- if not $alt -}}
+  {{- errorf "chart shortcode: alt is required — a <canvas> is a picture to anything that is not a sighted reader, so it needs a text alternative (%s)" .Position -}}
+{{- end -}}
+
+{{- /* Parsed here so a syntax error is a build failure rather than a silent blank box.
+       `transform.Unmarshal` fails loudly on malformed JSON, which is the whole reason
+       the config is unmarshalled and re-marshalled instead of being passed through. */ -}}
+{{- $cfg := dict -}}
+{{- with try (transform.Unmarshal .Inner) -}}
+  {{- with .Err -}}
+    {{- errorf "chart shortcode: the body is not valid JSON — %s (%s)" . $.Position -}}
+  {{- else -}}
+    {{- $cfg = .Value -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $ratio := .Get "ratio" | default "16/9" -}}
+{{- if not (findRE `^[0-9]+(\.[0-9]+)?[ ]*/[ ]*[0-9]+(\.[0-9]+)?$` $ratio) -}}
+  {{- errorf "chart shortcode: ratio %q is not W/H, e.g. 16/9 (%s)" $ratio .Position -}}
+{{- end -}}
+{{- /* Two numbers rather than the author's string, for the reason recorded in
+       `video.html`: an interpolated string in a style attribute is replaced with
+       ZgotmplZ and the box silently collapses. */ -}}
+{{- $rparts := split $ratio "/" -}}
+{{- $rw := float (trim (index $rparts 0) " ") -}}
+{{- $rh := float (trim (index $rparts 1) " ") -}}
+
+<figure class="chart-figure">
+  <div class="chart-box" style="aspect-ratio: {{ $rw }} / {{ $rh }}">
+    {{- /* The config rides on the element as JSON. `chart-init.js` reads it from there,
+           so nothing is evaluated and no inline script is needed — which also means the
+           theme stays compatible with a site running a strict Content-Security-Policy. */ -}}
+    <canvas class="chart" role="img" aria-label="{{ $alt }}" data-chart="{{ $cfg | jsonify }}"></canvas>
+  </div>
+  {{- with .Get "caption" }}<figcaption>{{ . | $.Page.RenderString }}</figcaption>{{ end -}}
+</figure>

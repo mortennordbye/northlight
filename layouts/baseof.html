@@ -65,6 +65,22 @@
          Not deferred *and* not async: the init script below needs `mermaid` to exist, and
          two plain deferred scripts run in document order, which is the guarantee being
          relied on here. */ -}}
+  {{- /* Chart.js, on the same terms as mermaid below: vendored, self-hosted, and emitted
+         only where a chart exists. Two plain deferred scripts run in document order, so
+         the init script can rely on `Chart` existing by the time it runs. */ -}}
+  {{- if .HasShortcode "chart" }}
+    {{- with resources.Get "js/vendor/chart.umd.min.js" }}
+      {{- $lib := . | fingerprint "sha512" }}
+      <script src="{{ $lib.RelPermalink }}" integrity="{{ $lib.Data.Integrity }}" crossorigin="anonymous" defer></script>
+    {{- end }}
+    {{- with resources.Get "js/chart-init.js" }}
+      {{- $init := . }}
+      {{- if hugo.IsProduction }}{{ $init = $init | minify }}{{ end }}
+      {{- $init = $init | fingerprint "sha512" }}
+      <script src="{{ $init.RelPermalink }}" integrity="{{ $init.Data.Integrity }}" crossorigin="anonymous" defer></script>
+    {{- end }}
+  {{- end }}
+
   {{- if .HasShortcode "mermaid" }}
     {{- with resources.Get "js/vendor/mermaid.min.js" }}
       {{- $lib := . | fingerprint "sha512" }}

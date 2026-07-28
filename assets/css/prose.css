@@ -363,3 +363,22 @@ html[data-theme="dark"] .img-dark {
     display: none;
   }
 }
+
+/* --- maths ------------------------------------------------------------------ */
+
+/* Rendered at build time into MathML, so there is no stylesheet or font file to load and
+   nothing here is compensating for a library. The browser lays the equation out itself;
+   this only gives a display equation the room and the centring it expects, and lets a wide
+   one scroll rather than push the column sideways. */
+.math-block {
+  margin: var(--space-5) 0;
+  text-align: center;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* An inline equation sits in the run of the text and inherits its size, so it needs
+   nothing — except not breaking mid-expression when the line wraps. */
+.math-inline {
+  white-space: nowrap;
+}

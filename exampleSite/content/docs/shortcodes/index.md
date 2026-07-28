@@ -229,6 +229,61 @@ Like [`gallery`](#gallery), it has no image handling of its own — it scrolls n
 Reach for a gallery when the images are a set the reader should see at once, and this when
 they are a sequence.
 
+## `chart`
+
+A chart drawn from data, using Chart.js.
+
+```text
+{{</* chart alt="Build time in seconds, falling from 42 to 9 over five releases" */>}}
+{
+  "type": "line",
+  "data": {
+    "labels": ["0.1", "0.2", "0.3", "0.4", "0.5"],
+    "datasets": [{ "label": "Build time (s)", "data": [42, 31, 22, 14, 9], "tension": 0.3 }]
+  }
+}
+{{</* /chart */>}}
+```
+
+{{< chart alt="Build time in seconds, falling from 42 to 9 over five releases" caption="Nothing here is real data. It is a chart." >}}
+{
+  "type": "line",
+  "data": {
+    "labels": ["0.1", "0.2", "0.3", "0.4", "0.5"],
+    "datasets": [{ "label": "Build time (s)", "data": [42, 31, 22, 14, 9], "tension": 0.3 }]
+  }
+}
+{{< /chart >}}
+
+| Parameter | Required | What it does |
+|---|---|---|
+| `alt` | yes | What the chart shows, in words |
+| `ratio` | no | The box, as `W/H`. Default `16/9` |
+| `caption` | no | Figure caption, rendered as inline Markdown |
+
+**`alt` is required and the build fails without it.** A `<canvas>` is a picture to
+everything that is not a sighted reader — a screen reader, a text browser, a feed — so a
+chart with no text alternative is a chart most of your readers cannot read at all.
+Describe the shape and the point, not the mechanics: "falling from 42 to 9 over five
+releases" is useful, "a line chart" is not.
+
+**Reach for a table first.** A table is readable by everything, sorts, copies, survives
+with JavaScript off and needs no library. Use a chart when the *shape* of the data is the
+point and the numbers are not.
+
+The body is Chart.js configuration as JSON, and it is **parsed at build time** — malformed
+JSON fails the build with a position rather than rendering an empty rectangle nobody
+notices. It reaches the browser on a `data-` attribute rather than in an inline script, so
+a site running a strict Content-Security-Policy is unaffected.
+
+**Colours come from the palette.** A dataset with no colours of its own gets the accent, so
+a chart looks like the rest of the site rather than like Chart.js; set them in the config
+and yours are kept. Charts follow the colour mode, and the entry animation is dropped
+entirely under `prefers-reduced-motion`.
+
+Like `mermaid`, the library is loaded **only on pages that use this** and never from the
+shared bundle. It is self-hosted and fingerprinted; nothing is fetched from a CDN.
+
 ## `mermaid`
 
 A diagram written as text, rendered in the browser.
