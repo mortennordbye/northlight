@@ -192,19 +192,29 @@ summaryLength = 30
     weight = 3
   [[menu.main]]
     parent = "docs"
+    name = "Shortcodes"
+    pageRef = "docs/shortcodes"
+    weight = 4
+  [[menu.main]]
+    parent = "docs"
     name = "Appearance"
     pageRef = "docs/appearance"
-    weight = 4
+    weight = 5
   [[menu.main]]
     parent = "docs"
     name = "Integrations"
     pageRef = "docs/integrations"
-    weight = 5
+    weight = 6
   [[menu.main]]
     parent = "docs"
     name = "Translating"
     pageRef = "docs/translating"
-    weight = 6
+    weight = 7
+
+  [[menu.main]]
+    name = "Layouts"
+    pageRef = "layouts"
+    weight = 25
 
   [[menu.main]]
     name = "Tags"

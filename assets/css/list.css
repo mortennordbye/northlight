@@ -55,6 +55,18 @@
   margin-top: var(--space-4);
 }
 
+/* The home page's body is Markdown, so it can be more than one paragraph even though the
+   example site only had one for a long time. Without this they sit flush against each
+   other and read as a single run-on block. The last one is flattened because the byline
+   row below supplies its own spacing. */
+.intro-body > * + * {
+  margin-top: var(--space-4);
+}
+
+.intro-body > :last-child {
+  margin-bottom: 0;
+}
+
 .byline-row {
   display: flex;
   align-items: center;

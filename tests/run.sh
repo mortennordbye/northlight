@@ -500,6 +500,29 @@ else
   ok "badge inner content stays inline"
 fi
 
+# Every docs page must be reachable from the navigation. The shortcodes page shipped
+# without a menu entry and was only findable by typing the URL — the page existed, built,
+# and was linked from other pages, so nothing else noticed. This compares the docs pages
+# that were built against the links in the rendered Docs dropdown.
+DOCS_BUILT=$(find "$PUBLIC/docs" -mindepth 2 -maxdepth 2 -name index.html \
+  | sed "s|$PUBLIC/docs/||; s|/index.html||" | sort)
+DOCS_IN_NAV=$(grep -o 'href=/docs/[a-z-]*/' "$PUBLIC/index.html" \
+  | sed 's|href=/docs/||; s|/$||' | sort -u)
+MISSING=$(echo "$DOCS_BUILT" | while read -r d; do
+  [ -n "$d" ] || continue
+  echo "$DOCS_IN_NAV" | grep -qx "$d" || echo "$d"
+done | tr '\n' ' ')
+# Distinguish "one page is missing from the menu" from "the menu did not render at all".
+# Without this, a broken dropdown reports every page as missing and reads like seven
+# separate mistakes rather than one.
+if [ -z "$(printf '%s' "$DOCS_IN_NAV" | tr -d ' ')" ]; then
+  bad "every docs page is reachable from the navigation" "the Docs menu rendered no links at all"
+elif [ -n "$(printf '%s' "$MISSING" | tr -d ' ')" ]; then
+  bad "every docs page is reachable from the navigation" "not in the menu: $MISSING"
+else
+  ok "every docs page is reachable from the navigation"
+fi
+
 # --------------------------------------------------------------------------------
 group "Home layouts"
 

@@ -611,6 +611,13 @@ silently.
   when the palette does, so text that followed the theme would be legible in one mode and
   illegible in the other over the same image.
 
+  **A page can exist, build, be linked from other pages, and still be unreachable.** The
+  shortcodes docs page shipped without a `[[menu.main]]` entry and was findable only by typing
+  the URL. Nothing caught it: the page built, the sitemap listed it, other pages linked to it,
+  and the suite asserted its contents. There is now a check comparing the docs pages that were
+  built against the links in the rendered Docs dropdown. Adding a page means adding its menu
+  entry, and the menu weights are separate from the front-matter weights.
+
   `video` is the one row not done, and it is blocked on an asset rather than on effort: there is
   no encoder available to produce a sample file, and committing a hand-assembled binary nobody
   has watched play would demonstrate a broken feature. Recorded in `BACKLOG.md` with what
