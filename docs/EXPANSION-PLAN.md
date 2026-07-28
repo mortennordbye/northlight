@@ -252,7 +252,7 @@ These wrap existing partials, so they are mostly plumbing and docs.
 
 ### A4 · Media
 
-- [ ] **`video`** — local or self-hosted video, with `poster`, `caption`, `ratio`, `controls`,
+- [~] **`video`** — *blocked on a sample file, see `BACKLOG.md`.* Local or self-hosted video, with `poster`, `caption`, `ratio`, `controls`,
       `loop`, `muted`, `preload`, `start`/`end` fragments. No third-party contact. Autoplay must
       be opt-in *and* must respect `prefers-reduced-motion`. Branch `feat/shortcode-video`.
 - [x] **`youtube-lite`** — facade embed: static thumbnail plus play button, no third-party request
@@ -568,6 +568,35 @@ silently.
   Also: the suite greps `layouts`, `assets`, `i18n` and `README.md` for AI tool names, and a
   comment in the first draft of this shortcode cited the repo guidance file by name and tripped
   it. Cite `docs/EXPANSION-PLAN.md` for a decision instead.
+
+- **Part A is complete except `video`.** `figure`, `alert`, `timeline`, `accordion`, `gallery`,
+  `tabs`, `carousel` and `youtube-lite` all landed. Four things generalise, and they are the ones
+  worth reading before starting Part C:
+
+  **Goldmark does not wrap block-level shortcode output in a paragraph.** Only inline output gets
+  wrapped. The `display: contents` rules written for `timeline` and `accordion` were dead on
+  arrival and were deleted; the one on `.keywords` is real, because its children are `<span>`s.
+  Check the built markup before writing a rule to neutralise a wrapper that may not exist.
+
+  **A boolean shortcode parameter must not go through `param-bool.html`.** That partial returns
+  the raw map value, which is a real boolean for site params and front matter but a *string* for
+  a shortcode — and `"false"` is truthy in a Go template. Compare the string.
+
+  **An assertion about an absent thing matches its own documentation.** The `object-fit` check
+  and the `ytimg` check both failed on the prose explaining why those things are absent. Anchor
+  such checks to a declaration or an attribute, never the bare word. This is the third variant of
+  the same trap, after the `email` page-wide address check.
+
+  **Two shortcodes were built better than the plan asked for.** `accordion`'s single-open mode
+  needs no JavaScript — a shared `name` on `<details>` is native. `carousel` needs none either,
+  because CSS scroll-snap removes all three objections the plan raised against it (script,
+  autoplay, reduced motion). Check whether the platform has grown a feature before reaching for
+  a script.
+
+  `video` is the one row not done, and it is blocked on an asset rather than on effort: there is
+  no encoder available to produce a sample file, and committing a hand-assembled binary nobody
+  has watched play would demonstrate a broken feature. Recorded in `BACKLOG.md` with what
+  unblocks it, including the autoplay/`prefers-reduced-motion` decision to make alongside it.
 
 - **`feat/shortcode-keywords`** — `keyword` and `keywordList`. Reuses `badge`'s chip shape a step
   larger, and the `icon-inline` wrapper from the item above for the optional icon.
