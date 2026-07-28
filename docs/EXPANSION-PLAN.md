@@ -47,25 +47,27 @@ replacement.
 **To reverse:** delete `layouts/_shortcodes/`, the shortcode CSS/JS, and the docs page. No
 existing template depends on any of it — that is a deliberate constraint on the build order.
 
-### FLAG-2 — No shortcode may call the network at build time · resolved, no action needed
+### FLAG-2 — No shortcode may call the network at build time · **reversed: built, offline-safe**
 
-`docs/SPEC.md` §1 requires the theme to build with no network access. That rules out the entire
-family of live repository/statistics cards the reference themes ship (six different git forges,
-plus package-registry and model-hub cards), the remote code importer, and the remote Markdown
-importer. All of them fetch a third-party API during `hugo build`.
+`docs/SPEC.md` §1 requires the theme to build with no network access. The first resolution cut
+the whole fetching family for that reason.
 
-**Resolved as:** not built. Listed under *Not building* with the reason. This is the single
-largest cut from the surveyed list — roughly nine shortcodes — and it is not a matter of effort.
+**Reversed by later work:** the repo cards (all six forges plus Hugging Face and Ansible), the
+gist embed, and both remote importers were built — with §1 kept true rather than waived. A
+transport failure degrades to a plain link and warns suppressibly instead of failing the build,
+so the gate still runs offline; only a 404 is treated as a content problem. The distinction
+lives in `_partials/fetch-remote.html` with the full decision record.
 
-### FLAG-3 — Three shortcodes need a third-party script · deferred, see Part D
+### FLAG-3 — Three shortcodes need a third-party script · **reversed: built, self-hosted**
 
-Charts, diagrams and typewriter effects each need a rendering library that would be fetched or
-bundled. The security baseline in `CLAUDE.md` forbids third-party requests by default, and
-bundling a large renderer for a feature most pages never use fails the same test.
+Charts, diagrams and typewriter effects each need a rendering library.
 
-**Resolved as:** not built; `extend-head.html` remains the supported route, which is the decision
-already recorded for maths rendering in `BACKLOG.md`. If the owner wants one of these in-theme,
-diagrams-as-text is the one with the strongest claim for a technical blog.
+**Reversed by later work:** all three were built without any third-party request. Chart.js and
+mermaid are vendored under `assets/js/vendor/`, fingerprinted and SRI'd, and loaded only on
+pages whose content uses the shortcode (`.HasShortcode`); the typewriter effect is written in
+the theme's own `typeit-init.js` because the obvious library is GPL-3.0 and this theme is MIT.
+Maths went further still: KaTeX renders at build time via the passthrough render hook, shipping
+no script at all.
 
 ### FLAG-4 — Video and lite YouTube embeds are borderline · built, privacy-preserving form only
 
@@ -277,35 +279,35 @@ themes, keeping only rows where the gap is real and the feature fits.
 Several of these already sit in `docs/FEATURE-SURVEY.md` as Gap or Partial rows; building one
 means flipping that row to **Have** in the same commit.
 
-- [ ] **More sharing providers.** Currently LinkedIn and Reddit; the surveyed themes offer around
+- [x] **More sharing providers.** Currently LinkedIn and Reddit; the surveyed themes offer around
       eleven. Add the ones with a plain URL scheme and no script: Mastodon, Bluesky, Hacker News,
       email, X, Facebook, Telegram, WhatsApp, Pocket. Each is a URL template and an icon; the
       whole set is one commit. `sharingLinks` already exists as an ordered list, so this is
       additive and breaks nothing. Branch `feat/share-providers`.
-- [ ] **`extend-head-uncached.html`.** The uncached twin of the existing head hook, for anything
-      that must not be fingerprinted into the cached bundle. One partial, one call site, one docs
-      paragraph. Branch `feat/extend-head-uncached`.
-- [ ] **Custom icons from the site repo.** Let a site drop SVGs in its own `assets/icons/` and
+- [-] **`extend-head-uncached.html`.** Dropped: `extend-head.html` is not cached in the first
+      place — the premise the twin was meant to fix does not exist here. Recorded in
+      `docs/GAP-LIST.md` (second pass).
+- [x] **Custom icons from the site repo.** Let a site drop SVGs in its own `assets/icons/` and
       have `_partials/icon.html` find them, falling back to the theme's set. Makes the icon
       shortcode (A2) genuinely useful to adopters. Branch `feat/custom-icons`.
-- [ ] **Reply by email.** An article-footer link that opens a pre-filled reply, subject set to the
+- [x] **Reply by email.** An article-footer link that opens a pre-filled reply, subject set to the
       post title. Needs `author.email`, off unless set. Branch `feat/reply-by-email`.
-- [ ] **Configurable meta description fallback order.** Currently a fixed chain; make the order a
+- [x] **Configurable meta description fallback order.** Currently a fixed chain; make the order a
       param. Small, and it closes a Partial row. Branch `feat/meta-description-order`.
-- [ ] **`taxonomy.showTermCount`.** Post count beside each term on taxonomy pages, on by default.
+- [x] **`taxonomy.showTermCount`.** Post count beside each term on taxonomy pages, on by default.
       Branch `feat/term-count`.
-- [ ] **`article.invertPagination`.** Whether prev/next follow reading order or chronology. One
+- [x] **`article.invertPagination`.** Whether prev/next follow reading order or chronology. One
       boolean, one conditional. Branch `feat/invert-pagination`.
-- [ ] **External links open in a new tab.** A param on the link render hook, with `rel="noopener
+- [x] **External links open in a new tab.** A param on the link render hook, with `rel="noopener
       noreferrer"` applied whenever it is on. Default **off** — forcing new tabs overrides the
       reader's choice, so this is opt-in even though the surveyed themes default it on. Note the
       deviation in the docs. Branch `feat/external-link-target`.
-- [ ] **`highlightCurrentMenuArea`.** Marks the active top-level menu entry via `aria-current`,
+- [x] **`highlightCurrentMenuArea`.** Marks the active top-level menu entry via `aria-current`,
       styled rather than invented. Check first whether `header.html` already does this — if it
       does, tick this box as already satisfied and say so. Branch `feat/menu-active-state`.
-- [ ] **Feed ownership tags.** Verification tags for feed-reader platforms, alongside the existing
+- [x] **Feed ownership tags.** Verification tags for feed-reader platforms, alongside the existing
       `[params.verification]` block. Two params, two meta tags. Branch `feat/feed-verification`.
-- [ ] **`sitemap.excludedKinds` as a param.** Currently hardcoded to exclude taxonomy and term
+- [x] **`sitemap.excludedKinds` as a param.** Currently hardcoded to exclude taxonomy and term
       pages. Make it configurable, keeping today's behaviour as the default.
       Branch `feat/sitemap-excluded-kinds`.
 
@@ -376,29 +378,24 @@ post-gathering logic, and it is what makes `custom` possible without a fork.
 
 ## Part D — Not building
 
-Recorded so the same questions are not reopened from scratch. Each of these appears in the
-surveyed themes and is deliberately absent here.
+Recorded so the same questions are not reopened from scratch.
+
+**Most of the original table was reversed by the later expansion rounds** (FLAG-2, FLAG-3, the
+gap-list work recorded in `docs/GAP-LIST.md`, and CHANGELOG 0.2.0–0.4.0): the repo cards,
+importers, gists, charts, diagrams, typewriter, maths, view/like counters, donation and ad
+units, the extra analytics vendors, multiple authors, series, hero/header/card-view variants,
+lightbox, zen mode, language redirect, the underline-links control and the configurable
+fingerprint algorithm were all built — each in a form that keeps the theme's own rules
+(offline-safe builds, no third-party request by default, self-hosted libraries). The rows below
+are what actually remains not built, with the reason.
 
 | Feature | Reason |
 |---|---|
-| Live cards for repositories, package registries and model hubs (~9 shortcodes) | Each calls a third-party API during the build. `docs/SPEC.md` §1 requires the theme to build with no network access. See FLAG-2. |
-| Remote code importer, remote Markdown importer | Same: network at build time. |
-| Embedded gists | Loads a third-party script on page view. The code-fence path with a filename bar already covers the use case locally. |
-| Charts | Needs a charting library on every page that has one. See FLAG-3. |
-| Diagrams as text | Same. The strongest candidate of the three if this is reopened. |
-| Typewriter effect | An animation library for decoration, and it fights `prefers-reduced-motion`. |
-| Maths rendering | Already decided — see `BACKLOG.md`. Site config plus a renderer in `extend-head.html`. |
-| View and like counters | Adds a hosted backend to a static site. Already rejected in `docs/FEATURE-SURVEY.md` §6. |
-| Donation widget, ad units | Third-party scripts, and not a theme's job. |
-| Additional analytics vendors | `extend-head.html` is the supported route. A theme should not ship five vendors. |
-| Multiple authors, author taxonomy, author badges | Single-author theme by design. `docs/FEATURE-SURVEY.md` §2. |
-| Series taxonomy | Decision recorded in `BACKLOG.md`. Build it when a post needs it. |
-| Hero style variants, header layout variants, card/list switches | One considered choice each, matching `design/northlight.html`. `docs/FEATURE-SURVEY.md` §3. Note this no longer covers *homepage* layouts, which moved to Part C — see FLAG-6. |
-| Image zoom / lightbox | JS weight for a gesture the browser already offers. |
-| Zen mode | The layout is already the focus mode. |
-| Browser language redirect | Client-side redirects on a static site. |
-| Accessibility toggle button | The theme should meet the bar without a toggle; a switch implies the default is worse. |
-| Configurable fingerprint algorithm | sha512 everywhere. A param here only creates ways to get it wrong. |
+| Analytics vendors beyond the six wired | `extend-head.html` is the supported route; the theme should not become a vendor registry. |
+| Categories as a second default taxonomy | Rejected in `docs/FEATURE-SURVEY.md` §2 — tags cover it, and the generic `taxonomy.html` supports any taxonomy a site registers itself. |
+| A CSS framework / Tailwind pipeline | Contradicts the theme's premise: hand-written CSS, no Node toolchain. |
+| PWA / service worker | None of the surveyed themes ship one either; a stale-cache bug in a theme-owned service worker breaks every consuming site at once. |
+| Video autoplay | Recorded in `BACKLOG.md`: autoplay without a reader gesture is hostile, and muted-loop "ambient" video is decoration the design brief rejects. |
 
 ---
 
@@ -678,3 +675,10 @@ silently.
   Both fail the build on a reference that resolves to nothing — an unresolvable `link`, a
   `where` without a `value`, a filter matching no posts. An embed that renders as nothing is
   indistinguishable from a shortcode nobody typed.
+
+- **`cleanup/audit-findings`** — housekeeping pass after a full code audit. This file was the
+  worst-tracked document in the repo: every Part B item had shipped with its box unticked, and
+  Part D denied ~18 features the code carries. Both are corrected above, with FLAG-2 and FLAG-3
+  marked reversed and the reversal mechanics recorded. The audit itself also landed eight bug
+  fixes, the i18n leaks, the thumbnail/fetch/recent consolidations, a print stylesheet and
+  theme-color meta — see CHANGELOG "Unreleased" for the reader-facing list.

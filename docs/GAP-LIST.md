@@ -27,9 +27,8 @@ allows it — the first rule already says "by default", and a build-time fetch o
 page that uses the shortcode. What does not survive is a default-on version of any of them.
 Decide this once, here, and every `[opt-in]` row below inherits it.
 
-`docs/FEATURE-SURVEY.md` and `BACKLOG.md` still record some of these as Rejected. Those rows are
-now stale and contradict this page. They need updating in whichever commit first proves the
-decision — see the note at the foot.
+`docs/FEATURE-SURVEY.md` and `BACKLOG.md` recorded some of these as Rejected while the decision
+was fresh; both have since been brought in line with it (see the note at the foot).
 
 ---
 
@@ -168,8 +167,8 @@ Cosmetic, one-line, or narrow enough that nobody will notice its absence.
 
 ## Keeping the repo honest
 
-`docs/FEATURE-SURVEY.md` marks several rows above as **Rejected**, and `BACKLOG.md` has a
-"Deliberately not built" section covering series, card views, maths and video autoplay. Those
-records now contradict this page. Whichever commit first lands an `[opt-in]` feature should also
-flip the corresponding rows, so the repo does not carry two documents disagreeing about whether
-something was decided against.
+Done. `docs/FEATURE-SURVEY.md`'s tables were flipped as features landed and its prose caught up
+in the audit cleanup; `BACKLOG.md`'s "Deliberately not built" section now carries only video
+autoplay, the one objection that still stands; and `docs/EXPANSION-PLAN.md`'s checkboxes and
+Part D were corrected in the same pass. No document on this repo should now disagree with the
+code about whether something was decided against.

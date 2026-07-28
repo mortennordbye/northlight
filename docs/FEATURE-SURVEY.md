@@ -9,11 +9,10 @@ Read it to answer two questions: *does the reference theme do something we shoul
 this already been decided?* Where a row says **Rejected**, the reason is in `BACKLOG.md` under
 "Deliberately not built" or in the notes here.
 
-> **The Rejected rows are being reopened.** `docs/GAP-LIST.md` is now the build order, and it
-> puts every gap in scope — including rows marked Rejected here. Until a feature actually lands,
-> the row below still describes what the theme *does*, which is what this document is for; the
-> **status** is what is stale. Each row gets corrected in the commit that builds it. Where the
-> two disagree about intent, `docs/GAP-LIST.md` is current.
+> **The reopening is finished.** `docs/GAP-LIST.md` was the build order for the expansion
+> rounds, and everything it put in scope has landed; the tables below were corrected as each
+> feature shipped and are current. A row marked Rejected is again a standing decision, not a
+> queue.
 
 **Before building anything off this page**, read "Shipping a feature" in `CONTRIBUTING.md`. A
 feature here is not done when it works: it needs its default resolved in `init.html`, its strings
@@ -210,26 +209,23 @@ technical blog has a real use for it. It would still put a large renderer on the
 
 ## What is left
 
-Section 8 is tracked separately in `docs/EXPANSION-PLAN.md` and is not counted here. Outside it,
-seven rows are still Gap or Partial, all Low value or narrow:
+Nothing open. Every row on this page is either **Have** or explicitly Rejected with a reason;
+the last Gap/Partial rows closed with the gap-list rounds (CHANGELOG 0.4.0) and the audit
+cleanup that followed. Worth keeping from that work:
 
-* **RTL** is Partial. `rtl = true` sets `dir` and the layout mirrors, but nothing here has
-  been exercised by someone actually reading right to left. That is the row most likely
-  to be wrong — and it has now been wrong once in a way worth recording: table cells and
-  the "next" pager used physical `text-align`, so they stayed pinned to the left edge
-  while everything around them flipped. Fixed, and `tests/run.sh` now refuses any
-  `text-align: left|right` in the CSS so it cannot creep back. The lesson generalises: the
-  remaining RTL risk is other physical properties, not `dir` itself.
-* **Share links** now covers eleven providers. The limit is not effort but the no-script
-  rule: a provider needing an SDK would put a third-party request on every article page for
-  a button most readers never press.
-* **Meta description fallback order** is fixed rather than configurable.
-* `extend-head-uncached.html`, custom icons from the site repo, reply-by-email, and
-  RSSNext ownership tags are all unbuilt and none has been asked for.
+* **RTL** is Have, and it earned the status by being measured: table cells and the "next"
+  pager used physical `text-align` and stayed pinned to the left edge while everything
+  around them flipped. Fixed, and `tests/run.sh` refuses any `text-align: left|right` in
+  the CSS so it cannot creep back. The same failure mode surfaced once more after that —
+  the TOC scroll-spy accent used a physical `border-left-color` — and the suite now
+  refuses `border-left` in those files too. The lesson generalises: the remaining RTL risk
+  is always another physical property, not `dir` itself.
+* **Share links** covers eleven providers. The limit is not effort but the no-script rule:
+  a provider needing an SDK would put a third-party request on every article page for a
+  button most readers never press.
 
-Everything else on this page is either built or explicitly rejected with a reason. A row
-marked Rejected is a decision, not a backlog item: reopening one needs an argument that
-did not exist when it was made.
+A row marked Rejected is a decision, not a backlog item: reopening one needs an argument
+that did not exist when it was made.
 
 ## Known limitations
 

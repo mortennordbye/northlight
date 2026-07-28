@@ -56,25 +56,14 @@ Kept as a short record so the same questions are not reopened from scratch.
 | The `video` shortcode had no sample file | Built. The blocker was "no encoder on the host", and the answer was the rule the repo already lives by: run it in a container. A one-off `linuxserver/ffmpeg` produced an 8s, 116KB clip, which was then decoded frame by frame and watched playing in a browser before being committed, so "a sample nobody has watched play" stopped applying. |
 | `author.imageQuality` unimplemented | Built. The avatar goes through Hugo's pipeline for raster formats and still passes SVG through untouched. Quality turned out to be lossy-format-only — a PNG is byte-identical at q20 and q85 — so the demo avatar is a JPEG and the docs say so. |
 | Physical properties beyond `text-align` | Swept. An Arabic page was added to `exampleSite` first, so the conversion was measured rather than inferred — and it found three real bugs the inference would have missed, including code blocks inheriting RTL. Nineteen declarations converted; two stay physical and say why at the declaration. |
-| Table cells did not follow the text direction | Fixed. `prose.css` and `article.css` use logical `start`/`end`, verified by measurement: cell text moves from the left edge to the right edge when the block flips, and LTR rendering is unchanged. `tests/run.sh` refuses any physical `text-align`. The wider sweep it belongs to is the Open entry above. |
+| Table cells did not follow the text direction | Fixed. `prose.css` and `article.css` use logical `start`/`end`, verified by measurement: cell text moves from the left edge to the right edge when the block flips, and LTR rendering is unchanged. `tests/run.sh` refuses any physical `text-align`. The wider sweep it belongs to is the row above. |
 
 ### Deliberately not built
 
-These were the Tier 2 list in `docs/SPEC.md`.
+These were the Tier 2 list in `docs/SPEC.md`. Series, card views and maths were on it too and
+have since been built (`list.cardView`, the series taxonomy, and build-time KaTeX via the
+passthrough render hook) — deleted from here per this section's own rule. One entry stands:
 
-> **Series, card views and maths have since been reopened.** `docs/GAP-LIST.md` is the current
-> build order and puts them back in scope, so the reasoning below is history rather than policy —
-> worth reading for what the objection was, not as a decision still standing. Each entry gets
-> deleted from this list in the commit that builds it. Video autoplay is the one that still holds,
-> because its objection is that the promise cannot be kept, not that the feature is unwanted.
-
-- **Card-view variants for the post index.** The index is a list with covers and term pages use
-  cards, which is what the approved design shows. A switch between the two is configuration nobody
-  asked for.
-- **Math passthrough.** Enabled and unused on the reference blog. It is site config
-  (`markup.goldmark.extensions.passthrough`) plus a KaTeX or MathJax script, both of which belong
-  in `extend-head.html` rather than in a theme that would otherwise load a maths renderer for
-  every site using it.
 - **Autoplay on the `video` shortcode.** CSS cannot stop playback, so `prefers-reduced-motion`
   could only be honoured with JavaScript, and with scripting off the theme would autoplay straight
   past a reader who asked it not to. An opt-in that silently fails is worse than an absent
