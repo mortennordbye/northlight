@@ -6,6 +6,13 @@ and versions follow [semantic versioning](https://semver.org/).
 **Config keys are API.** A key is never renamed or repurposed without a major version bump. New
 keys are added with defaults that preserve existing behaviour.
 
+## [0.4.0](https://github.com/mortennordbye/northlight/compare/v0.3.0...v0.4.0) (2026-07-28)
+
+
+### Features
+
+* close the gap list, add RTL support, and a three-layer test suite ([f6b1c65](https://github.com/mortennordbye/northlight/commit/f6b1c65e51263fb174cc18fb979462a516bef848))
+
 ## [Unreleased]
 
 ### Added
