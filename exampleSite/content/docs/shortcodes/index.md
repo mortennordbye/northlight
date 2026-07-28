@@ -229,6 +229,25 @@ Like [`gallery`](#gallery), it has no image handling of its own — it scrolls n
 Reach for a gallery when the images are a set the reader should see at once, and this when
 they are a sequence.
 
+## `gist`
+
+A GitHub Gist, fetched at build time and rendered as an ordinary code block.
+
+```text
+{{</* gist user="octocat" id="6cad326836d38bd3a7ae" */>}}
+```
+
+{{< gist user="octocat" id="6cad326836d38bd3a7ae" >}}
+
+**The reader requests nothing.** The usual Gist embed is a third-party script that runs on
+page view; this reads the Gist during the build, so what arrives is a code block that gets
+this theme's own syntax highlighting rather than GitHub's stylesheet — and it looks right
+in both colour modes, which an embedded Gist does not.
+
+`file` picks a file when the Gist has several; the first is used otherwise. A deleted Gist
+warns and fails the gate; being offline degrades to a plain link, on the same terms as the
+repository cards.
+
 ## Repository cards
 
 A card for a repository, with its description and counts read **at build time**.
@@ -805,7 +824,8 @@ one as a breaking change, the same as renaming a config key.
 | {{< icon "pencil" >}} `pencil` | {{< icon "arrow-left" >}} `arrow-left` | {{< icon "arrow-right" >}} `arrow-right` | {{< icon "arrow-up" >}} `arrow-up` |
 | {{< icon "chevron-down" >}} `chevron-down` | {{< icon "moon" >}} `moon` | {{< icon "sun" >}} `sun` | {{< icon "copy" >}} `copy` |
 | {{< icon "check" >}} `check` | {{< icon "info" >}} `info` | {{< icon "bulb" >}} `bulb` | {{< icon "megaphone" >}} `megaphone` |
-| {{< icon "alert" >}} `alert` | {{< icon "octagon" >}} `octagon` | {{< icon "underline" >}} `underline` | |
+| {{< icon "alert" >}} `alert` | {{< icon "octagon" >}} `octagon` | {{< icon "underline" >}} `underline` | {{< icon "zen" >}} `zen` |
+| {{< icon "eye" >}} `eye` | {{< icon "heart" >}} `heart` | | |
 
 The last five are the admonition marks, and they are drawn to be told apart by outline
 alone rather than by the colour beside them.

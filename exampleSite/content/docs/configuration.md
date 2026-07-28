@@ -24,6 +24,10 @@ default inline, so every default below lives in exactly one place in the source.
 | `autoSwitchAppearance` | `true` | Follow the reader's operating system. |
 | `enableSearch` | `true` | The ⌘K modal. Needs `JSON` in `[outputs].home`. |
 | `enableCodeCopy` | `true` | Copy button on code blocks. |
+| `imagePosition` | `"center"` | `object-position` for cropped images — the avatar and card thumbnails. Covers are never cropped, so it does not affect the hero. |
+| `disableImageOptimization` | `false` | Hand raster images to the browser unresized. For a site whose images are already optimised upstream. |
+| `layoutBackgroundBlur` | `false` | Blurs background and hero artwork. Applied to the image, not the block, so text over it stays sharp. |
+| `layoutBackgroundHeaderSpace` | `false` | Extra room between the header and the body. |
 | `enableLightbox` | `false` | Click a prose image to see it full size. Uses a `<dialog>`, so the modal semantics, backdrop, focus trap and Escape handling come from the browser. Images that are already links are left alone. |
 | `enableA11y` | `false` | Shows a control that underlines every link on the page. Named for what it does: a control whose effect a reader cannot predict is not an accessibility feature. |
 | `header.layout` | `"fixed"` | `fixed` keeps the header sticky (the current behaviour); `basic` lets it scroll away. |
@@ -109,6 +113,9 @@ bio never renders as a code block.
 | `showComments` | `false` | Comments. Also needs `[params.comments.giscus]`. |
 | `showAuthorsBadges` | `false` | Link each byline name to its author page. Needs `author = "authors"` under `[taxonomies]`. |
 | `showAuthorBottom` | `false` | Author card at the foot of a post: avatar, name, headline, links. Adds to the byline rather than replacing it. |
+| `showZenMode` | `false` | A control that hides the header, the TOC rail and both footers, leaving the prose. Escape leaves. Not persisted. |
+| `showViews` | `false` | View counter. Needs `[params.firebase]`. |
+| `showLikes` | `false` | Like button. Needs `[params.firebase]`. |
 | `seriesOpened` | `false` | Whether the series navigation starts expanded. Collapsed by default: the summary line already says which part you are on. |
 | `replyByEmail` | `false` | A "reply by email" link at the foot of each post. Needs `[params.author].email`; renders nothing without it. No third party, no script, and it works with JavaScript off. |
 | `showEdit` | `false` | "Edit this page" link. |
@@ -159,6 +166,8 @@ browsers.
 | Key | Default | What it does |
 |---|---|---|
 | `list.groupByYear` | `true` | Year headings in the post index, grouped within each page of results. |
+| `list.orderByWeight` | `false` | Sort the section index by weight instead of date. Replaces the date sort entirely; unweighted pages go last. |
+| `footer.showMenu` | `true` | The footer menu. |
 | `list.cardView` | `false` | Render the section index as a card grid instead of a list. Year grouping does not apply to a grid, so this wins over `list.groupByYear`. |
 | `taxonomy.showTermCount` | `true` | Article count beside each term. |
 | `taxonomy.cardView` | `true` | Term pages as a card grid. Set `false` for the same row list the section index uses. |

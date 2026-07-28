@@ -1,6 +1,6 @@
 {{- $cfg := partialCached "init.html" . -}}
 <!doctype html>
-<html lang="{{ site.Language.Lang }}"{{ if $cfg.rtl }} dir="rtl"{{ end }} data-header="{{ $cfg.headerLayout }}"
+<html lang="{{ site.Language.Lang }}"{{ if $cfg.rtl }} dir="rtl"{{ end }} data-header="{{ $cfg.headerLayout }}"{{ with $cfg.imagePosition }} style="--image-position: {{ . }}"{{ end }}{{ if $cfg.layoutBackgroundBlur }} data-bg-blur{{ end }}{{ if $cfg.layoutBackgroundHeaderSpace }} data-bg-header-space{{ end }}
       data-palette="{{ $cfg.palette }}"
       data-appearance-default="{{ $cfg.defaultAppearance }}"
       data-appearance-auto="{{ $cfg.autoSwitchAppearance }}">
@@ -52,6 +52,8 @@
   {{- if $cfg.enableSearch }}{{ $scripts = $scripts | append (resources.Get "js/search.js") }}{{ end -}}
   {{- if $cfg.enableA11y }}{{ $scripts = $scripts | append (resources.Get "js/a11y.js") }}{{ end -}}
   {{- if $cfg.enableLightbox }}{{ $scripts = $scripts | append (resources.Get "js/lightbox.js") }}{{ end -}}
+  {{- if $cfg.article.showZenMode }}{{ $scripts = $scripts | append (resources.Get "js/zen.js") }}{{ end -}}
+  {{- if and site.Params.firebase (or $cfg.article.showViews $cfg.article.showLikes) }}{{ $scripts = $scripts | append (resources.Get "js/counters.js") }}{{ end -}}
   {{- $js := $scripts | resources.Concat "js/northlight.js" -}}
   {{- if hugo.IsProduction }}{{ $js = $js | minify }}{{ end -}}
   {{- $js = $js | fingerprint "sha512" }}

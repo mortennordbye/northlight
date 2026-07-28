@@ -38,6 +38,9 @@
   "showComments"        (partial "param-bool.html" (dict "map" $a "key" "showComments"        "default" false))
   "replyByEmail"        (partial "param-bool.html" (dict "map" $a "key" "replyByEmail"        "default" false))
   "seriesOpened"        (partial "param-bool.html" (dict "map" $a "key" "seriesOpened"        "default" false))
+  "showZenMode"         (partial "param-bool.html" (dict "map" $a "key" "showZenMode"         "default" false))
+  "showViews"           (partial "param-bool.html" (dict "map" $a "key" "showViews"           "default" false))
+  "showLikes"           (partial "param-bool.html" (dict "map" $a "key" "showLikes"           "default" false))
   "showAuthorsBadges"   (partial "param-bool.html" (dict "map" $a "key" "showAuthorsBadges"   "default" false))
   "heroStyle"           (cond (in (slice "basic" "big" "background" "thumbAndBackground") ($a.heroStyle | default "basic")) ($a.heroStyle | default "basic") "basic")
   "showAuthorBottom"    (partial "param-bool.html" (dict "map" $a "key" "showAuthorBottom"    "default" false))
@@ -60,12 +63,31 @@
 {{- $list := dict
   "showSummary" (partial "param-bool.html" (dict "map" $l "key" "showSummary" "default" false))
   "cardView"    (partial "param-bool.html" (dict "map" $l "key" "cardView"    "default" false))
+  "orderByWeight" (partial "param-bool.html" (dict "map" $l "key" "orderByWeight" "default" false))
 -}}
 
 {{- /* Header treatment. `fixed` is the current behaviour and therefore the default: the
        header is sticky and follows the reader down the page. `basic` lets it scroll away,
        which suits a long-form site where the chrome is in the way after the first screen.
        An unknown value falls back, as everywhere else here. */ -}}
+{{- /* Background treatments, shared by the home background layout and the article hero.
+       Both are visual-only and both default off, so nothing changes for an existing site. */ -}}
+{{- /* Image handling.
+
+       `imagePosition` sets object-position on feature images. It only does anything when
+       an image is being cropped, and covers in this theme are never cropped — so on the
+       article hero it is inert by design. It applies to the avatar and to card thumbnails,
+       which *are* square crops, and that is where a site actually needs it.
+
+       `disableImageOptimization` stops Hugo resizing raster images, handing the original
+       to the browser instead. Worth having for a site whose images are already optimised
+       by something upstream; costly otherwise, which is why it is off by default. */ -}}
+{{- $imagePosition := site.Params.imagePosition | default "" -}}
+{{- $disableImageOptimization := partial "param-bool.html" (dict "map" site.Params "key" "disableImageOptimization" "default" false) -}}
+
+{{- $layoutBackgroundBlur := partial "param-bool.html" (dict "map" site.Params "key" "layoutBackgroundBlur" "default" false) -}}
+{{- $layoutBackgroundHeaderSpace := partial "param-bool.html" (dict "map" site.Params "key" "layoutBackgroundHeaderSpace" "default" false) -}}
+
 {{- $h := site.Params.header | default dict -}}
 {{- $headerLayout := $h.layout | default "fixed" -}}
 {{- if not (in (slice "basic" "fixed") $headerLayout) -}}
@@ -88,6 +110,7 @@
 
 {{- $footer := dict
   "showCopyright"        (partial "param-bool.html" (dict "map" $f "key" "showCopyright"        "default" true))
+  "showMenu"             (partial "param-bool.html" (dict "map" $f "key" "showMenu"             "default" true))
   "showThemeAttribution" (partial "param-bool.html" (dict "map" $f "key" "showThemeAttribution" "default" true))
   "themeURL"             ($f.themeURL | default "")
 -}}
@@ -118,6 +141,10 @@
   "list" $list
   "taxonomy" $taxonomy
   "headerLayout" $headerLayout
+  "imagePosition" $imagePosition
+  "disableImageOptimization" $disableImageOptimization
+  "layoutBackgroundBlur" $layoutBackgroundBlur
+  "layoutBackgroundHeaderSpace" $layoutBackgroundHeaderSpace
   "defaultFeaturedImage" (site.Params.defaultFeaturedImage | default "")
   "defaultSocialImage" (site.Params.defaultSocialImage | default "")
   "defaultBackgroundImage" (site.Params.defaultBackgroundImage | default "")

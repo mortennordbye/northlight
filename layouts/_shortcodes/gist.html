@@ -1,0 +1,61 @@
+{{- /*
+  gist — a GitHub Gist, fetched at build time.
+
+  Like the repository cards, and for the same reason: the reader requests nothing. The
+  usual Gist embed is a third-party script that runs on page view; this reads the Gist's
+  JSON during the build and renders the file as an ordinary code block, which then gets
+  the theme's own syntax highlighting rather than GitHub's stylesheet.
+
+  A failed fetch degrades to a plain link to the Gist. A 404 warns, so a deleted Gist
+  fails CI; being offline does not, on the same reasoning as repo-card.html.
+
+  Parameters:
+    user  the Gist owner (required)
+    id    the Gist id (required)
+    file  which file to show. Defaults to the first
+
+  Call:  {{< gist user="octocat" id="6cad326836d38bd3a7ae" >}}
+*/ -}}
+{{- $user := .Get "user" | default (.Get 0) -}}
+{{- $id := .Get "id" | default (.Get 1) -}}
+{{- if or (not $user) (not $id) -}}
+  {{- errorf "gist shortcode: user and id are both required (%s)" .Position -}}
+{{- end -}}
+{{- $url := printf "https://gist.github.com/%s/%s" $user $id -}}
+{{- $api := printf "https://api.github.com/gists/%s" $id -}}
+{{- $want := .Get "file" -}}
+
+{{- $res := "" -}}{{- $offline := "" -}}{{- $missing := false -}}
+{{- with try (resources.GetRemote $api) -}}
+  {{- with .Err -}}{{ $offline = printf "%s" . }}{{- else -}}{{ $res = .Value }}{{- end -}}
+{{- end -}}
+{{- if and (not $res) (not $offline) -}}{{ $missing = true }}{{ end -}}
+{{- if $missing -}}
+  {{- warnidf "repo-card-missing" "gist shortcode: %q returned nothing — the gist may have been deleted, or GitHub may be rate-limiting. Falling back to a plain link." $api -}}
+{{- end -}}
+{{- with $offline -}}
+  {{- warnidf "repo-card-offline" "gist shortcode: could not reach %q (%s) — falling back to a plain link" $api . -}}
+{{- end -}}
+
+{{- $shown := false -}}
+{{- with $res -}}
+  {{- with try (unmarshal .Content) -}}
+    {{- with .Value -}}
+      {{- $files := .files -}}
+      {{- $pick := "" -}}
+      {{- range $k, $v := $files -}}
+        {{- if or (and $want (eq $k $want)) (and (not $want) (not $pick)) -}}{{ $pick = $v }}{{ end -}}
+      {{- end -}}
+      {{- with $pick -}}
+        {{- $shown = true -}}
+        <figure class="gist">
+          {{ highlight .content (.language | default "text" | lower) "" }}
+          <figcaption><a href="{{ $url }}" rel="noopener" target="_blank">{{ .filename }}</a></figcaption>
+        </figure>
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- if not $shown -}}
+  <p class="gist gist-offline"><a href="{{ $url }}" rel="noopener" target="_blank">{{ $url }}</a></p>
+{{- end -}}

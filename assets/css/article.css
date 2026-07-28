@@ -678,3 +678,59 @@ a.tag:hover {
     justify-content: flex-start;
   }
 }
+
+/* --- image position --------------------------------------------------------- */
+
+/* `imagePosition` sets object-position where an image is genuinely cropped. Covers are
+   never cropped in this theme, so it does nothing on the article hero — deliberately. The
+   avatar and the card thumbnail are square crops, and those are where a site needs it:
+   without it, a portrait whose subject is not centred loses their head. */
+.avatar,
+.author-card-avatar,
+.item-cover,
+.card-cover,
+.related-thumb {
+  object-position: var(--image-position);
+}
+
+/* --- counters --------------------------------------------------------------- */
+
+/* Ships hidden and is revealed by its script once it has a real number, so a page whose
+   backend is unreachable shows nothing rather than a zero pretending to be a count. */
+.counters {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+  font-size: 14px;
+  color: var(--fg-3);
+}
+
+.counter {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+}
+
+.counter-like {
+  cursor: pointer;
+}
+
+.counter-like:hover {
+  color: var(--accent);
+}
+
+/* The pressed state is the only thing distinguishing a liked post from an unliked one, so
+   it changes more than opacity: a filled heart reads at a glance and survives greyscale. */
+.counter-like[aria-pressed="true"] {
+  color: var(--accent);
+}
+
+.counter-like[aria-pressed="true"] .icon {
+  fill: currentColor;
+}

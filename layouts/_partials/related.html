@@ -9,7 +9,7 @@
         {{- with .Resources.GetMatch "{cover,featured}.*" }}
           {{- $thumb := . -}}
           {{- $raster := in (slice "png" "jpeg" "gif" "webp") .MediaType.SubType -}}
-          {{- if $raster -}}
+          {{- if and $raster (not (partialCached "init.html" .).disableImageOptimization) -}}
             {{- $thumb = .Resize "400x q80" -}}
           {{- end }}
           {{- /* SVG has no pixel dimensions, so Hugo's .Width and .Height error on it rather

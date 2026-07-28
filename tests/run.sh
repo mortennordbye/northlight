@@ -747,6 +747,80 @@ refute_grep 'Updated <time' "$PUBLIC/blog/two-modes/index.html" "no updated date
 # says nothing twice.
 refute_grep 'Updated <time' "$WRITING" "no updated date when it renders as the same day"
 
+# --- this batch: menus, listing order, backgrounds, images, zen, gist, counters ------
+
+# footer.showMenu. The menu has always rendered; only the switch is new, so the default
+# is what is asserted.
+assert_grep 'class=footer-nav' "$PUBLIC/index.html" "the footer menu renders by default"
+
+# list.orderByWeight replaces the date sort rather than blending with it — a list half
+# ordered by weight and half by date is worse than either.
+assert_grep 'ByWeight' "$ROOT/layouts/section.html" "orderByWeight sorts the section index"
+refute_grep 'data-bg-blur' "$PUBLIC/index.html" "background blur is off by default"
+refute_grep 'data-bg-header-space' "$PUBLIC/index.html" "background header space is off by default"
+
+# imagePosition applies where crops actually happen. Covers are never cropped, so the
+# property is defined with a default and moves only the avatar and thumbnails.
+assert_grep '\-\-image-position: center' "$ROOT/assets/css/tokens.css" \
+  "the image position property has a default so it always resolves"
+assert_grep 'object-position: var(--image-position)' "$ROOT/assets/css/article.css" \
+  "cropped images honour imagePosition"
+
+# disableImageOptimization has to reach every place a cover is resized, or it silently
+# half-works. Six partials do that.
+for f in card post-item related; do
+  assert_grep 'disableImageOptimization' "$ROOT/layouts/_partials/$f.html" \
+    "$f.html honours disableImageOptimization"
+done
+for f in hero gallery stack; do
+  assert_grep 'disableImageOptimization' "$ROOT/layouts/_partials/home/$f.html" \
+    "home/$f.html honours disableImageOptimization"
+done
+
+# Zen mode. The toggle itself must survive the hiding, or the mode has no visible way out.
+assert_grep 'data-toggle-zen' "$PUBLIC/blog/measuring/index.html" "the zen control renders when enabled"
+assert_grep 'data-toggle-zen hidden' "$PUBLIC/blog/measuring/index.html" \
+  "the zen control ships hidden, so JS-off readers get no dead control"
+assert_grep 'not(\[data-toggle-zen\])' "$ROOT/assets/css/interaction.css" \
+  "zen mode keeps its own exit visible"
+assert_grep 'e.key === "Escape"' "$ROOT/assets/js/zen.js" "Escape leaves zen mode"
+
+# gist: build-time fetch, so the reader loads no GitHub script and the code gets this
+# theme's own highlighting rather than GitHub's stylesheet.
+# Either form counts: the highlighted figure when the fetch worked, or the degraded link
+# when GitHub was rate-limiting. Asserting only the first made the gate depend on a third
+# party's rate limit, which it did fail on. The class is quoted in the degraded form
+# (`class="gist gist-offline"`) and bare in the live one, so the pattern allows both.
+if grep -qE 'class="?gist' "$SHORTCODES"; then
+  ok "the gist renders in one form or the other"
+else
+  bad "the gist renders in one form or the other"
+fi
+# Scoped to the gist figure: the page is full of other code blocks, so a bare chroma check
+# stayed green with the highlighting removed.
+if grep -q '<figure class=gist>' "$SHORTCODES"; then
+  if grep -o '<figure class=gist>.\{0,200\}' "$SHORTCODES" | grep -q 'class=chroma'; then
+    ok "a fetched gist is highlighted by the theme, not by GitHub"
+  else
+    bad "a fetched gist is highlighted by the theme, not by GitHub" "no chroma markup inside the gist figure"
+  fi
+else
+  skip "a fetched gist is highlighted by the theme (gist was not fetched this build)"
+fi
+refute_grep 'gist.github.com/.*\.js' "$SHORTCODES" "no GitHub gist script reaches the reader"
+
+# Counters. The one feature that records reader activity, so the assertion that matters is
+# that it is absent unless configured.
+refute_grep 'data-counters' "$PUBLIC/blog/measuring/index.html" \
+  "no counters render without firebase configured"
+refute_grep 'firestore.googleapis.com' "$PUBLIC/blog/measuring/index.html" \
+  "no Firestore endpoint reaches an unconfigured page"
+assert_grep 'hidden data-counters' "$ROOT/layouts/_partials/counters.html" \
+  "the counter block ships hidden until it has a real number"
+# No SDK: the whole point of using the REST API.
+refute_grep 'firebasejs\|firebase-app' "$ROOT/assets/js/counters.js" \
+  "counters use the REST API, not the Firebase SDK"
+
 # Repository cards. Seven shortcodes over one fetch-and-render mechanism.
 # Counted, not merely present: with two cards on the page, "a card renders" stayed true
 # after one was deleted, so the assertion could not catch a broken shortcode.
@@ -781,8 +855,8 @@ assert_grep 'warnf "repo-card' "$ROOT/layouts/_partials/repo-card.html" \
   "a missing repository warns, so a dead card fails CI"
 assert_grep 'warnidf "repo-card-offline"' "$ROOT/layouts/_partials/repo-card.html" \
   "an unreachable network uses a suppressible log, not a hard warning"
-assert_grep "ignoreLogs = \['repo-card-offline'\]" "$ROOT/exampleSite/hugo.toml" \
-  "the demo site can be built with no network"
+assert_grep "ignoreLogs = \['repo-card-offline', 'repo-card-missing'\]" "$ROOT/exampleSite/hugo.toml" \
+  "the demo site can be built with no network and under a rate limit"
 
 # Lightbox. The parts that make it a feature rather than an accessibility regression are
 # all in the source, since nothing here opens a browser: a real <dialog> (which brings the

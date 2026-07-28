@@ -86,6 +86,15 @@ watchOnYouTube = "Watch on YouTube"
 # hand the file to something that can play it.
 downloadVideo = "Download the video"
 
+# The like button's accessible name. The visible content is an icon and a number, neither
+# of which says what pressing it does.
+likeThisPost = "Like this post"
+
+# Zen mode: hides everything that is not the article. Named as a mode rather than by its
+# effect because "zen mode" is the established term for exactly this and a reader looking
+# for it will recognise it.
+zenMode = "Zen mode"
+
 # The lightbox. Both strings only exist after a click, so they are rendered into the JSON
 # block in baseof.html and read at runtime rather than into the markup.
 viewFullSize = "View full size"

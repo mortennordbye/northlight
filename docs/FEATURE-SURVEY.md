@@ -59,7 +59,7 @@ author can do. It is not a measure of effort.
 | **Responsive images in prose** | **Have** | — | `render-image.html`: intrinsic dimensions, srcset, lazy, async |
 | Image captions | **Have** | — | Markdown title becomes a `<figcaption>` |
 | Image zoom / lightbox | **Have** | — | `enableLightbox`, off by default. A `<dialog>`, so the focus trap and Escape handling are the browser's rather than hand-rolled |
-| Zen / focus mode | Rejected | — | The layout is already the focus mode |
+| Zen / focus mode | **Have** | — | `article.showZenMode`. Escape leaves; the toggle survives the hiding |
 | Reply by email link | **Have** | — | `article.replyByEmail` plus `author.email`. A `mailto:` with the title prefilled: no third party, no script, works with JS off |
 | oEmbed rich cards | Rejected | Low | Remote requests at build time |
 
@@ -199,7 +199,7 @@ duplicated as shortcodes — and every shortcode is additive, replacing no Markd
 | Carousel | **Have** | Built with CSS scroll-snap instead: no JavaScript, no autoplay, so neither objection applies |
 | Video · YouTube Lite | **Have** | `video` for local files, `youtube-lite` as a click-to-load facade. Neither requests anything on page view; `video` has no autoplay, because CSS cannot honour `prefers-reduced-motion` for playback |
 | Repository cards (seven services) | **Have** | — | One build-time fetch mechanism; the reader requests nothing. A 404 fails the gate, offline does not |
-| Gist | Rejected | Third-party script on page view; the code fence with a filename bar covers it locally |
+| Gist | **Have** | — | Fetched at build time and highlighted by the theme, so the reader loads no GitHub script |
 | Chart · Mermaid · TypeIt | Rejected | Each needs a rendering library shipped to every page that uses it. `extend-head.html` is the route |
 | KaTeX | Rejected | Already decided in `BACKLOG.md`, for the same reason |
 

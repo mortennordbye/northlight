@@ -10,6 +10,32 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **Views and likes** — `[params.firebase]` plus `article.showViews` / `showLikes`, both
+  overridable per post. Backed by Cloud Firestore through its **REST API, with no Firebase
+  SDK**: several hundred kilobytes to increment an integer is not a trade worth making, and
+  `fetch` is built in. Counts increment server-side in one transaction, so simultaneous readers
+  both count. **This is the only feature in the theme that records what a reader does**, it
+  renders nothing unless configured, and the docs say so plainly — including that the project id
+  and API key are not secrets and that Firestore security rules are what actually protect the
+  data. With JavaScript off nothing renders, rather than a zero pretending to be a count.
+- **Zen mode** — `article.showZenMode` adds a control that hides the header, the table of
+  contents rail and both footers, leaving the prose. Escape leaves, and the control itself
+  survives the hiding: a mode with no visible way out is a trap. Not persisted, because zen is
+  for one piece and remembering it would mean arriving at a site with its navigation gone.
+- **`gist`** — a GitHub Gist fetched at build time and rendered as an ordinary code block, so
+  the reader loads no GitHub script and the code gets this theme's own highlighting in both
+  colour modes, which an embedded Gist does not.
+- **`list.orderByWeight`** — sort the section index by weight instead of date. Replaces the date
+  sort rather than blending with it; unweighted pages go last.
+- **`footer.showMenu`** — the footer menu has always rendered; this is the switch. Default `true`.
+- **`imagePosition`** — `object-position` for images that are genuinely cropped: the avatar and
+  card thumbnails. It does nothing to a cover, deliberately, because covers are never cropped.
+- **`disableImageOptimization`** — hand raster images to the browser unresized, for a site whose
+  images are already optimised upstream. Honoured in all six partials that resize a cover.
+- **`layoutBackgroundBlur`** and **`layoutBackgroundHeaderSpace`** — background treatments, both
+  off by default. The blur is applied to the image rather than the block, so text over it stays
+  sharp, and it is static rather than scroll-driven: repainting an image every frame is expensive
+  for decoration.
 - **Repository cards** — `github`, `gitlab`, `codeberg`, `gitea`, `forgejo`, `huggingface` and
   `ansible`, seven shortcodes over one fetch-and-render mechanism. The Gitea-family three take a
   `host` for a self-hosted instance.
@@ -163,6 +189,12 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Fixed
 
+- **A rate-limited forge no longer fails the build.** `resources.GetRemote` returns no resource
+  for *any* non-2xx and exposes no status, so a deleted repository (404) and a rate-limited one
+  (403) are indistinguishable — and GitHub allows sixty unauthenticated calls an hour. The first
+  version hard-failed on both, which made the gate depend on someone else's rate limit and did go
+  red with nothing wrong in the content. Both now warn under `repo-card-missing`, which a site
+  can remove from `ignoreLogs` if it would rather a dead card broke CI.
 - **An SVG cover no longer fails the build.** Hugo's `.Width` errors on an SVG rather than
   returning zero, and six partials read it unguarded — `related`, `card`, `post-item` and the
   `hero`, `gallery` and `stack` home layouts. A single vector cover took the whole build down.

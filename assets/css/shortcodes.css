@@ -699,3 +699,24 @@ pre.mermaid svg {
   font-size: 13.5px;
   color: var(--fg-3);
 }
+
+/* --- gist ------------------------------------------------------------------- */
+
+/* The code block comes from Hugo's own highlighter, so it already matches every other
+   code block on the site. Only the attribution line below it is new. */
+.gist {
+  margin: var(--space-6) 0;
+}
+
+.gist figcaption {
+  margin-top: var(--space-2);
+  font-size: 14px;
+  color: var(--fg-3);
+}
+
+.gist-offline {
+  padding: var(--space-4);
+  background: var(--surface-2);
+  border-radius: var(--radius-pager);
+  font-size: 14.5px;
+}

@@ -5,7 +5,12 @@
        of a vertical list, and a grid of cards interrupted by full-width headings reads as
        several grids rather than one — so cardView wins over groupByYear where both are on. */ -}}
 {{- $cardView := (partialCached "init.html" .).list.cardView -}}
-{{- $paginator := .Paginate .Pages -}}
+{{- /* Weight ordering is opt-in and, when on, replaces the date sort entirely — a list
+       half-ordered by weight and half by date is worse than either. Hugo's ByWeight puts
+       unweighted pages last, which is the sane reading of "some pages are pinned". */ -}}
+{{- $pages := .Pages -}}
+{{- if (partialCached "init.html" .).list.orderByWeight }}{{ $pages = .Pages.ByWeight }}{{ end -}}
+{{- $paginator := .Paginate $pages -}}
 
 <div class="wrap">
   <header class="list-head">

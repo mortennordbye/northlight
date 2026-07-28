@@ -25,6 +25,11 @@
   color-scheme: light dark;
 
   /* --- base -------------------------------------------------------------- */
+  /* Where a cropped image sits in its box. Only the avatar, card thumbnails and related
+     thumbs are crops — covers are never cropped — so this moves those and nothing else.
+     Defined here so the property always resolves; `imagePosition` overrides it inline. */
+  --image-position: center;
+
   --bg: #ffffff;
   --bg: light-dark(#ffffff, #0b0b0e);
   --surface: #fafafa;

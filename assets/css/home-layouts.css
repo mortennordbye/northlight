@@ -297,3 +297,27 @@
   color: var(--fg-3);
   font-variant-numeric: tabular-nums;
 }
+
+/* --- background treatments -------------------------------------------------- */
+
+/* Both are opt-in and visual-only, set as attributes on <html> by baseof.html.
+
+   The blur is applied to the image rather than to the block, so the scrim and the text
+   over it stay sharp — blurring the whole block would take the words with it. It is a
+   static blur rather than one that changes on scroll: a scroll-driven filter repaints the
+   image on every frame, which is expensive for decoration, and `animation-timeline` is not
+   yet universal. The name follows the config key it implements. */
+html[data-bg-blur] .home-bg-media img,
+html[data-bg-blur] .article-hero-bg > img {
+  filter: blur(3px);
+  transform: scale(1.02);
+}
+
+/* Nothing to animate, so nothing to suppress — but the scale nudge exists only to hide the
+   soft edge the blur leaves, and a reader who wants no motion is not asking about that. */
+
+/* Extra room between the header and the body, for sites whose hero art needs to breathe. */
+html[data-bg-header-space] .article-head,
+html[data-bg-header-space] .home-bg-scrim {
+  padding-top: var(--space-9);
+}

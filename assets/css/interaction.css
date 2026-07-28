@@ -529,3 +529,28 @@ html[data-underline-links] .prose a {
     to   { opacity: 1; transform: none; }
   }
 }
+
+/* --- zen mode --------------------------------------------------------------- */
+
+/* Everything that is not the article, hidden. The list is explicit rather than a blanket
+   rule on siblings, so a site adding a component does not silently get it hidden here too.
+
+   The toggle itself stays: a mode with no visible way out is a trap, and Escape alone is
+   not discoverable. */
+html[data-zen] .site-header > .wrap > *:not(.site-nav),
+html[data-zen] .site-nav > *:not([data-toggle-zen]),
+html[data-zen] .site-footer,
+html[data-zen] .toc-rail,
+html[data-zen] .article-foot {
+  display: none;
+}
+
+/* With the rail gone the column has the width to itself. */
+html[data-zen] .article-body {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+html[data-zen] .site-header {
+  border-bottom: 0;
+  background: none;
+}

@@ -56,6 +56,13 @@
         </button>
       {{- end }}
 
+      {{- if $cfg.article.showZenMode }}
+        <button class="icon-button" type="button" data-toggle-zen hidden
+                aria-pressed="false" aria-label="{{ i18n "zenMode" }}">
+          {{ partial "icon.html" "zen" }}
+        </button>
+      {{- end }}
+
       {{- if $cfg.enableA11y }}
         {{- /* aria-pressed rather than a label that changes: the control has an on and an
                off state, and that is what aria-pressed is for. The script sets it. */ -}}

@@ -69,7 +69,18 @@
        could not run without a network, which is exactly what §1 forbids. The card
        degrades, the build stays green, and the page still works. */ -}}
 {{- with $missing -}}
-  {{- warnf "repo-card: %q returned nothing — the repository has probably been renamed, moved or deleted, and the card has fallen back to a plain link" $api -}}
+  {{- /* Suppressible, not a hard warning, and that is a correction rather than a
+         preference. `resources.GetRemote` returns no resource for *any* non-2xx and
+         exposes no status code, so a deleted repository (404) and a rate-limited one
+         (403) are indistinguishable here. GitHub allows sixty unauthenticated calls an
+         hour; a site with several cards, or a CI job that rebuilds often, will meet that
+         limit. Hard-failing on it would make the build non-deterministic — measured: this
+         gate went red on a 403 with nothing wrong in the content.
+
+         So it warns under its own id, and a site that wants a dead card to break CI
+         removes the id from `ignoreLogs`. The default is a build that does not fail for
+         somebody else's rate limit. */ -}}
+  {{- warnidf "repo-card-missing" "repo-card: %q returned nothing — the repository may have been renamed, moved or deleted, or the forge may be rate-limiting. The card has fallen back to a plain link." $api -}}
 {{- end -}}
 {{- with $offline -}}
   {{- /* Deliberately not a warning. See above. */ -}}

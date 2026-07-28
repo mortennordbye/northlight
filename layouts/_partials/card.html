@@ -11,7 +11,7 @@
   {{- with .Resources.GetMatch "{cover,featured}.*" }}
     {{- $img := . }}
     {{- $raster := in (slice "png" "jpeg" "gif" "webp") .MediaType.SubType -}}
-    {{- if $raster }}{{ $img = .Resize "500x q80" }}{{ end }}
+    {{- if and $raster (not (partialCached "init.html" .).disableImageOptimization) }}{{ $img = .Resize "500x q80" }}{{ end }}
     <img class="card-cover" src="{{ $img.RelPermalink }}" alt=""
          {{ if $raster }}width="{{ $img.Width }}" height="{{ $img.Height }}" {{ end }}loading="lazy" decoding="async">
   {{- end }}

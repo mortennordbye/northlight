@@ -31,7 +31,7 @@
     {{- with .Resources.GetMatch "{cover,featured}.*" }}
       {{- $img := . }}
       {{- $raster := in (slice "png" "jpeg" "gif" "webp") .MediaType.SubType -}}
-      {{- if $raster }}{{ $img = .Resize "700x q85" }}{{ end }}
+      {{- if and $raster (not (partialCached "init.html" .).disableImageOptimization) }}{{ $img = .Resize "700x q85" }}{{ end }}
       {{- /* fetchpriority high, matching cover.html. This is the largest contentful paint
              element on the home page, and without the hint it queues behind the stylesheet
              and fonts. Never lazy: it is above the fold on every viewport. */ -}}

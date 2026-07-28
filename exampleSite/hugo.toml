@@ -18,7 +18,7 @@ defaultContentLanguage = "en"
 # building already knows about, and failing the gate for it would mean this site could not
 # be built without a network — which docs/SPEC.md §1 forbids. Hugo's own suppression key
 # is the right tool, and it is scoped to that one message.
-ignoreLogs = ['repo-card-offline']
+ignoreLogs = ['repo-card-offline', 'repo-card-missing']
 title = "Northlight"
 theme = "northlight"
 
@@ -118,6 +118,25 @@ summaryLength = 30
   defaultFeaturedImage = "images/example.svg"   # cover for posts that have none
   defaultSocialImage = "images/example.svg"     # OpenGraph/Twitter card image
 
+  # View and like counters, backed by Cloud Firestore. Commented out on purpose, and more
+  # deliberately than the analytics blocks below: this is the only feature in the theme
+  # that records a reader's activity, and turning it on is a choice about your readers
+  # rather than about your build.
+  #
+  # The project id and API key are not secrets — they identify a project and appear in the
+  # page source of every site using them. What protects the data is Firestore security
+  # rules, which are yours to write. See the Integrations page.
+  #
+  # [params.firebase]
+  #   projectId = "your-project"
+  #   apiKey = "your-web-api-key"
+  #   collection = "pages"       # optional, defaults to "pages"
+  #
+  # Then per site or per post:
+  #   [params.article]
+  #     showViews = true
+  #     showLikes = true
+
   # Analytics. Every one of these is commented out on purpose: uncommenting one starts
   # sending data to a third party, and that has to be the site owner's deliberate act
   # rather than something inherited from an example config. With all of them off, the
@@ -211,6 +230,11 @@ anyone notices."""
     # A "reply by email" link at the foot of each post: no third party, no script, and it
     # works with JavaScript off. Needs [params.author].email to be set.
     replyByEmail = true        # (default: false)
+
+    # Hides the header, the table of contents rail and both footers, leaving the prose.
+    # Escape leaves. Not persisted: zen is for one piece, and remembering it would mean
+    # arriving at a site with its navigation missing.
+    showZenMode = true         # (default: false)
 
     # Multi-author options. Authors come from data/authors/<key>.toml, referenced by
     # `authors = ["morten", "ada"]` in a post's front matter. A post with no `authors`

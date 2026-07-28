@@ -88,6 +88,50 @@ Anything else — a self-hosted instance, a provider not listed, a server-side t
 through `extend-head.html` or `extend-footer.html` below. All six here load at the end of
 `<body>` with `defer`, so none can delay the first paint.
 
+## Views and likes
+
+> [!CAUTION]
+> **This is the only feature in the theme that records what a reader does.** Everything
+> else here either sends nothing or sends it only when you configure a vendor. Turning
+> this on is a decision about your readers, not about your build.
+
+Counters are backed by Cloud Firestore and read through its REST API. There is **no
+Firebase SDK** — several hundred kilobytes to increment an integer is not a trade worth
+making, and `fetch` is built in.
+
+```toml {file="hugo.toml"}
+[params.firebase]
+  projectId = "your-project"
+  apiKey = "your-web-api-key"
+  collection = "pages"       # optional, defaults to "pages"
+
+[params.article]
+  showViews = true
+  showLikes = true
+```
+
+Both are per-post overridable in front matter.
+
+**The project id and API key are not secrets.** They identify a project and appear in the
+page source of every site using them. What protects your data is Firestore **security
+rules**, which are yours to write — at minimum, allow the counter fields to be incremented
+and nothing else to be written:
+
+```js {file="firestore.rules"}
+match /pages/{page} {
+  allow read: if true;
+  allow write: if request.resource.data.keys().hasOnly(['views', 'likes']);
+}
+```
+
+Counts are incremented server-side in a single transaction, so two readers arriving
+together both count. A like is remembered in the reader's own browser, not on the server,
+so it is per-device rather than per-person — which is the honest limit of a counter with
+no accounts behind it.
+
+With JavaScript off, nothing renders. A counter that cannot count should not leave a zero
+on the page pretending to be a number.
+
 ## The escape hatches
 
 Three partials exist to be overridden, and all three survive theme upgrades.

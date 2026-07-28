@@ -44,7 +44,7 @@
     {{- with $cover }}
       {{- $img := . }}
       {{- $raster := in (slice "png" "jpeg" "gif" "webp") .MediaType.SubType -}}
-      {{- if $raster }}{{ $img = .Resize "900x q85" }}{{ end }}
+      {{- if and $raster (not (partialCached "init.html" .).disableImageOptimization) }}{{ $img = .Resize "900x q85" }}{{ end }}
       <a class="home-hero-media" href="{{ $lead.RelPermalink }}">
         <img src="{{ $img.RelPermalink }}" alt=""
              {{ if $raster }}width="{{ $img.Width }}" height="{{ $img.Height }}"{{ end }}

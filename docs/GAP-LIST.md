@@ -63,7 +63,7 @@ Substantial author control over presentation, or a visible reader feature.
 | 15 | ~~**Site-wide image fallbacks**~~ **DONE** | `defaultFeaturedImage` and `defaultSocialImage`. `defaultBackgroundImage` folded in: `home.backgroundImage` already covers it | Small |
 | 16 | ~~**Accessibility toggle**~~ **DONE** | `enableA11y` shows an underline-links control, named for its actual effect. WCAG 1.4.1: the theme's faint prose rule does not reach nav, cards or footers | Medium |
 | 17 | ~~**Image zoom / lightbox**~~ **DONE** | Built on `<dialog>`, so the focus trap, backdrop and Escape handling are the browser's. Focus returns to the opener; linked images are left alone | Medium |
-| 18 | **Views and likes** `[opt-in]` | Firebase-backed counters. The only row needing a backend and credentials; those are site config, never theme files | Large |
+| 18 | ~~**Views and likes**~~ **DONE** | Firestore **REST API, no SDK** — the Firebase SDK is hundreds of kilobytes to increment an integer. Off unless configured; the only feature that records reader activity, and documented as such | Large |
 | 19 | ~~**Repository cards**~~ **DONE** | All seven over one mechanism. Build-time fetch, so the reader requests nothing; a 404 fails CI while being offline does not, which keeps SPEC §1 true | Medium once, Small each |
 | 20 | ~~**`taxonomy.showTermCount`**~~ **DONE** | The count already rendered; this is the switch. Default true | Small |
 | 21 | ~~**Reply by email**~~ **DONE** | Built alongside row 3, because `author.email` on its own would have been a param nothing reads | Small |
@@ -74,17 +74,17 @@ Useful, narrower toggles.
 
 | # | Feature | What it gives you | Effort |
 |---|---|---|---|
-| 22 | **`layoutBackgroundBlur`** | Background image blurs on scroll | Small |
-| 23 | **`layoutBackgroundHeaderSpace`** | Space between header and body | Small |
-| 24 | **`footer.showMenu`** | A menu in the footer | Small |
+| 22 | ~~**`layoutBackgroundBlur`**~~ **DONE** | Static blur on the image, not the block, so text over it stays sharp. Not scroll-driven: repainting an image every frame is expensive for decoration | Small |
+| 23 | ~~**`layoutBackgroundHeaderSpace`**~~ **DONE** | | Small |
+| 24 | ~~**`footer.showMenu`**~~ **DONE** | The menu already rendered; this is the switch, defaulting to true | Small |
 | 25 | ~~**Per-page `robots`**~~ **ALREADY HAD IT** | `robots` in front matter, and it cascades from a section. Was in the scrape by mistake | Small |
-| 26 | **`menu` in front matter** | A page pushes itself into a menu | Small |
-| 27 | **`orderByWeight`** | Sort listings by weight rather than date | Small |
-| 28 | **`highlightCurrentMenuArea`** | Mark the active menu section | Small |
-| 29 | **Zen mode** | Distraction-free reading toggle | Medium |
-| 30 | **`imagePosition`** | `object-position` on feature images. Interacts directly with the never-crop rule | Small |
-| 31 | **Image optimisation toggles** | `disableImageOptimization`, `disableImageOptimizationMD` | Small |
-| 32 | **Gist embed** `[opt-in]` | GitHub Gist in a post | Small |
+| 26 | ~~**`menu` in front matter**~~ **ALREADY HAD IT** | Hugo native; verified by putting a docs page into the footer menu from its own front matter | Small |
+| 27 | ~~**`orderByWeight`**~~ **DONE** | `list.orderByWeight`. Replaces the date sort rather than blending with it | Small |
+| 28 | ~~**`highlightCurrentMenuArea`**~~ **ALREADY HAD IT** | `header.html` has marked the active entry and its ancestors since it was written | Small |
+| 29 | ~~**Zen mode**~~ **DONE** | Hides header, TOC rail and both footers. Escape leaves, and the toggle survives the hiding — a mode with no visible way out is a trap. Not persisted | Medium |
+| 30 | ~~**`imagePosition`**~~ **DONE** | Applies to the avatar and thumbnails, which are real crops. Inert on covers by design, since those are never cropped | Small |
+| 31 | ~~**Image optimisation toggles**~~ **DONE** | `disableImageOptimization`, honoured in all six partials that resize a cover. The MD variant was dropped: prose images go through one render hook, so the single flag already covers them | Small |
+| 32 | ~~**Gist embed**~~ **DONE** | Fetched at build time, so the reader loads no GitHub script and the code gets this theme's highlighting in both colour modes | Small |
 | 33 | **BuyMeACoffee** `[opt-in]` | Global widget: message, colour, position | Small |
 | 34 | **`externalLinkForceNewTab`** | External Markdown links open in a new tab | Small |
 | 35 | **`invertPagination`** | Swap next/previous direction | Small |

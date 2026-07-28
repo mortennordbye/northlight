@@ -21,11 +21,15 @@
     {{- end }}
 
     {{- with site.Menus.footer }}
+    {{- /* The footer menu has always rendered; this is only the switch, so the default is
+           true and turning it off is what changes anything. */ -}}
+    {{- if $cfg.footer.showMenu }}
     <nav class="footer-nav" aria-label="{{ i18n "footerNavigation" }}">
       {{- range . }}
         <a href="{{ .URL }}"{{ if strings.HasPrefix .URL "http" }} rel="noopener"{{ end }}>{{ .Name }}</a>
       {{- end }}
     </nav>
+    {{- end }}
     {{- end }}
   </div>
 </footer>
