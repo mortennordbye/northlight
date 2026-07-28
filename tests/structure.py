@@ -134,18 +134,47 @@ def internal(href):
     return href.split("#", 1)[0].split("?", 1)[0]
 
 
+def base_prefix():
+    """The path the site is served from, read back from the home page's canonical URL.
+
+    CI builds the demo with the Pages base URL, which carries a `/northlight/` path prefix,
+    so every root-absolute href in the output starts with it while the output root is still
+    `exampleSite/public`. Resolving those without stripping it reports every internal link
+    on every page as dead.
+
+    Read from the output rather than hardcoded or passed in, so this holds for any base URL
+    and there is no second place to update. `tests/run.sh` carries the same lesson as
+    host-agnostic patterns; this is that lesson for link resolution.
+    """
+    home = PUBLIC / "index.html"
+    if not home.exists():
+        return ""
+    m = re.search(r"""rel=["']?canonical["']?\s+href=["']?([^"'>\s]+)""",
+                  home.read_text(errors="replace"))
+    if not m:
+        return ""
+    return re.sub(r"^[a-z]+://[^/]+", "", m.group(1)).rstrip("/")
+
+
+PREFIX = base_prefix()
+
+
 def resolves(href, page):
     """Does an internal link land on something that was actually built?"""
     target = internal(href)
     if target in (None, ""):
         return True
     if target.startswith("/"):
+        if PREFIX and (target == PREFIX or target.startswith(PREFIX + "/")):
+            target = target[len(PREFIX):] or "/"
         p = PUBLIC / target.lstrip("/")
     else:
         p = page.parent / target
-    if p.is_dir() or (p / "index.html").exists():
-        return True
-    return p.exists() or (p.with_suffix(p.suffix + "/index.html")).exists()
+    # A directory, a pretty URL backed by index.html, or a plain file. This used to end with
+    # `p.with_suffix(p.suffix + "/index.html")`, which is not a suffix and raises ValueError.
+    # It only ran once a link had already failed the checks above, so with no dead links it
+    # never executed — the crash stayed invisible until a subpath build made links miss.
+    return p.is_dir() or (p / "index.html").exists() or p.exists()
 
 
 def main():
