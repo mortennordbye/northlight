@@ -1,0 +1,73 @@
+{{- /*
+  figure — an image with a caption, and optionally a link.
+
+  The Markdown image render hook stays the documented default: `![alt](x.png "caption")`
+  renders fine under any theme, and this does not. Reach for this only for what Markdown
+  syntax cannot say — a figure that is also a link, or one that needs a class.
+
+  Goes through `_partials/img-attrs.html`, the same path `_markup/render-image.html` uses,
+  so a figure gets the identical srcset, sizes and intrinsic width and height. That is the
+  point of reusing it: an image here reserves its box before the bytes land exactly as a
+  Markdown one does, and the no-layout-shift rule holds in both.
+
+  **Never cropped.** Only widths are generated, never a fixed box, so the aspect ratio is
+  whatever the file is. A 1200×630 cover with its title baked into the artwork survives.
+
+  Parameters:
+    src      page resource or path under assets/ (required)
+    alt      alt text. Pass alt="" deliberately for a decorative image
+    caption  figcaption text, rendered as inline Markdown
+    href     wraps the image in a link
+    class    extra class on the <figure>
+
+  Call:  {{< figure src="cover.png" alt="A wide diagram" caption="How it fits" >}}
+*/ -}}
+{{- $src := .Get "src" -}}
+{{- if not $src -}}
+  {{- errorf "figure shortcode: src is required (%s)" .Position -}}
+{{- end -}}
+
+{{- with $src -}}
+  {{- /* Page bundle first, then assets/ — the same resolution order as the render hook,
+         so moving an image between the two does not change which shortcode finds it. */ -}}
+  {{- $img := $.Page.Resources.GetMatch . -}}
+  {{- if not $img -}}{{ $img = resources.Get . }}{{ end -}}
+  {{- if not $img -}}
+    {{- errorf "figure shortcode: no image found at %q — looked in the page bundle and assets/ (%s)" . $.Position -}}
+  {{- else -}}
+    {{- /* alt is escaped here rather than relying on auto-escaping, because the assembled
+           tag is marked safe below and marking it safe turns that off. An absent alt and
+           alt="" are different things: the first is a bug, the second is a decorative
+           image declared as such, so the attribute is always emitted. */ -}}
+    {{- $alt := htmlEscape ($.Get "alt" | default "") -}}
+    {{- $attrs := partial "img-attrs.html" $img -}}
+    {{- $tag := printf `<img %s alt="%s" loading="lazy" decoding="async">` $attrs $alt -}}
+
+    {{- /* Dark variant, on the same terms as the render hook: drop `diagram-dark.png`
+           beside `diagram.png` and it is used whenever the dark palette is active. Without
+           this the shortcode would claim pipeline parity in its own documentation and then
+           put a bright slab in the middle of a dark page, which is precisely the problem
+           the render hook exists to solve. Two <img> elements and CSS rather than <picture>
+           with a media query, because a media query only sees the operating system and this
+           theme lets a reader override that with its own toggle. */ -}}
+    {{- $dark := false -}}
+    {{- if strings.Contains . "." -}}
+      {{- $ext := path.Ext . -}}
+      {{- $darkSrc := printf "%s-dark%s" (strings.TrimSuffix $ext .) $ext -}}
+      {{- $dark = $.Page.Resources.GetMatch $darkSrc -}}
+      {{- if not $dark -}}{{ $dark = resources.Get $darkSrc }}{{ end -}}
+    {{- end -}}
+    {{- with $dark -}}
+      {{- $tag = printf `<img class="img-light" %s alt="%s" loading="lazy" decoding="async"><img class="img-dark" %s alt="%s" loading="lazy" decoding="async">`
+          $attrs $alt (partial "img-attrs.html" .) $alt -}}
+    {{- end -}}
+    <figure{{ with $.Get "class" }} class="{{ . }}"{{ end }}>
+      {{- with $.Get "href" -}}
+        <a href="{{ . }}">{{ $tag | safeHTML }}</a>
+      {{- else -}}
+        {{ $tag | safeHTML }}
+      {{- end -}}
+      {{- with $.Get "caption" }}<figcaption>{{ . | $.Page.RenderString }}</figcaption>{{ end -}}
+    </figure>
+  {{- end -}}
+{{- end -}}

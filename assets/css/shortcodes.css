@@ -66,6 +66,20 @@
   box-shadow: none;
 }
 
+/* --- figure ----------------------------------------------------------------- */
+
+/* <figure> and <figcaption> are already styled by prose.css for the Markdown render
+   hook, and this reuses them rather than declaring a parallel set. The only thing
+   needed here is the linked case: `.prose a` would paint the figure's box with a link
+   underline, which on an image reads as a rendering fault rather than a link. */
+.prose figure a {
+  box-shadow: none;
+}
+
+.prose figure a:hover {
+  box-shadow: none;
+}
+
 /* --- list ------------------------------------------------------------------- */
 
 /* .post-item brings its own row layout and its own divider from article.css; this only

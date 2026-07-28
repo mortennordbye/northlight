@@ -185,8 +185,8 @@ duplicated as shortcodes — and every shortcode is additive, replacing no Markd
 | Icon | **Have** | Exposes the internal icon partial; the names are a public surface from now on |
 | Article | **Have** | Reuses `_partials/card.html`; an unresolvable path fails the build |
 | List | **Have** | Reuses `_partials/post-item.html`, at a heading level that nests where it lands |
-| Figure | Gap | Wraps the image pipeline the render hook already uses |
-| Alert | Gap | Only if it can reuse the admonition render hook's colours; a second syntax for the same thing is not worth the surface |
+| Figure | **Have** | Same pipeline as the render hook, dark variants included; never cropped |
+| Alert | **Have** | A thin wrapper over the admonition CSS, adding a custom icon and title. The render hook stays the default |
 | Accordion · Gallery · Tabs · Timeline | Gap | CSS-driven, JS-optional |
 | Carousel | Gap | Lowest priority and a candidate to drop — needs JS, and autoplay fights `prefers-reduced-motion` |
 | Video · YouTube Lite | Gap | Local files only; the YouTube one as a click-to-load facade, so nothing is requested on page view |

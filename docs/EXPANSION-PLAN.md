@@ -218,13 +218,13 @@ These wrap existing partials, so they are mostly plumbing and docs.
 - [x] **`list`** — embeds N recent posts, optionally filtered by a taxonomy term. Reuses
       `_partials/post-item.html`. Parameters: `limit`, `title`, `where`, `value`.
       Branch `feat/shortcode-list`.
-- [ ] **`figure`** — image with caption, link and alt, going through the same Hugo image pipeline
+- [x] **`figure`** — image with caption, link and alt, going through the same Hugo image pipeline
       as `_markup/render-image.html` so it gets identical intrinsic dimensions, `srcset` and lazy
       loading. **Must not crop** — the 1200×630 invariant in `CLAUDE.md` applies here too.
       Branch `feat/shortcode-figure`. Note: the Markdown image render hook stays the documented
       default; this exists for the cases Markdown syntax cannot express (a linked figure, a
       class).
-- [ ] **`alert`** — callout box. Branch `feat/shortcode-alert`. **Check before building:**
+- [x] **`alert`** — callout box. Branch `feat/shortcode-alert`. **Check before building:**
       admonitions already ship as a render hook over GitHub `> [!NOTE]` syntax, with five types
       and colours in both modes. If this is only a second syntax for the same thing, it is not
       worth the surface — build it as a thin wrapper that reuses the admonition CSS and accepts a

@@ -343,6 +343,8 @@ gets the raw `{{< … >}}` back. Everything here is additive, and nothing replac
 | `button` | Inline Markdown | A link styled as a call to action. `pageRef` or `href`, plus optional `target` and `rel`. `target="_blank"` adds `rel="noopener"` on its own. An unresolvable `pageRef` fails the build. |
 | `email` | — | A `mailto:` link with the address obfuscated at build time, so it survives with JavaScript off. `email`, plus optional `text` and `subject`. |
 | `swatches` | — | A row of colour chips, each labelled with its hex value. Takes any number of hex colours positionally. A value that is not hex fails the build. |
+| `figure` | — | An image with a caption and optionally a link, through the same pipeline as a Markdown image. Picks up `-dark` siblings. Never cropped. |
+| `alert` | Markdown | A callout box, reusing the admonition styling. `type`, plus optional `icon` and `title`. Prefer `> [!NOTE]` where it fits. |
 | `list` | — | Embeds recent posts as index rows. `limit`, `title`, and `where`/`value` to filter on a taxonomy term. A filter matching nothing fails the build. |
 | `article` | — | Embeds one post as a card, given `link`. Reuses the same card the listings use. An unresolvable path fails the build. |
 | `keyword`, `keywordList` | Inline Markdown | A wrapping row of labelled pills for a set of things listed together. `keyword` takes an optional `icon`; its inner text is required. |

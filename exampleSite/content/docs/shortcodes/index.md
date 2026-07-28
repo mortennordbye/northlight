@@ -199,6 +199,79 @@ where you can see it working.
 Without the inner `ltr`, the trailing path and punctuation of that command get pulled
 around by the bidirectional algorithm and the line becomes unreadable.
 
+## `figure`
+
+An image with a caption, and optionally a link.
+
+**Reach for this only for what Markdown cannot say.** `![alt](diagram.png "caption")` is a
+render hook, renders fine under any theme, and is the better answer wherever it fits. This
+exists for a figure that is also a link, or one that needs a class.
+
+```text
+{{</* figure src="diagram.png" alt="The render hook pipeline"
+        caption="The same image, through the same pipeline as a Markdown image"
+        href="/docs/writing/" */>}}
+```
+
+{{< figure src="diagram.png" alt="The render hook pipeline" caption="The same image, through the same pipeline as a Markdown image" href="/docs/writing/" >}}
+
+| Parameter | Required | What it does |
+|---|---|---|
+| `src` | yes | A page resource, or a path under `assets/` |
+| `alt` | no | Alt text. Pass `alt=""` deliberately for a decorative image |
+| `caption` | no | Caption text, rendered as inline Markdown |
+| `href` | no | Wraps the image in a link |
+| `class` | no | An extra class on the `<figure>` |
+
+It goes through the same `srcset`, `sizes`, `width` and `height` machinery as a Markdown
+image, so it reserves its box before the bytes arrive and costs a phone the same bytes a
+Markdown image would. **It is never cropped:** only widths are generated, never a fixed
+box, so a 1200×630 cover with its title baked into the artwork survives intact.
+
+**Dark variants work here too.** Drop `diagram-dark.png` beside `diagram.png` and it is
+used whenever the dark palette is active — the image above is doing exactly that, so
+switch the colour mode and watch it change. Without that, a diagram baked at one
+brightness is a bright slab in the other mode, and this theme treats dark mode as
+first-class rather than as an inversion.
+
+A `src` that resolves to nothing fails the build rather than rendering a broken image icon.
+
+## `alert`
+
+A callout box.
+
+```text
+{{</* alert type="warning" */>}}
+Renaming a published config key is a breaking change.
+{{</* /alert */>}}
+```
+
+{{< alert type="warning" >}}
+Renaming a published config key is a breaking change.
+{{< /alert >}}
+
+| Parameter | Required | What it does |
+|---|---|---|
+| `type` | no | `note`, `tip`, `important`, `warning` or `caution`. Default `note` |
+| `icon` | no | An [icon](#icon) name, overriding the one the type implies |
+| `title` | no | Heading text, overriding the type name |
+
+**Prefer `> [!NOTE]` where it fits.** Admonitions already ship as a render hook over
+GitHub's alert syntax, described on [Writing content]({{< ref "writing" >}}), and this
+shortcode reuses that exact CSS rather than introducing a second callout style. A callout
+written either way is the same box.
+
+Three things the blockquote syntax cannot do, which are the whole reason this exists — a
+custom icon, a custom title, and a callout nested inside another shortcode:
+
+{{< alert type="tip" icon="check" title="Reviewed" >}}
+This one sets its own icon and its own title.
+{{< /alert >}}
+
+An unknown `type` fails the build rather than falling back to `note`. A misspelled
+`warning` rendering as a neutral note is a callout quietly saying the wrong thing, which is
+worse than one that does not build.
+
 ## `article`
 
 Embeds one post as a card, given its path.

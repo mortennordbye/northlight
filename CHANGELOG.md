@@ -10,6 +10,18 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **`figure`** — an image with a caption and optionally a link. Goes through the same
+  `_partials/img-attrs.html` the Markdown image render hook uses, so it gets the identical
+  `srcset`, `sizes` and intrinsic dimensions, reserves its box before the bytes land, and picks
+  up a `-dark` sibling in dark mode. Never cropped: only widths are generated, never a fixed
+  box, so a cover with its title baked into the artwork survives. The Markdown render hook
+  remains the documented default; this is for a figure that is also a link, or needs a class.
+- **`alert`** — a callout box taking `type`, plus an optional `icon` and `title`. A thin wrapper
+  over the admonition render hook's own CSS rather than a second callout style, so a callout
+  written either way is the same box. It exists for the three things `> [!NOTE]` cannot express:
+  a custom icon, a custom title, and a callout nested inside another shortcode. An unknown type
+  fails the build rather than falling back to `note`, since a misspelled `warning` rendering as
+  a neutral note is a callout quietly saying the wrong thing.
 - **`list`** — embeds recent posts using the same row the post index uses, with `limit`, an
   optional `title`, and `where`/`value` to filter on a taxonomy term. Heading levels are chosen
   so the block nests where it lands: items are `h3`, or `h4` under a `title` that takes the

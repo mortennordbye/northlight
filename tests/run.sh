@@ -353,6 +353,35 @@ case "$DOCLEVELS" in
   *) bad "heading levels on the shortcodes page descend without a gap" "levels present: $DOCLEVELS" ;;
 esac
 
+# figure: the whole reason it goes through img-attrs.html is to get the identical srcset,
+# sizes and intrinsic dimensions a Markdown image gets. A hand-rolled <img src> would look
+# right on a fast desktop connection and cost a phone the full-size file forever, so assert
+# the pipeline attributes rather than the tag.
+assert_grep '<figure><a href=/docs/writing/><img class=img-light src=/docs/shortcodes/diagram.png srcset=' "$SHORTCODES" \
+  "figure runs through the image pipeline and can be a link"
+assert_grep 'sizes="(max-width: 47rem) 100vw, 44.2rem" width=1600 height=470' "$SHORTCODES" \
+  "figure declares intrinsic dimensions, so it reserves its box"
+assert_grep '<figcaption>' "$SHORTCODES" "figure renders its caption"
+
+# Dark variants, on the same terms as the render hook. The shortcode's own documentation
+# claims pipeline parity, and without this it would put a light-mode diagram in the middle
+# of a dark page — the exact problem the render hook exists to solve. Both images must be
+# emitted; CSS decides which is shown, so a media query would not be enough.
+assert_grep '<img class=img-light' "$SHORTCODES" "figure emits the light variant"
+assert_grep '<img class=img-dark' "$SHORTCODES" "figure picks up a -dark sibling"
+
+# Never cropped, the invariant that forced the previous theme's local override. Only widths
+# are generated, so every srcset candidate keeps the source ratio. A fixed box would show up
+# here as a height that is not proportional to its width.
+assert_grep 'width=1600 height=470' "$SHORTCODES" "figure keeps the source aspect ratio"
+
+# alert: it reuses the admonition render hook's classes rather than introducing a second
+# callout style. Assert the shared class, because a parallel `.alert` block would look
+# identical on the day it shipped and drift the first time either was restyled.
+assert_grep '<div class="admonition admonition-warning"' "$SHORTCODES" \
+  "alert reuses the admonition styling"
+assert_grep '<span>Reviewed</span>' "$SHORTCODES" "alert accepts a custom title"
+
 BLANK=$(grep -o '<a class=button[^>]*_blank[^>]*>' "$SHORTCODES" | head -1)
 case "$BLANK" in
   *noopener*) ok "button with target=_blank sets rel=noopener" ;;
