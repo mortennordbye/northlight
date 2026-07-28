@@ -27,6 +27,25 @@
   vertical-align: baseline;
 }
 
+/* --- icon ------------------------------------------------------------------ */
+
+/* `base.css` gives every img, svg and video `display: block`, which is right for content
+   media and harmless for the rest of the theme's icons because those all sit in flex
+   containers. An icon in running prose is the one case where it is not harmless: block
+   display takes a whole line, so `built with {icon} anywhere` breaks across three lines.
+
+   The wrapper span puts it back in the line box. Styling the span rather than `.prose
+   .icon` keeps this off the admonition marks, which are also icons inside prose and are
+   laid out by their own flex rule.
+
+   The negative alignment is optical, not structural: sitting exactly on the baseline
+   leaves an icon looking low next to lowercase text, because the glyphs it sits beside
+   have descenders and it does not. */
+.icon-inline {
+  display: inline-block;
+  vertical-align: -0.14em;
+}
+
 /* --- swatches -------------------------------------------------------------- */
 
 /* Wraps rather than scrolls: a row of chips has no reading order to preserve, so

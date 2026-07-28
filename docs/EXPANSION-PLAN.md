@@ -181,7 +181,7 @@ No JavaScript, no new dependencies, small CSS.
 
 These wrap existing partials, so they are mostly plumbing and docs.
 
-- [ ] **`icon`** — exposes `_partials/icon.html` to content, sized in `em` to match surrounding
+- [x] **`icon`** — exposes `_partials/icon.html` to content, sized in `em` to match surrounding
       text. See FLAG-5. Branch `feat/shortcode-icon`.
 - [ ] **`article`** — embeds a single post as a card, given a path. Reuses `_partials/card.html`.
       Must fail loudly on an unresolvable path rather than rendering an empty card.
@@ -451,3 +451,28 @@ silently.
   param. Measured: a `<td>` inside `dir="rtl"` computes to `left`. Recorded in `BACKLOG.md` rather
   than fixed here, because it changes rendering for any site already running `rtl = true` and that
   is a decision rather than a drive-by edit inside a shortcode commit.
+
+- **`feat/shortcode-icon`** — `icon`, exposing `_partials/icon.html` to content. FLAG-5 is now
+  live: the 21 names are a public surface, and the docs page lists all of them.
+
+  **`base.css` blockifies every `img`, `svg` and `video`, and content is the first place that
+  shows.** Everywhere else in the theme an icon sits in a flex container, where a blockified
+  child behaves identically, so this had never mattered. In running prose it takes a whole line:
+  `built with {icon} anywhere` broke across three lines, and every cell of the icon table put the
+  icon above its label. Nothing was wrong with the shortcode — the fix is a wrapper span set to
+  `inline-block`.
+
+  The wrapper is a span rather than a `.prose .icon` rule for a specific reason: the admonition
+  marks from `_markup/render-blockquote.html` are *also* icons inside `.prose`, and that selector
+  would have relaid them out. Verified after the change that they still compute to `display:
+  block` inside their flex label. **Any later item styling `.prose <something generic>` should
+  check what else already matches it.**
+
+  On the test: it compares the documented set against the names parsed out of the partial rather
+  than counting them, so there is no number to bump by hand — and the failure it guards against
+  is exactly somebody changing the icons without thinking about the docs. The reverse direction
+  is already fatal earlier, since an unknown name warns and the gate runs `--panicOnWarning`.
+
+  Also: the suite greps `layouts`, `assets`, `i18n` and `README.md` for AI tool names, and a
+  comment in the first draft of this shortcode cited the repo guidance file by name and tripped
+  it. Cite `docs/EXPANSION-PLAN.md` for a decision instead.

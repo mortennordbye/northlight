@@ -10,6 +10,12 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **`icon`** — puts one of the theme's inline SVG icons into content, taking the name
+  positionally. No size parameter and none needed: an icon is 1em square, so it takes the size
+  of the text around it and its colour from `currentColor`. This makes the icon names a public
+  surface, so renaming one is now a breaking change on the same footing as renaming a config
+  key; the full set is listed on the Shortcodes page of the demo site. An unknown name fails
+  the build rather than leaving a gap.
 - **`ltr` and `rtl`** — mark a block as running in the other direction from the page around it,
   as the per-block counterpart to the site-wide `rtl` param. Both set a `dir` attribute rather
   than a CSS `direction` property: `dir` drives the bidirectional algorithm, alignment, list

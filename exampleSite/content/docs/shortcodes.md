@@ -199,6 +199,44 @@ where you can see it working.
 Without the inner `ltr`, the trailing path and punctuation of that command get pulled
 around by the bidirectional algorithm and the line becomes unreadable.
 
+## `icon`
+
+Puts one of the theme's inline SVG icons into your content.
+
+```text
+Built with {{</* icon "github" */>}} and hosted anywhere.
+```
+
+Built with {{< icon "github" >}} and hosted anywhere.
+
+No size parameter, and none is needed: an icon is 1em square, so it takes the size of
+whatever text it sits in and follows body copy, a heading or a caption without being
+told. Colour comes from `currentColor` for the same reason.
+
+### The full set
+
+These names are the whole set, and they are a stable surface — the theme treats renaming
+one as a breaking change, the same as renaming a config key.
+
+| | | | |
+|---|---|---|---|
+| {{< icon "github" >}} `github` | {{< icon "linkedin" >}} `linkedin` | {{< icon "reddit" >}} `reddit` | {{< icon "rss" >}} `rss` |
+| {{< icon "link" >}} `link` | {{< icon "external" >}} `external` | {{< icon "search" >}} `search` | {{< icon "pencil" >}} `pencil` |
+| {{< icon "arrow-left" >}} `arrow-left` | {{< icon "arrow-right" >}} `arrow-right` | {{< icon "arrow-up" >}} `arrow-up` | {{< icon "chevron-down" >}} `chevron-down` |
+| {{< icon "moon" >}} `moon` | {{< icon "sun" >}} `sun` | {{< icon "copy" >}} `copy` | {{< icon "check" >}} `check` |
+| {{< icon "info" >}} `info` | {{< icon "bulb" >}} `bulb` | {{< icon "megaphone" >}} `megaphone` | {{< icon "alert" >}} `alert` |
+| {{< icon "octagon" >}} `octagon` | | | |
+
+The last five are the admonition marks, and they are drawn to be told apart by outline
+alone rather than by the colour beside them.
+
+A name that is not on this list fails the build rather than rendering an empty gap.
+
+The icon is marked `aria-hidden`, which is right for what it is: decoration next to a
+word. There is no parameter for a text alternative, deliberately. An icon that carries
+meaning on its own needs the word written next to it, and an icon whose meaning a reader
+has to guess is a problem for sighted readers too.
+
 Both set a `dir` attribute rather than a CSS `direction` property, which is the part
 worth understanding. `dir` is real HTML, not a styling convention: it drives the
 bidirectional algorithm, text alignment, list markers and punctuation placement all at

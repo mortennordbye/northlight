@@ -1,0 +1,39 @@
+{{- /*
+  icon — puts one of the theme's inline SVG icons into content.
+
+  Exposes `_partials/icon.html`, which is otherwise internal. That makes the icon names a
+  public surface: renaming one becomes a breaking change, on the same footing as renaming
+  a config key. Accepted deliberately — see FLAG-5 in `docs/EXPANSION-PLAN.md` — but it is
+  a commitment rather than a free feature, so add to the set rather than reshuffling it.
+
+  Sizing needs no parameter. The shared `.icon` rule is 1em square, so an icon takes the
+  size of whatever text it sits in and follows a heading, a caption or body copy without
+  being told to. Colour comes from currentColor for the same reason.
+
+  The SVG is aria-hidden, which is correct for what this is: decoration beside a word.
+  An icon carrying meaning on its own would need a text alternative, and there is no
+  parameter for one here — write the word next to it instead. That is not a limitation
+  worth designing around, because an icon whose meaning a reader has to guess is a
+  problem for sighted readers too.
+
+  Parameters: the icon name, positionally.
+
+  Call:  {{< icon "github" >}}
+*/ -}}
+{{- $name := .Get 0 -}}
+{{- if not $name -}}
+  {{- errorf "icon shortcode: an icon name is required (%s)" .Position -}}
+{{- end -}}
+<span class="icon-inline">{{- partial "icon.html" $name -}}</span>
+{{- /* The wrapper is doing real work. `base.css` blockifies every img, svg and video, which
+       is right for content media and invisible everywhere else in the theme, because every
+       other icon sits in a flex container where a blockified child behaves the same way.
+       In running prose it is not invisible: a block-level icon takes a line to itself. The
+       span is what puts it back in the line box, and it is a span rather than a rule on
+       `.prose .icon` because that selector would also catch the admonition marks in
+       `_markup/render-blockquote.html` and relayout those.
+
+       An unknown name is caught by the partial's own warnf, which the gate turns into a
+       build failure through --panicOnWarning. Not repeated here: the list of valid names
+       lives in the partial, and a copy of it in this file would be a second thing to keep
+       in step and a first thing to forget. */ -}}

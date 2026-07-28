@@ -343,6 +343,7 @@ gets the raw `{{< … >}}` back. Everything here is additive, and nothing replac
 | `button` | Inline Markdown | A link styled as a call to action. `pageRef` or `href`, plus optional `target` and `rel`. `target="_blank"` adds `rel="noopener"` on its own. An unresolvable `pageRef` fails the build. |
 | `email` | — | A `mailto:` link with the address obfuscated at build time, so it survives with JavaScript off. `email`, plus optional `text` and `subject`. |
 | `swatches` | — | A row of colour chips, each labelled with its hex value. Takes any number of hex colours positionally. A value that is not hex fails the build. |
+| `icon` | — | One of the theme's inline SVG icons, 1em square so it takes the size of the text around it. Takes the icon name positionally. An unknown name fails the build. |
 | `ltr`, `rtl` | Markdown | Marks a block as running in the other direction from the page. Sets a `dir` attribute, so it survives a stylesheet being dropped. The per-block counterpart to the site-wide `rtl` param. |
 
 The full list, with every parameter and a live example of each, is on the

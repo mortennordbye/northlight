@@ -283,6 +283,31 @@ assert_count 3 "$SWATCHES" "swatches labels every chip with its hex value"
 assert_grep '<div dir=rtl>' "$SHORTCODES" "rtl marks the block with a dir attribute"
 assert_grep '<div dir=ltr>' "$SHORTCODES" "ltr marks the block with a dir attribute"
 
+# icon: exposing the partial makes the icon names a public surface, so the documented set
+# and the real set have to be the same set. Compare them directly rather than counting:
+# a number here would need bumping by hand, and the failure it is guarding against is
+# precisely that somebody changed the icons and did not think about the documentation.
+#
+# This covers the half the build cannot: an icon added to the partial and never written
+# up. The other half is already fatal earlier — a documented name that no longer exists
+# makes the partial warn, and the gate runs with --panicOnWarning, so the build stops
+# before the suite starts. Renaming an icon trips both at once.
+#
+# Names come from the docs table, where each entry pairs the rendered icon with its label
+# as `</span> <code>name</code>`, which also proves the label belongs to a real icon.
+ICONS_DEFINED=$(sed -n '/\$icons := dict/,/^-}}/p' "$ROOT/layouts/_partials/icon.html" \
+  | grep -oE '^ *"[a-z-]+"' | tr -d ' "' | sort)
+ICONS_SHOWN=$(grep -o '</span> <code>[a-z-]*</code>' "$SHORTCODES" \
+  | sed 's|</span> <code>||; s|</code>||' | sort)
+if [ -z "$ICONS_DEFINED" ]; then
+  bad "the documented icon set matches the real one" "read no icon names from the partial"
+elif [ "$ICONS_DEFINED" = "$ICONS_SHOWN" ]; then
+  ok "the documented icon set matches the real one"
+else
+  bad "the documented icon set matches the real one" \
+      "partial: $(printf '%s' "$ICONS_DEFINED" | tr '\n' ' ') / docs: $(printf '%s' "$ICONS_SHOWN" | tr '\n' ' ')"
+fi
+
 BLANK=$(grep -o '<a class=button[^>]*_blank[^>]*>' "$SHORTCODES" | head -1)
 case "$BLANK" in
   *noopener*) ok "button with target=_blank sets rel=noopener" ;;
