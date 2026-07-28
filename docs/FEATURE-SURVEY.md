@@ -94,7 +94,7 @@ author can do. It is not a measure of effort.
 | Sub-navigation bar | Rejected | Low | Second nav for a six-post blog |
 | Header layout variants (fixed, fill, blur) | Rejected | — | Four variants where one considered choice is better |
 | Homepage layouts | **Have** | — | Ten, selected by `home.layout`. Defaults to `stack`, the original homepage, verified byte-identical |
-| Hero styles (basic/big/background/thumb) | Rejected | — | Covers are 1200×630 with the title baked in; only one treatment is correct |
+| Hero styles (basic/big/background/thumb) | **Have** | — | All four, with the never-crop rule intact in every one. `background` suits textless artwork, since it puts the title over the image |
 | Card vs list view switches | Rejected | — | See `BACKLOG.md` |
 | `groupByYear` on the index | **Have** | — | |
 | Pagination | **Have** | — | |

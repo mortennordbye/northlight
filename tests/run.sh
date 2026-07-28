@@ -725,6 +725,60 @@ refute_grep 'Updated <time' "$PUBLIC/blog/two-modes/index.html" "no updated date
 # says nothing twice.
 refute_grep 'Updated <time' "$WRITING" "no updated date when it renders as the same day"
 
+# heroStyle. Four treatments, and the invariant that survives all of them is never-crop.
+HERO_BG="$PUBLIC/blog/hero-background/index.html"
+HERO_TB="$PUBLIC/blog/hero-thumb-and-background/index.html"
+assert_grep 'class=article-hero-bg' "$HERO_BG" "background puts the cover behind the header"
+assert_grep 'article-head article-head-on-cover' "$HERO_BG" "the header renders on top of the cover"
+assert_grep 'article-cover article-cover-big' "$PUBLIC/blog/no-shortcodes/index.html" \
+  "big breaks the cover out past the measure"
+
+# thumbAndBackground is the only style that renders the cover twice — behind the header
+# and again as a card — so count both rather than assuming one implies the other.
+assert_count 1 "$(grep -c 'article-hero-bg' "$HERO_TB" | tr -d ' ')" \
+  "thumbAndBackground renders the background hero"
+assert_count 1 "$(grep -o 'figure class=article-cover' "$HERO_TB" | wc -l | tr -d ' ')" \
+  "thumbAndBackground also renders the cover card"
+
+# The default is unchanged, which is what keeps this non-breaking for existing sites.
+assert_grep 'figure class=article-cover>' "$MEASURING" "basic is still the default treatment"
+refute_grep 'article-hero-bg' "$MEASURING" "a default post gets no background hero"
+
+# THE INVARIANT, in the new style. A background hero elsewhere fills a band and crops;
+# here it must keep the exact ratio and contain, like every other cover in this theme.
+HERO_RULE=$(awk '/^\.article-hero-bg > img \{/,/^\}/' "$ROOT/assets/css/article.css")
+case "$HERO_RULE" in
+  *"object-fit: contain"*) ok "the background hero never crops the cover" ;;
+  *) bad "the background hero never crops the cover" "the .article-hero-bg > img rule does not use object-fit: contain" ;;
+esac
+case "$HERO_RULE" in
+  *"aspect-ratio: 1200 / 630"*) ok "the background hero keeps the exact cover ratio" ;;
+  *) bad "the background hero keeps the exact cover ratio" "no 1200/630 in the .article-hero-bg > img rule" ;;
+esac
+
+# An unknown heroStyle falls back rather than rendering an unstyled header, the same rule
+# init.html applies to colorScheme.
+assert_grep 'basic" "big" "background" "thumbAndBackground"' "$ROOT/layouts/page.html" \
+  "an unknown heroStyle falls back to basic"
+
+# SVG covers. Hugo's .Width errors on an SVG rather than returning zero, so every partial
+# that reads it has to guard first. Before this, a single SVG cover failed the whole build
+# in six places. The hero demo posts use SVG covers precisely so this stays exercised.
+for f in related card post-item; do
+  if grep -q 'if \$raster' "$ROOT/layouts/_partials/$f.html"; then
+    ok "$f.html guards image dimensions for SVG covers"
+  else
+    bad "$f.html guards image dimensions for SVG covers" "no \$raster guard"
+  fi
+done
+for f in hero gallery stack; do
+  if grep -q 'if \$raster' "$ROOT/layouts/_partials/home/$f.html"; then
+    ok "home/$f.html guards image dimensions for SVG covers"
+  else
+    bad "home/$f.html guards image dimensions for SVG covers" "no \$raster guard"
+  fi
+done
+
 # chart. Same gating as mermaid: the library is only worth vendoring if it is only loaded
 # where it is used.
 assert_grep 'vendor/chart' "$SHORTCODES" "the chart library loads on a page with a chart"

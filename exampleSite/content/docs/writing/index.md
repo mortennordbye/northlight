@@ -25,6 +25,7 @@ trade before reaching for one.
 | `lastmod` | Updated date. Shown only when `showDateUpdated` is on and this is later than `date`. |
 | `showTableOfContents` | Per-post override of the site default. |
 | `showHero` | Hide the cover on one post. |
+| `heroStyle` | Per-post hero treatment: `basic`, `big`, `background`, `thumbAndBackground`. |
 | `coverAlt` | Alt text for the cover. Empty by default, correct for artwork that repeats the title. |
 | `robots` | `noindex, follow` and similar. Cascades, so setting it on a section covers everything under it. |
 | `sitemap_exclude` | Keep a page out of `sitemap.xml`. |
@@ -33,6 +34,35 @@ trade before reaching for one.
 | `editURL`, `editAppendPath` | Per-page override of the edit link. |
 | `series`, `series_order` | Group a post into a multi-part series. See below. |
 | `authors` | Credit several people, by key from `data/authors/`. Omit it and the post falls back to the site-wide author. |
+
+## Hero styles
+
+`heroStyle` picks how the cover is presented. Set it site-wide in
+[Configuration]({{< ref "configuration" >}}) or per post in front matter.
+
+| Style | What it does |
+|---|---|
+| `basic` | A bordered card above the body. The default |
+| `big` | The same, breaking out past the text measure |
+| `background` | The cover behind the header, title over a scrim |
+| `thumbAndBackground` | Both: behind the header, and again as a card |
+
+**Every style keeps the cover whole.** The box is an exact 1200×630 ratio with
+`object-fit: contain`, so a cover that is not 1200×630 letterboxes rather than losing its
+edges. A background hero elsewhere fills an arbitrary band and crops to fit; this one does
+not, because a cover with its title in the artwork loses the title to a crop.
+
+**That constraint decides which artwork suits which style.** `background` and
+`thumbAndBackground` put the title *on top of* the cover, so artwork that already carries
+the title will show it twice. Use those two with textless artwork, and `basic` or `big`
+with a cover that has words in it.
+
+Below 720px the scrim would cover most of a short hero, so the header moves under the
+image instead of over it and goes back to the normal text colours. A title that is
+illegible is worse than a hero that is less dramatic.
+
+**SVG covers work.** Hugo cannot resize an SVG or read its pixel dimensions, so the theme
+skips both for vector covers and lets CSS hold the box instead.
 
 ## Series
 

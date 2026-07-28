@@ -94,6 +94,7 @@ bio never renders as a code block.
 | `showReadingTime` | `true` | Estimated reading time. |
 | `showWordCount` | `true` | Word count. |
 | `showHero` | `true` | The cover image. |
+| `heroStyle` | `"basic"` | `basic`, `big`, `background` or `thumbAndBackground`. Overridable per post. An unknown value falls back to `basic`. **Every style keeps the cover uncropped** — see below. |
 | `showTableOfContents` | `true` | Sticky TOC rail on desktop, a card above the article on mobile. |
 | `showProgress` | `true` | 2px reading-progress bar. |
 | `showTaxonomies` | `true` | Tag row at the foot of a post. |

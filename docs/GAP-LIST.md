@@ -55,7 +55,7 @@ Substantial author control over presentation, or a visible reader feature.
 
 | # | Feature | What it gives you | Effort |
 |---|---|---|---|
-| 10 | **`heroStyle` variants** | `basic`, `big`, `background`, `thumbAndBackground`. Must not break the never-crop rule — the covers are 1200×630 with the title in the artwork | Medium |
+| 10 | ~~**`heroStyle` variants**~~ **DONE** | All four, and the never-crop rule survives all of them: the box stays an exact 1200×630 `contain`, so `background` shows the whole cover under a scrim rather than filling a band | Medium |
 | 11 | **`header.layout` variants** | `basic`, `fixed`, and the sticky variants | Medium |
 | 12 | **Card-view toggles** | `cardView` / `cardViewScreenWidth` across home, list, taxonomy and term | Medium |
 | 13 | **More colour schemes** | 3 → many. One block in `tokens.css` each, per the existing pattern | Small each |

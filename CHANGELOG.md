@@ -10,6 +10,13 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **`article.heroStyle`** — four cover treatments: `basic` (the default, unchanged), `big`,
+  `background` and `thumbAndBackground`, overridable per post. **Every one keeps the cover
+  uncropped**, which is why this was previously ruled out: a background hero normally fills a
+  band and crops to fit, and a Northlight cover has its title in the artwork. Here the box stays
+  an exact 1200×630 with `object-fit: contain` and the header sits over a scrim, so the whole
+  image is visible. Below 720px the header moves under the image rather than over it. An unknown
+  value falls back to `basic`.
 - **Maths**, rendered at build time. Hugo has KaTeX built in, so the theme ships **no maths
   library at all** — no JavaScript, no stylesheet, and none of the ~60 font files a client-side
   renderer needs. The equation is in the HTML the server sends, so it is there with scripting
@@ -95,6 +102,11 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Fixed
 
+- **An SVG cover no longer fails the build.** Hugo's `.Width` errors on an SVG rather than
+  returning zero, and six partials read it unguarded — `related`, `card`, `post-item` and the
+  `hero`, `gallery` and `stack` home layouts. A single vector cover took the whole build down.
+  They now emit `width`/`height` only for rasters and let CSS hold the box, so nothing shifts as
+  the image loads. Found because the new hero demo posts use SVG covers.
 - **`make check` now refuses to run while a dev server is up**, which resolves the intermittent
   large-block failures that had been recorded in `BACKLOG.md` as an unexplained flake. `make
   serve` renders to disk, into the same `exampleSite/public` that `make check` builds and

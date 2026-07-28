@@ -208,6 +208,101 @@
   background: var(--surface);
 }
 
+/* `big` breaks out past the text measure while keeping the same never-crop box. The
+   negative inline margins are clamped so the cover can never push the page sideways on a
+   narrow screen — at 375px there is nothing to break out of and the clamp collapses to 0. */
+.article-cover-big {
+  --breakout: clamp(0px, calc((100vw - var(--measure)) / 2 - var(--space-5)), 120px);
+  margin-inline: calc(var(--breakout) * -1);
+  max-width: calc(100% + var(--breakout) * 2);
+}
+
+/* --- hero: background ------------------------------------------------------- */
+
+/* The cover behind the header. The image keeps its exact ratio and is still `contain`,
+   so nothing is cropped here either — a background hero that filled an arbitrary band
+   would crop, which is the one thing covers in this theme must never do. */
+.article-hero-bg {
+  position: relative;
+  margin-bottom: var(--space-8);
+  border-radius: var(--radius-panel);
+  overflow: hidden;
+  background: var(--surface-2);
+}
+
+.article-hero-bg > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1200 / 630;
+  object-fit: contain;
+}
+
+/* A flat scrim, and fixed light-on-dark text inside it, for the same reason
+   `.home-bg-scrim` carries them: the artwork underneath does not invert when the palette
+   does, so a header that followed the theme would be legible in one mode and illegible in
+   the other over the same image. These are the only colours in the article that do not
+   come from a mode-aware token, and that is deliberate. */
+.article-hero-scrim {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  background: rgb(12 12 16 / 62%);
+  padding: var(--space-5);
+}
+
+.article-head-on-cover {
+  padding-bottom: 0;
+  color: rgb(242 242 245);
+}
+
+.article-head-on-cover .article-title,
+.article-head-on-cover .lede,
+.article-head-on-cover .author-name,
+.article-head-on-cover .meta-line,
+.article-head-on-cover .breadcrumbs,
+.article-head-on-cover .breadcrumbs a,
+.article-head-on-cover .author-link {
+  color: rgb(242 242 245);
+}
+
+.article-head-on-cover .lede,
+.article-head-on-cover .meta-line,
+.article-head-on-cover .breadcrumbs {
+  color: rgb(212 212 220);
+}
+
+/* The edit link is chrome rather than part of the title block, and over artwork it reads
+   as clutter. It stays available on every other hero style. */
+.article-head-on-cover .edit-link {
+  display: none;
+}
+
+/* Below the measure the scrim would cover most of a short cover, so the header moves
+   under the image instead of over it. A title that is illegible is worse than a hero
+   that is less dramatic. */
+@media (max-width: 720px) {
+  .article-hero-scrim {
+    position: static;
+    background: none;
+    padding: var(--space-4) 0 0;
+  }
+
+  .article-head-on-cover,
+  .article-head-on-cover .article-title,
+  .article-head-on-cover .author-name,
+  .article-head-on-cover .author-link {
+    color: var(--fg);
+  }
+
+  .article-head-on-cover .lede,
+  .article-head-on-cover .meta-line,
+  .article-head-on-cover .breadcrumbs {
+    color: var(--fg-2);
+  }
+}
+
 /* --- body grid ------------------------------------------------------------- */
 
 .article-body {

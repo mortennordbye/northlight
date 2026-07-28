@@ -43,10 +43,11 @@
     </div>
     {{- with $cover }}
       {{- $img := . }}
-      {{- if in (slice "png" "jpeg" "gif" "webp") .MediaType.SubType }}{{ $img = .Resize "900x q85" }}{{ end }}
+      {{- $raster := in (slice "png" "jpeg" "gif" "webp") .MediaType.SubType -}}
+      {{- if $raster }}{{ $img = .Resize "900x q85" }}{{ end }}
       <a class="home-hero-media" href="{{ $lead.RelPermalink }}">
         <img src="{{ $img.RelPermalink }}" alt=""
-             width="{{ $img.Width }}" height="{{ $img.Height }}"
+             {{ if $raster }}width="{{ $img.Width }}" height="{{ $img.Height }}"{{ end }}
              fetchpriority="high" decoding="async">
       </a>
     {{- end }}

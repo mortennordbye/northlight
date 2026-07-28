@@ -1,0 +1,21 @@
+{{- /*
+  The article's header block: breadcrumbs, title, description, draft label and meta line.
+
+  Extracted so the `background` hero styles can place the identical header on top of the
+  cover instead of below it. Two copies of this markup would drift, and the meta line is
+  the piece most likely to gain a field.
+*/ -}}
+{{- $cfg := partialCached "init.html" . -}}
+{{- $a := $cfg.article -}}
+{{- if $a.showBreadcrumbs }}{{ partial "breadcrumbs.html" . }}{{ end }}
+
+<h1 class="article-title">{{ .Title }}</h1>
+
+{{- with .Params.description }}<p class="lede">{{ . }}</p>{{ end }}
+
+{{- /* Only ever visible with --buildDrafts, i.e. to the author previewing. It is a
+       label rather than a banner because the point is to answer "is this the draft
+       or the published one" at a glance, not to shout. */ -}}
+{{- if .Draft }}<p class="draft-label">{{ i18n "draft" }}</p>{{ end }}
+
+{{ partial "article-meta.html" . }}

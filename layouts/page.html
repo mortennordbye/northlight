@@ -9,23 +9,40 @@
 {{- $hasToc := and $showToc (gt (len .Fragments.Headings) 0) -}}
 {{- $showHero := partial "param-bool.html" (dict "map" .Params "key" "showHero" "default" $a.showHero) -}}
 
+{{- /* Hero treatment. Page front matter wins over site config, like every other
+       per-post override here. An unknown value falls back rather than rendering an
+       unstyled header — the same rule init.html applies to colorScheme.
+
+       `background` and `thumbAndBackground` put the header *on* the cover, so the
+       header markup has to move inside the hero block. That is the whole reason
+       article-head.html exists as a partial rather than sitting inline. */ -}}
+{{- $heroStyle := .Params.heroStyle | default $a.heroStyle -}}
+{{- if not (in (slice "basic" "big" "background" "thumbAndBackground") $heroStyle) -}}
+  {{- $heroStyle = "basic" -}}
+{{- end -}}
+{{- $onCover := and $showHero (in (slice "background" "thumbAndBackground") $heroStyle) -}}
+{{- $hasCover := .Resources.GetMatch "{cover,featured}.*" -}}
+
 <article class="article wrap">
+  {{- if and $onCover $hasCover }}
+    {{ partial "cover.html" (dict "ctx" . "style" "background") }}
+    {{- /* thumbAndBackground shows the cover twice on purpose: once behind the title and
+           once as the usual card above the body. It is the reference theme's own
+           combination, and it only makes sense for artwork with no text in it. */ -}}
+    {{- if eq $heroStyle "thumbAndBackground" }}
+      {{ partial "cover.html" (dict "ctx" . "style" "basic") }}
+    {{- end }}
+  {{- else }}
   <header class="article-head">
-    {{- if $a.showBreadcrumbs }}{{ partial "breadcrumbs.html" . }}{{ end }}
-
-    <h1 class="article-title">{{ .Title }}</h1>
-
-    {{- with .Params.description }}<p class="lede">{{ . }}</p>{{ end }}
-
-    {{- /* Only ever visible with --buildDrafts, i.e. to the author previewing. It is a
-           label rather than a banner because the point is to answer "is this the draft
-           or the published one" at a glance, not to shout. */ -}}
-    {{- if .Draft }}<p class="draft-label">{{ i18n "draft" }}</p>{{ end }}
-
-    {{ partial "article-meta.html" . }}
+    {{ partial "article-head.html" . }}
   </header>
 
-  {{ if $showHero }}{{ partial "cover.html" . }}{{ end }}
+  {{- /* The overlay styles are handled above; reaching here with one of them means there
+         was no cover to put the header on, so the card treatment is what is left. Passing
+         $heroStyle straight through would ask cover.html for a background block with no
+         header in it — a hero that renders the artwork and nothing else. */ -}}
+  {{ if $showHero }}{{ partial "cover.html" (dict "ctx" . "style" (cond $onCover "basic" $heroStyle)) }}{{ end }}
+  {{- end }}
 
   <div class="article-body{{ if not $hasToc }} article-body-wide{{ end }}">
     {{- /* The footer is a sibling of .prose, not a child of it. Nested inside, every

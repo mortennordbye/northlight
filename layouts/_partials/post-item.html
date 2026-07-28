@@ -21,9 +21,10 @@
 <a class="post-item{{ if $external }} is-external{{ end }}" href="{{ $href }}"{{ if $external }} rel="noopener" target="_blank"{{ end }}>
   {{- with .Resources.GetMatch "{cover,featured}.*" }}
     {{- $img := . }}
-    {{- if in (slice "png" "jpeg" "gif" "webp") .MediaType.SubType }}{{ $img = .Resize "640x q80" }}{{ end }}
+    {{- $raster := in (slice "png" "jpeg" "gif" "webp") .MediaType.SubType -}}
+    {{- if $raster }}{{ $img = .Resize "640x q80" }}{{ end }}
     <img class="item-cover" src="{{ $img.RelPermalink }}" alt=""
-         width="{{ $img.Width }}" height="{{ $img.Height }}" loading="lazy" decoding="async">
+         {{ if $raster }}width="{{ $img.Width }}" height="{{ $img.Height }}" {{ end }}loading="lazy" decoding="async">
   {{- end }}
   <div class="item-body">
     {{ partial "eyebrow.html" . }}

@@ -39,6 +39,7 @@
   "replyByEmail"        (partial "param-bool.html" (dict "map" $a "key" "replyByEmail"        "default" false))
   "seriesOpened"        (partial "param-bool.html" (dict "map" $a "key" "seriesOpened"        "default" false))
   "showAuthorsBadges"   (partial "param-bool.html" (dict "map" $a "key" "showAuthorsBadges"   "default" false))
+  "heroStyle"           (cond (in (slice "basic" "big" "background" "thumbAndBackground") ($a.heroStyle | default "basic")) ($a.heroStyle | default "basic") "basic")
   "showAuthorBottom"    (partial "param-bool.html" (dict "map" $a "key" "showAuthorBottom"    "default" false))
   "relatedLimit"        (int ($a.relatedLimit | default 3))
   "sharingLinks"        ($a.sharingLinks | default (slice "linkedin" "reddit"))
