@@ -26,6 +26,22 @@
 
 {{- /* Inlined and placed before the stylesheet so the mode is pinned before first
        paint. Theme-owned code, hence safeJS. */ -}}
+{{- /* hreflang alternates. Search engines use these to serve the right language and to
+       avoid treating translations as duplicates of one another; without them a
+       multilingual site competes with itself.
+
+       x-default points at the site's first configured language, which is the one a
+       reader with no matching preference should land on. Emitted only when there is
+       more than one language, so a single-language site carries no dead metadata. */ -}}
+{{- if gt (len hugo.Sites) 1 }}
+  {{- range .AllTranslations }}
+  <link rel="alternate" hreflang="{{ .Language.Lang }}" href="{{ .Permalink }}">
+  {{- end }}
+  {{- with index hugo.Sites 0 }}
+  <link rel="alternate" hreflang="x-default" href="{{ .Home.Permalink }}">
+  {{- end }}
+{{- end }}
+
 {{- with resources.Get "js/appearance.js" | minify }}
 <script>{{ .Content | safeJS }}</script>
 {{- end }}

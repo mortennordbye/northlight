@@ -86,6 +86,10 @@ watchOnYouTube = "Watch on YouTube"
 # hand the file to something that can play it.
 downloadVideo = "Download the video"
 
+# Accessible name for the language switcher. The visible text is the current language's
+# own name, which says what is selected but not what the control does.
+changeLanguage = "Change language"
+
 # Separator between co-author names in a byline. A key rather than a literal comma,
 # because the punctuation between names is not the same in every language, and neither
 # is the spacing around it.

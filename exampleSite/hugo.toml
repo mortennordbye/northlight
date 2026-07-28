@@ -305,3 +305,47 @@ anyone notices."""
   [[related.indices]]
     name = "date"
     weight = 10
+
+# Two languages, so the switcher, the hreflang alternates and the per-language search
+# index are exercised rather than only described. A single-language site needs none of
+# this: leave the whole block out and the switcher renders nothing.
+#
+# This block sits at the END of the file on purpose. In TOML every key after a [table]
+# header belongs to that table, so putting it up top silently swallowed `theme`, every
+# [params] key and the whole menu into languages.nb.params — and the build failed with
+# "template for shortcode button not found", which says nothing about the real cause.
+#
+# `displayName` is what the switcher shows. It is each language's name *in that language*,
+# because a reader looking for their language is looking for its own name.
+[languages]
+  [languages.en]
+    label = "English"
+    weight = 1
+    title = "Northlight"
+    [languages.en.params]
+      displayName = "English"
+
+  [languages.nb]
+    label = "Norsk bokmål"
+    weight = 2
+    title = "Northlight"
+    # Translated chrome lives in exampleSite/i18n/nb.toml. Anything left out of it falls
+    # back to the theme's English, one string at a time.
+    [languages.nb.params]
+      displayName = "Norsk"
+      description = "Et rolig, lesbart Hugo-tema for teknisk skriving."
+      # Date formats are a language decision, not a site-wide one.
+      dateFormat = "2. Jan 2006"
+
+    # Menus are per-language too. Defining one here replaces the top-level [menu] for
+    # Norwegian rather than adding to it, so this lists everything the nb site should
+    # show — which is less than the English one, because the manual is not translated.
+    [languages.nb.menus]
+      [[languages.nb.menus.main]]
+        name = "Blogg"
+        pageRef = "blog"
+        weight = 10
+      [[languages.nb.menus.main]]
+        name = "Emneknagger"
+        pageRef = "tags"
+        weight = 20

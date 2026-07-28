@@ -1,0 +1,50 @@
+{{- /*
+  The language switcher. Renders nothing on a single-language site, which is most of them,
+  so it costs nothing to have here.
+
+  A <details> disclosure, the same mechanism the nested menu uses: it needs no JavaScript,
+  it is reachable by keyboard and touch alike, and it closes on Escape for free.
+
+  **Links go to the translation of the page you are on**, not to the other language's home
+  page. Being sent back to the front page for asking to read the same article in another
+  language is the single most common thing this control gets wrong. A page with no
+  translation falls back to that language's home page, because the alternative is a dead
+  link.
+
+  Names come from each language's own config, so German reads "Deutsch" rather than
+  "German" — a reader looking for their language is looking for its name in it.
+*/ -}}
+{{- /* `hugo.Sites`, not `site.Languages` — the latter was deprecated in Hugo 0.156, and a
+       Language is not a Site: it carries no `.Home`, so there is nothing to link to. The
+       gate treats the deprecation warning as an error, so this is a build failure rather
+       than a slow rot. */ -}}
+{{- if gt (len hugo.Sites) 1 -}}
+  {{- $currentLang := site.Language.Lang -}}
+  {{- $label := "" -}}
+  {{- with site.Language.Params.displayName }}{{ $label = . }}{{ else }}{{ $label = upper $currentLang }}{{ end -}}
+  <details class="lang-switch">
+    <summary aria-label="{{ i18n "changeLanguage" }}">
+      <span>{{ $label }}</span>
+      {{- partial "icon.html" "chevron-down" -}}
+    </summary>
+    <div class="lang-switch-items">
+      {{- range hugo.Sites }}
+        {{- $s := . -}}
+        {{- $name := "" -}}
+        {{- with $s.Language.Params.displayName }}{{ $name = . }}{{ else }}{{ $name = upper $s.Language.Lang }}{{ end -}}
+        {{- if eq $s.Language.Lang $currentLang }}
+          <span class="lang-current" aria-current="true">{{ $name }}</span>
+        {{- else }}
+          {{- /* The translation of the page you are on, if there is one. Being sent back to
+                 the front page for asking to read the same article in another language is
+                 the single most common thing this control gets wrong. */ -}}
+          {{- $href := $s.Home.RelPermalink -}}
+          {{- range $.AllTranslations }}
+            {{- if eq .Language.Lang $s.Language.Lang }}{{ $href = .RelPermalink }}{{ end }}
+          {{- end }}
+          <a href="{{ $href }}" hreflang="{{ $s.Language.Lang }}">{{ $name }}</a>
+        {{- end }}
+      {{- end }}
+    </div>
+  </details>
+{{- end -}}

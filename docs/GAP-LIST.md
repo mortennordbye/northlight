@@ -39,7 +39,7 @@ Unlocks content, audiences or authorship that is impossible today.
 
 | # | Feature | What it gives you | Effort |
 |---|---|---|---|
-| 1 | **Multilingual routing** | Per-language config, menus, `displayName`, `isoCode`, translated content trees. The single biggest audience unlock on the list; `rtl` and `dateFormat` already exist per-language | Large |
+| 1 | ~~**Multilingual routing**~~ **DONE** | Language switcher linking to the *translation of the current page*, `hreflang` alternates with `x-default`, per-language search index, menus and date formats. Renders nothing on a single-language site | Large |
 | 2 | ~~**Multiple authors**~~ **DONE** | `authors` front matter resolved from `data/authors/`, author taxonomy pages, `showAuthorsBadges`, `showAuthorBottom`. Falls back to the single `[params.author]`, so existing sites render unchanged | Medium |
 | 3 | ~~**Author profile fields**~~ **MOSTLY DONE** | `bio` and `email` built. **`imageQuality` deferred** — the avatar deliberately does not go through Hugo's image pipeline, because `image-url.html` also has to pass SVG through untouched, and routing rasters through `.Resize` is a separate change. Tracked in `BACKLOG.md` | Small |
 | 4 | ~~**Series**~~ **DONE** | Navigation block above the body, `<details>` so no JS. `series_order` required — a scrambled series is worse than none, so a post missing it fails the build. A one-post series renders nothing | Medium |

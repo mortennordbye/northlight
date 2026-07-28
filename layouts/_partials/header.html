@@ -42,6 +42,8 @@
         {{- end }}
       {{- end }}
 
+      {{ partial "language-switcher.html" . }}
+
       {{- if $cfg.enableSearch }}
         <span class="nav-sep" aria-hidden="true"></span>
         {{- /* aria-label as well as the visible label, because below 720px both the label

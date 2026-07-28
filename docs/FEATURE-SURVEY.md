@@ -157,7 +157,7 @@ author can do. It is not a measure of effort.
 | Feature | Status | Value | Note |
 |---|---|---|---|
 | **Translatable UI strings** | **Have** | — | `i18n/en.toml`. Nothing user-facing is hardcoded, plurals included |
-| Multilingual sites | Rejected | — | Full multi-language routing is out of scope per `docs/SPEC.md` |
+| Multilingual sites | **Have** | — | Switcher, `hreflang` + `x-default`, per-language index, menus and date formats. Renders nothing on a single-language site |
 | RTL support | **Partial** | Low | `rtl = true` sets `dir`. Layout mirrors, and physical `text-align` is now gone from the CSS and asserted against, but this has still had no real-world exercise |
 | Configurable date format | **Have** | — | `dateFormat`, a Go reference layout |
 | Browser language redirect | Rejected | Low | Client-side redirects on a static site |

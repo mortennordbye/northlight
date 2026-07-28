@@ -10,6 +10,14 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **Multilingual sites.** Declare `[languages]` and the theme supplies the rest: a language
+  switcher in the header, `hreflang` alternates including `x-default` in `<head>`, a search
+  index per language, per-language date formats and menus. **The switcher links to the
+  translation of the page you are on**, falling back to that language's home page only where no
+  translation exists — being sent to the front page for asking to read the same article in
+  another language is the single most common thing this control gets wrong. It renders nothing
+  on a single-language site, so nothing changes for one. The switcher is a `<details>`
+  disclosure, the same mechanism the nested menu uses, so it needs no JavaScript.
 - **`article.heroStyle`** — four cover treatments: `basic` (the default, unchanged), `big`,
   `background` and `thumbAndBackground`, overridable per post. **Every one keeps the cover
   uncropped**, which is why this was previously ruled out: a background hero normally fills a

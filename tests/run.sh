@@ -45,6 +45,16 @@ refute_grep() {
   if grep -q "$1" "$2" 2>/dev/null; then bad "$3" "unexpected match for /$1/ in ${2#"$ROOT"/}"; else ok "$3"; fi
 }
 
+# without_comments <file>  -- the file with Go template comments stripped
+#
+# Six assertions in this suite have now been written as "this file must not contain X",
+# only to match the comment above the code explaining why X is wrong. Anchoring each one
+# to syntax works but has to be remembered every time; stripping the comments first is the
+# general fix, and it is what any "the source must not say X" check should read from.
+without_comments() {
+  sed -e 's|{{- \{0,1\}/\*|\n&|g' "$1" | sed -e '/{{-\{0,1\} *\/\*/,/\*\/ *-\{0,1\}}}/d'
+}
+
 # assert_count <expected> <actual> <label>
 assert_count() {
   if [ "$1" = "$2" ]; then ok "$3"; else bad "$3" "expected $1, got $2"; fi
@@ -158,7 +168,12 @@ refute_grep '/tags/' "$PUBLIC/sitemap.xml" "sitemap excludes taxonomy pages"
 refute_grep '/docs/' "$PUBLIC/index.json" "docs stay out of the search index"
 refute_grep '/docs/' "$PUBLIC/index.xml"  "docs stay out of the RSS feed"
 # Host-agnostic: CI builds with the Pages base URL, not the demo's example.com.
-DOC_URLS=$(grep -oE 'https?://[^<]*/docs/[a-z-]+/' "$PUBLIC/sitemap.xml" | sort -u | wc -l | tr -d ' ')
+#
+# On a multilingual site Hugo turns the root sitemap.xml into a *sitemap index* pointing at
+# one sitemap per language, so grepping the root file for page URLs finds nothing. Search
+# every sitemap rather than the root one: that is what a crawler does, and it keeps this
+# assertion true whether or not the site has more than one language.
+DOC_URLS=$(find "$PUBLIC" -name 'sitemap.xml' -exec grep -ohE 'https?://[^<]*/docs/[a-z-]+/' {} + | sort -u | wc -l | tr -d ' ')
 assert_count 7 "$DOC_URLS" "all seven docs pages are in the sitemap"
 
 # excludeFromSearch keeps a page out of the index without keeping it off the site.
@@ -724,6 +739,50 @@ refute_grep 'Updated <time' "$PUBLIC/blog/two-modes/index.html" "no updated date
 # Nor when lastmod is later but renders as the same day: "27 Jul 2026 - Updated 27 Jul 2026"
 # says nothing twice.
 refute_grep 'Updated <time' "$WRITING" "no updated date when it renders as the same day"
+
+# Multilingual. Hugo does the routing; the theme owes the reader a way to switch, and
+# owes a crawler the alternates. These assertions cover both, plus the fallbacks.
+NB_POST="$PUBLIC/nb/blog/two-modes/index.html"
+assert_file "$NB_POST" "the second language builds its own pages"
+assert_file "$PUBLIC/nb/index.json" "each language gets its own search index"
+
+# The switcher must link to the *translation of this page*, not to the other language's
+# home page. Being sent to the front page for asking to read the same article in another
+# language is the single most common thing this control gets wrong.
+assert_grep 'lang-switch-items><a href=/blog/two-modes/ hreflang=en' "$NB_POST" \
+  "the switcher links to the translation of the current page"
+
+# ...and falls back to that language's home page when there is no translation, rather than
+# rendering a dead link. `measuring` exists only in English.
+assert_grep 'href=/nb/ hreflang=nb' "$MEASURING" \
+  "an untranslated page falls back to the other language's home"
+
+# The language you are reading is text, not a link to the page you are already on.
+assert_grep 'class=lang-current aria-current=true' "$NB_POST" \
+  "the current language is not a link"
+
+# hreflang alternates, including x-default, so translations are not read as duplicates.
+assert_grep 'rel=alternate hreflang=nb' "$PUBLIC/blog/two-modes/index.html" "hreflang alternates are emitted"
+assert_grep 'rel=alternate hreflang=x-default' "$PUBLIC/blog/two-modes/index.html" "x-default is emitted"
+
+# The site catalogue wins over the theme's, and anything left out falls back to English
+# one string at a time rather than rendering blank.
+assert_grep 'Hopp til innhold' "$PUBLIC/nb/index.html" "the site's own catalogue translates the chrome"
+assert_grep 'Bytt spr' "$NB_POST" "the switcher's accessible name is translated"
+
+# Date format is a per-language param, not a site-wide one.
+assert_grep '<time datetime=2025-09-30>30\. Sep 2025' "$NB_POST" "dates use the language's own format"
+
+# hugo.Sites, not the two deprecated spellings. Both site.Languages and site.Sites were
+# deprecated in Hugo 0.156, and the gate turns the warning into a failure — but only the
+# gate does, so `make build` alone will not catch a regression here.
+for f in language-switcher head; do
+  if without_comments "$ROOT/layouts/_partials/$f.html" | grep -qE '\bsite\.(Languages|Sites)\b'; then
+    bad "$f.html uses the non-deprecated sites API" "found site.Languages or site.Sites in code"
+  else
+    ok "$f.html uses the non-deprecated sites API"
+  fi
+done
 
 # heroStyle. Four treatments, and the invariant that survives all of them is never-crop.
 HERO_BG="$PUBLIC/blog/hero-background/index.html"

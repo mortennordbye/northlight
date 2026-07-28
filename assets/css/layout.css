@@ -248,3 +248,96 @@ main {
     min-width: 0;
   }
 }
+
+/* --- language switcher ------------------------------------------------------ */
+
+/* Deliberately the same disclosure as .nav-group: same summary shape, same panel, same
+   caret rotation. It sits in the same row and does the same thing — reveal a short list
+   of links — so a reader should not have to learn a second interaction for it. The rules
+   are shared rather than duplicated wherever the selector allows. */
+.lang-switch {
+  position: relative;
+}
+
+.lang-switch > summary {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 14px;
+  font-weight: 450;
+  color: var(--fg-2);
+  padding: 7px var(--space-3);
+  border-radius: 7px;
+  cursor: pointer;
+  list-style: none;
+  transition:
+    color var(--dur-color),
+    background var(--dur-color);
+}
+
+.lang-switch > summary::-webkit-details-marker {
+  display: none;
+}
+
+.lang-switch > summary:hover,
+.lang-switch[open] > summary {
+  color: var(--fg);
+  background: var(--surface-2);
+}
+
+.lang-switch > summary .icon {
+  width: 0.9em;
+  height: 0.9em;
+  transition: transform var(--dur-card);
+}
+
+.lang-switch[open] > summary .icon {
+  transform: rotate(180deg);
+}
+
+.lang-switch-items {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 20;
+  min-width: 150px;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-1);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-thumb);
+  box-shadow: var(--shadow);
+}
+
+.lang-switch-items a,
+.lang-switch-items .lang-current {
+  padding: 6px var(--space-3);
+  border-radius: 5px;
+  font-size: 14px;
+  color: var(--fg-2);
+}
+
+.lang-switch-items a:hover {
+  color: var(--fg);
+  background: var(--surface-2);
+}
+
+/* The language you are already reading is text, not a link — a link to the page you are
+   on is a dead end — so it carries its own emphasis instead. */
+.lang-switch-items .lang-current {
+  color: var(--fg);
+  font-weight: 500;
+}
+
+/* Same reasoning as .nav-group-items: on a narrow screen the header wraps, and an
+   absolutely positioned panel would sit on top of the page instead of moving it. */
+@media (max-width: 640px) {
+  .lang-switch-items {
+    position: static;
+    border: 0;
+    box-shadow: none;
+    padding: 0 0 0 var(--space-3);
+    min-width: 0;
+  }
+}
