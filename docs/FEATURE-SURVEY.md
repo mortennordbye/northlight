@@ -145,8 +145,8 @@ author can do. It is not a measure of effort.
 | `extend-head.html` | **Have** | — | |
 | **`extend-footer.html`** | **Have** | — | End-of-body twin of the head hook |
 | `extend-head-uncached.html` | Gap | Low | |
-| Analytics: Cloudflare · Fathom · Umami · Seline · Google | **Have** | — | Five providers as config blocks; GA through Hugo's own `[services.googleAnalytics]`. Nothing is emitted unless configured |
-| Analytics: Fathom, Umami, Seline, GA, Plausible | Rejected | — | `extend-head.html` is the supported route. A theme should not ship five vendors |
+| Analytics: Cloudflare · Fathom · Umami · Seline · Plausible · Google | **Have** | — | Six providers as config blocks; GA through Hugo's own `[services.googleAnalytics]`. Nothing is emitted unless configured |
+| Analytics: Fathom · Umami · Seline · Plausible · GA | **Have** | — | All wired as config blocks. Anything else still goes through `extend-head.html` |
 | Firebase view and like counters | Rejected | — | Adds a backend to a static site |
 | Buy Me A Coffee widget | Rejected | — | |
 | AdSense | Rejected | — | |

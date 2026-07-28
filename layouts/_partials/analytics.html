@@ -21,6 +21,9 @@
         websiteId = "uuid"
         domain = "analytics.example.com"  # optional self-hosted instance
         scriptName = "u.js"               # optional, for ad-block resilience
+      [params.analytics.plausible]
+        domain = "example.com"            # the site being measured
+        host = "plausible.example.com"    # optional self-hosted instance
       [params.analytics.seline]
         token = "your-token"
 
@@ -64,6 +67,15 @@
       {{- $host := $.Params.analytics.umami.domain | default "cloud.umami.is" -}}
       {{- $name := $.Params.analytics.umami.scriptName | default "script.js" -}}
       <script defer src="https://{{ $host }}/{{ $name }}" data-website-id="{{ . }}"></script>
+    {{- end -}}
+  {{- end -}}
+
+  {{- with .plausible -}}
+    {{- with .domain -}}
+      {{- /* `domain` is the site being measured, which Plausible calls data-domain; `host`
+             is where the script lives and only differs for a self-hosted instance. */ -}}
+      {{- $host := $.Params.analytics.plausible.host | default "plausible.io" -}}
+      <script defer data-domain="{{ . }}" src="https://{{ $host }}/js/script.js"></script>
     {{- end -}}
   {{- end -}}
 

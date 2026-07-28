@@ -44,7 +44,7 @@ Using utterances, Cusdis, Remark42 or a static form instead? Copy
 **Nothing is sent unless you configure a provider.** With none set the theme makes no
 third-party request at all, and that is the shipped default.
 
-Five providers are wired directly. Configure any subset:
+Six providers are wired directly. Configure any subset:
 
 ```toml {file="hugo.toml"}
 [params.analytics.cloudflare]
@@ -59,6 +59,10 @@ Five providers are wired directly. Configure any subset:
   domain = "analytics.example.com"    # optional self-hosted instance
   scriptName = "u.js"                 # optional, for ad-block resilience
 
+[params.analytics.plausible]
+  domain = "example.com"              # the site being measured
+  host = "plausible.example.com"      # optional self-hosted instance
+
 [params.analytics.seline]
   token = "your-token"
 ```
@@ -72,7 +76,7 @@ silently did nothing:
   ID = "G-XXXXXXXXXX"
 ```
 
-The first four set no cookies and need no consent banner. Google Analytics does, and most
+The first five set no cookies and need no consent banner. Google Analytics does, and most
 sites using it will be obliged to say so — it is wired for completeness, not preference.
 
 > [!NOTE]
@@ -81,7 +85,7 @@ sites using it will be obliged to say so — it is wired for completeness, not p
 > in your site's config and never in the theme.
 
 Anything else — a self-hosted instance, a provider not listed, a server-side tag — goes
-through `extend-head.html` or `extend-footer.html` below. All five here load at the end of
+through `extend-head.html` or `extend-footer.html` below. All six here load at the end of
 `<body>` with `defer`, so none can delay the first paint.
 
 ## The escape hatches

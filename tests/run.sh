@@ -743,7 +743,7 @@ refute_grep 'Updated <time' "$WRITING" "no updated date when it renders as the s
 # Analytics. The invariant is not that any provider works but that *none* fires unless it
 # is configured — the theme makes no third-party request by default, and exampleSite leaves
 # every provider commented out precisely so the built demo proves it.
-for host in cloudflareinsights usefathom umami\.is seline\.so googletagmanager; do
+for host in cloudflareinsights usefathom umami\.is seline\.so plausible googletagmanager; do
   # Same label in both branches. The first version said "(usefathom)" on pass and dropped
   # the host on fail, so a red run named a different assertion from the green one it
   # replaced — which made the failure look like a new test rather than a broken one.

@@ -112,6 +112,9 @@ summaryLength = 30
   #   websiteId = "your-uuid"
   #   domain = "analytics.example.com"    # optional self-hosted instance
   #   scriptName = "u.js"                 # optional, for ad-block resilience
+  # [params.analytics.plausible]
+  #   domain = "example.com"              # the site being measured
+  #   host = "plausible.example.com"      # optional self-hosted instance
   # [params.analytics.seline]
   #   token = "your-token"
   #
