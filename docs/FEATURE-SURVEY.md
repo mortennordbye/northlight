@@ -78,7 +78,7 @@ author can do. It is not a measure of effort.
 | **Edit this page link** | **Have** | — | `showEdit`, `editURL`, `editAppendPath` |
 | `externalUrl` link posts | **Have** | — | Listing entries link off-site, with an icon before the click |
 | Custom `summary` | **Have** | — | Hugo built-in |
-| Series / `series_order` | Rejected | — | Zero posts use it. See `BACKLOG.md` |
+| Series / `series_order` | **Have** | — | Navigation block above the body, a `<details>` so it needs no JS. `series_order` is required; a post missing it fails the build |
 | Multiple authors | Gap | — | Reopened; see `docs/GAP-LIST.md` row 2. The author fields it needs (`bio`, `email`) now exist |
 | Author taxonomy and badges | Rejected | — | Follows from the above |
 | Categories as a second taxonomy | Rejected | — | `taxonomy.html` is generic, so a site can add one in config without theme changes |

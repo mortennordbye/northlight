@@ -148,6 +148,79 @@
   max-width: var(--measure);
 }
 
+/* --- series ---------------------------------------------------------------- */
+
+/* Sits above the prose, so it is deliberately quiet: a tinted card at small type that
+   reads as navigation rather than as the start of the article. A <details>, so it needs
+   no JavaScript; `article.seriesOpened` sets the default state. */
+.series {
+  margin-bottom: var(--space-6);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-2);
+  border-radius: var(--radius-pager);
+  font-size: 14px;
+}
+
+.series-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--fg-2);
+  cursor: pointer;
+  /* Both are needed: `list-style` covers Chrome and Firefox, the pseudo-element covers
+     Safari, exactly as .nav-group does. */
+  list-style: none;
+}
+
+.series-summary::-webkit-details-marker {
+  display: none;
+}
+
+/* The disclosure affordance, since the default marker is suppressed above. A caret drawn
+   in CSS rather than an inline SVG, because it is pure decoration next to a line of text
+   that already says what the control does. */
+.series-summary::before {
+  content: "";
+  width: 0.42em;
+  height: 0.42em;
+  border-right: 1.6px solid currentColor;
+  border-bottom: 1.6px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform var(--dur-card);
+}
+
+.series[open] > .series-summary::before {
+  transform: rotate(45deg);
+}
+
+.series-summary:hover {
+  color: var(--fg);
+}
+
+.series-list {
+  margin: var(--space-3) 0 0;
+  padding-inline-start: var(--space-5);
+}
+
+.series-item {
+  margin-bottom: var(--space-1);
+  color: var(--fg-2);
+}
+
+.series-item a {
+  color: var(--fg-2);
+}
+
+.series-item a:hover {
+  color: var(--accent);
+}
+
+/* The part the reader is on. Not a link, so it needs to carry its own emphasis. */
+.series-item.is-current {
+  color: var(--fg);
+  font-weight: 500;
+}
+
 /* --- table of contents ----------------------------------------------------- */
 /* Plain nested lists of working links with no JavaScript. Phase 6 adds scroll-spy
    on top; nothing here depends on it. */

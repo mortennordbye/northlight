@@ -4,6 +4,8 @@ description: "Dark mode built by flipping the lightness of a light palette looks
 date: 2025-09-30
 draft: false
 tags: ["design", "colour"]
+series: ["Design decisions"]
+series_order: 1
 ---
 
 Inverting a palette is the cheapest way to get a dark mode and the easiest one to spot.

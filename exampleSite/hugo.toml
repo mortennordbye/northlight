@@ -27,6 +27,9 @@ summaryLength = 30
 
 [taxonomies]
   tag = "tags"
+  # Registering this is what makes the series navigation appear. Without it Hugo
+  # builds no term pages and the partial renders nothing.
+  series = "series"
 
 [sitemap]
   changefreq = "daily"

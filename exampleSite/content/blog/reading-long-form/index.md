@@ -4,6 +4,8 @@ description: "Measure, leading and scale are the whole job. A second post so pre
 date: 2026-02-08
 draft: false
 tags: ["typography", "example"]
+series: ["Design decisions"]
+series_order: 3
 ---
 
 A page of body copy is mostly one decision repeated: how far the eye travels before it

@@ -10,6 +10,15 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **Series** — `series` and `series_order` in front matter group a post into a multi-part piece,
+  and each part gets a navigation block above its body: which part this is, how many there are,
+  and a link to the rest. Needs `series = "series"` under `[taxonomies]`. A `<details>`, so it
+  collapses with no JavaScript; **`article.seriesOpened`** sets whether it starts expanded, and
+  collapsed is the default because the summary line already says which part you are on. The
+  current part renders as text with `aria-current="page"` rather than as a link to itself.
+  **`series_order` is required:** Hugo has nothing else to sort on, and a scrambled series is
+  worse than none, so a post in a series without it fails the build. A one-post series renders
+  nothing.
 - **`author.bio`** — a paragraph, rendered as Markdown, on the `profile` home layout. `headline`
   says what you do in one line; this says who you are. Note that a TOML `"""` string keeps its
   indentation and Markdown reads four leading spaces as a code block, so the continuation lines

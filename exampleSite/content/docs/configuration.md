@@ -74,6 +74,7 @@ bio never renders as a code block.
 | `sharingLinks` | `["linkedin", "reddit"]` | Share buttons, rendered in the order you list them. See the eleven supported names below. An unknown name warns at build time and renders nothing. |
 | `mastodonInstance` | — | The Mastodon instance to post to, e.g. `mastodon.social`. Required if `sharingLinks` includes `mastodon`. |
 | `showComments` | `false` | Comments. Also needs `[params.comments.giscus]`. |
+| `seriesOpened` | `false` | Whether the series navigation starts expanded. Collapsed by default: the summary line already says which part you are on. |
 | `replyByEmail` | `false` | A "reply by email" link at the foot of each post. Needs `[params.author].email`; renders nothing without it. No third party, no script, and it works with JavaScript off. |
 | `showEdit` | `false` | "Edit this page" link. |
 | `editURL` | — | Base URL for that link. Renders nothing when unset. |

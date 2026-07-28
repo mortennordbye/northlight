@@ -34,6 +34,7 @@
            blue with an underline. .article-main holds them to the same measure so the
            column still reads as one. */}}
     <div class="article-main">
+      {{ partial "series.html" . }}
       <div class="prose">
         {{ .Content }}
       </div>

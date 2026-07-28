@@ -5,6 +5,8 @@ date: 2026-05-04
 lastmod: 2026-07-20
 draft: false
 tags: ["accessibility", "design"]
+series: ["Design decisions"]
+series_order: 2
 ---
 
 The design reference for this theme carried contrast ratios for every accent colour, worked

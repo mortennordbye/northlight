@@ -89,9 +89,6 @@ These were the Tier 2 list in `docs/SPEC.md`.
 > deleted from this list in the commit that builds it. Video autoplay is the one that still holds,
 > because its objection is that the promise cannot be kept, not that the feature is unwanted.
 
-- **Series taxonomy.** Configured on the site Northlight replaces, used by zero posts there. This
-  theme exists because an audit found two thirds of the previous one to be unused surface; adding
-  an unused taxonomy would repeat exactly that mistake. Build it when a post needs it.
 - **Card-view variants for the post index.** The index is a list with covers and term pages use
   cards, which is what the approved design shows. A switch between the two is configuration nobody
   asked for.

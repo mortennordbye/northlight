@@ -31,6 +31,42 @@ trade before reaching for one.
 | `excludeFromSearch` | Keep a page out of the ⌘K index. Separate from the above, because "do not index this" and "do not surface this in site search" are different intentions. |
 | `externalUrl` | Point the listing entry at another site. |
 | `editURL`, `editAppendPath` | Per-page override of the edit link. |
+| `series`, `series_order` | Group a post into a multi-part series. See below. |
+
+## Series
+
+A post that is part of a longer piece gets a navigation block above its body: which part
+this is, how many there are, and a link to each of the others. The post you are reading
+is not in one; [any of the three "Design decisions" posts]({{< ref "/blog/measuring" >}})
+shows it live.
+
+```yaml
+series: ["Design decisions"]
+series_order: 2
+```
+
+**Register the taxonomy first.** Nothing renders without it, because Hugo builds no term
+pages to link to:
+
+```toml
+[taxonomies]
+  tag = "tags"
+  series = "series"
+```
+
+**`series_order` decides the order, and it is not optional.** Hugo has nothing else to
+sort on, and a series listed in an arbitrary order is worse than no series block at all —
+so a post in a series without one **fails the build** rather than rendering a scrambled
+list. The order is independent of date, which is the point: a series can be written out
+of sequence, or an earlier part revised later, without the navigation changing.
+
+The block is a `<details>`, so it needs no JavaScript and collapses on its own.
+`article.seriesOpened` sets whether it starts expanded; collapsed is the default, since
+the summary line already says which part you are on and a reader who arrived at part 3 did
+not come for the table of contents. The current part is plain text rather than a link,
+carrying `aria-current="page"` — a link to the page you are already on is a dead end.
+
+A series with only one post in it renders nothing. That is not a series yet.
 
 ## Admonitions
 

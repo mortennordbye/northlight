@@ -40,7 +40,7 @@ Unlocks content, audiences or authorship that is impossible today.
 | 1 | **Multilingual routing** | Per-language config, menus, `displayName`, `isoCode`, translated content trees. The single biggest audience unlock on the list; `rtl` and `dateFormat` already exist per-language | Large |
 | 2 | **Multiple authors** | `authors` array, per-author taxonomy pages, `showAuthorsBadges`, `showAuthorBottom`. Turns a personal theme into one a team can use | Medium |
 | 3 | ~~**Author profile fields**~~ **MOSTLY DONE** | `bio` and `email` built. **`imageQuality` deferred** — the avatar deliberately does not go through Hugo's image pipeline, because `image-url.html` also has to pass SVG through untouched, and routing rasters through `.Resize` is a separate change. Tracked in `BACKLOG.md` | Small |
-| 4 | **Series** | `series`, `series_order`, `seriesOpened`. Multi-part posts get navigation instead of the reader hunting | Medium |
+| 4 | ~~**Series**~~ **DONE** | Navigation block above the body, `<details>` so no JS. `series_order` required — a scrambled series is worse than none, so a post missing it fails the build. A one-post series renders nothing | Medium |
 | 5 | **Mermaid diagrams** `[opt-in]` | Diagrams as text in the post. The most-requested capability on a technical blog after code fences | Medium |
 | 6 | **Maths rendering** `[opt-in]` | KaTeX. Site config (`markup.goldmark.extensions.passthrough`) plus a renderer | Medium |
 | 7 | **Charts** `[opt-in]` | Chart.js from structured data in the shortcode body | Medium |

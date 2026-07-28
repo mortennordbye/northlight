@@ -37,6 +37,7 @@
   "showPagination"      (partial "param-bool.html" (dict "map" $a "key" "showPagination"      "default" true))
   "showComments"        (partial "param-bool.html" (dict "map" $a "key" "showComments"        "default" false))
   "replyByEmail"        (partial "param-bool.html" (dict "map" $a "key" "replyByEmail"        "default" false))
+  "seriesOpened"        (partial "param-bool.html" (dict "map" $a "key" "seriesOpened"        "default" false))
   "relatedLimit"        (int ($a.relatedLimit | default 3))
   "sharingLinks"        ($a.sharingLinks | default (slice "linkedin" "reddit"))
   "mastodonInstance"    ($a.mastodonInstance | default "")

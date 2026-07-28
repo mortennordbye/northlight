@@ -86,6 +86,11 @@ watchOnYouTube = "Watch on YouTube"
 # hand the file to something that can play it.
 downloadVideo = "Download the video"
 
+# The summary line on a multi-part series. Takes .Part, .Total and .Series, so a
+# translation controls the whole sentence rather than being handed three fragments to
+# reassemble in an order its grammar may not allow.
+seriesPart = "Part {{ .Part }} of {{ .Total }} in {{ .Series }}"
+
 # The reply-by-email link at the foot of an article. An invitation rather than a label,
 # because it is asking for something: the quiet alternative to a comment box.
 replyByEmail = "Reply by email"

@@ -695,6 +695,47 @@ refute_grep 'Updated <time' "$PUBLIC/blog/two-modes/index.html" "no updated date
 # says nothing twice.
 refute_grep 'Updated <time' "$WRITING" "no updated date when it renders as the same day"
 
+# Series. The value is entirely in being correct about position: "Part 2 of 3" is the whole
+# feature, and an off-by-one or a bad sort makes it actively misleading rather than merely
+# absent. `measuring` is series_order 2 of 3.
+assert_grep 'Part 2 of 3 in Design decisions' "$MEASURING" "the series line names the right position"
+
+# The series name is the author's, not Hugo's title-cased LinkTitle, which would render
+# "Design decisions" as "Design Decisions". Same trap the tag row documents.
+refute_grep 'Design Decisions' "$MEASURING" "the series keeps the author's own capitalisation"
+
+# Order comes from series_order, not from date. The three parts are deliberately dated out
+# of sequence in exampleSite — two-modes 2025-09-30, reading-long-form 2026-02-08, measuring
+# 2026-05-04 — so a date sort produces a visibly different list.
+#
+# The comparison has to include the *current* part, which renders as text rather than a
+# link. Ordering by date would put measuring last instead of in the middle, and looking only
+# at the two links misses that entirely: the links come out in the same order either way.
+# The first version of this test did exactly that and could not fail.
+SERIES_SEQ=$(grep -o 'class=series-list>.*</ol>' "$MEASURING" \
+  | sed 's|<li|\n<li|g' | grep '<li' \
+  | sed -e 's|.*is-current.*|CURRENT|' -e 's|.*href=/blog/\([a-z-]*\)/.*|\1|' \
+  | tr '\n' ' ')
+if [ "$SERIES_SEQ" = "two-modes CURRENT reading-long-form " ]; then
+  ok "series parts are ordered by series_order, not by date"
+else
+  bad "series parts are ordered by series_order, not by date" "got: $SERIES_SEQ"
+fi
+
+# The current part is text, not a link — a link to the page you are on is a dead end — and
+# aria-current is what says "you are here" in its place.
+assert_grep 'class="series-item is-current" aria-current=page' "$MEASURING" \
+  "the current part is marked and not a link"
+
+# A post in no series renders no series block at all, rather than an empty card.
+refute_grep 'class=series' "$PUBLIC/blog/shipping-static/index.html" \
+  "a post outside a series gets no series block"
+
+# A series of one is not a series. Guarding this because the partial builds the whole block
+# before it knows the length, so the check is easy to drop.
+assert_grep 'gt \$total 1' "$ROOT/layouts/_partials/series.html" \
+  "a one-part series renders nothing"
+
 # author.bio on the profile layout. Distinct from `headline`, which is one line, and from
 # the page's own description.
 PROFILE="$PUBLIC/layouts/profile/index.html"
