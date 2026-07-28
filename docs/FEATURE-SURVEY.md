@@ -191,7 +191,7 @@ duplicated as shortcodes — and every shortcode is additive, replacing no Markd
 | Accordion | **Have** | `<details>`/`<summary>`; single-open is a native shared `name`, no JavaScript |
 | Gallery | **Have** | Grids nested `figure` calls, so one image path; never crops |
 | Tabs | **Have** | Headed sections upgraded to an ARIA tablist; full keyboard support, readable with JS off |
-| Carousel | Gap | Lowest priority and a candidate to drop — needs JS, and autoplay fights `prefers-reduced-motion` |
+| Carousel | **Have** | Built with CSS scroll-snap instead: no JavaScript, no autoplay, so neither objection applies |
 | Video · YouTube Lite | Gap | Local files only; the YouTube one as a click-to-load facade, so nothing is requested on page view |
 | Repository cards (six forges) · Ansible · Hugging Face · Code importer · Markdown importer | Rejected | Each calls a third-party API during the build. `docs/SPEC.md` §1 requires the theme to build with no network access |
 | Gist | Rejected | Third-party script on page view; the code fence with a filename bar covers it locally |

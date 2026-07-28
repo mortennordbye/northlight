@@ -245,7 +245,7 @@ These wrap existing partials, so they are mostly plumbing and docs.
       navigation, `aria-selected`) and must render all panels as sequential headed sections with
       JS off. Optional `group` syncs tabs across a page. Branch `feat/shortcode-tabs`.
       The most accessibility-sensitive item in Part A — do not ship a `<div>` soup version.
-- [ ] **`carousel`** — sliding image viewer. Branch `feat/shortcode-carousel`.
+- [x] **`carousel`** — sliding image viewer. Branch `feat/shortcode-carousel`.
       **Lowest priority in Part A, and a candidate to drop.** It needs JS, autoplay is hostile to
       `prefers-reduced-motion`, and a gallery covers most of the same ground without the motion.
       Build it last; dropping it costs nothing.
@@ -255,7 +255,7 @@ These wrap existing partials, so they are mostly plumbing and docs.
 - [ ] **`video`** — local or self-hosted video, with `poster`, `caption`, `ratio`, `controls`,
       `loop`, `muted`, `preload`, `start`/`end` fragments. No third-party contact. Autoplay must
       be opt-in *and* must respect `prefers-reduced-motion`. Branch `feat/shortcode-video`.
-- [ ] **`youtube-lite`** — facade embed: static thumbnail plus play button, no third-party request
+- [x] **`youtube-lite`** — facade embed: static thumbnail plus play button, no third-party request
       until the reader clicks. See FLAG-4. The thumbnail must be a local file supplied by the
       author, not fetched from the video host, or the facade is pointless.
       Branch `feat/shortcode-youtube-lite`.

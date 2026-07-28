@@ -66,6 +66,97 @@
   box-shadow: none;
 }
 
+/* --- carousel --------------------------------------------------------------- */
+
+/* Native scroll-snap. No JavaScript, and nothing advances on its own — so there is no
+   motion to suppress under prefers-reduced-motion, and no pause control owed to anyone. */
+.carousel {
+  display: flex;
+  gap: var(--space-4);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  margin: var(--space-6) 0;
+  padding-bottom: var(--space-2);
+  scrollbar-width: thin;
+}
+
+.carousel:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: var(--radius-chip);
+}
+
+.carousel > figure {
+  flex: 0 0 min(100%, 22rem);
+  margin: 0;
+  scroll-snap-align: start;
+}
+
+/* Smooth scrolling is the one piece of motion here, and it goes when asked. */
+@media (prefers-reduced-motion: no-preference) {
+  .carousel {
+    scroll-behavior: smooth;
+  }
+}
+
+/* --- youtube-lite ----------------------------------------------------------- */
+
+/* A facade: a local poster, a play badge and a link. Nothing here reaches a Google host
+   until the reader clicks. */
+.yt-lite {
+  margin: var(--space-6) 0;
+}
+
+.yt-facade {
+  position: relative;
+  display: block;
+  border-radius: var(--radius-pager);
+  overflow: hidden;
+  box-shadow: none;
+}
+
+.prose a.yt-facade,
+.prose a.yt-facade:hover {
+  box-shadow: none;
+}
+
+.yt-facade img {
+  display: block;
+  width: 100%;
+}
+
+/* The badge is a solid token fill rather than a translucent overlay, so its contrast does
+   not depend on what the poster happens to look like behind it. */
+.yt-play {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 3.4rem;
+  height: 3.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--fg);
+  color: var(--surface);
+  font-size: 1.4rem;
+}
+
+.yt-frame {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: var(--radius-pager);
+}
+
+.yt-label {
+  display: block;
+  margin-top: var(--space-2);
+  font-size: 14px;
+  color: var(--fg-2);
+}
+
 /* --- tabs ------------------------------------------------------------------- */
 
 /* The unenhanced state is the default and is deliberately plain: a sequence of headed

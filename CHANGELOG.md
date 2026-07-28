@@ -10,6 +10,17 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **`carousel`** — a horizontally scroll-snapping row of nested `figure` shortcodes. The plan
+  listed this as a candidate to drop because it needs JavaScript and autoplay fights
+  `prefers-reduced-motion`; CSS scroll-snap answers both. There is **no JavaScript and no
+  autoplay at all**, so nothing owes the reader a pause control and there is no motion to
+  suppress. The container is focusable and labelled, so keyboard and screen-reader access come
+  from the scroll container itself.
+- **`youtube-lite`** — a YouTube embed rendered as a facade: a poster image from your own site,
+  a play badge and a plain link. **No Google host is contacted on page view**, which an ordinary
+  embed cannot say. The poster must be local; pulling the still from `ytimg.com`, as most "lite"
+  embeds do, is itself a third-party request and would defeat the point. With JavaScript off it
+  stays a link to YouTube; with it on, a click swaps in a `youtube-nocookie.com` player in place.
 - **`tabs` and `tab`** — tabbed panels, with an optional `group` so sets sharing a name switch
   together. **The served markup is not a tab strip**: it is a plain sequence of headed
   `<section>` elements with every panel visible, which is a complete document for a reader with

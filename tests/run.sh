@@ -447,6 +447,47 @@ refute_grep '<section class=tab-panel[^>]*hidden' "$SHORTCODES" \
 # are h2, and an h2 here would read as ending the section the tabs sit inside.
 assert_grep 'class=tab-heading' "$SHORTCODES" "panel headings nest under the page's sections"
 
+# carousel: scroll-snap, no script. Nothing advances on its own, so there is no motion to
+# suppress and no pause control owed to anyone. If this ever grows an autoplay timer it
+# also grows an obligation to prefers-reduced-motion, so assert the CSS stays declarative.
+assert_grep '<div class=carousel tabindex=0 role=group aria-label=' "$SHORTCODES" \
+  "the carousel is a labelled, focusable scroll region"
+if grep -qE '^[[:space:]]*scroll-snap-type' "$ROOT/assets/css/shortcodes.css"; then
+  ok "the carousel scrolls natively rather than by script"
+else
+  bad "the carousel scrolls natively rather than by script" "no scroll-snap-type declaration"
+fi
+
+# youtube-lite: the entire point is that no Google host is contacted on page view. This is
+# the assertion that matters — a poster fetched from ytimg.com, or an iframe present in the
+# markup, would look identical to a reader and silently reintroduce the third-party request
+# the facade exists to prevent.
+# Scoped to URL attributes rather than the bare host name: the section documenting why the
+# poster must be local names ytimg.com in its prose, and a plain refute matches its own
+# explanation. Same trap as the object-fit check above.
+if grep -oE '(src|srcset|href)="?[^" >]*ytimg[^" >]*' "$SHORTCODES" | grep -q .; then
+  bad "the poster is local, never fetched from the video host" \
+      "$(grep -oE '(src|srcset|href)="?[^" >]*ytimg[^" >]*' "$SHORTCODES" | head -1)"
+else
+  ok "the poster is local, never fetched from the video host"
+fi
+refute_grep '<iframe' "$SHORTCODES" "no iframe is served before the reader clicks"
+assert_grep 'class=yt-facade href="https://www.youtube.com/watch' "$SHORTCODES" \
+  "the facade is a plain link, so it works with JavaScript off"
+assert_grep 'data-yt-id=' "$SHORTCODES" "the video id is available to the click handler"
+
+# Nothing anywhere in the built site may request a third-party host on page view. The
+# theme makes no calls home, and this is the check that keeps it that way as shortcodes
+# accumulate. Only the facade's own href may name youtube.com, and an href is not a request.
+if grep -oE '(src|href)="https?://[^"]+"' "$SHORTCODES" \
+     | grep -vE 'youtube\.com/watch|gohugo\.io|github\.com|schema\.org|example\.com' \
+     | grep -qE 'src="https?://'; then
+  bad "no third-party asset is requested on page view" \
+      "$(grep -oE 'src="https?://[^"]+"' "$SHORTCODES" | head -1)"
+else
+  ok "no third-party asset is requested on page view"
+fi
+
 BLANK=$(grep -o '<a class=button[^>]*_blank[^>]*>' "$SHORTCODES" | head -1)
 case "$BLANK" in
   *noopener*) ok "button with target=_blank sets rel=noopener" ;;

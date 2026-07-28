@@ -68,6 +68,14 @@ codeCopiedToClipboard = "Code copied to clipboard"
 # wants rather than being concatenated inside a template.
 builtWith = "built with {{ . }} and the Northlight theme"
 
+# Accessible name for the carousel's scroll container. It is a focusable region, so it
+# needs a name; without one a screen reader announces an unlabelled group.
+carousel = "Image carousel"
+
+# The facade on a lite YouTube embed. Says where the click goes, because it leaves the
+# site: with scripting off the facade is a plain link to YouTube.
+watchOnYouTube = "Watch on YouTube"
+
 # --- Pluralised. Keep these last; see the note at the top. --------------------
 [readingTime]
 one = "{{ . }} min read"

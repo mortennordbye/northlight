@@ -199,6 +199,65 @@ where you can see it working.
 Without the inner `ltr`, the trailing path and punctuation of that command get pulled
 around by the bidirectional algorithm and the line becomes unreadable.
 
+## `carousel`
+
+A horizontally swipeable row of images, for when the images are a sequence rather than a
+set.
+
+```text
+{{</* carousel */>}}
+{{</* figure src="shot-a.png" alt="…" */>}}
+{{</* figure src="shot-b.png" alt="…" */>}}
+{{</* figure src="shot-c.png" alt="…" */>}}
+{{</* /carousel */>}}
+```
+
+{{< carousel >}}
+{{< figure src="shot-a.png" alt="Hello Northlight cover" >}}
+{{< figure src="shot-b.png" alt="Measuring cover" >}}
+{{< figure src="shot-c.png" alt="Two modes cover" >}}
+{{< /carousel >}}
+
+**Nothing moves on its own, and there is no JavaScript.** It is native scroll-snap. That
+matters more than it sounds: an autoplaying carousel owes the reader a pause control and
+fights `prefers-reduced-motion`, and a scripted one stops working when the script does.
+This one scrolls, snaps, takes keyboard focus and works with scripting off, because the
+browser is doing all of it.
+
+Like [`gallery`](#gallery), it has no image handling of its own — it scrolls nested
+[`figure`](#figure) shortcodes, so there is one image path in the theme rather than two.
+Reach for a gallery when the images are a set the reader should see at once, and this when
+they are a sequence.
+
+## `youtube-lite`
+
+A YouTube embed that contacts nobody until the reader asks it to.
+
+```text
+{{</* youtube-lite id="aqz-KE-bpKQ" poster="shot-c.png" alt="Video still" */>}}
+```
+
+{{< youtube-lite id="aqz-KE-bpKQ" poster="shot-c.png" alt="Video still" >}}
+
+| Parameter | Required | What it does |
+|---|---|---|
+| `id` | yes | The YouTube video id |
+| `poster` | yes | A still **from your own site** — a page resource or `assets/` path |
+| `alt` | no | Alt text for the still |
+
+**This is a facade, and the point is what does *not* happen.** An ordinary YouTube embed
+is a third-party request that every reader pays on page view, whether or not they ever
+press play. What loads here is your own poster image, a play badge and a link. Nothing
+reaches a Google host until the click.
+
+The poster has to be a local file. Pulling the thumbnail from `ytimg.com` — which is how
+most "lite" embeds do it — is itself a third-party request on page view, so a facade that
+does that is not a facade.
+
+With JavaScript off it stays a link and opens the video on YouTube. That is the honest
+fallback; the alternative is a play button that does nothing. With JavaScript on, the
+click swaps in a `youtube-nocookie.com` player in place.
+
 ## `tabs`
 
 Tabbed panels, for showing variants of the same step.

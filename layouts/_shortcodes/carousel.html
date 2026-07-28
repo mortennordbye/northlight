@@ -1,0 +1,26 @@
+{{- /*
+  carousel — a horizontally swipeable row of images.
+
+  The plan listed this as the lowest priority in Part A and a candidate to drop, on three
+  objections: it needs JavaScript, autoplay fights `prefers-reduced-motion`, and a gallery
+  covers the same ground. Built anyway, because CSS scroll-snap answers all three:
+
+    - **No JavaScript.** Native scrolling with `scroll-snap-type`. It works with scripting
+      off, and there is no bundle cost for pages that never use one.
+    - **No autoplay, at all.** Nothing advances on its own, so there is no motion to
+      suppress and nothing to fight a reader's reduced-motion preference. That also
+      removes the pause control an autoplaying carousel would have owed them.
+    - **It keeps what a gallery cannot.** A gallery reflows to a grid; this stays one row,
+      which is what you want when the images are a sequence rather than a set.
+
+  Keyboard and screen-reader access come from the scroll container itself, which is why it
+  is focusable and labelled as a group.
+
+  Like `gallery`, it has no image handling of its own — it scrolls nested `figure`
+  shortcodes, so there is one image path in the theme rather than two.
+
+  Call:  {{< carousel >}}{{< figure src="a.png" alt="…" >}}…{{< /carousel >}}
+*/ -}}
+<div class="carousel" tabindex="0" role="group" aria-label="{{ i18n "carousel" }}">
+  {{- .Inner | .Page.RenderString (dict "display" "block") -}}
+</div>

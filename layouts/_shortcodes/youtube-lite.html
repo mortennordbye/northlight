@@ -1,0 +1,46 @@
+{{- /*
+  youtube-lite — a YouTube embed that contacts nobody until the reader asks it to.
+
+  See FLAG-4. A normal YouTube embed is a third-party request on page view, which this
+  theme does not make on anyone's behalf. This renders a **facade**: a poster image the
+  author supplies from their own site, a play button, and a plain link. Nothing reaches
+  any Google host until the reader clicks.
+
+  The poster is deliberately a local file rather than fetched from the video host. Pulling
+  the thumbnail from ytimg.com would be a third-party request on page view, which is the
+  exact thing the facade exists to avoid — a facade that phones home is not a facade.
+
+  With JavaScript off it stays a link and opens the video on YouTube. That is honest: the
+  alternative would be a play button that does nothing.
+
+  Parameters:
+    id      the video id (required)
+    poster  a page resource or assets/ path for the still (required)
+    alt     alt text for the poster
+
+  Call:  {{< youtube-lite id="aqz-KE-bpKQ" poster="still.png" alt="…" >}}
+*/ -}}
+{{- $id := .Get "id" -}}
+{{- $poster := .Get "poster" -}}
+{{- if not $id -}}
+  {{- errorf "youtube-lite shortcode: id is required (%s)" .Position -}}
+{{- else if not $poster -}}
+  {{- errorf "youtube-lite shortcode: poster is required — the still must come from your own site, or the embed contacts a third party before the reader clicks (%s)" .Position -}}
+{{- end -}}
+{{- if and $id $poster -}}
+  {{- $img := .Page.Resources.GetMatch $poster -}}
+  {{- if not $img -}}{{ $img = resources.Get $poster }}{{ end -}}
+  {{- if not $img -}}
+    {{- errorf "youtube-lite shortcode: no poster image found at %q (%s)" $poster .Position -}}
+  {{- else -}}
+    {{- $alt := htmlEscape (.Get "alt" | default "") -}}
+    {{- $attrs := partial "img-attrs.html" $img -}}
+    <div class="yt-lite" data-yt-id="{{ $id }}">
+      <a class="yt-facade" href="https://www.youtube.com/watch?v={{ $id }}" rel="noopener" target="_blank">
+        {{ printf `<img %s alt="%s" loading="lazy" decoding="async">` $attrs $alt | safeHTML }}
+        <span class="yt-play" aria-hidden="true">{{ partial "icon.html" "arrow-right" }}</span>
+        <span class="yt-label">{{ i18n "watchOnYouTube" }}</span>
+      </a>
+    </div>
+  {{- end -}}
+{{- end -}}
