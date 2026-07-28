@@ -215,7 +215,7 @@ These wrap existing partials, so they are mostly plumbing and docs.
 - [x] **`article`** — embeds a single post as a card, given a path. Reuses `_partials/card.html`.
       Must fail loudly on an unresolvable path rather than rendering an empty card.
       Branch `feat/shortcode-article`.
-- [ ] **`list`** — embeds N recent posts, optionally filtered by a taxonomy term. Reuses
+- [x] **`list`** — embeds N recent posts, optionally filtered by a taxonomy term. Reuses
       `_partials/post-item.html`. Parameters: `limit`, `title`, `where`, `value`.
       Branch `feat/shortcode-list`.
 - [ ] **`figure`** — image with caption, link and alt, going through the same Hugo image pipeline
@@ -584,3 +584,25 @@ silently.
 
   Inner text is required and its absence fails the build: an icon-only pill is one whose meaning
   the reader has to guess. Confirmed the failure path.
+
+- **`feat/shortcode-article`** and **`feat/shortcode-list`** — both reuse an existing listing
+  partial rather than growing a second one, which is the point of them.
+
+  **`_partials/post-item.html` now takes a dict, `(dict "ctx" . "level" 3)`.** Its heading was
+  hardcoded to `h2` with a comment explaining that it is only ever used by `section.html`, where
+  the only other heading is the list's own `h1`. `list` is the second call site, and it lands in
+  a page whose sections are already `h2` — an `h2` item title there reads as *ending* the
+  section it sits inside. Items are `h3`, or `h4` when a `title` takes the `h3`.
+
+  This is invisible on screen and only matters to someone navigating by heading, which is
+  exactly why it is asserted rather than eyeballed. There is also a check that no heading level
+  is skipped anywhere on the shortcodes page, since that page now draws `h1`–`h4` from three
+  different sources.
+
+  **Every partial reused from the chrome inside prose needs a `.prose a.x` override** — `.card`
+  and `.post-item` both arrived accent-coloured and underlined, the same collision `button` hit.
+  That is now three for three: assume it, rather than discovering it each time.
+
+  Both fail the build on a reference that resolves to nothing — an unresolvable `link`, a
+  `where` without a `value`, a filter matching no posts. An embed that renders as nothing is
+  indistinguishable from a shortcode nobody typed.

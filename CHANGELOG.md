@@ -10,6 +10,11 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **`list`** — embeds recent posts using the same row the post index uses, with `limit`, an
+  optional `title`, and `where`/`value` to filter on a taxonomy term. Heading levels are chosen
+  so the block nests where it lands: items are `h3`, or `h4` under a `title` that takes the
+  `h3`. `where` and `value` each fail the build without the other, as does a filter that matches
+  no posts, since an empty result is indistinguishable from having forgotten the shortcode.
 - **`article`** — embeds one post as a card, given its `link`. Reuses `_partials/card.html`
   rather than growing a second card, so an embedded post and a listed one cannot drift apart:
   the cover at its exact aspect ratio, the draft label, the external-link treatment, the date

@@ -221,6 +221,44 @@ A path that resolves to nothing fails the build. The alternative is a card with 
 linking nowhere, which reads as a styling bug rather than a broken reference and survives
 every review, including the one where somebody renames the post it pointed at.
 
+## `list`
+
+Embeds recent posts, using the same row the post index uses.
+
+```text
+{{</* list limit="2" */>}}
+```
+
+{{< list limit="2" >}}
+
+| Parameter | Required | What it does |
+|---|---|---|
+| `limit` | no | How many to show. Default 3 |
+| `title` | no | A heading above the list |
+| `where` | no | A taxonomy to filter on, such as `tags` |
+| `value` | with `where` | The term to match within that taxonomy |
+
+Filtered to one term, with a heading:
+
+```text
+{{</* list where="tags" value="example" title="More on this" limit="2" */>}}
+```
+
+{{< list where="tags" value="example" title="More on this" limit="2" >}}
+
+Posts come from `mainSections`, so this lists what your site calls posts rather than every
+page in the build.
+
+Heading levels are chosen so the block nests wherever you put it. A page's own sections
+are `h2`, so the items are `h3`; given a `title`, that becomes the `h3` and the items drop
+to `h4`. Left at the level the post index uses, the items would read as *ending* the
+section they sit inside, which matters to anyone navigating by heading.
+
+`where` and `value` go together, and each without the other fails the build. So does a
+filter that matches no posts: an empty result renders as nothing at all, which is
+indistinguishable from having forgotten the shortcode, and it is almost always a typo or a
+term that was renamed out from under the reference.
+
 ## `keyword` and `keywordList`
 
 A wrapping row of labelled pills, for a set of things listed together: the stack behind a

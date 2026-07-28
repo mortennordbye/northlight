@@ -326,6 +326,33 @@ assert_grep '<div class=article-embed><a class=card href=/blog/' "$SHORTCODES" \
   "article embeds a real post card"
 assert_grep 'class=card-cover' "$SHORTCODES" "the embedded card keeps its cover"
 
+# list: reuses the post index row, but at a heading level that nests where it lands. The
+# post index keeps h2, because there the only other heading is the list's own h1. Embedded
+# in a page whose sections are already h2, an h2 item title reads as *ending* the section
+# it sits inside — wrong for anyone navigating by heading, and invisible on screen, which
+# is why it needs a test rather than an eyeball.
+#
+# Untitled: items are h3. Titled: the title takes h3 and the items drop to h4, so the
+# block stays internally consistent either way.
+assert_grep '<div class=post-list-embed><a class=post-item' "$SHORTCODES" \
+  "list reuses the post index row"
+assert_grep '<h3 class=item-title' "$SHORTCODES" "an untitled list puts its items at h3"
+assert_grep '<h3 class=embed-title>' "$SHORTCODES" "a list title renders at h3"
+assert_grep '<h4 class=item-title' "$SHORTCODES" "a titled list drops its items to h4"
+
+# The whole point of the level parameter is that the post index did not move.
+assert_grep '<h2 class=item-title' "$PUBLIC/blog/index.html" \
+  "the post index keeps its own heading level"
+
+# No heading level may be skipped anywhere on the shortcodes page. This page now carries
+# h1 through h4 from three different sources — its own Markdown, the list embeds and the
+# icon table — so a skip is easy to introduce and impossible to see.
+DOCLEVELS=$(grep -oE '<h[1-6][ >]' "$SHORTCODES" | grep -oE '[1-6]' | sort -u | tr -d '\n')
+case "$DOCLEVELS" in
+  1234|123|12) ok "heading levels on the shortcodes page descend without a gap" ;;
+  *) bad "heading levels on the shortcodes page descend without a gap" "levels present: $DOCLEVELS" ;;
+esac
+
 BLANK=$(grep -o '<a class=button[^>]*_blank[^>]*>' "$SHORTCODES" | head -1)
 case "$BLANK" in
   *noopener*) ok "button with target=_blank sets rel=noopener" ;;

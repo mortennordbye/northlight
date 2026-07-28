@@ -1,0 +1,67 @@
+{{- /*
+  list — embeds recent posts, optionally filtered by a taxonomy term.
+
+  Reuses `_partials/post-item.html`, the same row the post index uses, rather than
+  growing a second list style that would drift from it.
+
+  Heading levels are chosen so the embed nests wherever it lands. A page's own sections
+  are h2, so the items are h3 — at the partial's default of 2 they would read as *ending*
+  the section they sit inside, which is wrong for anyone navigating by heading. Given a
+  `title`, that becomes the h3 and the items drop to h4, keeping the block internally
+  consistent either way.
+
+  Posts come from `mainSections`, so this lists what the site calls posts rather than
+  every page in the build.
+
+  Parameters:
+    limit   how many to show (default 3)
+    title   optional heading above the list
+    where   a taxonomy to filter on, e.g. "tags"
+    value   the term to match within it — required when `where` is given
+
+  Call:  {{< list limit="2" >}}
+         {{< list where="tags" value="example" title="More on this" >}}
+*/ -}}
+{{- $limit := int (.Get "limit" | default 3) -}}
+{{- $where := .Get "where" -}}
+{{- $value := .Get "value" -}}
+{{- $title := .Get "title" -}}
+
+{{- /* Each of these is checked separately and guarded, so one mistake reports one error.
+       errorf logs and carries on rather than stopping, so an unguarded second check fires
+       on the wreckage of the first — the lesson from `button`. */ -}}
+{{- if and $where (not $value) -}}
+  {{- errorf "list shortcode: where=%q needs a value to match (%s)" $where .Position -}}
+{{- else if and $value (not $where) -}}
+  {{- errorf "list shortcode: value=%q needs a where to match it in, e.g. where=\"tags\" (%s)" $value .Position -}}
+{{- end -}}
+
+{{- $posts := where site.RegularPages "Section" "in" site.Params.mainSections -}}
+
+{{- if and $where $value -}}
+  {{- /* Match on the resolved term rather than the raw front-matter string, so "Example"
+         and "example" land on the same term the taxonomy pages use. */ -}}
+  {{- $matched := slice -}}
+  {{- range $post := $posts -}}
+    {{- range $post.GetTerms $where -}}
+      {{- if eq (lower (or .Data.Term .LinkTitle)) (lower $value) -}}
+        {{- $matched = $matched | append $post -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $posts = $matched -}}
+  {{- if not $posts -}}
+    {{- /* A filter matching nothing renders as an absent block, which looks like the
+           shortcode was never there. Fail instead: it is almost always a typo in the term
+           or a term that was renamed out from under the reference. */ -}}
+    {{- errorf "list shortcode: no posts have %s=%q (%s)" $where $value .Position -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $level := cond (ne $title "") 4 3 -}}
+{{- with first $limit $posts }}
+<div class="post-list-embed">
+  {{- with $title }}<h3 class="embed-title">{{ . }}</h3>{{ end }}
+  {{- range . }}{{ partial "post-item.html" (dict "ctx" . "level" $level) }}{{ end }}
+</div>
+{{- end -}}

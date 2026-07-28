@@ -66,6 +66,28 @@
   box-shadow: none;
 }
 
+/* --- list ------------------------------------------------------------------- */
+
+/* .post-item brings its own row layout and its own divider from article.css; this only
+   spaces the block inside a column of prose and stops .prose a repainting the rows, the
+   same collision `button` and `article` both hit. */
+.post-list-embed {
+  margin: var(--space-6) 0;
+}
+
+.embed-title {
+  margin: 0 0 var(--space-4);
+}
+
+.prose a.post-item {
+  color: inherit;
+  box-shadow: none;
+}
+
+.prose a.post-item:hover {
+  box-shadow: none;
+}
+
 /* --- keyword / keywordList -------------------------------------------------- */
 
 /* Same wrap-don't-scroll reasoning as .swatches: a set of keywords has no reading order
