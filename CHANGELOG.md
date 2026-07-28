@@ -10,6 +10,11 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **`ltr` and `rtl`** — mark a block as running in the other direction from the page around it,
+  as the per-block counterpart to the site-wide `rtl` param. Both set a `dir` attribute rather
+  than a CSS `direction` property: `dir` drives the bidirectional algorithm, alignment, list
+  markers and punctuation placement together, and it keeps working in a reader-mode view or a
+  feed reader that has dropped the stylesheet.
 - **`swatches`** — a row of colour chips, each labelled with its own hex value, taking any
   number of colours positionally rather than the three the surveyed themes cap it at. The hex
   is rendered as text beside the chip rather than hidden in a `title`, because a bare block of

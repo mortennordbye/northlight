@@ -30,6 +30,27 @@ artifact is also not something to do casually.
 
 ---
 
+### Table cells do not follow the text direction
+
+**What.** `.prose th, .prose td` sets `text-align: left` outright, so cells stay left-aligned
+inside a right-to-left context instead of following it. Measured in the browser: a `<td>` inside
+a `dir="rtl"` block computes to `text-align: left`. This affects the site-wide `rtl = true`
+param as much as the new `rtl` shortcode — every table on an RTL site is aligned the wrong way.
+
+**Why deferred.** It is a pre-existing bug in the prose stylesheet rather than part of the
+shortcode being added, and it changes rendering for any site already running `rtl = true`. That
+makes it someone's decision rather than a drive-by edit inside a shortcode commit.
+
+**What unblocks it.** Agreement that the change is wanted. The fix is one word — `left` becomes
+`start`, the logical equivalent, which is identical under LTR and correct under RTL. The same
+question applies to `article.css:313` (`text-align: right`) and `article.css:415`, which should
+probably become `end` and `start` for the same reason. Worth a test asserting no physical
+`text-align` survives in prose, so it cannot creep back.
+
+**Where.** `assets/css/prose.css:290-295`; also `assets/css/article.css:313` and `:415`.
+
+---
+
 ## Closed
 
 Kept as a short record so the same questions are not reopened from scratch.

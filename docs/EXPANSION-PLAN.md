@@ -173,7 +173,7 @@ No JavaScript, no new dependencies, small CSS.
       Branch `feat/shortcode-button`.
 - [x] **`email`** — obfuscated `mailto:` link. Parameters: `email`, `text`, `subject`. Obfuscation
       is build-time, not JS, so it survives with scripting off. Branch `feat/shortcode-email`.
-- [ ] **`ltr` / `rtl`** — direction override for a block. Two tiny files. Relevant because the
+- [x] **`ltr` / `rtl`** — direction override for a block. Two tiny files. Relevant because the
       theme's RTL support is the row most likely to be wrong (`docs/FEATURE-SURVEY.md` §7).
       Branch `feat/shortcode-direction`.
 
@@ -432,3 +432,22 @@ silently.
 
   The lesson for the checklist: when a template reaches for a `safe*` function, first check
   whether the escaper was going to do the right thing anyway. Usually it was.
+
+- **`feat/shortcode-direction`** — `ltr` and `rtl`, each one `<div>` carrying a `dir` attribute.
+  No CSS was needed: `dir` is real HTML, and the browser's own default of `text-align: start`
+  follows it. A CSS `direction` property would have been the wrong tool, and the test asserts on
+  the attribute specifically, because swapping it for a class looks identical in a browser while
+  silently losing the bidirectional algorithm, list markers, punctuation placement and any
+  reader-mode view.
+
+  **`ltr` is demonstrated nested inside `rtl`.** On a left-to-right page an `ltr` block does
+  nothing observable, so demonstrating it alone would have been a section claiming a feature the
+  page could not show. Nested, it is both the real use case — a command line inside RTL prose —
+  and the only arrangement where the reader can see it working. Worth remembering for any later
+  item whose effect depends on its context.
+
+  **Found while testing, not fixed:** `.prose th, .prose td` sets `text-align: left` outright, so
+  table cells do not follow the direction, under this shortcode *or* under the site-wide `rtl`
+  param. Measured: a `<td>` inside `dir="rtl"` computes to `left`. Recorded in `BACKLOG.md` rather
+  than fixed here, because it changes rendering for any site already running `rtl = true` and that
+  is a decision rather than a drive-by edit inside a shortcode commit.

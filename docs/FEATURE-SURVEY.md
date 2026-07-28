@@ -180,7 +180,8 @@ duplicated as shortcodes — and every shortcode is additive, replacing no Markd
 | Button | **Have** | Reuses the `.button` already used by the 404 page and the share row |
 | Email | **Have** | Obfuscated at build time, so it works with scripting off and keeps copy and paste |
 | Swatches | **Have** | Variadic rather than the three the reference caps at; each chip labelled with its hex |
-| Keyword · LTR/RTL | Gap | Presentational primitives, no JS |
+| LTR/RTL | **Have** | A `dir` attribute rather than a CSS property, so it survives without the stylesheet |
+| Keyword | Gap | Needs the icon shortcode first for its optional icon |
 | Icon · Article · List · Figure | Gap | Wrap partials the theme already has |
 | Alert | Gap | Only if it can reuse the admonition render hook's colours; a second syntax for the same thing is not worth the surface |
 | Accordion · Gallery · Tabs · Timeline | Gap | CSS-driven, JS-optional |

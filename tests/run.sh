@@ -275,6 +275,14 @@ refute_grep 'ZgotmplZ' "$SHORTCODES" "no value was rejected by the template esca
 SWATCHES=$(grep -o 'class=swatch-hex>#[0-9a-fA-F]*' "$SHORTCODES" | wc -l | tr -d ' ')
 assert_count 3 "$SWATCHES" "swatches labels every chip with its hex value"
 
+# ltr/rtl: the guarantee is a `dir` attribute, not a class that happens to look the same.
+# `dir` is real HTML — it drives the bidirectional algorithm, alignment, list markers and
+# punctuation placement together, and it survives a reader-mode view or a feed reader that
+# has dropped the stylesheet. A CSS class does none of that while looking identical in a
+# browser, so it would be an easy and invisible regression. Assert on the attribute.
+assert_grep '<div dir=rtl>' "$SHORTCODES" "rtl marks the block with a dir attribute"
+assert_grep '<div dir=ltr>' "$SHORTCODES" "ltr marks the block with a dir attribute"
+
 BLANK=$(grep -o '<a class=button[^>]*_blank[^>]*>' "$SHORTCODES" | head -1)
 case "$BLANK" in
   *noopener*) ok "button with target=_blank sets rel=noopener" ;;

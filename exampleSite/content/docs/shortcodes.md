@@ -155,3 +155,53 @@ because nobody notices it.
 The chips wrap onto a second line on a narrow screen instead of scrolling sideways.
 A row of swatches has no reading order to preserve, so there is nothing to be gained by
 keeping it on one line.
+
+## `ltr` and `rtl`
+
+Marks a block as running in the other direction from the page around it.
+
+These are the per-block counterpart to the site-wide `rtl` setting in
+[Configuration]({{< ref "configuration" >}}), which turns the whole site right-to-left.
+Reach for that one for a site written in Arabic, Hebrew, Persian or Urdu; reach for these
+for a quotation, an address or an example in the other direction on a page that is not.
+
+```text
+{{</* rtl */>}}
+هذا النص يعمل من اليمين إلى اليسار، والترقيم في نهايته يقع على اليسار.
+{{</* /rtl */>}}
+```
+
+{{< rtl >}}
+هذا النص يعمل من اليمين إلى اليسار، والترقيم في نهايته يقع على اليسار.
+{{< /rtl >}}
+
+`ltr` is the mirror. On a left-to-right page it does nothing visible, which is why the
+example below nests it inside an `rtl` block: a command line or a citation is the case
+where you need to opt back out of the surrounding direction, and it is the only case
+where you can see it working.
+
+```text
+{{</* rtl */>}}
+لتثبيت السمة، شغّل الأمر التالي:
+{{</* ltr */>}}
+`git submodule add https://github.com/you/northlight themes/northlight`
+{{</* /ltr */>}}
+{{</* /rtl */>}}
+```
+
+{{< rtl >}}
+لتثبيت السمة، شغّل الأمر التالي:
+{{< ltr >}}
+`git submodule add https://github.com/you/northlight themes/northlight`
+{{< /ltr >}}
+{{< /rtl >}}
+
+Without the inner `ltr`, the trailing path and punctuation of that command get pulled
+around by the bidirectional algorithm and the line becomes unreadable.
+
+Both set a `dir` attribute rather than a CSS `direction` property, which is the part
+worth understanding. `dir` is real HTML, not a styling convention: it drives the
+bidirectional algorithm, text alignment, list markers and punctuation placement all at
+once, and it keeps working in a reader-mode view or a feed reader that has thrown the
+stylesheet away. A CSS property would only handle the first of those, and only while the
+stylesheet loads.
