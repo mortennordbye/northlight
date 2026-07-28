@@ -25,6 +25,19 @@ searchResults = "Search results"
 closeSearch = "Close search"
 escapeKey = "Esc"
 
+# The keyboard-hints row at the foot of the modal. Verbs, not sentences.
+searchHintNavigate = "navigate"
+searchHintOpen = "open"
+searchHintClose = "close"
+
+# The empty state and the per-result reading time. Both are rendered by search.js after
+# a keystroke, so they ride the JSON block in baseof.html; the %s placeholder is filled
+# in by the script — keep it in the translation. The compact reading time is its own key
+# because `readingTime` is pluralised, and a pluralised key cannot take a placeholder
+# where its count should be.
+searchNoResults = "No posts match “{{ . }}”."
+readingTimeShort = "{{ . }} min"
+
 # --- Article ------------------------------------------------------------------
 draft = "Draft"
 onThisPage = "On this page"
@@ -157,6 +170,15 @@ serviceNamePinterest = "Pinterest"
 serviceNameGithub = "GitHub"
 serviceNameRss = "RSS"
 serviceNameLink = "Website"
+
+# Default admonition labels, shared by the `> [!NOTE]` render hook and the alert
+# shortcode. Keys rather than title-casing the type, so a translated site does not show
+# English labels on its callouts. An author-supplied title always wins over these.
+admonitionNote = "Note"
+admonitionTip = "Tip"
+admonitionImportant = "Important"
+admonitionWarning = "Warning"
+admonitionCaution = "Caution"
 
 # --- Pluralised. Keep these last; see the note at the top. --------------------
 # Repository card counts. Pluralised because "1 stars" is wrong in English and the rules

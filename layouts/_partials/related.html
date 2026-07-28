@@ -22,7 +22,7 @@
         {{- end }}
         <h3 class="related-title">{{ .LinkTitle }}</h3>
         <p class="related-meta">
-          {{- .Date.Format "2 Jan 2006" }} &middot; {{ .ReadingTime }} min
+          {{- .Date.Format $cfg.dateFormat }} &middot; {{ i18n "readingTime" .ReadingTime }}
         </p>
       </a>
     {{- end }}

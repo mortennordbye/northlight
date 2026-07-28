@@ -15,6 +15,7 @@
   var modal = document.getElementById("search-modal");
   if (!trigger || !modal) return;
 
+  var t = (window.Northlight || {}).t || function (key, fallback) { return fallback; };
   var input = modal.querySelector("[data-search-input]");
   var results = modal.querySelector("[data-search-results]");
   var endpoint = modal.getAttribute("data-search-index");
@@ -79,7 +80,10 @@
     selected = 0;
 
     if (!hits.length) {
-      results.innerHTML = '<p class="search-empty">No posts match &ldquo;' + escape(term) + '&rdquo;.</p>';
+      results.innerHTML =
+        '<p class="search-empty">' +
+        t("searchNoResults", "No posts match “%s”.").replace("%s", escape(term)) +
+        "</p>";
       return;
     }
 
@@ -89,7 +93,7 @@
           '<a class="search-result' + (i === 0 ? " is-selected" : "") + '" href="' + escape(p.url) + '" role="option" aria-selected="' + (i === 0) + '">' +
           (p.thumb ? '<img class="search-thumb" src="' + escape(p.thumb) + '" alt="" loading="lazy">' : '<span class="search-thumb"></span>') +
           '<span class="search-text"><b>' + escape(p.title) + "</b>" +
-          '<span class="search-meta">' + escape(p.date || "") + (p.readingTime ? " &middot; " + escape(p.readingTime) + " min" : "") + "</span></span></a>"
+          '<span class="search-meta">' + escape(p.date || "") + (p.readingTime ? " &middot; " + t("readingTimeShort", "%s min").replace("%s", escape(p.readingTime)) : "") + "</span></span></a>"
         );
       })
       .join("");

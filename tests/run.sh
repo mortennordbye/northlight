@@ -1554,6 +1554,28 @@ else
   ok "no hardcoded user-facing strings in templates"
 fi
 
+# The admonition labels are looked up dynamically (`printf "admonition%s"`), which the
+# every-key-used check above cannot see, so their existence is asserted by name. Without
+# them a translated site shows English callout labels.
+ADM_MISSING=""
+for key in admonitionNote admonitionTip admonitionImportant admonitionWarning admonitionCaution; do
+  grep -q "^${key} =" "$I18N" || ADM_MISSING="$ADM_MISSING $key"
+done
+if [ -n "$ADM_MISSING" ]; then
+  bad "admonition labels are in the catalogue" "missing:$ADM_MISSING"
+else
+  ok "admonition labels are in the catalogue"
+fi
+
+# The search modal's keyboard-hints row once carried literal English next to a proper
+# i18n call, invisible to translators.
+assert_grep 'searchHintNavigate' "$ROOT/layouts/_partials/search-modal.html" "search hints come from the catalogue"
+
+# related.html once hardcoded both the date format and a literal "min" while every other
+# meta line used dateFormat and the readingTime key.
+assert_grep 'dateFormat' "$ROOT/layouts/_partials/related.html" "related cards honour dateFormat"
+assert_grep 'i18n "readingTime"' "$ROOT/layouts/_partials/related.html" "related cards translate reading time"
+
 # Every runtime lookup needs an English fallback, so a missing catalogue leaves working
 # controls rather than blank ones.
 # --exclude-dir=vendor for the same reason as the purity group above: a minified

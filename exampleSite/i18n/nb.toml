@@ -24,6 +24,12 @@ searchPlaceholder = "Søk i innlegg og emneknagger…"
 searchResults = "Søkeresultater"
 closeSearch = "Lukk søk"
 escapeKey = "Esc"
+searchHintNavigate = "naviger"
+searchHintOpen = "åpne"
+searchHintClose = "lukk"
+# The %s placeholder is filled in by search.js; keep it in the translation.
+searchNoResults = "Ingen innlegg samsvarer med «{{ . }}»."
+readingTimeShort = "{{ . }} min"
 
 # --- Article ------------------------------------------------------------------
 draft = "Utkast"
@@ -82,6 +88,13 @@ shareOn = "Del på {{ . }}"
 shareByEmail = "Del med e-post"
 # The serviceName* keys are proper nouns and are deliberately not translated. They fall
 # back to the theme's English, which is the correct result for a brand name.
+
+# --- Admonitions ---------------------------------------------------------------
+admonitionNote = "Merk"
+admonitionTip = "Tips"
+admonitionImportant = "Viktig"
+admonitionWarning = "Advarsel"
+admonitionCaution = "Forsiktig"
 
 # --- Pluralised. Keep these last; see the note at the top. --------------------
 [readingTime]
