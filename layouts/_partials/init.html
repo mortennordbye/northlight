@@ -141,6 +141,11 @@
        moves into config. */ -}}
 {{- $dateFormat := site.Params.dateFormat | default "2 Jan 2006" -}}
 
+{{- /* The meta-description source order is shared by head.html and the social-card
+       partials through social-meta.html, so all three describe a page the same way. */ -}}
+{{- $seo := site.Params.seo | default dict -}}
+{{- $metaDescriptionOrder := $seo.metaDescriptionOrder | default (slice "description" "summary" "siteDescription") -}}
+
 {{- /* Site-wide image fallbacks. Each is a path resolved the same way the author avatar
        is, so a configured-but-missing file renders nothing rather than a 404 on every page
        that falls back to it. A comment cannot sit inside the dict literal below — it parses
@@ -149,6 +154,7 @@
   "palette" $palette
   "defaultAppearance" $appearance
   "dateFormat" $dateFormat
+  "metaDescriptionOrder" $metaDescriptionOrder
   "rtl" (partial "param-bool.html" (dict "map" site.Params "key" "rtl" "default" false))
   "logo" (site.Params.logo | default "")
   "logoDark" (site.Params.logoDark | default "")

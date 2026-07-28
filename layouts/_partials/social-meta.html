@@ -1,0 +1,37 @@
+{{- /*
+  social-meta — the description and image a page presents to the outside world.
+
+  head.html, opengraph.html and twitter_cards.html all need the same two answers, and
+  each used to compute its own: the description resolution was written three times —
+  with og/twitter ignoring `seo.metaDescriptionOrder` while `<meta name=description>`
+  honoured it — and the image fallback chain lived twice. A social card that shows
+  different text or a different picture than the page's own meta is the kind of bug
+  nobody notices until someone shares the link.
+
+  The order is configurable because sites disagree about it honestly: one wants the
+  hand-written `description` always, another would rather show real opening prose
+  than a description written for a card. An unknown name in the order is skipped
+  rather than failing the build — a typo here should cost one fallback, not the site.
+
+  Takes the page. Returns a dict:
+    desc   the first non-empty source in seo.metaDescriptionOrder, or ""
+    image  the cover, else defaultSocialImage, else site.Params.image — always an
+           absolute URL, because a relative og:image is ignored by every consumer
+*/ -}}
+{{- $cfg := partialCached "init.html" . -}}
+{{- $desc := "" -}}
+{{- range $cfg.metaDescriptionOrder -}}
+  {{- if $desc -}}{{/* already found */}}
+  {{- else if eq . "description" -}}{{ with $.Description }}{{ $desc = . }}{{ end }}
+  {{- else if eq . "summary" -}}{{ with $.Summary }}{{ $desc = . | plainify | chomp }}{{ end }}
+  {{- else if eq . "siteDescription" -}}{{ with site.Params.description }}{{ $desc = . }}{{ end }}
+  {{- end -}}
+{{- end -}}
+
+{{- /* A page with no cover of its own falls back to the site-wide social image, so a
+       link to it still previews as a card rather than as bare text. */ -}}
+{{- $image := "" -}}
+{{- with .Resources.GetMatch "{cover,featured}.*" }}{{ $image = .Permalink }}{{ end -}}
+{{- if not $image }}{{ with partial "image-url.html" $cfg.defaultSocialImage }}{{ $image = . | absURL }}{{ end }}{{ end -}}
+{{- if not $image }}{{ with site.Params.image }}{{ $image = . | absURL }}{{ end }}{{ end -}}
+{{- return (dict "desc" $desc "image" $image) -}}

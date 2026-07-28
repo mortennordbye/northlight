@@ -91,39 +91,20 @@
          behind it: the obvious one is GPL-3.0 and this theme is MIT, so the effect is
          written in assets/js/typeit-init.js instead. See the note at the top of that
          file. */ -}}
+  {{- /* Library before init in each pair: both are plain deferred scripts, which run
+         in document order — the guarantee the init scripts rely on. */ -}}
   {{- if .HasShortcode "typeit" }}
-    {{- with resources.Get "js/typeit-init.js" }}
-      {{- $init := . }}
-      {{- if hugo.IsProduction }}{{ $init = $init | minify }}{{ end }}
-      {{- $init = $init | fingerprint $cfg.fingerprintAlgorithm }}
-      <script src="{{ $init.RelPermalink }}" integrity="{{ $init.Data.Integrity }}" crossorigin="anonymous" defer></script>
-    {{- end }}
+    {{ partial "script-tag.html" (dict "ctx" . "src" "js/typeit-init.js" "minify" true) }}
   {{- end }}
 
   {{- if .HasShortcode "chart" }}
-    {{- with resources.Get "js/vendor/chart.umd.min.js" }}
-      {{- $lib := . | fingerprint $cfg.fingerprintAlgorithm }}
-      <script src="{{ $lib.RelPermalink }}" integrity="{{ $lib.Data.Integrity }}" crossorigin="anonymous" defer></script>
-    {{- end }}
-    {{- with resources.Get "js/chart-init.js" }}
-      {{- $init := . }}
-      {{- if hugo.IsProduction }}{{ $init = $init | minify }}{{ end }}
-      {{- $init = $init | fingerprint $cfg.fingerprintAlgorithm }}
-      <script src="{{ $init.RelPermalink }}" integrity="{{ $init.Data.Integrity }}" crossorigin="anonymous" defer></script>
-    {{- end }}
+    {{ partial "script-tag.html" (dict "ctx" . "src" "js/vendor/chart.umd.min.js") }}
+    {{ partial "script-tag.html" (dict "ctx" . "src" "js/chart-init.js" "minify" true) }}
   {{- end }}
 
   {{- if .HasShortcode "mermaid" }}
-    {{- with resources.Get "js/vendor/mermaid.min.js" }}
-      {{- $lib := . | fingerprint $cfg.fingerprintAlgorithm }}
-      <script src="{{ $lib.RelPermalink }}" integrity="{{ $lib.Data.Integrity }}" crossorigin="anonymous" defer></script>
-    {{- end }}
-    {{- with resources.Get "js/mermaid-init.js" }}
-      {{- $init := . }}
-      {{- if hugo.IsProduction }}{{ $init = $init | minify }}{{ end }}
-      {{- $init = $init | fingerprint $cfg.fingerprintAlgorithm }}
-      <script src="{{ $init.RelPermalink }}" integrity="{{ $init.Data.Integrity }}" crossorigin="anonymous" defer></script>
-    {{- end }}
+    {{ partial "script-tag.html" (dict "ctx" . "src" "js/vendor/mermaid.min.js") }}
+    {{ partial "script-tag.html" (dict "ctx" . "src" "js/mermaid-init.js" "minify" true) }}
   {{- end }}
 
   {{ partial "analytics.html" . }}

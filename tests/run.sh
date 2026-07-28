@@ -812,8 +812,14 @@ assert_grep 'resources.Get (printf "icons/%s.svg"' "$ROOT/layouts/_partials/icon
   "a site can supply its own icons"
 
 # Meta description order is configurable, defaulting to what the theme always did.
-assert_grep 'metaDescriptionOrder' "$ROOT/layouts/_partials/head.html" \
+# It is resolved in social-meta.html, which head.html and the og/twitter partials all
+# read, so the three never disagree about what a page says.
+assert_grep 'metaDescriptionOrder' "$ROOT/layouts/_partials/social-meta.html" \
   "the meta description order is configurable"
+for f in head opengraph twitter_cards; do
+  assert_grep 'social-meta.html' "$ROOT/layouts/_partials/$f.html" \
+    "$f.html reads the shared social meta"
+done
 assert_grep '<meta name=description content="Four of the theme' "$MEASURING" \
   "the default order still prefers the page description"
 

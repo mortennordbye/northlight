@@ -12,10 +12,8 @@
   small enough to read.
 */ -}}
 {{- $title := cond .IsHome site.Title .Title -}}
-{{- $desc := "" -}}
-{{- with .Description }}{{ $desc = . }}
-{{- else }}{{ with .Summary }}{{ $desc = . | plainify | chomp }}
-{{- else }}{{ $desc = site.Params.description }}{{ end }}{{ end -}}
+{{- $social := partial "social-meta.html" . -}}
+{{- $desc := $social.desc -}}
 
 <meta property="og:site_name" content="{{ site.Title }}">
 <meta property="og:title" content="{{ $title }}">
@@ -41,14 +39,6 @@
   {{- end }}
 {{- end }}
 
-{{- /* The cover, as an absolute URL — a relative og:image is ignored by every
-       consumer of it. Falls back to a site-wide image if a page has no cover. */ -}}
-{{- $image := "" -}}
-{{- with .Resources.GetMatch "{cover,featured}.*" }}{{ $image = .Permalink }}{{ end -}}
-{{- /* A page with no cover of its own falls back to the site-wide social image, so a
-       link to it still previews as a card rather than as bare text. */ -}}
-{{- if not $image }}{{ with partial "image-url.html" (partialCached "init.html" .).defaultSocialImage }}{{ $image = . | absURL }}{{ end }}{{ end -}}
-{{- if not $image }}{{ with site.Params.image }}{{ $image = . | absURL }}{{ end }}{{ end -}}
-{{- with $image }}
+{{- with $social.image }}
 <meta property="og:image" content="{{ . }}">
 {{- end }}

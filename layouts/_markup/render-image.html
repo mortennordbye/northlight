@@ -43,16 +43,10 @@
   {{- $img = resources.Get $src -}}
 {{- end -}}
 
-{{- /* Look for a `-dark` sibling only when the light one resolved, and only for a
-       path with an extension to split on. */ -}}
+{{- /* Look for a `-dark` sibling only when the light one resolved. */ -}}
 {{- $dark := false -}}
-{{- if and $img (strings.Contains $src ".") -}}
-  {{- $ext := path.Ext $src -}}
-  {{- $darkSrc := printf "%s-dark%s" (strings.TrimSuffix $ext $src) $ext -}}
-  {{- $dark = .PageInner.Resources.GetMatch $darkSrc -}}
-  {{- if not $dark -}}
-    {{- $dark = resources.Get $darkSrc -}}
-  {{- end -}}
+{{- if $img -}}
+  {{- $dark = partial "dark-variant.html" (dict "src" $src "resources" .PageInner.Resources) -}}
 {{- end -}}
 
 {{- /* The assembled tag is marked safe, so the alt text has to be escaped here rather
