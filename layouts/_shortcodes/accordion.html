@@ -1,0 +1,25 @@
+{{- /*
+  accordion — a set of collapsible panels.
+
+  Built on <details>/<summary>, so it opens and closes with no JavaScript at all and is
+  keyboard-accessible without anything being wired up. The plan expected the single-open
+  behaviour to need JS; it does not. A shared `name` on the <details> elements makes them
+  mutually exclusive natively, and a browser too old to support that simply allows several
+  open at once, which is the sane degradation rather than a broken one.
+
+  Parameters:
+    single  when true, opening one panel closes the others (default false)
+
+  Call:  {{< accordion >}}{{< accordionItem title="..." >}}…{{< /accordionItem >}}{{< /accordion >}}
+*/ -}}
+{{- /* `single` is read by `accordionItem`, not here — it needs to land as a `name`
+       attribute on each <details>, which is what makes them mutually exclusive. The item
+       derives the group name from `.Parent.Position`, so every panel of one accordion
+       agrees on it and two accordions on a page never collide.
+
+       Note for anyone adding a boolean to a shortcode: do **not** route it through
+       `param-bool.html`. That partial returns the raw map value, which is right for site
+       params and front matter where TOML has already produced a real boolean. A shortcode
+       parameter is always a *string*, and "false" is a truthy string in a Go template, so
+       `single="false"` would mean single. Compare the string instead. */ -}}
+<div class="accordion">{{ .Inner | .Page.RenderString (dict "display" "block") }}</div>

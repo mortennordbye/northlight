@@ -199,6 +199,91 @@ where you can see it working.
 Without the inner `ltr`, the trailing path and punctuation of that command get pulled
 around by the bidirectional algorithm and the line becomes unreadable.
 
+## `timeline`
+
+A vertical sequence of dated entries.
+
+```text
+{{</* timeline */>}}
+{{</* timelineItem header="0.2.0" subheader="27 July 2026" badge="Release" */>}}
+Sharing links, nested menus and the search index.
+{{</* /timelineItem */>}}
+{{</* timelineItem header="0.1.0" subheader="20 July 2026" icon="check" */>}}
+First tagged release.
+{{</* /timelineItem */>}}
+{{</* /timeline */>}}
+```
+
+{{< timeline >}}
+{{< timelineItem header="0.2.0" subheader="27 July 2026" badge="Release" >}}
+Sharing links, nested menus and the search index.
+{{< /timelineItem >}}
+{{< timelineItem header="0.1.0" subheader="20 July 2026" icon="check" >}}
+First tagged release.
+{{< /timelineItem >}}
+{{< /timeline >}}
+
+| Parameter | Required | What it does |
+|---|---|---|
+| `header` | yes | The entry's title |
+| `subheader` | no | A line beneath it, usually a date |
+| `badge` | no | A short label, using the same chip as [`badge`](#badge) |
+| `icon` | no | An [icon](#icon) for the marker. Defaults to a plain dot |
+
+The marker is a dot unless you give it an icon, because a column of identical icons
+carries no information and the sequence is the point. The connecting line stops at the
+last entry rather than trailing off below it.
+
+## `accordion`
+
+A set of collapsible panels.
+
+```text
+{{</* accordion */>}}
+{{</* accordionItem title="Does this need JavaScript?" open="true" */>}}
+No. It is `<details>` and `<summary>`.
+{{</* /accordionItem */>}}
+{{</* accordionItem title="What about opening one at a time?" icon="info" */>}}
+Set `single="true"` on the container.
+{{</* /accordionItem */>}}
+{{</* /accordion */>}}
+```
+
+{{< accordion >}}
+{{< accordionItem title="Does this need JavaScript?" open="true" >}}
+No. It is `<details>` and `<summary>`, so it opens, closes and takes keyboard focus
+without a line of script. Turn JavaScript off and it still works.
+{{< /accordionItem >}}
+{{< accordionItem title="What about opening one at a time?" icon="info" >}}
+Set `single="true"` on the container. That is a shared `name` on the `<details>`
+elements, which browsers handle natively.
+{{< /accordionItem >}}
+{{< /accordion >}}
+
+| Parameter | On | Required | What it does |
+|---|---|---|---|
+| `single` | `accordion` | no | Opening one panel closes the others. Default false |
+| `title` | `accordionItem` | yes | The summary text |
+| `icon` | `accordionItem` | no | An [icon](#icon) before the title |
+| `open` | `accordionItem` | no | Render this panel already expanded. Default false |
+
+**No JavaScript, and not as a fallback.** The whole thing is `<details>`/`<summary>`, so
+opening, closing, keyboard operation and the accessibility tree all come from the element
+itself. `single` is a shared `name` attribute, which browsers implement natively; one too
+old to support it simply lets several panels stay open, which is a mild degradation rather
+than a broken control.
+
+With `single`, opening one panel closes the others:
+
+{{< accordion single="true" >}}
+{{< accordionItem title="First" >}}
+Opening the second one closes this.
+{{< /accordionItem >}}
+{{< accordionItem title="Second" >}}
+And opening the first closes this.
+{{< /accordionItem >}}
+{{< /accordion >}}
+
 ## `figure`
 
 An image with a caption, and optionally a link.

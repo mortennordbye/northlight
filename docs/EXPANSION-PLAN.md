@@ -232,10 +232,10 @@ These wrap existing partials, so they are mostly plumbing and docs.
 
 ### A3 · Layout components (CSS-driven, JS-optional)
 
-- [ ] **`timeline` / `timelineItem`** — vertical timeline. Container plus item, item parameters
+- [x] **`timeline` / `timelineItem`** — vertical timeline. Container plus item, item parameters
       `header`, `subheader`, `badge`, `icon`. Pure CSS. Watch the 375px width.
       Branch `feat/shortcode-timeline`.
-- [ ] **`accordion` / `accordionItem`** — collapsible panels built on `<details>`/`<summary>`, so
+- [x] **`accordion` / `accordionItem`** — collapsible panels built on `<details>`/`<summary>`, so
       they work with JS disabled and are keyboard-accessible for free. The `mode` (single vs
       multiple open) behaviour is the only part needing JS, and it degrades to multiple-open.
       Branch `feat/shortcode-accordion`.

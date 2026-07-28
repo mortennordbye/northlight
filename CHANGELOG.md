@@ -10,6 +10,15 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **`timeline` and `timelineItem`** — a vertical sequence of entries, taking `header` plus an
+  optional `subheader`, `badge` and `icon`. The marker is a dot unless given an icon, because a
+  column of identical icons carries no information. Pure CSS; the connecting line stops at the
+  last entry rather than trailing off below it.
+- **`accordion` and `accordionItem`** — collapsible panels built on `<details>`/`<summary>`, so
+  opening, closing, keyboard operation and the accessibility tree all come from the element
+  itself. **No JavaScript at all**, including for the single-open behaviour: `single="true"`
+  emits a shared `name` attribute, which browsers make mutually exclusive natively, and one too
+  old to support it simply allows several panels open.
 - **`figure`** — an image with a caption and optionally a link. Goes through the same
   `_partials/img-attrs.html` the Markdown image render hook uses, so it gets the identical
   `srcset`, `sizes` and intrinsic dimensions, reserves its box before the bytes land, and picks

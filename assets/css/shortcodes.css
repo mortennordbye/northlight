@@ -66,6 +66,172 @@
   box-shadow: none;
 }
 
+/* --- timeline --------------------------------------------------------------- */
+
+/* The line is a border on the marker column rather than a pseudo-element, so it cannot
+   drift out of alignment with the dots when the type scale changes. */
+.timeline {
+  margin: var(--space-6) 0;
+}
+
+/* Fixed marker column. Without it the column takes the width of whatever is in it, so an
+   entry with an icon indents further than one with a dot and the entries stop lining up —
+   which is the one thing a timeline has to get right. */
+.timeline-item {
+  --timeline-marker: 1.15rem;
+}
+
+.timeline-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-4);
+}
+
+.timeline-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--fg-3);
+  padding-top: 3px;
+  width: var(--timeline-marker);
+}
+
+/* The connecting line. It grows to fill whatever height the entry's content takes, and
+   the last entry has none, so the timeline stops at the last dot rather than trailing
+   off into empty space. */
+.timeline-marker::after {
+  content: "";
+  flex: 1;
+  width: 1px;
+  background: var(--line-strong);
+  min-height: var(--space-4);
+}
+
+.timeline-item:last-child .timeline-marker::after {
+  display: none;
+}
+
+.timeline-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex: none;
+}
+
+.timeline-content {
+  padding-bottom: var(--space-6);
+  min-width: 0;
+}
+
+.timeline-item:last-child .timeline-content {
+  padding-bottom: 0;
+}
+
+.timeline-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin: 0;
+}
+
+.timeline-header {
+  font-weight: 550;
+  color: var(--fg);
+}
+
+.timeline-sub {
+  margin: var(--space-1) 0 0;
+  font-size: 14px;
+  color: var(--fg-3);
+}
+
+.timeline-body {
+  margin-top: var(--space-3);
+}
+
+.timeline-body > :last-child {
+  margin-bottom: 0;
+}
+
+/* --- accordion -------------------------------------------------------------- */
+
+/* Everything here is <details>/<summary>. No JavaScript: open and close, keyboard
+   operation and the accessibility tree all come from the element itself. */
+.accordion {
+  margin: var(--space-6) 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pager);
+  overflow: hidden;
+}
+
+.accordion-item + .accordion-item {
+  border-top: 1px solid var(--line);
+}
+
+.accordion-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--fg);
+  background: var(--surface-2);
+}
+
+/* The default triangle is replaced by the theme's own chevron, so the control looks the
+   same in every browser. */
+.accordion-summary::-webkit-details-marker {
+  display: none;
+}
+
+.accordion-summary::marker {
+  content: "";
+}
+
+.accordion-summary:hover {
+  background: var(--accent-tint);
+}
+
+/* Focus has to stay visible: this is the one control in the set operated by keyboard. */
+.accordion-summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.accordion-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.accordion-chevron {
+  color: var(--fg-3);
+  transition: transform var(--dur-transform) var(--ease);
+}
+
+.accordion-item[open] > .accordion-summary .accordion-chevron {
+  transform: rotate(180deg);
+}
+
+/* The rotation is the only motion here, and it is a state indicator rather than
+   decoration — but it still goes when a reader has asked for less. */
+@media (prefers-reduced-motion: reduce) {
+  .accordion-chevron {
+    transition: none;
+  }
+}
+
+.accordion-body {
+  padding: var(--space-4);
+}
+
+.accordion-body > :last-child {
+  margin-bottom: 0;
+}
+
 /* --- figure ----------------------------------------------------------------- */
 
 /* <figure> and <figcaption> are already styled by prose.css for the Markdown render

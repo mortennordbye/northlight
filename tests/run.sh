@@ -382,6 +382,32 @@ assert_grep '<div class="admonition admonition-warning"' "$SHORTCODES" \
   "alert reuses the admonition styling"
 assert_grep '<span>Reviewed</span>' "$SHORTCODES" "alert accepts a custom title"
 
+# timeline: role=list / role=listitem rather than a real <ol>, because a container whose
+# children are shortcodes can end up with a paragraph wrapper and a <p> inside an <ol> is
+# invalid. The roles are the semantics, so they are the thing worth asserting.
+assert_grep '<div class=timeline role=list><div class=timeline-item role=listitem>' "$SHORTCODES" \
+  "timeline exposes list semantics without invalid markup"
+assert_grep 'class=timeline-dot' "$SHORTCODES" "a timeline entry without an icon gets a dot"
+
+# accordion: the entire control is <details>/<summary>. No JavaScript, and not as a
+# fallback — if this ever becomes a div with a click handler it loses keyboard operation
+# and its place in the accessibility tree, and it would still look identical.
+assert_grep '<details class=accordion-item' "$SHORTCODES" "accordion is built on <details>"
+assert_grep '<summary class=accordion-summary>' "$SHORTCODES" "accordion panels have a real summary"
+
+# single=true is a shared `name` on the <details>, which browsers make mutually exclusive
+# natively. Both panels of that accordion must carry the *same* name, and panels of a
+# different accordion must not carry one at all, or two accordions on a page would close
+# each other's panels.
+ACC_NAMES=$(grep -o '<details class=accordion-item name=[a-z0-9-]*' "$SHORTCODES" \
+  | sed 's/.*name=//' | sort -u | wc -l | tr -d ' ')
+ACC_NAMED=$(grep -c '<details class=accordion-item name=' "$SHORTCODES" | tr -d ' ')
+assert_count 1 "$ACC_NAMES" "a single-open accordion shares one group name"
+assert_count 2 "$ACC_NAMED" "only the single-open accordion's panels are grouped"
+
+# The shortcodes page must not have grown a script tag for any of this.
+refute_grep 'accordion.js' "$SHORTCODES" "accordion ships no JavaScript"
+
 BLANK=$(grep -o '<a class=button[^>]*_blank[^>]*>' "$SHORTCODES" | head -1)
 case "$BLANK" in
   *noopener*) ok "button with target=_blank sets rel=noopener" ;;
