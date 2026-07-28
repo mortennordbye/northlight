@@ -44,7 +44,7 @@
          English callout labels; title-casing the type is only the last resort. */ -}}
   {{- $title := .Get "title" | default (i18n (printf "admonition%s" (title $type)) | default (title $type)) -}}
   <div class="admonition admonition-{{ $type }}" role="note">
-    <p class="admonition-label">{{ partial "icon.html" $icon }}<span>{{ $title }}</span></p>
+    <p class="admonition-label">{{ partialCached "icon.html" $icon $icon }}<span>{{ $title }}</span></p>
     <div class="admonition-body">{{ .Inner | .Page.RenderString (dict "display" "block") }}</div>
   </div>
 {{- end -}}

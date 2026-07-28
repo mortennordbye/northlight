@@ -5,10 +5,10 @@
 <nav class="pagination" aria-label="{{ i18n "pagination" }}">
   {{- with $p.Prev }}
     <a class="page-link page-arrow" href="{{ .URL }}" rel="prev" aria-label="{{ i18n "previousPage" }}">
-      {{ partial "icon.html" "arrow-left" }}
+      {{ partialCached "icon.html" "arrow-left" "arrow-left" }}
     </a>
   {{- else }}
-    <span class="page-link page-arrow is-disabled" aria-hidden="true">{{ partial "icon.html" "arrow-left" }}</span>
+    <span class="page-link page-arrow is-disabled" aria-hidden="true">{{ partialCached "icon.html" "arrow-left" "arrow-left" }}</span>
   {{- end }}
 
   {{- range $p.Pagers }}
@@ -21,10 +21,10 @@
 
   {{- with $p.Next }}
     <a class="page-link page-arrow" href="{{ .URL }}" rel="next" aria-label="{{ i18n "nextPage" }}">
-      {{ partial "icon.html" "arrow-right" }}
+      {{ partialCached "icon.html" "arrow-right" "arrow-right" }}
     </a>
   {{- else }}
-    <span class="page-link page-arrow is-disabled" aria-hidden="true">{{ partial "icon.html" "arrow-right" }}</span>
+    <span class="page-link page-arrow is-disabled" aria-hidden="true">{{ partialCached "icon.html" "arrow-right" "arrow-right" }}</span>
   {{- end }}
 </nav>
 {{- end -}}

@@ -22,9 +22,9 @@
              {{- with .Params.externalUrl }} rel="noopener" target="_blank"{{ end }}>
             {{- if .Draft }}<span class="draft-label">{{ i18n "draft" }}</span>{{ end }}
             {{ .LinkTitle }}
-            {{- with .Params.externalUrl }} <span class="icon-inline">{{ partial "icon.html" "external" }}</span>{{ end -}}
+            {{- with .Params.externalUrl }} <span class="icon-inline">{{ partialCached "icon.html" "external" "external" }}</span>{{ end -}}
           </a>
-          <time class="archive-date" datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format (site.Params.dateFormat | default "2 Jan 2006") }}</time>
+          <time class="archive-date" datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format (partialCached "init.html" .).dateFormat }}</time>
         </li>
       {{- end }}
     </ul>

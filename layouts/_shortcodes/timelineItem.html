@@ -19,7 +19,7 @@
 <div class="timeline-item" role="listitem">
   <div class="timeline-marker" aria-hidden="true">
     {{- with .Get "icon" -}}
-      <span class="icon-inline">{{ partial "icon.html" . }}</span>
+      <span class="icon-inline">{{ partialCached "icon.html" . . }}</span>
     {{- else -}}
       <span class="timeline-dot"></span>
     {{- end -}}

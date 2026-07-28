@@ -79,7 +79,7 @@
       {{- $url = printf "%s/%s" (strings.TrimSuffix "/" $a.editURL) .File.Path -}}
     {{- end }}
     <a class="edit-link" href="{{ $url }}" rel="noopener" target="_blank">
-      {{ partial "icon.html" "pencil" }}{{ i18n "editThisPage" }}
+      {{ partialCached "icon.html" "pencil" "pencil" }}{{ i18n "editThisPage" }}
     </a>
   {{- end }}
 </div>

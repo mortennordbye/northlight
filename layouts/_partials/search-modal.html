@@ -6,7 +6,7 @@
      data-search-index="{{ .RelPermalink }}" hidden>
   <div class="search-panel">
     <div class="search-field">
-      {{ partial "icon.html" "search" }}
+      {{ partialCached "icon.html" "search" "search" }}
       {{- /* Combobox wiring: the input keeps focus while the arrow keys move the
              selection below, and aria-activedescendant (set by search.js) is how a
              screen reader hears which option is current. */}}

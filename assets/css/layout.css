@@ -15,6 +15,29 @@ main {
   flex: 1 0 auto;
 }
 
+/* --- skip link ------------------------------------------------------------- */
+
+/* Pure CSS, no script involved — it lives here with the rest of the chrome rather
+   than in interaction.css, whose contract is script-driven controls only. */
+.skip-link {
+  position: absolute;
+  inset-inline-start: var(--space-3);
+  top: -60px;
+  z-index: 200;
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-control);
+  padding: 10px var(--space-4);
+  font-size: 14px;
+  font-weight: 500;
+  transition: top var(--dur-card);
+}
+
+.skip-link:focus {
+  top: var(--space-3);
+}
+
 /* --- header --------------------------------------------------------------- */
 
 .site-header {

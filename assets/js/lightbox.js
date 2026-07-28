@@ -17,6 +17,8 @@
   var images = document.querySelectorAll(".prose img");
   if (!images.length || typeof HTMLDialogElement === "undefined") return;
 
+  var t = (window.Northlight || {}).t || function (key, fallback) { return fallback; };
+
   var dialog = null;
   var full = null;
   var caption = null;
@@ -30,11 +32,12 @@
     dialog = document.createElement("dialog");
     dialog.className = "lightbox";
     /* Labelled by its own caption when there is one; the alt text is carried onto the
-       enlarged image, so a screen reader gets the same description it had inline. */
+       enlarged image, so a screen reader gets the same description it had inline. The
+       translated label goes in via setAttribute, not string interpolation, so the
+       markup here stays static. */
     dialog.innerHTML =
-      '<button class="lightbox-close" type="button" aria-label="' +
-      window.Northlight.t("closeLightbox", "Close image") +
-      '">&times;</button><img class="lightbox-image" alt=""><p class="lightbox-caption"></p>';
+      '<button class="lightbox-close" type="button">&times;</button><img class="lightbox-image" alt=""><p class="lightbox-caption"></p>';
+    dialog.querySelector(".lightbox-close").setAttribute("aria-label", t("closeLightbox", "Close image"));
     full = dialog.querySelector(".lightbox-image");
     caption = dialog.querySelector(".lightbox-caption");
     document.body.appendChild(dialog);
@@ -61,14 +64,14 @@
        click to show a bigger copy of it would take that away. */
     if (img.closest("a")) return;
 
-    img.classList.add("is-zoomable");
     /* A real button, not a click handler on the image: the image is not focusable, and a
-       control a keyboard cannot reach is not a control. Wrapping preserves the layout
-       because the button is display:contents. */
+       control a keyboard cannot reach is not a control. The button is display:block (a
+       display:contents version was unfocusable — see .lightbox-trigger in
+       interaction.css for the record) and carries the zoom cursor. */
     var trigger = document.createElement("button");
     trigger.type = "button";
     trigger.className = "lightbox-trigger";
-    trigger.setAttribute("aria-label", window.Northlight.t("viewFullSize", "View full size"));
+    trigger.setAttribute("aria-label", t("viewFullSize", "View full size"));
     img.parentNode.insertBefore(trigger, img);
     trigger.appendChild(img);
 

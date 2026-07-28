@@ -37,7 +37,7 @@
            callout labels. Title-casing the type is only the last resort. */ -}}
     {{- $title := .AlertTitle | default (i18n (printf "admonition%s" (title $type)) | default (title $type)) -}}
     <div class="admonition admonition-{{ $type }}" role="note">
-      <p class="admonition-label">{{ partial "icon.html" $icon }}<span>{{ $title }}</span></p>
+      <p class="admonition-label">{{ partialCached "icon.html" $icon $icon }}<span>{{ $title }}</span></p>
       <div class="admonition-body">{{ .Text }}</div>
     </div>
   {{- else -}}

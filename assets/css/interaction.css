@@ -6,27 +6,6 @@
    the script reveals. Nothing in this file is required for the page to be readable.
    ============================================================================ */
 
-/* --- skip link ------------------------------------------------------------- */
-
-.skip-link {
-  position: absolute;
-  inset-inline-start: var(--space-3);
-  top: -60px;
-  z-index: 200;
-  background: var(--bg);
-  color: var(--fg);
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius-control);
-  padding: 10px var(--space-4);
-  font-size: 14px;
-  font-weight: 500;
-  transition: top var(--dur-card);
-}
-
-.skip-link:focus {
-  top: var(--space-3);
-}
-
 /* --- header controls ------------------------------------------------------- */
 
 .nav-sep {
@@ -266,7 +245,9 @@ body.is-modal-open {
   background: var(--bg);
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-panel);
-  box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.4);
+  /* The far shadow colour, not a literal: it is the one shadow in the theme large
+     enough to notice, and the token is what makes it deepen in dark mode. */
+  box-shadow: 0 24px 60px -20px var(--shadow-far);
   overflow: hidden;
   animation: search-pop var(--dur-card) var(--ease) both;
 }

@@ -79,7 +79,7 @@
   align-items: center;
 }
 
-@media (min-width: 62rem) {
+@media (min-width: 961px) {
   .home-hero-inner {
     grid-template-columns: 1fr 1.1fr;
   }
@@ -193,7 +193,7 @@
   padding-block: var(--space-8);
 }
 
-@media (min-width: 62rem) {
+@media (min-width: 961px) {
   .home-split {
     grid-template-columns: 20rem 1fr;
     gap: var(--space-9);

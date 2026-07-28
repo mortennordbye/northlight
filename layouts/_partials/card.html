@@ -25,7 +25,7 @@
          {{ if $t.raster }}width="{{ $t.img.Width }}" height="{{ $t.img.Height }}" {{ end }}loading="lazy" decoding="async">
   {{- end }}
   <div class="card-body">
-    <h{{ $level }} class="card-title">{{ if .Draft }}<span class="draft-label">{{ i18n "draft" }}</span>{{ end }}{{ .LinkTitle }}{{ if $external }} {{ partial "icon.html" "external" }}{{ end }}</h{{ $level }}>
+    <h{{ $level }} class="card-title">{{ if .Draft }}<span class="draft-label">{{ i18n "draft" }}</span>{{ end }}{{ .LinkTitle }}{{ if $external }} {{ partialCached "icon.html" "external" "external" }}{{ end }}</h{{ $level }}>
     {{- with .Description }}<p class="card-text">{{ . }}</p>{{ end }}
     <div class="card-foot">
       {{ partial "post-meta.html" (dict "ctx" .) }}

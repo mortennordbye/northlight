@@ -29,7 +29,7 @@
     {{- /* h2, not h3. This partial is only ever used by section.html, where the sole other
            heading is the list's own h1, so an h3 skips a level. The year rule above is
            deliberately a <div> rather than a heading, so it does not fill the gap. */ -}}
-    <h{{ $level }} class="item-title">{{ if .Draft }}<span class="draft-label">{{ i18n "draft" }}</span>{{ end }}{{ .LinkTitle }}{{ if $external }} {{ partial "icon.html" "external" }}{{ end }}</h{{ $level }}>
+    <h{{ $level }} class="item-title">{{ if .Draft }}<span class="draft-label">{{ i18n "draft" }}</span>{{ end }}{{ .LinkTitle }}{{ if $external }} {{ partialCached "icon.html" "external" "external" }}{{ end }}</h{{ $level }}>
     {{- /* The excerpt. `description` is the deliberate one — it is also the meta
            description and the feed entry — so it always wins. `list.showSummary` adds a
            fallback for posts that have none, using Hugo's own `.Summary`: either the

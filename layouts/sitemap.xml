@@ -10,12 +10,8 @@
   in its front matter.
 */ -}}
 {{- /* `sitemap.excludedKinds` replaces the built-in list rather than adding to it, so a
-       site that wants taxonomies *in* its sitemap can say so.
-
-       Resolved above the loop, not inside the `and` below: a comment inside a template
-       expression parses as an operand and fails with "unexpected { in operand". Third
-       time in this codebase — comments go above the expression, never inside one. */ -}}
-{{- $excludedKinds := site.Params.sitemap.excludedKinds | default (slice "taxonomy" "term") -}}
+       site that wants taxonomies *in* its sitemap can say so. */ -}}
+{{- $excludedKinds := (partialCached "init.html" .).sitemapExcludedKinds -}}
 {{- printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" | safeHTML }}
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   {{- range site.Pages }}

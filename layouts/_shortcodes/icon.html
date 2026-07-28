@@ -24,7 +24,7 @@
 {{- if not $name -}}
   {{- errorf "icon shortcode: an icon name is required (%s)" .Position -}}
 {{- end -}}
-<span class="icon-inline">{{- partial "icon.html" $name -}}</span>
+<span class="icon-inline">{{- partialCached "icon.html" $name $name -}}</span>
 {{- /* The wrapper is doing real work. `base.css` blockifies every img, svg and video, which
        is right for content media and invisible everywhere else in the theme, because every
        other icon sits in a flex container where a blockified child behaves the same way.

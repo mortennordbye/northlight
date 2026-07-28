@@ -38,7 +38,7 @@
     <div class="yt-lite" data-yt-id="{{ $id }}">
       <a class="yt-facade" href="https://www.youtube.com/watch?v={{ $id }}" rel="noopener" target="_blank">
         {{ printf `<img %s alt="%s" loading="lazy" decoding="async">` $attrs $alt | safeHTML }}
-        <span class="yt-play" aria-hidden="true">{{ partial "icon.html" "arrow-right" }}</span>
+        <span class="yt-play" aria-hidden="true">{{ partialCached "icon.html" "arrow-right" "arrow-right" }}</span>
         <span class="yt-label">{{ i18n "watchOnYouTube" }}</span>
       </a>
     </div>

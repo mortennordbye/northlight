@@ -25,7 +25,7 @@
   <details class="lang-switch">
     <summary aria-label="{{ i18n "changeLanguage" }}">
       <span>{{ $label }}</span>
-      {{- partial "icon.html" "chevron-down" -}}
+      {{- partialCached "icon.html" "chevron-down" "chevron-down" -}}
     </summary>
     <div class="lang-switch-items">
       {{- range hugo.Sites }}

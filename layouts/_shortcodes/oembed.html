@@ -56,7 +56,7 @@
 <a class="repo-card oembed-card{{ if not $live }} is-offline{{ end }}" href="{{ $url }}" rel="noopener" target="_blank">
   {{- with $thumb }}<img class="oembed-thumb" src="{{ . }}" alt="" loading="lazy" decoding="async">{{ end }}
   <span class="repo-card-head">
-    {{ partial "icon.html" "external" }}
+    {{ partialCached "icon.html" "external" "external" }}
     <b class="repo-card-name">{{ $title }}</b>
   </span>
   {{- if $live }}

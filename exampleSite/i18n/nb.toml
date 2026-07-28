@@ -45,7 +45,6 @@ postNavigation = "Innleggsnavigasjon"
 older = "Eldre"
 newer = "Nyere"
 editThisPage = "Rediger denne siden"
-externalPost = "Les på originalnettstedet"
 replyByEmail = "Svar med e-post"
 
 # --- Lists and taxonomies -----------------------------------------------------

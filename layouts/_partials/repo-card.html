@@ -74,7 +74,7 @@
 
 <a class="repo-card{{ if not $live }} is-offline{{ end }}" href="{{ $url }}" rel="noopener" target="_blank">
   <span class="repo-card-head">
-    {{ partial "icon.html" (.icon | default "link") }}
+    {{ partialCached "icon.html" (.icon | default "link") (.icon | default "link") }}
     <b class="repo-card-name">{{ $name }}</b>
   </span>
   {{- with $desc }}<span class="repo-card-desc">{{ . }}</span>{{ end }}

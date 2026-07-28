@@ -32,7 +32,7 @@
         {{- $active := or ($.IsMenuCurrent "main" .) ($.HasMenuCurrent "main" .) }}
         {{- if .HasChildren }}
           <details class="nav-group">
-            <summary{{ if $active }} class="is-active"{{ end }}>{{ .Name }}{{ partial "icon.html" "chevron-down" }}</summary>
+            <summary{{ if $active }} class="is-active"{{ end }}>{{ .Name }}{{ partialCached "icon.html" "chevron-down" "chevron-down" }}</summary>
             <div class="nav-group-items">
               {{- range .Children }}
                 {{- $childActive := or ($.IsMenuCurrent "main" .) ($.HasMenuCurrent "main" .) }}
@@ -53,7 +53,7 @@
                and the kbd hint are display:none and the button is reduced to an icon. Without
                this it is an unnamed control on every page at phone width. */ -}}
         <button class="search-trigger" type="button" data-search-trigger hidden aria-label="{{ i18n "searchPosts" }}">
-          {{ partial "icon.html" "search" }}
+          {{ partialCached "icon.html" "search" "search" }}
           <span class="search-trigger-label">{{ i18n "searchPosts" }}</span>
           <kbd>{{ "⌘" }}K</kbd>
         </button>
@@ -62,7 +62,7 @@
       {{- if $cfg.article.showZenMode }}
         <button class="icon-button" type="button" data-toggle-zen hidden
                 aria-pressed="false" aria-label="{{ i18n "zenMode" }}">
-          {{ partial "icon.html" "zen" }}
+          {{ partialCached "icon.html" "zen" "zen" }}
         </button>
       {{- end }}
 
@@ -71,14 +71,14 @@
                off state, and that is what aria-pressed is for. The script sets it. */ -}}
         <button class="icon-button" type="button" data-toggle-underline hidden
                 aria-pressed="false" aria-label="{{ i18n "underlineLinks" }}">
-          {{ partial "icon.html" "underline" }}
+          {{ partialCached "icon.html" "underline" "underline" }}
         </button>
       {{- end }}
 
       {{- if $cfg.footer.showAppearanceSwitcher }}
       <button class="icon-button" type="button" data-toggle-appearance hidden aria-label="{{ i18n "switchColourMode" }}">
-        <span class="only-light">{{ partial "icon.html" "moon" }}</span>
-        <span class="only-dark">{{ partial "icon.html" "sun" }}</span>
+        <span class="only-light">{{ partialCached "icon.html" "moon" "moon" }}</span>
+        <span class="only-dark">{{ partialCached "icon.html" "sun" "sun" }}</span>
       </button>
       {{- end }}
     </nav>
