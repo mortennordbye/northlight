@@ -10,7 +10,7 @@
 */ -}}
 {{- $ctx := .ctx -}}
 {{- $posts := .posts -}}
-{{- $recentCount := int (.home.recentCount | default 3) -}}
+{{- $home := .home -}}
 {{- /* The newest post *that has a cover*, not simply the newest.
 
        This layout is built around the image, so featuring a coverless post empties the
@@ -65,11 +65,8 @@
        post twice on any site whose newest post has no artwork. */ -}}
 {{- $rest := slice -}}
 {{- range $posts }}{{ if ne . $lead }}{{ $rest = $rest | append . }}{{ end }}{{ end -}}
-{{- with first $recentCount $rest }}
+{{- with $rest }}
 <div class="wrap">
-  <div class="section-head">
-    <h2 class="section-title">{{ i18n "recentPosts" }}</h2>
-  </div>
-  <div class="card-grid">{{ range . }}{{ partial "card.html" . }}{{ end }}</div>
+  {{ partial "home/recent.html" (dict "posts" . "home" $home "fallback" 3) }}
 </div>
 {{- end -}}

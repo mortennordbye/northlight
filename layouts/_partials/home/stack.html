@@ -11,7 +11,6 @@
 {{- $author := .author -}}
 {{- $posts := .posts -}}
 {{- $showFeatured := partial "param-bool.html" (dict "map" $home "key" "showFeatured" "default" true) -}}
-{{- $recentCount := int ($home.recentCount | default 3) -}}
 
 {{- $featured := "" -}}
 {{- $recent := $posts -}}
@@ -46,19 +45,13 @@
   </a>
   {{- end }}
 
-  {{- with first $recentCount $recent }}
-  <div class="section-head">
-    <h2 class="section-title">{{ i18n "recentPosts" }}</h2>
-    {{- with site.Params.mainSections }}
-      {{- with site.GetPage (printf "/%s" (index . 0)) }}
-        <a class="section-more" href="{{ .RelPermalink }}">
-          {{ i18n "allNPosts" (len $posts) }} <span class="nudge">{{ partial "icon.html" "arrow-right" }}</span>
-        </a>
-      {{- end }}
+  {{- $more := "" -}}
+  {{- with site.Params.mainSections }}
+    {{- with site.GetPage (printf "/%s" (index . 0)) }}
+      {{- $more = dict "page" . "total" (len $posts) -}}
     {{- end }}
-  </div>
-  <div class="card-grid">
-    {{- range . }}{{ partial "card.html" . }}{{ end }}
-  </div>
+  {{- end }}
+  {{- with $recent }}
+    {{ partial "home/recent.html" (dict "posts" . "home" $home "fallback" 3 "more" $more) }}
   {{- end }}
 </div>
