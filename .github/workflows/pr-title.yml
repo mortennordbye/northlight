@@ -5,24 +5,40 @@ name: PR Title
 # just look untidy, it silently produces the wrong release. The convention is documented in
 # CONTRIBUTING.md.
 
+# `pull_request`, not `pull_request_target`.
+#
+# This started as `pull_request_target`, which is the usual advice for a title check because
+# it grants a writable token on pull requests from forks. That advice cost more than it was
+# worth here:
+#
+#   - It is the trigger that does not fire for a pull request opened by `GITHUB_TOKEN`, and
+#     release-please opens one every time `main` moves. The result was a *required* check
+#     that never reported, so every release pull request sat on "Expected — Waiting for
+#     status to be reported" and could only be merged by bypassing the ruleset. Every other
+#     workflow here runs on `pull_request` and reported on those same pull requests, which
+#     is what identified the trigger rather than the token as the cause.
+#
+#   - Nothing here needs a writable token. The check is the job's own conclusion, and the
+#     title is read from the event payload. `pull_request` supplies both, with a read-only
+#     token and no access to repository secrets on a fork — strictly less exposure than the
+#     arrangement it replaces, which relied on a reviewer noticing that a checkout step must
+#     never be added to this file.
 on:
-  pull_request_target:
-    types: [opened, edited, synchronize]
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
 
 permissions:
   contents: read
 
 jobs:
   check:
+    # The ruleset requires a check context named exactly this. Renaming the job renames the
+    # check, and the required-checks rule then waits forever on a name nothing reports.
     name: Conventional Commits
     runs-on: ubuntu-latest
     permissions:
       pull-requests: read
-      statuses: write
     steps:
-      # pull_request_target is safe here only because nothing is checked out. Never add a
-      # checkout step to this workflow: it runs with a writable token against the PR's
-      # branch, so checking out fork code would hand that token to the fork.
       - uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
