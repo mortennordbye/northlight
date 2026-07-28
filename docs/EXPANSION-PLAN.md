@@ -57,7 +57,7 @@ importer. All of them fetch a third-party API during `hugo build`.
 **Resolved as:** not built. Listed under *Not building* with the reason. This is the single
 largest cut from the surveyed list — roughly nine shortcodes — and it is not a matter of effort.
 
-### FLAG-3 — Three shortcodes need a third-party script · deferred, see Part C
+### FLAG-3 — Three shortcodes need a third-party script · deferred, see Part D
 
 Charts, diagrams and typewriter effects each need a rendering library that would be fetched or
 bundled. The security baseline in `CLAUDE.md` forbids third-party requests by default, and
@@ -79,6 +79,35 @@ page view. If even that is unacceptable, delete the one file — nothing else re
 `_partials/icon.html` is currently internal. A shortcode makes the icon names a public, stable
 surface — renaming one becomes a breaking change under the rule in `CLAUDE.md`. Accepted because
 the set is small and stable, but it is a commitment, not a free feature.
+
+### FLAG-6 — This reverses "one homepage, one considered choice" · **decided: build ten**
+
+`docs/FEATURE-SURVEY.md` §3 records homepage layout variants as **Rejected**, on the argument that
+one considered choice matching `design/northlight.html` beats a menu of them. Part D said the same.
+
+**Decided by the owner, 2026-07-28:** build ten homepage layouts, and correct the documents that
+say otherwise rather than leaving them contradicting the code. Same handling as FLAG-1: as each
+lands, the §3 row moves off Rejected, and the Part D row is narrowed to the variants that are
+still not being built (hero styles, header layouts, card/list switches).
+
+Reasoning behind the reversal is the same one that carried FLAG-1. The theme is published for
+other people, whose homepage is not this blog's homepage. A site with no posts yet, a portfolio,
+a documentation root and a personal profile page all want different things above the fold, and
+none of them is served by a single opinionated arrangement.
+
+**The design brief still binds.** "No glare" is not suspended by adding layouts. Concretely:
+
+- Nothing gains a gradient, a glass panel, a glow or decorative motion.
+- Every layout is built from the tokens in `assets/css/tokens.css` and works in both colour modes.
+- `background` is the one in genuine tension with the brief, because a photograph behind text is
+  exactly the glare the theme exists to avoid. It is built with a required scrim and a measured
+  contrast floor, and the documentation says plainly that it is the least Northlight-ish option.
+
+**Not a breaking change.** `home.layout` defaults to `stack`, which is today's homepage. A site
+that never sets the param sees no difference, and the test suite asserts that.
+
+**To reverse:** delete `layouts/_partials/home/`, drop the `home.layout` param and restore
+`home.html` to its current body. Nothing else depends on any of it.
 
 ---
 
@@ -275,7 +304,70 @@ means flipping that row to **Have** in the same commit.
 
 ---
 
-## Part C — Not building
+## Part C — Homepage layouts
+
+Ten arrangements for the home page, selected by one param. See FLAG-6 for why this reverses a
+recorded decision.
+
+**The shape of the work.** `home.layout` picks a partial from `layouts/_partials/home/`.
+`home.html` becomes a dispatcher and nothing else: it resolves the param, gathers the post list
+once, and hands both to the chosen partial. That keeps the ten from growing ten copies of the
+post-gathering logic, and it is what makes `custom` possible without a fork.
+
+**Rules every layout obeys.** These are the ones that will actually get broken:
+
+1. **`stack` is today's homepage, byte for byte.** It is the default, so an existing site sees no
+   change. Build it first, by moving the current `home.html` body into a partial unchanged, and
+   assert the output is identical before touching anything else.
+2. **Degrade to nothing gracefully.** Every layout must render with no author configured, no
+   cover images, no `description`, and **zero posts**. An empty site is the first thing a new
+   adopter sees, and a layout that renders a stray heading over an empty grid is the first
+   impression it makes. Test the zero-post case specifically.
+3. **No layout shift.** Every image declares its aspect ratio. Covers are 1200×630 and are
+   **never cropped** — the invariant that forced the previous theme's local override applies here
+   exactly as it does in an article.
+4. **The LCP element keeps its hint.** Whichever image a layout puts above the fold takes
+   `fetchpriority="high"` and is never lazy-loaded. `stack` already does this for the featured
+   cover; the others each need it on their own largest image, and there is a test group for it.
+5. **Both colour modes, no horizontal overflow at 375px.** As everywhere.
+6. **Every string through `i18n/en.toml`.** Several of these introduce new headings.
+
+- [ ] **`stack`** — the current homepage: intro, one featured post with its cover, then a card
+      grid of recent posts. Ships as the default. Branch `feat/home-stack`, and it is a refactor
+      rather than a feature: prove the output is unchanged.
+- [ ] **`page`** — the page's own title and Markdown content, and nothing else. No featured post,
+      no cards, no byline. For a site whose homepage is a written page rather than an index, and
+      the layout a documentation site wants. Branch `feat/home-page`.
+- [ ] **`profile`** — centred avatar, name, headline, bio and social row, with posts listed
+      beneath. The personal-site arrangement. Reuses the author block `stack` already has rather
+      than inventing a second one. Branch `feat/home-profile`.
+- [ ] **`hero`** — the newest post's cover at full width in its exact 1200×630 box, with the title
+      and description alongside it on wide screens and beneath it on narrow. The strongest LCP
+      case in the set, so the priority hint matters most here. Branch `feat/home-hero`.
+- [ ] **`card`** — the whole intro inside one bordered panel, posts as cards below. Quieter than
+      `stack` because the intro stops being full-bleed. Branch `feat/home-card`.
+- [ ] **`background`** — a site-supplied image behind the intro block, full-bleed.
+      **The one in tension with the design brief.** Requires a scrim, and the documentation must
+      state the contrast floor and that the author is responsible for an image that clears it.
+      Do not ship it without measuring text contrast over a real photograph in both modes.
+      Branch `feat/home-background`.
+- [ ] **`split`** — two columns on wide screens: intro and author pinned in one, the post list in
+      the other. Collapses to one column below the breakpoint, intro first. Branch
+      `feat/home-split`.
+- [ ] **`gallery`** — no intro furniture at all; posts as a cover-led grid, two or three across.
+      For a photography or project site where the images are the content. Branch
+      `feat/home-gallery`.
+- [ ] **`archive`** — no intro, no covers; every post in one dense chronological list grouped by
+      year. Reuses the `groupByYear` logic the post index already has. The fastest homepage in the
+      set and the right one for a long-running blog. Branch `feat/home-archive`.
+- [ ] **`custom`** — renders `layouts/_partials/home/custom.html`, which the theme ships as a
+      documented stub for a site to override. The escape hatch, so that an arrangement nobody
+      anticipated does not require a fork. Must fail with a clear message rather than a blank page
+      when the override is missing. Branch `feat/home-custom`.
+
+---
+
+## Part D — Not building
 
 Recorded so the same questions are not reopened from scratch. Each of these appears in the
 surveyed themes and is deliberately absent here.
@@ -294,7 +386,7 @@ surveyed themes and is deliberately absent here.
 | Additional analytics vendors | `extend-head.html` is the supported route. A theme should not ship five vendors. |
 | Multiple authors, author taxonomy, author badges | Single-author theme by design. `docs/FEATURE-SURVEY.md` §2. |
 | Series taxonomy | Decision recorded in `BACKLOG.md`. Build it when a post needs it. |
-| Homepage layout variants, hero style variants, header layout variants, card/list switches | One considered choice each, matching `design/northlight.html`. `docs/FEATURE-SURVEY.md` §3. |
+| Hero style variants, header layout variants, card/list switches | One considered choice each, matching `design/northlight.html`. `docs/FEATURE-SURVEY.md` §3. Note this no longer covers *homepage* layouts, which moved to Part C — see FLAG-6. |
 | Image zoom / lightbox | JS weight for a gesture the browser already offers. |
 | Zen mode | The layout is already the focus mode. |
 | Browser language redirect | Client-side redirects on a static site. |
