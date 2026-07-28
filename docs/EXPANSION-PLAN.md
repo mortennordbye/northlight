@@ -164,7 +164,7 @@ No JavaScript, no new dependencies, small CSS.
 - [ ] **`keyword` / `keywordList`** — a wrapping row of labelled pills, optionally with an icon.
       Container plus item. Depends on A1 `badge` for its CSS foundation and on A2 `icon` for the
       optional icon. Branch `feat/shortcode-keywords`.
-- [ ] **`swatches`** — renders colour chips from hex values. Takes up to three positional
+- [x] **`swatches`** — renders colour chips from hex values. Takes up to three positional
       parameters in the surveyed themes; build it variadic instead, there is no reason for the
       limit. Branch `feat/shortcode-swatches`. Genuinely useful in a theme whose docs are about
       design tokens.
@@ -403,3 +403,32 @@ silently.
   - **Guard a refute on having found anything.** A "no match" assertion over an empty extraction
     passes for the wrong reason and reads as coverage. The email case fails loudly if no `mailto:`
     link is found at all.
+
+- **`feat/shortcode-swatches`** — `swatches`, variadic rather than capped at three. Each chip is
+  labelled with its own hex value in visible text, because a bare block of colour carries its
+  meaning in the colour alone, which is the one thing a screen reader, a greyscale print and a
+  colourblind reader all lose.
+
+  **Do not reach for `safeCSS` on a value going into a `style` attribute.** The first draft used
+  it, with a confident comment explaining why the regex above made it safe. Both the comment and
+  the `safeCSS` were wrong, and this generalises to every later item that interpolates an author
+  parameter into an attribute — `figure`, `gallery` and `video` all will:
+
+  > Go's contextual escaper already guards a `style` attribute, and guards it well. A hex value
+  > passes through untouched; a value carrying a semicolon, a `url()` or an `expression()` is
+  > replaced wholesale with `ZgotmplZ`. Adding `safeCSS` **switches that off**, leaving whatever
+  > validation the template happens to do as the only defence. The built-in is stronger than one
+  > we maintain, and it is free.
+
+  Verified by probing: with no `safeCSS` and no validation,
+  `red;background-image:url(https://evil.example/x.png)` and `expression(alert(1))` both came out
+  as `ZgotmplZ`, while a plain hex came out intact.
+
+  So the regex stayed, but its job changed from safety to **diagnostics**. The escaper's failure
+  mode is silent — a mistyped colour becomes `ZgotmplZ`, which renders as a chip with no colour,
+  on a green build, on a page nobody re-reads. Validating first turns that into a build failure
+  naming the value and its position. `tests/run.sh` also refutes `ZgotmplZ` across the page, which
+  catches any *future* shortcode that silently loses a value this way.
+
+  The lesson for the checklist: when a template reaches for a `safe*` function, first check
+  whether the escaper was going to do the right thing anyway. Usually it was.

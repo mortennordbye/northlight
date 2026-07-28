@@ -265,6 +265,16 @@ elif printf '%s\n' "$MAILTOS" | grep -q 'you@example\.com'; then
 else
   ok "email leaves no plain address in the rendered link"
 fi
+# swatches: the colour has to survive into a style attribute. Go refuses to interpolate
+# an unvalidated value into one and emits ZgotmplZ instead, which renders as a chip with
+# no colour and no error — so assert the declaration is really there, and assert the
+# label separately, since a chip without its hex is a block of colour and nothing else.
+assert_grep 'class=swatch-chip style=background:#4f57c4' "$SHORTCODES" \
+  "swatches puts the colour in the style attribute"
+refute_grep 'ZgotmplZ' "$SHORTCODES" "no value was rejected by the template escaper"
+SWATCHES=$(grep -o 'class=swatch-hex>#[0-9a-fA-F]*' "$SHORTCODES" | wc -l | tr -d ' ')
+assert_count 3 "$SWATCHES" "swatches labels every chip with its hex value"
+
 BLANK=$(grep -o '<a class=button[^>]*_blank[^>]*>' "$SHORTCODES" | head -1)
 case "$BLANK" in
   *noopener*) ok "button with target=_blank sets rel=noopener" ;;

@@ -342,6 +342,7 @@ gets the raw `{{< … >}}` back. Everything here is additive, and nothing replac
 | `badge` | Inline Markdown | A small inline label for a status or a piece of metadata. Same shape as a tag, without a tag's link behaviour. |
 | `button` | Inline Markdown | A link styled as a call to action. `pageRef` or `href`, plus optional `target` and `rel`. `target="_blank"` adds `rel="noopener"` on its own. An unresolvable `pageRef` fails the build. |
 | `email` | — | A `mailto:` link with the address obfuscated at build time, so it survives with JavaScript off. `email`, plus optional `text` and `subject`. |
+| `swatches` | — | A row of colour chips, each labelled with its hex value. Takes any number of hex colours positionally. A value that is not hex fails the build. |
 
 The full list, with every parameter and a live example of each, is on the
 [Shortcodes](https://mortennordbye.github.io/northlight/docs/shortcodes/) page of the demo site.

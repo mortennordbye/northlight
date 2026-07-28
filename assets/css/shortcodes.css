@@ -27,6 +27,52 @@
   vertical-align: baseline;
 }
 
+/* --- swatches -------------------------------------------------------------- */
+
+/* Wraps rather than scrolls: a row of chips has no reading order to preserve, so
+   dropping onto a second line at 375px is better than a scroll container. */
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: var(--space-6) 0;
+}
+
+.swatch {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-chip);
+  padding: var(--space-2) var(--space-3);
+}
+
+/* The chip's own border is a token rather than a darker shade of the swatch: a
+   colour close to the page background needs an edge to read as a chip at all, in
+   both modes, and only a token knows what the background currently is. */
+.swatch-chip {
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 4px;
+  border: 1px solid var(--line-strong);
+  flex: none;
+}
+
+.swatch-hex {
+  font-size: 12.5px;
+  color: var(--fg-2);
+  line-height: var(--leading-ui);
+}
+
+/* .prose code carries a fill and padding of its own, which would put a second box
+   inside the chip's box. The hex here is a label, not a code span in a sentence. */
+.prose .swatch-hex {
+  background: none;
+  border: 0;
+  padding: 0;
+}
+
 /* --- button ---------------------------------------------------------------- */
 
 /* .button itself is defined in article.css and reused as-is. The only thing needed

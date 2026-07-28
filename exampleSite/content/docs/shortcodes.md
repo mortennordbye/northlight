@@ -130,3 +130,28 @@ Be honest about what this buys: it stops naive address harvesting and nothing mo
 Anything that renders the page reads the address fine. The reason to prefer it over the
 alternatives is what it does *not* break — obfuscating with JavaScript stops working
 with scripting off, and the CSS reversal trick breaks copy and paste.
+
+## `swatches`
+
+A row of colour chips, each labelled with its own hex value. Takes as many colours as
+you give it, positionally.
+
+```text
+{{</* swatches "#4f57c4" "#a6aef0" "#f4f4f5" */>}}
+```
+
+{{< swatches "#4f57c4" "#a6aef0" "#f4f4f5" >}}
+
+The hex value is rendered as text beside each chip rather than tucked into a `title`.
+A bare block of colour carries its meaning in the colour alone, which is the one thing
+that does not survive a screen reader, a greyscale print, or a reader who cannot tell
+the two chips apart. The label is the feature.
+
+Values must be hex — three, four, six or eight digits. Anything else fails the build
+rather than rendering a chip with no colour, on the same reasoning as `button` and its
+unresolvable `pageRef`: a swatch that silently shows nothing is worse than a red build,
+because nobody notices it.
+
+The chips wrap onto a second line on a narrow screen instead of scrolling sideways.
+A row of swatches has no reading order to preserve, so there is nothing to be gained by
+keeping it on one line.

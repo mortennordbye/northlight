@@ -10,6 +10,12 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **`swatches`** — a row of colour chips, each labelled with its own hex value, taking any
+  number of colours positionally rather than the three the surveyed themes cap it at. The hex
+  is rendered as text beside the chip rather than hidden in a `title`, because a bare block of
+  colour carries its meaning in the colour alone and that is what a screen reader, a greyscale
+  print and a colourblind reader all lose. A value that is not a hex colour fails the build
+  rather than rendering a chip with no colour on a green build.
 - **`email`** — a `mailto:` link with the address obfuscated at build time, taking `email` plus
   an optional `text` and `subject`. The obfuscation happens during the build rather than in the
   browser, so it survives with scripting off and does not break copy and paste, which is what

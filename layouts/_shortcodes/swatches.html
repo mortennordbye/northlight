@@ -1,0 +1,46 @@
+{{- /*
+  swatches — a row of colour chips, each labelled with its own hex value.
+
+  Variadic. The surveyed themes cap this at three positional parameters; there is no
+  reason for the limit, so this takes as many as it is given.
+
+  The hex value is rendered as visible text next to the chip, not hidden in a title or
+  an alt. A bare block of colour carries its meaning in the colour alone, which is
+  exactly the thing that does not survive a screen reader, a greyscale print or a
+  reader who cannot distinguish the two chips either side of it. The label is the
+  feature, not decoration.
+
+  Parameters: one or more hex colours, positionally.
+
+  Call:  {{< swatches "#4f57c4" "#a6aef0" "#f4f4f5" >}}
+*/ -}}
+
+{{- if not .Params -}}
+  {{- errorf "swatches shortcode: at least one hex colour is required (%s)" .Position -}}
+{{- end -}}
+
+<div class="swatches">
+  {{- range .Params -}}
+    {{- /* Note what is *not* here: no safeCSS. Go's contextual escaper already guards a
+           style attribute, and it guards it well — a hex value passes through untouched,
+           while anything carrying a semicolon, a url() or an expression() is replaced
+           wholesale with ZgotmplZ. Reaching for safeCSS would switch that off and leave
+           the regex below as the only thing standing between a parameter and the
+           stylesheet. The built-in defence is the better one, and it is free.
+
+           The validation is therefore about diagnostics, not safety. Left to itself the
+           escaper fails *silently*: a mistyped colour becomes ZgotmplZ, which renders as
+           a chip with no colour, on a green build, on a page nobody re-reads. Checking
+           first turns that into a build failure naming the value and its position.
+           Three, four, six and eight digits are all valid CSS hex forms. */ -}}
+    {{- if not (findRE `^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$` . 1) -}}
+      {{- errorf "swatches shortcode: %q is not a hex colour (%s)" . $.Position -}}
+    {{- end -}}
+    <div class="swatch">
+      <span class="swatch-chip" style="background:{{ . }}"></span>
+      <code class="swatch-hex">{{ . }}</code>
+    </div>
+  {{- end -}}
+</div>
+{{- /* Block-level, so no trailing-space hazard, but trimmed for consistency with the
+       inline shortcodes where it matters. */ -}}
