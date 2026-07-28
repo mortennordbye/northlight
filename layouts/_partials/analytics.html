@@ -1,27 +1,43 @@
 {{- /*
-  Cloudflare Web Analytics.
+  Analytics.
 
-  Renders nothing at all unless a token is configured, so the theme's "no third-party
-  requests by default" rule still holds: a site that sets nothing sends nothing.
+  **Renders nothing at all unless a provider is configured**, so the theme's "no
+  third-party requests by default" rule holds: a site that sets nothing sends nothing, and
+  that is the shipped default.
 
-  In your site's config:
+  Five providers are wired directly, all of them the privacy-preserving kind that need one
+  script and no cookie banner. Anything else — and anything self-hosted — goes through
+  `extend-head.html` or `extend-footer.html`, which is why those exist.
 
-    [params.analytics.cloudflare]
-      token = "your-32-character-beacon-token"
+  In your site's config, any subset of:
 
-  The beacon token is not a secret. It is visible in the page source of every site
-  using it, and it identifies a site rather than authorising anything — which is why a
-  param is the right home for it. It still belongs in your site's config and never in
-  the theme.
+    [params.analytics]
+      [params.analytics.cloudflare]
+        token = "your-32-character-beacon-token"
+      [params.analytics.fathom]
+        site = "ABCDEFGH"
+        domain = "cdn.example.com"        # optional custom domain
+      [params.analytics.umami]
+        websiteId = "uuid"
+        domain = "analytics.example.com"  # optional self-hosted instance
+        scriptName = "u.js"               # optional, for ad-block resilience
+      [params.analytics.seline]
+        token = "your-token"
 
-  This is the one analytics provider the theme wires directly. Everything else goes
-  through extend-head.html or extend-footer.html, because a theme that ships five
-  vendors makes four of them dead weight for every site that uses it.
+  Google Analytics is configured with Hugo's own key rather than a param here, because
+  Hugo owns that template and reads its ID from its own config:
 
-  Loaded at the end of <body> with defer, per Cloudflare's own guidance, so it cannot
-  delay the first paint.
+    [services.googleAnalytics]
+      ID = "G-XXXXXXXXXX"
+
+  **None of these is a secret.** Every one is visible in the page source of every site
+  using it and identifies a site rather than authorising anything, which is why a param is
+  the right home. They still belong in your site's config and never in the theme.
+
+  All are loaded at the end of <body> with defer, so none can delay the first paint.
 */ -}}
 {{- with site.Params.analytics -}}
+
   {{- with .cloudflare -}}
     {{- with .token -}}
       {{- /* jsonify builds the attribute rather than string concatenation, so a token
@@ -32,4 +48,39 @@
               data-cf-beacon='{{ dict "token" . | jsonify }}'></script>
     {{- end -}}
   {{- end -}}
+
+  {{- with .fathom -}}
+    {{- with .site -}}
+      {{- $src := "https://cdn.usefathom.com/script.js" -}}
+      {{- with $.Params.analytics.fathom.domain }}{{ $src = printf "https://%s/script.js" . }}{{ end -}}
+      <script defer src="{{ $src }}" data-site="{{ . }}"></script>
+    {{- end -}}
+  {{- end -}}
+
+  {{- with .umami -}}
+    {{- with .websiteId -}}
+      {{- /* A self-hosted instance and a renamed script are both anti-ad-block measures
+             that Umami documents. Neither changes what is collected. */ -}}
+      {{- $host := $.Params.analytics.umami.domain | default "cloud.umami.is" -}}
+      {{- $name := $.Params.analytics.umami.scriptName | default "script.js" -}}
+      <script defer src="https://{{ $host }}/{{ $name }}" data-website-id="{{ . }}"></script>
+    {{- end -}}
+  {{- end -}}
+
+  {{- with .seline -}}
+    {{- with .token -}}
+      <script defer src="https://cdn.seline.so/seline.js" data-token="{{ . }}"></script>
+    {{- end -}}
+  {{- end -}}
+
 {{- end -}}
+
+{{- /* Google Analytics. Outside the block above on purpose: Hugo ships this template and
+       reads the ID from `[services.googleAnalytics]`, its own config, so a
+       `params.analytics.google.id` would be a second key that silently does nothing —
+       which is exactly what the first draft of this partial did. The template no-ops when
+       the ID is unset, so it needs no guard of its own.
+
+       Wired for completeness rather than by preference: it is the one provider here that
+       sets cookies, and most sites using it will be obliged to say so. */ -}}
+{{ template "_internal/google_analytics.html" . }}

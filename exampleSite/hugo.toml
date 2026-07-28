@@ -98,6 +98,29 @@ summaryLength = 30
   defaultFeaturedImage = "images/example.svg"   # cover for posts that have none
   defaultSocialImage = "images/example.svg"     # OpenGraph/Twitter card image
 
+  # Analytics. Every one of these is commented out on purpose: uncommenting one starts
+  # sending data to a third party, and that has to be the site owner's deliberate act
+  # rather than something inherited from an example config. With all of them off, the
+  # theme makes no third-party request at all.
+  #
+  # [params.analytics.cloudflare]
+  #   token = "your-32-character-beacon-token"
+  # [params.analytics.fathom]
+  #   site = "ABCDEFGH"
+  #   domain = "cdn.example.com"          # optional custom domain
+  # [params.analytics.umami]
+  #   websiteId = "your-uuid"
+  #   domain = "analytics.example.com"    # optional self-hosted instance
+  #   scriptName = "u.js"                 # optional, for ad-block resilience
+  # [params.analytics.seline]
+  #   token = "your-token"
+  #
+  # Google Analytics uses Hugo's own key, not a theme param — Hugo ships that template
+  # and reads the ID from its own config:
+  #
+  # [services.googleAnalytics]
+  #   ID = "G-XXXXXXXXXX"
+
   [params.author]
     name = "Morten Victor Nordbye"
     headline = "Writes about building things that stay simple"

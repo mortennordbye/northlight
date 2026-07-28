@@ -740,6 +740,30 @@ refute_grep 'Updated <time' "$PUBLIC/blog/two-modes/index.html" "no updated date
 # says nothing twice.
 refute_grep 'Updated <time' "$WRITING" "no updated date when it renders as the same day"
 
+# Analytics. The invariant is not that any provider works but that *none* fires unless it
+# is configured — the theme makes no third-party request by default, and exampleSite leaves
+# every provider commented out precisely so the built demo proves it.
+for host in cloudflareinsights usefathom umami\.is seline\.so googletagmanager; do
+  # Same label in both branches. The first version said "(usefathom)" on pass and dropped
+  # the host on fail, so a red run named a different assertion from the green one it
+  # replaced — which made the failure look like a new test rather than a broken one.
+  if grep -rq "$host" "$PUBLIC" 2>/dev/null; then
+    bad "no analytics provider fires unconfigured ($host)" "found $host in the built output"
+  else
+    ok "no analytics provider fires unconfigured ($host)"
+  fi
+done
+
+# Google Analytics has to use Hugo's own services key. A theme param would be a second
+# key that silently did nothing, which is what the first draft of the partial did.
+assert_grep '_internal/google_analytics.html' "$ROOT/layouts/_partials/analytics.html" \
+  "Google Analytics uses Hugo's own template"
+if without_comments "$ROOT/layouts/_partials/analytics.html" | grep -q 'analytics\.google'; then
+  bad "Google Analytics reads Hugo's config, not a theme param" "found a params.analytics.google read"
+else
+  ok "Google Analytics reads Hugo's config, not a theme param"
+fi
+
 # Site-wide image fallbacks. The point is that a coverless post is still illustrated and
 # still previews as a card when linked, without every post needing its own artwork.
 COAUTH_PAGE="$PUBLIC/blog/co-authored/index.html"

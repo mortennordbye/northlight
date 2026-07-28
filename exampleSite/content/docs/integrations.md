@@ -41,23 +41,48 @@ Using utterances, Cusdis, Remark42 or a static form instead? Copy
 
 ## Analytics
 
-Cloudflare Web Analytics is the one provider wired directly, because it sets no cookies
-and needs no consent banner.
+**Nothing is sent unless you configure a provider.** With none set the theme makes no
+third-party request at all, and that is the shipped default.
+
+Five providers are wired directly. Configure any subset:
 
 ```toml {file="hugo.toml"}
 [params.analytics.cloudflare]
   token = "your-32-character-beacon-token"
+
+[params.analytics.fathom]
+  site = "ABCDEFGH"
+  domain = "cdn.example.com"          # optional custom domain
+
+[params.analytics.umami]
+  websiteId = "your-uuid"
+  domain = "analytics.example.com"    # optional self-hosted instance
+  scriptName = "u.js"                 # optional, for ad-block resilience
+
+[params.analytics.seline]
+  token = "your-token"
 ```
 
-Set no token and the beacon is not emitted at all.
+**Google Analytics uses Hugo's own key, not a theme param.** Hugo ships that template and
+reads the ID from its own config, so a theme param here would be a second key that
+silently did nothing:
+
+```toml {file="hugo.toml"}
+[services.googleAnalytics]
+  ID = "G-XXXXXXXXXX"
+```
+
+The first four set no cookies and need no consent banner. Google Analytics does, and most
+sites using it will be obliged to say so — it is wired for completeness, not preference.
 
 > [!NOTE]
-> The beacon token is not a secret. It appears in the page source of every site using
-> it and identifies a site rather than authorising anything. It still belongs in your
-> site's config and never in the theme.
+> None of these identifiers is a secret. Every one appears in the page source of every
+> site using it and identifies a site rather than authorising anything. They still belong
+> in your site's config and never in the theme.
 
-Every other provider goes through an escape hatch. A theme that ships five analytics
-vendors makes four of them dead weight for everyone who uses it.
+Anything else — a self-hosted instance, a provider not listed, a server-side tag — goes
+through `extend-head.html` or `extend-footer.html` below. All five here load at the end of
+`<body>` with `defer`, so none can delay the first paint.
 
 ## The escape hatches
 

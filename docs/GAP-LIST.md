@@ -59,7 +59,7 @@ Substantial author control over presentation, or a visible reader feature.
 | 11 | **`header.layout` variants** | `basic`, `fixed`, and the sticky variants | Medium |
 | 12 | **Card-view toggles** | `cardView` / `cardViewScreenWidth` across home, list, taxonomy and term | Medium |
 | 13 | ~~**More colour schemes**~~ **DONE** | 3 → 6: `plum`, `slate`, `rose`. Each measured against its own tint before shipping; a fourth candidate was dropped for measuring below every existing palette | Small each |
-| 14 | **Analytics vendor blocks** | Fathom, Umami (incl. anti-adblock `scriptName`), Seline. Reachable via `extend-head.html` today, so this is convenience, not capability | Small each |
+| 14 | ~~**Analytics vendor blocks**~~ **DONE** | Fathom, Umami (with self-hosted domain and renamed script), Seline. Nothing fires unless configured, asserted against the built demo | Small each |
 | 15 | ~~**Site-wide image fallbacks**~~ **DONE** | `defaultFeaturedImage` and `defaultSocialImage`. `defaultBackgroundImage` folded in: `home.backgroundImage` already covers it | Small |
 | 16 | **Accessibility toggle** | `enableA11y` — a visible control, not just good defaults | Medium |
 | 17 | **Image zoom / lightbox** `[opt-in]` | Click to enlarge. Needs JS and a focus trap to be done properly | Medium |
@@ -98,7 +98,7 @@ non-findings worth recording so nobody re-checks them.
 
 | # | Feature | What it gives you | Effort |
 |---|---|---|---|
-| 53 | **Google Analytics** | Hugo ships the template, so this is a config block and two lines. The theme currently wires Cloudflare only, on the stated grounds that shipping five vendors makes four of them dead weight — that reasoning is now superseded by this page | Small |
+| 53 | ~~**Google Analytics**~~ **DONE** | Through Hugo's own `[services.googleAnalytics]` key and template, not a theme param — a theme param would be a second key that does nothing | Small |
 | 54 | **`extend-article-link.html`** | A hook to inject content after each entry in a listing, the way `extend-head` and `extend-footer` work for the page | Small |
 
 **Not gaps, checked and dismissed:**

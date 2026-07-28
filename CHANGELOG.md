@@ -10,6 +10,15 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **Four more analytics providers** — Fathom, Umami (with optional self-hosted domain and
+  renamed script for ad-block resilience) and Seline join Cloudflare as first-class config
+  blocks, and **Google Analytics** is wired through Hugo's own template. All four of the first
+  set cookies nothing and need no consent banner; GA does, and most sites using it will be
+  obliged to say so, so it is there for completeness rather than preference.
+  **Nothing is emitted unless a provider is configured**, which is still the shipped default and
+  is now asserted against the built demo site. GA uses Hugo's `[services.googleAnalytics]` key
+  rather than a theme param: Hugo owns that template and reads its own config, so a theme param
+  would have been a second key that silently did nothing.
 - **Three more colour palettes** — `plum`, `slate` and `rose`, taking the set to six. Each
   accent was **measured before it shipped**, against its own `--accent-tint` rather than the
   page background, which is the case that decided `clay`. Light mode: `plum` 4.82, `rose` 4.63,
