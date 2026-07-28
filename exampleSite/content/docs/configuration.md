@@ -98,7 +98,7 @@ bio never renders as a code block.
 
 | Key | Default | What it does |
 |---|---|---|
-| `layout` | `"stack"` | Which homepage arrangement to render: `stack`, `page`, `profile`, `hero`, `card`, `background`, `split`, `gallery`, `archive` or `custom`. An unknown value fails the build. The [Appearance page](/docs/appearance/#home-page-layouts) shows each one. |
+| `layout` | `"stack"` | Which homepage arrangement to render: `stack`, `page`, `profile`, `hero`, `card`, `background`, `split`, `gallery`, `archive` or `custom`. An unknown value fails the build. The Appearance page shows each one. |
 | `showFeatured` | `true` | Large card for the newest post. |
 | `recentCount` | `3` or `6` | Recent posts below. Layouts that lead with a feature (`stack`, `hero`) default to 3; the rest to 6. |
 | `backgroundImage` | — | Only read by `layout = "background"`. Without it that layout renders the ordinary intro. |
