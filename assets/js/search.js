@@ -89,7 +89,7 @@
           '<a class="search-result' + (i === 0 ? " is-selected" : "") + '" href="' + escape(p.url) + '" role="option" aria-selected="' + (i === 0) + '">' +
           (p.thumb ? '<img class="search-thumb" src="' + escape(p.thumb) + '" alt="" loading="lazy">' : '<span class="search-thumb"></span>') +
           '<span class="search-text"><b>' + escape(p.title) + "</b>" +
-          '<span class="search-meta">' + escape(p.date || "") + (p.readingTime ? " &middot; " + p.readingTime + " min" : "") + "</span></span></a>"
+          '<span class="search-meta">' + escape(p.date || "") + (p.readingTime ? " &middot; " + escape(p.readingTime) + " min" : "") + "</span></span></a>"
         );
       })
       .join("");

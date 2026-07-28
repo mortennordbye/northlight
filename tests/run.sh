@@ -1586,6 +1586,23 @@ refute_grep 'northlight-strings>"' "$PUBLIC/index.html" "runtime string block is
 # Controls that need JavaScript must ship hidden, so no-JS readers see no dead affordances.
 assert_grep 'data-toggle-appearance hidden' "$PUBLIC/index.html" "appearance toggle ships hidden"
 
+# counters.js is gated on firebase alone. counters.html honours page-level front-matter
+# overrides, so gating the script on the site-level show flags left an opted-in post with
+# markup but no script — invisibly, because the block ships hidden until the script runs.
+if without_comments "$ROOT/layouts/baseof.html" | grep 'counters\.js' | grep -q 'showViews'; then
+  bad "counters script is gated on firebase alone" "baseof.html gates counters.js on the site-level show flags"
+else
+  ok "counters script is gated on firebase alone"
+fi
+
+# A tab-group sync must update the synced set's state too, or the first arrow-key press
+# on the synced strip starts from the stale index and goes nowhere.
+assert_grep 'set.current = index' "$ROOT/assets/js/tabs.js" "tab activation tracks its own state"
+
+# Everything interpolated into search-result markup is escaped. readingTime is an integer
+# today, but it is one index-schema change away from not being one.
+assert_grep 'escape(p.readingTime)' "$ROOT/assets/js/search.js" "search result reading time is escaped"
+
 # --------------------------------------------------------------------------------
 group "CSS invariants"
 
@@ -1669,6 +1686,39 @@ if [ -n "$ADM_ONE_MODE" ]; then
 else
   ok "admonition colours declare both modes"
 fi
+
+# Zen mode hides the TOC by the class the templates actually render. The selector once
+# said `.toc-rail`, which matches nothing, so zen left the TOC visible below the article.
+assert_grep 'data-zen\] \.toc,' "$ROOT/assets/css/interaction.css" "zen mode hides the TOC"
+refute_grep 'toc-rail' "$ROOT/assets/css/interaction.css" "zen selector names a rendered class"
+
+# The blur treatment targets the media layer background.html renders. The selector once
+# expected an <img> that never existed, so layoutBackgroundBlur skipped the home background.
+assert_grep 'home-bg-media' "$ROOT/layouts/_partials/home/background.html" "home background renders a media layer"
+assert_grep 'data-bg-blur\] \.home-bg-media,' "$ROOT/assets/css/home-layouts.css" "background blur targets the media layer"
+
+# The TOC rail declares its edge with logical properties: the theme ships RTL support,
+# and a physical border-left paints the accent on the wrong side under dir="rtl".
+if strip_comments "$ROOT/assets/css/article.css" "$ROOT/assets/css/interaction.css" | grep -q 'border-left'; then
+  bad "TOC rail uses logical borders" "border-left found; use border-inline-start"
+else
+  ok "TOC rail uses logical borders"
+fi
+
+# --------------------------------------------------------------------------------
+group "Template guards"
+
+# An explicit `mainSections = []` must not error the build. `index` on an empty slice
+# fails, so the first element is only ever taken inside a `with` on the slice itself.
+if grep -rq 'index site\.Params\.mainSections' "$ROOT/layouts"; then
+  bad "mainSections is never indexed unguarded" "wrap the index in a with on the slice"
+else
+  ok "mainSections is never indexed unguarded"
+fi
+
+# The hotlink cover URL is escaped like the alt text beside it: both land in the same
+# printf that is then marked safeHTML.
+assert_grep 'htmlEscape \$hotlink' "$ROOT/layouts/_partials/cover.html" "hotlink cover URL is escaped"
 
 # --------------------------------------------------------------------------------
 group "Toolchain pins"

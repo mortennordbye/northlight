@@ -7,8 +7,10 @@
   </p>
   <div class="notfound-actions">
     <a class="button" href="{{ site.Home.RelPermalink }}">{{ i18n "home" }}</a>
-    {{- with site.GetPage (printf "/%s" (index site.Params.mainSections 0)) }}
-      <a class="button" href="{{ .RelPermalink }}">{{ i18n "allPosts" }}</a>
+    {{- with site.Params.mainSections }}
+      {{- with site.GetPage (printf "/%s" (index . 0)) }}
+        <a class="button" href="{{ .RelPermalink }}">{{ i18n "allPosts" }}</a>
+      {{- end }}
     {{- end }}
   </div>
 </div>

@@ -432,7 +432,8 @@
   font-size: 14px;
   line-height: 1.4;
   color: var(--fg-2);
-  padding: 6px 0 6px var(--space-4);
+  padding-block: 6px;
+  padding-inline-start: var(--space-4);
   border-inline-start: 2px solid var(--line);
   transition:
     color var(--dur-color),
@@ -441,7 +442,7 @@
 
 .toc a:hover {
   color: var(--fg);
-  border-left-color: var(--line-strong);
+  border-inline-start-color: var(--line-strong);
 }
 
 .toc ul ul a {

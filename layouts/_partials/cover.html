@@ -54,7 +54,7 @@
 {{- if not $cover }}{{ $fallback = partial "image-url.html" (partialCached "init.html" $ctx).defaultFeaturedImage }}{{ end -}}
 
 {{- if and (not $cover) $hotlink -}}
-  {{- $img := printf `<img src="%s" alt="%s" fetchpriority="high">` $hotlink (htmlEscape ($ctx.Params.coverAlt | default "")) -}}
+  {{- $img := printf `<img src="%s" alt="%s" fetchpriority="high">` (htmlEscape $hotlink) (htmlEscape ($ctx.Params.coverAlt | default "")) -}}
   <figure class="article-cover{{ if eq $style "big" }} article-cover-big{{ end }}">
     {{ $img | safeHTML }}
   </figure>

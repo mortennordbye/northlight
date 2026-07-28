@@ -42,7 +42,10 @@
 {{- end -}}
 
 {{- if $url -}}
-  <section class="home-bg" style="background-image:url({{ $url }})">
+  <section class="home-bg">
+    {{- /* The image lives on its own layer so `layoutBackgroundBlur` can blur it without
+           taking the scrim and the text with it. */ -}}
+    <div class="home-bg-media" style="background-image:url({{ $url }})" aria-hidden="true"></div>
     <div class="home-bg-scrim">
       <div class="wrap">
         {{- partial "home/intro.html" (dict "ctx" .ctx "author" .author "bare" true) -}}

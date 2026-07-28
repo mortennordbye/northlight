@@ -60,7 +60,10 @@
   {{- if $cfg.enableA11y }}{{ $scripts = $scripts | append (resources.Get "js/a11y.js") }}{{ end -}}
   {{- if $cfg.enableLightbox }}{{ $scripts = $scripts | append (resources.Get "js/lightbox.js") }}{{ end -}}
   {{- if $cfg.article.showZenMode }}{{ $scripts = $scripts | append (resources.Get "js/zen.js") }}{{ end -}}
-  {{- if and site.Params.firebase (or $cfg.article.showViews $cfg.article.showLikes) }}{{ $scripts = $scripts | append (resources.Get "js/counters.js") }}{{ end -}}
+  {{- /* Gated on firebase alone, not the site-level show flags: counters.html honours
+         page-level front-matter overrides, so a site with both flags off can still have
+         one post that opts in. The script is a few hundred bytes in the bundle. */ -}}
+  {{- if site.Params.firebase }}{{ $scripts = $scripts | append (resources.Get "js/counters.js") }}{{ end -}}
   {{- if and (gt (len hugo.Sites) 1) site.Params.languageRedirect }}{{ $scripts = $scripts | append (resources.Get "js/language-redirect.js") }}{{ end -}}
   {{- $js := $scripts | resources.Concat "js/northlight.js" -}}
   {{- if hugo.IsProduction }}{{ $js = $js | minify }}{{ end -}}

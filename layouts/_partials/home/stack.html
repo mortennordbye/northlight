@@ -51,10 +51,12 @@
   {{- with first $recentCount $recent }}
   <div class="section-head">
     <h2 class="section-title">{{ i18n "recentPosts" }}</h2>
-    {{- with site.GetPage (printf "/%s" (index site.Params.mainSections 0)) }}
-      <a class="section-more" href="{{ .RelPermalink }}">
-        {{ i18n "allNPosts" (len $posts) }} <span class="nudge">{{ partial "icon.html" "arrow-right" }}</span>
-      </a>
+    {{- with site.Params.mainSections }}
+      {{- with site.GetPage (printf "/%s" (index . 0)) }}
+        <a class="section-more" href="{{ .RelPermalink }}">
+          {{ i18n "allNPosts" (len $posts) }} <span class="nudge">{{ partial "icon.html" "arrow-right" }}</span>
+        </a>
+      {{- end }}
     {{- end }}
   </div>
   <div class="card-grid">

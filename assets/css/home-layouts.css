@@ -139,6 +139,16 @@
 /* The one layout in tension with the design brief; see the header of
    `_partials/home/background.html` for why it is built the way it is. */
 .home-bg {
+  position: relative;
+  /* Contains the scale nudge the blur treatment applies to the media layer. */
+  overflow: hidden;
+}
+
+/* The image sits on its own layer behind the scrim, so the blur treatment below can
+   target it without blurring the text. */
+.home-bg-media {
+  position: absolute;
+  inset: 0;
   background-size: cover;
   background-position: center;
 }
@@ -149,6 +159,7 @@
    that flipped with the theme would be legible in one mode and not the other over
    the same image. */
 .home-bg-scrim {
+  position: relative; /* paints above the media layer */
   background: rgb(12 12 16 / 68%);
   padding-block: var(--space-9);
 }
@@ -307,7 +318,7 @@
    static blur rather than one that changes on scroll: a scroll-driven filter repaints the
    image on every frame, which is expensive for decoration, and `animation-timeline` is not
    yet universal. The name follows the config key it implements. */
-html[data-bg-blur] .home-bg-media img,
+html[data-bg-blur] .home-bg-media,
 html[data-bg-blur] .article-hero-bg > img {
   filter: blur(3px);
   transform: scale(1.02);
