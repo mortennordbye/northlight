@@ -89,3 +89,31 @@ through `window.opener`. Anything you pass in `rel` is kept alongside it:
 
 An unresolvable `pageRef` fails the build rather than rendering a button that goes
 nowhere. A call to action that silently leads to a 404 is worse than a red build.
+
+## `email`
+
+A `mailto:` link with the address obfuscated at build time. Every character is emitted
+as a numeric HTML entity, so a scraper reading the raw HTML sees `&#121;&#111;&#117;…`
+rather than an address.
+
+| Parameter | Required | What it does |
+|---|---|---|
+| `email` | yes | The address |
+| `text` | no | Link text. Defaults to the obfuscated address |
+| `subject` | no | Pre-fills the subject line |
+
+```text
+{{</* email email="you@example.com" */>}}
+{{</* email email="you@example.com" text="Say hello" subject="About the theme" */>}}
+```
+
+{{< email email="you@example.com" >}} · {{< email email="you@example.com" text="Say hello" subject="About the theme" >}}
+
+Browsers decode entities before acting on a link, so both of those work normally and the
+address copies and pastes normally. View source and neither is readable as an address.
+
+Be honest about what this buys: it stops naive address harvesting and nothing more.
+Anything that renders the page, or simply decodes entities, reads the address fine. The
+reason to prefer it over the alternatives is what it does *not* break — obfuscating with
+JavaScript stops working with scripting off, and the CSS reversal trick breaks copy and
+paste.

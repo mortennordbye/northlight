@@ -237,6 +237,11 @@ assert_grep '<span class=badge>' "$SHORTCODES" "badge renders as an inline chip"
 # button: pageRef must resolve to a real URL, not be echoed as written, and _blank must
 # bring rel=noopener with it or the opened page can reach back through window.opener.
 assert_grep 'class=button href=/docs/getting-started/' "$SHORTCODES" "button resolves pageRef to a URL"
+
+# email: the whole point is that the address is not in the source as an address. Assert
+# both halves — the entities are present, and the plain form is nowhere on the page.
+assert_grep 'mailto:&#121;&#111;&#117;' "$SHORTCODES" "email obfuscates the address as entities"
+refute_grep 'you@example.com' "$SHORTCODES" "email leaves no plain address in the markup"
 BLANK=$(grep -o '<a class=button[^>]*_blank[^>]*>' "$SHORTCODES" | head -1)
 case "$BLANK" in
   *noopener*) ok "button with target=_blank sets rel=noopener" ;;
