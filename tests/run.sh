@@ -236,7 +236,10 @@ assert_grep '<span class=badge>' "$SHORTCODES" "badge renders as an inline chip"
 
 # button: pageRef must resolve to a real URL, not be echoed as written, and _blank must
 # bring rel=noopener with it or the opened page can reach back through window.opener.
-assert_grep 'class=button href=/docs/getting-started/' "$SHORTCODES" "button resolves pageRef to a URL"
+# Host-agnostic, like the sitemap check above: CI builds with the Pages base URL, which
+# has a path prefix, so a leading `/docs/` only matches on a site served from the root.
+assert_grep 'class=button href=[^ >]*/docs/getting-started/' "$SHORTCODES" \
+  "button resolves pageRef to a URL"
 
 # email: the whole point is that the address is not in the source as an address. Assert
 # both halves — the href is percent-encoded, and the link text does not spell the
@@ -322,7 +325,7 @@ assert_count 3 "$KEYWORDS" "keywordList renders every pill"
 # card. Assert the real card markup, not a wrapper class — a hand-rolled lookalike would
 # satisfy a check on `.article-embed` alone and then drift from the listing cards, which is
 # the whole failure this shortcode exists to avoid.
-assert_grep '<div class=article-embed><a class=card href=/blog/' "$SHORTCODES" \
+assert_grep '<div class=article-embed><a class=card href=[^ >]*/blog/' "$SHORTCODES" \
   "article embeds a real post card"
 assert_grep 'class=card-cover' "$SHORTCODES" "the embedded card keeps its cover"
 
@@ -357,7 +360,7 @@ esac
 # sizes and intrinsic dimensions a Markdown image gets. A hand-rolled <img src> would look
 # right on a fast desktop connection and cost a phone the full-size file forever, so assert
 # the pipeline attributes rather than the tag.
-assert_grep '<figure><a href=/docs/writing/><img class=img-light src=/docs/shortcodes/diagram.png srcset=' "$SHORTCODES" \
+assert_grep '<figure><a href=[^ >]*/docs/writing/><img class=img-light src=[^ >]*/docs/shortcodes/diagram.png srcset=' "$SHORTCODES" \
   "figure runs through the image pipeline and can be a link"
 assert_grep 'sizes="(max-width: 47rem) 100vw, 44.2rem" width=1600 height=470' "$SHORTCODES" \
   "figure declares intrinsic dimensions, so it reserves its box"
@@ -411,7 +414,7 @@ refute_grep 'accordion.js' "$SHORTCODES" "accordion ships no JavaScript"
 # gallery: it has no image handling of its own, it grids nested `figure` calls. Assert a
 # real <figure> with pipeline attributes inside it — a gallery that grew its own <img> tag
 # would look identical and quietly lose srcset, intrinsic dimensions and dark variants.
-assert_grep '<div class="gallery gallery-3"><figure><img src=/docs/shortcodes/shot-a.png srcset=' "$SHORTCODES" \
+assert_grep '<div class="gallery gallery-3"><figure><img src=[^ >]*/docs/shortcodes/shot-a.png srcset=' "$SHORTCODES" \
   "gallery grids real figures, pipeline included"
 
 # The never-crop invariant, in the place most likely to break it. Every image grid in the
@@ -506,8 +509,8 @@ fi
 # that were built against the links in the rendered Docs dropdown.
 DOCS_BUILT=$(find "$PUBLIC/docs" -mindepth 2 -maxdepth 2 -name index.html \
   | sed "s|$PUBLIC/docs/||; s|/index.html||" | sort)
-DOCS_IN_NAV=$(grep -o 'href=/docs/[a-z-]*/' "$PUBLIC/index.html" \
-  | sed 's|href=/docs/||; s|/$||' | sort -u)
+DOCS_IN_NAV=$(grep -o 'href=[^ >]*/docs/[a-z-]*/' "$PUBLIC/index.html" \
+  | sed 's|.*/docs/||; s|/$||' | sort -u)
 MISSING=$(echo "$DOCS_BUILT" | while read -r d; do
   [ -n "$d" ] || continue
   echo "$DOCS_IN_NAV" | grep -qx "$d" || echo "$d"
