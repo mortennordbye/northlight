@@ -81,6 +81,7 @@ summaryLength = 30
     headline = "Writes about building things that stay simple"
     image = "images/profile.svg"   # square, 160px or larger; sized and cropped in CSS
     links = [
+      { linkedin = "https://www.linkedin.com/in/morten-victor-nordbye" },
       { github = "https://github.com/mortennordbye" },
       { link = "https://nordbye.it" },
     ]
