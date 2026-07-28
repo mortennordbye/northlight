@@ -343,6 +343,7 @@ gets the raw `{{< … >}}` back. Everything here is additive, and nothing replac
 | `button` | Inline Markdown | A link styled as a call to action. `pageRef` or `href`, plus optional `target` and `rel`. `target="_blank"` adds `rel="noopener"` on its own. An unresolvable `pageRef` fails the build. |
 | `email` | — | A `mailto:` link with the address obfuscated at build time, so it survives with JavaScript off. `email`, plus optional `text` and `subject`. |
 | `swatches` | — | A row of colour chips, each labelled with its hex value. Takes any number of hex colours positionally. A value that is not hex fails the build. |
+| `gallery` | Markdown | A responsive grid of nested `figure` shortcodes, `cols` 2 or 3. Never crops. |
 | `timeline`, `timelineItem` | Markdown | A vertical sequence of entries. Item takes `header`, plus optional `subheader`, `badge` and `icon`. |
 | `accordion`, `accordionItem` | Markdown | Collapsible panels, built on `<details>`. `single` on the container groups them so one opens at a time. No JavaScript. |
 | `figure` | — | An image with a caption and optionally a link, through the same pipeline as a Markdown image. Picks up `-dark` siblings. Never cropped. |

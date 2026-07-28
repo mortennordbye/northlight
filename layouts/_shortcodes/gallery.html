@@ -1,0 +1,22 @@
+{{- /*
+  gallery — a responsive grid of images.
+
+  Deliberately has no image handling of its own: it grids whatever `figure` shortcodes are
+  nested inside it. That means a gallery image goes through exactly the same pipeline as
+  any other — srcset, sizes, intrinsic width and height, dark variants, captions — and
+  there is no second code path to keep in step.
+
+  **Covers are never cropped here either.** The grid sizes columns, never image boxes, so
+  a 1200×630 cover with its title baked into the artwork survives. That is the whole reason
+  this does not use `object-fit: cover` like most image grids do.
+
+  Parameters:
+    cols  2 or 3 columns on a wide screen (default 3)
+
+  Call:  {{< gallery cols="3" >}}{{< figure src="a.png" alt="…" >}}…{{< /gallery >}}
+*/ -}}
+{{- $cols := .Get "cols" | default "3" -}}
+{{- if not (in (slice "2" "3") $cols) -}}
+  {{- errorf "gallery shortcode: cols must be 2 or 3, got %q (%s)" $cols .Position -}}
+{{- end -}}
+<div class="gallery gallery-{{ $cols }}">{{ .Inner | .Page.RenderString (dict "display" "block") }}</div>

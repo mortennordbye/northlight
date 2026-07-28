@@ -66,6 +66,34 @@
   box-shadow: none;
 }
 
+/* --- gallery ---------------------------------------------------------------- */
+
+/* auto-fit with a floor rather than a fixed column count, so the grid reflows on its own
+   width instead of at breakpoints someone has to guess. Below the floor it becomes one
+   column, which is what a phone wants.
+
+   Note what is absent: no fixed row height and no object-fit. Every other image grid
+   crops to a uniform box, and cropping is the one thing this theme cannot do — a cover is
+   1200×630 with its title inside the artwork. Rows are as tall as their content instead. */
+.gallery {
+  display: grid;
+  gap: var(--space-4);
+  margin: var(--space-6) 0;
+}
+
+.gallery-2 {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+}
+
+.gallery-3 {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+}
+
+/* figure carries prose margins that would fight the grid gap. */
+.gallery figure {
+  margin: 0;
+}
+
 /* --- timeline --------------------------------------------------------------- */
 
 /* The line is a border on the marker column rather than a pseudo-element, so it cannot

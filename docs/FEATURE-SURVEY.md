@@ -189,7 +189,8 @@ duplicated as shortcodes — and every shortcode is additive, replacing no Markd
 | Alert | **Have** | A thin wrapper over the admonition CSS, adding a custom icon and title. The render hook stays the default |
 | Timeline | **Have** | Pure CSS; `role=list` semantics without invalid markup |
 | Accordion | **Have** | `<details>`/`<summary>`; single-open is a native shared `name`, no JavaScript |
-| Gallery · Tabs | Gap | CSS-driven, JS-optional |
+| Gallery | **Have** | Grids nested `figure` calls, so one image path; never crops |
+| Tabs | Gap | CSS-driven, JS-optional |
 | Carousel | Gap | Lowest priority and a candidate to drop — needs JS, and autoplay fights `prefers-reduced-motion` |
 | Video · YouTube Lite | Gap | Local files only; the YouTube one as a click-to-load facade, so nothing is requested on page view |
 | Repository cards (six forges) · Ansible · Hugging Face · Code importer · Markdown importer | Rejected | Each calls a third-party API during the build. `docs/SPEC.md` §1 requires the theme to build with no network access |

@@ -408,6 +408,24 @@ assert_count 2 "$ACC_NAMED" "only the single-open accordion's panels are grouped
 # The shortcodes page must not have grown a script tag for any of this.
 refute_grep 'accordion.js' "$SHORTCODES" "accordion ships no JavaScript"
 
+# gallery: it has no image handling of its own, it grids nested `figure` calls. Assert a
+# real <figure> with pipeline attributes inside it — a gallery that grew its own <img> tag
+# would look identical and quietly lose srcset, intrinsic dimensions and dark variants.
+assert_grep '<div class="gallery gallery-3"><figure><img src=/docs/shortcodes/shot-a.png srcset=' "$SHORTCODES" \
+  "gallery grids real figures, pipeline included"
+
+# The never-crop invariant, in the place most likely to break it. Every image grid in the
+# wild uses object-fit: cover to force a uniform box, and a cover here is 1200×630 with its
+# title inside the artwork, so a crop destroys it. Assert the CSS never gains one.
+# Anchored to a declaration rather than the bare word, because the comment above the
+# gallery rules explains why object-fit is absent and a naive grep matches its own
+# documentation.
+if grep -qE '^[[:space:]]*object-fit[[:space:]]*:' "$ROOT/assets/css/shortcodes.css"; then
+  bad "the gallery never crops its images" "an object-fit declaration appeared in shortcodes.css"
+else
+  ok "the gallery never crops its images"
+fi
+
 BLANK=$(grep -o '<a class=button[^>]*_blank[^>]*>' "$SHORTCODES" | head -1)
 case "$BLANK" in
   *noopener*) ok "button with target=_blank sets rel=noopener" ;;

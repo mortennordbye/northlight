@@ -10,6 +10,13 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **`gallery`** — a responsive grid of images, taking `cols` of 2 or 3. It has no image handling
+  of its own: it grids whatever `figure` shortcodes are nested inside it, so a gallery image gets
+  the same `srcset`, intrinsic dimensions, dark variants and captions as any other and there is
+  no second code path. **Nothing is cropped** — the grid sizes columns and lets rows be as tall
+  as their content, rather than forcing a uniform box with `object-fit: cover` the way image
+  grids usually do, because a cover is 1200×630 with its title inside the artwork. There is a
+  test asserting no `object-fit` declaration ever appears in the shortcode stylesheet.
 - **`timeline` and `timelineItem`** — a vertical sequence of entries, taking `header` plus an
   optional `subheader`, `badge` and `icon`. The marker is a dot unless given an icon, because a
   column of identical icons carries no information. Pure CSS; the connecting line stops at the

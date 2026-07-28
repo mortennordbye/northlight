@@ -199,6 +199,41 @@ where you can see it working.
 Without the inner `ltr`, the trailing path and punctuation of that command get pulled
 around by the bidirectional algorithm and the line becomes unreadable.
 
+## `gallery`
+
+A responsive grid of images.
+
+```text
+{{</* gallery cols="3" */>}}
+{{</* figure src="shot-a.png" alt="Hello Northlight cover" */>}}
+{{</* figure src="shot-b.png" alt="Measuring cover" */>}}
+{{</* figure src="shot-c.png" alt="Two modes cover" */>}}
+{{</* /gallery */>}}
+```
+
+{{< gallery cols="3" >}}
+{{< figure src="shot-a.png" alt="Hello Northlight cover" >}}
+{{< figure src="shot-b.png" alt="Measuring cover" >}}
+{{< figure src="shot-c.png" alt="Two modes cover" >}}
+{{< /gallery >}}
+
+| Parameter | Required | What it does |
+|---|---|---|
+| `cols` | no | 2 or 3 columns on a wide screen. Default 3 |
+
+**It has no image handling of its own.** It grids whatever [`figure`](#figure) shortcodes
+you nest inside it, so a gallery image gets the same `srcset`, intrinsic dimensions, dark
+variants and captions as any other, and there is no second code path to keep in step.
+
+**Nothing is cropped.** Every other image grid you have met crops to a uniform box with
+`object-fit: cover`, and that is exactly what this theme cannot do — a cover is 1200×630
+with its title inside the artwork, so a crop destroys it. The grid sizes columns and lets
+rows be as tall as their content. The images above are all the same shape, which is a
+property of these files rather than something the grid imposed.
+
+Columns reflow on the grid's own width rather than at a guessed breakpoint, and collapse
+to one column when there is no room.
+
 ## `timeline`
 
 A vertical sequence of dated entries.

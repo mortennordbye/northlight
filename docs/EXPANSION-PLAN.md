@@ -239,7 +239,7 @@ These wrap existing partials, so they are mostly plumbing and docs.
       they work with JS disabled and are keyboard-accessible for free. The `mode` (single vs
       multiple open) behaviour is the only part needing JS, and it degrades to multiple-open.
       Branch `feat/shortcode-accordion`.
-- [ ] **`gallery`** — responsive image grid. Reuse the image pipeline; every image needs its
+- [x] **`gallery`** — responsive image grid. Reuse the image pipeline; every image needs its
       aspect ratio declared, per the no-layout-shift rule. Branch `feat/shortcode-gallery`.
 - [ ] **`tabs` / `tab`** — tabbed panels. Needs real ARIA (`role="tablist"`, arrow-key
       navigation, `aria-selected`) and must render all panels as sequential headed sections with
