@@ -1,0 +1,35 @@
+{{- /*
+  timelineItem — one entry on a `timeline`.
+
+  Parameters:
+    header     the entry's title (required)
+    subheader  a line beneath it, usually a date
+    badge      a short label, rendered as the shared .badge chip
+    icon       an icon name for the marker; defaults to a plain dot
+
+  The marker is a dot rather than an icon unless one is given, because a column of
+  identical icons carries no information and a timeline's job is the sequence.
+
+  Call:  {{< timelineItem header="0.2.0" subheader="July 2026" badge="Release" >}}
+*/ -}}
+{{- $header := .Get "header" -}}
+{{- if not $header -}}
+  {{- errorf "timelineItem shortcode: header is required (%s)" .Position -}}
+{{- end -}}
+<div class="timeline-item" role="listitem">
+  <div class="timeline-marker" aria-hidden="true">
+    {{- with .Get "icon" -}}
+      <span class="icon-inline">{{ partial "icon.html" . }}</span>
+    {{- else -}}
+      <span class="timeline-dot"></span>
+    {{- end -}}
+  </div>
+  <div class="timeline-content">
+    <p class="timeline-head">
+      <span class="timeline-header">{{ $header }}</span>
+      {{- with .Get "badge" }} <span class="badge">{{ . }}</span>{{ end -}}
+    </p>
+    {{- with .Get "subheader" }}<p class="timeline-sub">{{ . }}</p>{{ end -}}
+    {{- with .Inner }}<div class="timeline-body">{{ . | $.Page.RenderString (dict "display" "block") }}</div>{{ end -}}
+  </div>
+</div>

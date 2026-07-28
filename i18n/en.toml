@@ -64,9 +64,22 @@ copyCodeToClipboard = "Copy code to clipboard"
 codeCopiedToClipboard = "Code copied to clipboard"
 
 # --- Footer -------------------------------------------------------------------
-# {{ . }} is a link to Hugo, so the two names stay in whatever order the language
-# wants rather than being concatenated inside a template.
-builtWith = "built with {{ . }} and the Northlight theme"
+# Both names arrive as values rather than being concatenated in the template, so a
+# language can put them in whatever order it wants. .Hugo is always a link; .Theme is
+# a link only when the site sets footer.themeURL, and plain text otherwise.
+builtWith = "built with {{ .Hugo }} and the {{ .Theme }} theme"
+
+# The theme's own name. Separate from builtWith so a translation can transliterate it
+# without having to rebuild the sentence around it.
+themeName = "Northlight"
+
+# Accessible name for the carousel's scroll container. It is a focusable region, so it
+# needs a name; without one a screen reader announces an unlabelled group.
+carousel = "Image carousel"
+
+# The facade on a lite YouTube embed. Says where the click goes, because it leaves the
+# site: with scripting off the facade is a plain link to YouTube.
+watchOnYouTube = "Watch on YouTube"
 
 # --- Pluralised. Keep these last; see the note at the top. --------------------
 [readingTime]

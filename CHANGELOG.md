@@ -10,6 +10,111 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **`footer.themeURL`** — links the theme name in the footer attribution. Unset, it renders as
+  plain text, which is what the theme shipped with, so nothing changes for an existing site. The
+  theme cannot default it to its own repository: that URL contains the author's name, and no file
+  under `layouts/`, `assets/` or `static/` may carry an author-specific value. The `builtWith`
+  string now takes both names as values (`.Hugo` and `.Theme`) rather than concatenating one in
+  the template, so a translation controls the order of both, and the theme's name moves into its
+  own `themeName` key where a translation can transliterate it.
+- **Ten home page layouts**, selected by `home.layout`: `stack`, `page`, `profile`, `hero`,
+  `card`, `background`, `split`, `gallery`, `archive` and `custom`. This reverses the earlier
+  decision to ship one homepage; the reasoning is recorded as FLAG-6 in
+  `docs/EXPANSION-PLAN.md`. **Not a breaking change:** `stack` is the arrangement the theme
+  shipped with and is the default, and the refactor that moved it into a partial was verified
+  to leave the rendered `<main>` byte-identical. `home.html` is now a dispatcher that gathers
+  the post list once and hands it to the chosen partial, which is also what lets `custom`
+  work without forking the theme. An unknown layout fails the build rather than falling back
+  to the default and looking like the setting had no effect. `background` carries a flat scrim
+  and fixed light-on-dark text in both colour modes, because the photograph behind it does not
+  invert when the palette does.
+- **`carousel`** — a horizontally scroll-snapping row of nested `figure` shortcodes. The plan
+  listed this as a candidate to drop because it needs JavaScript and autoplay fights
+  `prefers-reduced-motion`; CSS scroll-snap answers both. There is **no JavaScript and no
+  autoplay at all**, so nothing owes the reader a pause control and there is no motion to
+  suppress. The container is focusable and labelled, so keyboard and screen-reader access come
+  from the scroll container itself.
+- **`youtube-lite`** — a YouTube embed rendered as a facade: a poster image from your own site,
+  a play badge and a plain link. **No Google host is contacted on page view**, which an ordinary
+  embed cannot say. The poster must be local; pulling the still from `ytimg.com`, as most "lite"
+  embeds do, is itself a third-party request and would defeat the point. With JavaScript off it
+  stays a link to YouTube; with it on, a click swaps in a `youtube-nocookie.com` player in place.
+- **`tabs` and `tab`** — tabbed panels, with an optional `group` so sets sharing a name switch
+  together. **The served markup is not a tab strip**: it is a plain sequence of headed
+  `<section>` elements with every panel visible, which is a complete document for a reader with
+  scripting off. `assets/js/tabs.js` then upgrades it in place to a real tablist with
+  `role="tablist"`, `aria-selected`, `aria-controls`, roving `tabindex` and arrow-key, Home and
+  End navigation, hiding the headings only once the tab buttons carrying the same text exist.
+  Built the other way round, a reader without JavaScript gets a stack of unlabelled boxes.
+- **`gallery`** — a responsive grid of images, taking `cols` of 2 or 3. It has no image handling
+  of its own: it grids whatever `figure` shortcodes are nested inside it, so a gallery image gets
+  the same `srcset`, intrinsic dimensions, dark variants and captions as any other and there is
+  no second code path. **Nothing is cropped** — the grid sizes columns and lets rows be as tall
+  as their content, rather than forcing a uniform box with `object-fit: cover` the way image
+  grids usually do, because a cover is 1200×630 with its title inside the artwork. There is a
+  test asserting no `object-fit` declaration ever appears in the shortcode stylesheet.
+- **`timeline` and `timelineItem`** — a vertical sequence of entries, taking `header` plus an
+  optional `subheader`, `badge` and `icon`. The marker is a dot unless given an icon, because a
+  column of identical icons carries no information. Pure CSS; the connecting line stops at the
+  last entry rather than trailing off below it.
+- **`accordion` and `accordionItem`** — collapsible panels built on `<details>`/`<summary>`, so
+  opening, closing, keyboard operation and the accessibility tree all come from the element
+  itself. **No JavaScript at all**, including for the single-open behaviour: `single="true"`
+  emits a shared `name` attribute, which browsers make mutually exclusive natively, and one too
+  old to support it simply allows several panels open.
+- **`figure`** — an image with a caption and optionally a link. Goes through the same
+  `_partials/img-attrs.html` the Markdown image render hook uses, so it gets the identical
+  `srcset`, `sizes` and intrinsic dimensions, reserves its box before the bytes land, and picks
+  up a `-dark` sibling in dark mode. Never cropped: only widths are generated, never a fixed
+  box, so a cover with its title baked into the artwork survives. The Markdown render hook
+  remains the documented default; this is for a figure that is also a link, or needs a class.
+- **`alert`** — a callout box taking `type`, plus an optional `icon` and `title`. A thin wrapper
+  over the admonition render hook's own CSS rather than a second callout style, so a callout
+  written either way is the same box. It exists for the three things `> [!NOTE]` cannot express:
+  a custom icon, a custom title, and a callout nested inside another shortcode. An unknown type
+  fails the build rather than falling back to `note`, since a misspelled `warning` rendering as
+  a neutral note is a callout quietly saying the wrong thing.
+- **`list`** — embeds recent posts using the same row the post index uses, with `limit`, an
+  optional `title`, and `where`/`value` to filter on a taxonomy term. Heading levels are chosen
+  so the block nests where it lands: items are `h3`, or `h4` under a `title` that takes the
+  `h3`. `where` and `value` each fail the build without the other, as does a filter that matches
+  no posts, since an empty result is indistinguishable from having forgotten the shortcode.
+- **`article`** — embeds one post as a card, given its `link`. Reuses `_partials/card.html`
+  rather than growing a second card, so an embedded post and a listed one cannot drift apart:
+  the cover at its exact aspect ratio, the draft label, the external-link treatment, the date
+  and first tag all come along. A path that resolves to nothing fails the build, because the
+  alternative is a card with no title linking nowhere, which reads as a styling bug rather than
+  a broken reference.
+- **`keyword` and `keywordList`** — a wrapping row of labelled pills, for a set of things listed
+  together: the stack behind a project, the topics a post covers. `keyword` takes an optional
+  `icon`. It shares a shape with `badge` on purpose, since both are small labels and a reader
+  should not have to learn two visual languages for that, but a badge marks one thing inside a
+  sentence where a keyword is one of a set. Inner text is required: an icon alone would be a pill
+  whose meaning the reader has to guess, so omitting the label fails the build.
+- **`icon`** — puts one of the theme's inline SVG icons into content, taking the name
+  positionally. No size parameter and none needed: an icon is 1em square, so it takes the size
+  of the text around it and its colour from `currentColor`. This makes the icon names a public
+  surface, so renaming one is now a breaking change on the same footing as renaming a config
+  key; the full set is listed on the Shortcodes page of the demo site. An unknown name fails
+  the build rather than leaving a gap.
+- **`ltr` and `rtl`** — mark a block as running in the other direction from the page around it,
+  as the per-block counterpart to the site-wide `rtl` param. Both set a `dir` attribute rather
+  than a CSS `direction` property: `dir` drives the bidirectional algorithm, alignment, list
+  markers and punctuation placement together, and it keeps working in a reader-mode view or a
+  feed reader that has dropped the stylesheet.
+- **`swatches`** — a row of colour chips, each labelled with its own hex value, taking any
+  number of colours positionally rather than the three the surveyed themes cap it at. The hex
+  is rendered as text beside the chip rather than hidden in a `title`, because a bare block of
+  colour carries its meaning in the colour alone and that is what a screen reader, a greyscale
+  print and a colourblind reader all lose. A value that is not a hex colour fails the build
+  rather than rendering a chip with no colour on a green build.
+- **`email`** — a `mailto:` link with the address obfuscated at build time, taking `email` plus
+  an optional `text` and `subject`. The obfuscation happens during the build rather than in the
+  browser, so it survives with scripting off and does not break copy and paste, which is what
+  the JavaScript and CSS-reversal alternatives each give up. The `href` is percent-encoded and
+  the link text has its `@` and dots split by empty spans, because the minifier decodes numeric
+  HTML entities in attributes and text alike and hands the address straight back. It stops naive
+  harvesting and nothing more; anything that renders the page reads the address fine.
 - **`button`** — a link styled as a call to action, taking `pageRef` for a page on this site or
   `href` for anything off it. It reuses the `.button` the 404 page and share row already use, so
   a button in content and a button in the chrome cannot drift apart. `target="_blank"` adds

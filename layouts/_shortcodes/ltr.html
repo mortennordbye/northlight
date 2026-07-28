@@ -1,0 +1,10 @@
+{{- /*
+  ltr — marks a block as left-to-right inside a right-to-left page.
+
+  The mirror of `rtl`; see that file for why this sets a `dir` attribute rather than a
+  CSS property. Mostly wanted on an RTL site for a code sample, a command line or a
+  citation that must not be reordered by the bidirectional algorithm.
+
+  Call:  {{< ltr >}}Markdown **here**.{{< /ltr >}}
+*/ -}}
+<div dir="ltr">{{ .Inner | .Page.RenderString (dict "display" "block") }}</div>

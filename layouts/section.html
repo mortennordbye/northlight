@@ -19,12 +19,12 @@
         <span class="year-line" aria-hidden="true"></span>
       </div>
       <div class="post-list">
-        {{- range .Pages }}{{ partial "post-item.html" . }}{{ end }}
+        {{- range .Pages }}{{ partial "post-item.html" (dict "ctx" .) }}{{ end }}
       </div>
     {{- end }}
   {{- else }}
     <div class="post-list">
-      {{- range $paginator.Pages }}{{ partial "post-item.html" . }}{{ end }}
+      {{- range $paginator.Pages }}{{ partial "post-item.html" (dict "ctx" .) }}{{ end }}
     </div>
   {{- end }}
 

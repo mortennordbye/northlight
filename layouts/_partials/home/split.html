@@ -1,0 +1,21 @@
+{{- /*
+  split — intro and author pinned in one column, the post list in the other.
+
+  Collapses to a single column below the breakpoint with the intro first, so a phone reads
+  it in the same order as a wide screen. The intro column is sticky on desktop only, and
+  only when it is short enough to be worth pinning.
+*/ -}}
+{{- $recentCount := int (.home.recentCount | default 6) -}}
+<div class="wrap home-split">
+  <aside class="home-split-aside">
+    {{- partial "home/intro.html" (dict "ctx" .ctx "author" .author "bare" true) -}}
+  </aside>
+  <div class="home-split-main">
+    {{- with first $recentCount .posts }}
+      <h2 class="section-title">{{ i18n "recentPosts" }}</h2>
+      <div class="post-list">
+        {{- range . }}{{ partial "post-item.html" (dict "ctx" . "level" 3) }}{{ end }}
+      </div>
+    {{- end }}
+  </div>
+</div>

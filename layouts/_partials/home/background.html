@@ -1,0 +1,43 @@
+{{- /*
+  background — a site-supplied image behind the intro block, full-bleed.
+
+  **The layout in genuine tension with the design brief**, and FLAG-6 says so out loud. A
+  photograph behind text is the glare this theme exists to avoid, so it is built with the
+  guards a photograph needs rather than as a free-for-all:
+
+    - A scrim sits between the image and the text. It is a flat token colour at a fixed
+      opacity, not a gradient, so the contrast it buys does not vary across the block.
+    - The text colour is fixed to the light-on-dark pair in *both* colour modes, because
+      the image does not change when the palette does. A block that inverted with the
+      theme would be legible in one mode and not the other over the same photograph.
+    - Without `home.backgroundImage` set it renders as the ordinary intro. No band, no
+      empty grey box.
+
+  The author still owns the image. No scrim rescues text over a photograph with a bright
+  patch exactly where the heading sits, which is why the documentation says to check it.
+*/ -}}
+{{- $bg := .home.backgroundImage -}}
+{{- $recentCount := int (.home.recentCount | default 6) -}}
+{{- $url := "" -}}
+{{- with $bg }}{{ $url = partial "image-url.html" . }}{{ end -}}
+
+{{- if $url -}}
+  <section class="home-bg" style="background-image:url({{ $url }})">
+    <div class="home-bg-scrim">
+      <div class="wrap">
+        {{- partial "home/intro.html" (dict "ctx" .ctx "author" .author "bare" true) -}}
+      </div>
+    </div>
+  </section>
+{{- else -}}
+  {{- partial "home/intro.html" (dict "ctx" .ctx "author" .author) -}}
+{{- end -}}
+
+{{- with first $recentCount .posts }}
+<div class="wrap">
+  <div class="section-head">
+    <h2 class="section-title">{{ i18n "recentPosts" }}</h2>
+  </div>
+  <div class="card-grid">{{ range . }}{{ partial "card.html" . }}{{ end }}</div>
+</div>
+{{- end -}}

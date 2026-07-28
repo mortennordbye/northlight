@@ -88,7 +88,7 @@ author can do. It is not a measure of effort.
 | **Nested / dropdown menus** | **Have** | — | One level, as a `<details>` disclosure rather than a hover dropdown |
 | Sub-navigation bar | Rejected | Low | Second nav for a six-post blog |
 | Header layout variants (fixed, fill, blur) | Rejected | — | Four variants where one considered choice is better |
-| Homepage layouts (profile/hero/card/background/custom) | Rejected | — | One homepage, matching the approved design |
+| Homepage layouts | **Have** | — | Ten, selected by `home.layout`. Defaults to `stack`, the original homepage, verified byte-identical |
 | Hero styles (basic/big/background/thumb) | Rejected | — | Covers are 1200×630 with the title baked in; only one treatment is correct |
 | Card vs list view switches | Rejected | — | See `BACKLOG.md` |
 | `groupByYear` on the index | **Have** | — | |
@@ -178,11 +178,20 @@ duplicated as shortcodes — and every shortcode is additive, replacing no Markd
 | Lead | **Have** | Reuses the `.lede` treatment rather than defining a parallel one |
 | Badge | **Have** | Same shape as a tag, without a tag's link behaviour |
 | Button | **Have** | Reuses the `.button` already used by the 404 page and the share row |
-| Email · Keyword · LTR/RTL · Swatches | Gap | Presentational primitives, no JS |
-| Icon · Article · List · Figure | Gap | Wrap partials the theme already has |
-| Alert | Gap | Only if it can reuse the admonition render hook's colours; a second syntax for the same thing is not worth the surface |
-| Accordion · Gallery · Tabs · Timeline | Gap | CSS-driven, JS-optional |
-| Carousel | Gap | Lowest priority and a candidate to drop — needs JS, and autoplay fights `prefers-reduced-motion` |
+| Email | **Have** | Obfuscated at build time, so it works with scripting off and keeps copy and paste |
+| Swatches | **Have** | Variadic rather than the three the reference caps at; each chip labelled with its hex |
+| LTR/RTL | **Have** | A `dir` attribute rather than a CSS property, so it survives without the stylesheet |
+| Keyword | **Have** | Shares `badge`'s shape; inner text required so a pill always carries a label |
+| Icon | **Have** | Exposes the internal icon partial; the names are a public surface from now on |
+| Article | **Have** | Reuses `_partials/card.html`; an unresolvable path fails the build |
+| List | **Have** | Reuses `_partials/post-item.html`, at a heading level that nests where it lands |
+| Figure | **Have** | Same pipeline as the render hook, dark variants included; never cropped |
+| Alert | **Have** | A thin wrapper over the admonition CSS, adding a custom icon and title. The render hook stays the default |
+| Timeline | **Have** | Pure CSS; `role=list` semantics without invalid markup |
+| Accordion | **Have** | `<details>`/`<summary>`; single-open is a native shared `name`, no JavaScript |
+| Gallery | **Have** | Grids nested `figure` calls, so one image path; never crops |
+| Tabs | **Have** | Headed sections upgraded to an ARIA tablist; full keyboard support, readable with JS off |
+| Carousel | **Have** | Built with CSS scroll-snap instead: no JavaScript, no autoplay, so neither objection applies |
 | Video · YouTube Lite | Gap | Local files only; the YouTube one as a click-to-load facade, so nothing is requested on page view |
 | Repository cards (six forges) · Ansible · Hugging Face · Code importer · Markdown importer | Rejected | Each calls a third-party API during the build. `docs/SPEC.md` §1 requires the theme to build with no network access |
 | Gist | Rejected | Third-party script on page view; the code fence with a filename bar covers it locally |

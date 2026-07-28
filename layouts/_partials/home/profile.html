@@ -1,0 +1,45 @@
+{{- /*
+  profile — centred avatar, name, headline, bio and social row, with posts listed beneath.
+
+  The personal-site arrangement. The avatar is larger here than the byline's 40px, because
+  it is the subject of the page rather than a credit line on it.
+
+  With no author configured this degrades to the title and description, which is still a
+  coherent page rather than a hole where a face should be.
+*/ -}}
+{{- $ctx := .ctx -}}
+{{- $author := .author -}}
+{{- $posts := .posts -}}
+{{- $recentCount := int (.home.recentCount | default 6) -}}
+
+<section class="home-profile">
+  <div class="wrap">
+    {{- with partial "image-url.html" $author.image }}
+      {{- /* The LCP element on this layout, so it is eager and hinted. */ -}}
+      <img class="profile-avatar" src="{{ . }}" alt="" width="128" height="128"
+           fetchpriority="high" decoding="async">
+    {{- end }}
+    <h1 class="profile-name">{{ with $author.name }}{{ . }}{{ else }}{{ $ctx.Title }}{{ end }}</h1>
+    {{- with $author.headline }}<p class="profile-headline">{{ . }}</p>{{ end }}
+    {{- with $ctx.Description }}<p class="profile-bio">{{ . }}</p>{{ end }}
+    {{- with $ctx.Content }}<div class="profile-body">{{ . }}</div>{{ end }}
+    {{- with $author.links }}
+    <div class="socials profile-socials">
+      {{- range . }}{{ range $name, $url := . }}
+        <a href="{{ $url }}" rel="noopener" target="_blank" aria-label="{{ $name | title }}">{{ partial "icon.html" $name }}</a>
+      {{- end }}{{ end }}
+    </div>
+    {{- end }}
+  </div>
+</section>
+
+{{- with first $recentCount $posts }}
+<div class="wrap">
+  <div class="section-head">
+    <h2 class="section-title">{{ i18n "recentPosts" }}</h2>
+  </div>
+  <div class="post-list">
+    {{- range . }}{{ partial "post-item.html" (dict "ctx" . "level" 3) }}{{ end }}
+  </div>
+</div>
+{{- end -}}

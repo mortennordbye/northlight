@@ -1,0 +1,31 @@
+{{- /*
+  accordionItem — one panel of an `accordion`.
+
+  Parameters:
+    title  the summary text (required)
+    icon   an icon name shown before the title
+    open   render this panel already expanded (default false)
+
+  Call:  {{< accordionItem title="What does it cost?" >}}Markdown.{{< /accordionItem >}}
+*/ -}}
+{{- $title := .Get "title" -}}
+{{- if not $title -}}
+  {{- errorf "accordionItem shortcode: title is required — a panel with no summary cannot be opened (%s)" .Position -}}
+{{- end -}}
+{{- /* Shortcode parameters are strings, and "false" is a truthy string in a Go template,
+       so these are compared rather than passed through `param-bool.html`. */ -}}
+{{- $open := in (slice "true" "yes" "1") (lower (.Get "open" | default "false")) -}}
+{{- $name := "" -}}
+{{- with .Parent -}}
+  {{- if in (slice "true" "yes" "1") (lower (.Get "single" | default "false")) -}}
+    {{- $name = printf "acc-%s" (substr (md5 (printf "%v" .Position)) 0 8) -}}
+  {{- end -}}
+{{- end -}}
+<details class="accordion-item"{{ with $name }} name="{{ . }}"{{ end }}{{ if $open }} open{{ end }}>
+  <summary class="accordion-summary">
+    {{- with .Get "icon" -}}<span class="icon-inline">{{ partial "icon.html" . }}</span> {{ end -}}
+    <span class="accordion-title">{{ $title }}</span>
+    <span class="accordion-chevron" aria-hidden="true">{{ partial "icon.html" "chevron-down" }}</span>
+  </summary>
+  <div class="accordion-body">{{ .Inner | .Page.RenderString (dict "display" "block") }}</div>
+</details>

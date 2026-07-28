@@ -1,85 +1,35 @@
 {{ define "main" }}
+{{- /*
+  Home page dispatcher, and nothing else.
+
+  It resolves the layout, gathers the post list once, and hands both to the chosen partial
+  in `_partials/home/`. Keeping the gathering here is the point: ten layouts would
+  otherwise grow ten copies of it, drift apart, and each need fixing separately. It is also
+  what makes `custom` possible without forking the theme.
+
+  `home.layout` defaults to `stack`, which is the arrangement this theme shipped with, so a
+  site that never sets the param sees no change.
+*/ -}}
 {{- $cfg := partialCached "init.html" . -}}
 {{- $home := site.Params.home | default dict -}}
-{{- $showFeatured := partial "param-bool.html" (dict "map" $home "key" "showFeatured" "default" true) -}}
-{{- $recentCount := int ($home.recentCount | default 3) -}}
-{{- $author := $cfg.author -}}
+{{- $layout := lower ($home.layout | default "stack") -}}
 
-{{- $posts := where site.RegularPages "Section" "in" site.Params.mainSections -}}
-{{- $featured := "" -}}
-{{- $recent := $posts -}}
-{{- if and $showFeatured $posts -}}
-  {{- $featured = index $posts 0 -}}
-  {{- $recent = after 1 $posts -}}
+{{- $known := slice "stack" "page" "profile" "hero" "card" "background" "split" "gallery" "archive" "custom" -}}
+{{- if not (in $known $layout) -}}
+  {{- /* Fail rather than falling back to stack. A typo would otherwise render the default
+         homepage and look like the param had no effect, which is the kind of thing someone
+         debugs for an hour. */ -}}
+  {{- errorf "home.layout: unknown layout %q — expected one of %s" $layout (delimit $known ", ") -}}
 {{- end -}}
 
-<section class="intro">
-  <div class="wrap">
-    <h1 class="intro-title">{{ .Title }}</h1>
-    {{- with .Description }}<p class="intro-text">{{ . }}</p>{{ end }}
-    {{- with .Content }}<div class="intro-body">{{ . }}</div>{{ end }}
+{{- /* One gather, shared by every layout. Sorted by Hugo's default, newest first. */ -}}
+{{- $posts := where site.RegularPages "Section" "in" site.Params.mainSections -}}
 
-    {{- if $author.name }}
-    <div class="byline-row">
-      <div class="byline">
-        {{- with partial "image-url.html" $author.image }}<img class="byline-avatar" src="{{ . }}" alt="" width="40" height="40">{{ end }}
-        <span>
-          <b>{{ $author.name }}</b>
-          {{- with $author.headline }}<span class="byline-headline">{{ . }}</span>{{ end }}
-        </span>
-      </div>
-
-      {{- with $author.links }}
-      <div class="socials">
-        {{- range . }}
-          {{- range $name, $url := . }}
-            <a href="{{ $url }}" rel="noopener" target="_blank" aria-label="{{ $name | title }}">{{ partial "icon.html" $name }}</a>
-          {{- end }}
-        {{- end }}
-      </div>
-      {{- end }}
-    </div>
-    {{- end }}
-  </div>
-</section>
-
-<div class="wrap">
-  {{- with $featured }}
-  <div class="section-head">
-    <h2 class="section-title">{{ i18n "featured" }}</h2>
-  </div>
-  <a class="feature" href="{{ .RelPermalink }}">
-    {{- with .Resources.GetMatch "{cover,featured}.*" }}
-      {{- $img := . }}
-      {{- if in (slice "png" "jpeg" "gif" "webp") .MediaType.SubType }}{{ $img = .Resize "700x q85" }}{{ end }}
-      {{- /* fetchpriority high, matching cover.html. This is the largest contentful paint
-             element on the home page, and without the hint it queues behind the stylesheet
-             and fonts. Never lazy: it is above the fold on every viewport. */ -}}
-      <img class="feature-cover" src="{{ $img.RelPermalink }}" alt=""
-           width="{{ $img.Width }}" height="{{ $img.Height }}"
-           fetchpriority="high" decoding="async">
-    {{- end }}
-    <div class="feature-body">
-      {{ partial "eyebrow.html" . }}
-      <h3 class="feature-title">{{ .LinkTitle }}</h3>
-      {{- with .Description }}<p class="feature-text">{{ . }}</p>{{ end }}
-      {{ partial "post-meta.html" (dict "ctx" .) }}
-    </div>
-  </a>
-  {{- end }}
-
-  {{- with first $recentCount $recent }}
-  <div class="section-head">
-    <h2 class="section-title">{{ i18n "recentPosts" }}</h2>
-    {{- with site.GetPage (printf "/%s" (index site.Params.mainSections 0)) }}
-      <a class="section-more" href="{{ .RelPermalink }}">
-        {{ i18n "allNPosts" (len $posts) }} <span class="nudge">{{ partial "icon.html" "arrow-right" }}</span>
-      </a>
-    {{- end }}
-  </div>
-  <div class="card-grid">
-    {{- range . }}{{ partial "card.html" . }}{{ end }}
-  </div>
-  {{- end }}
-</div>
+{{- partial (printf "home/%s.html" $layout) (dict
+      "ctx" .
+      "cfg" $cfg
+      "home" $home
+      "posts" $posts
+      "author" $cfg.author
+   ) -}}
 {{ end }}

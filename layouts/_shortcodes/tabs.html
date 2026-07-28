@@ -1,0 +1,23 @@
+{{- /*
+  tabs — tabbed panels.
+
+  **The markup is not tabs.** It is a plain sequence of headed <section> elements, which is
+  what a reader gets with JavaScript disabled: every panel visible, one after another, each
+  under its own heading. That is a complete, readable document rather than a degraded one.
+
+  `assets/js/tabs.js` upgrades it in place to a real tablist — role="tablist", role="tab",
+  role="tabpanel", aria-selected, aria-controls and arrow-key navigation. Building it the
+  other way round, as a tablist that JavaScript makes usable, is the version that leaves a
+  reader with no script staring at a pile of unlabelled divs.
+
+  Headings are h3, matching `list`: a page's own sections are h2, so a panel heading nests
+  under them rather than reading as ending the section it sits in.
+
+  Parameters:
+    group  optional name; tabs sharing a group switch together across a page
+
+  Call:  {{< tabs >}}{{< tab label="One" >}}…{{< /tab >}}{{< /tabs >}}
+*/ -}}
+<div class="tabs" data-tabs{{ with .Get "group" }} data-tab-group="{{ . }}"{{ end }}>
+  {{- .Inner | .Page.RenderString (dict "display" "block") -}}
+</div>

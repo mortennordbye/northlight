@@ -27,6 +27,514 @@
   vertical-align: baseline;
 }
 
+/* --- icon ------------------------------------------------------------------ */
+
+/* `base.css` gives every img, svg and video `display: block`, which is right for content
+   media and harmless for the rest of the theme's icons because those all sit in flex
+   containers. An icon in running prose is the one case where it is not harmless: block
+   display takes a whole line, so `built with {icon} anywhere` breaks across three lines.
+
+   The wrapper span puts it back in the line box. Styling the span rather than `.prose
+   .icon` keeps this off the admonition marks, which are also icons inside prose and are
+   laid out by their own flex rule.
+
+   The negative alignment is optical, not structural: sitting exactly on the baseline
+   leaves an icon looking low next to lowercase text, because the glyphs it sits beside
+   have descenders and it does not. */
+.icon-inline {
+  display: inline-block;
+  vertical-align: -0.14em;
+}
+
+/* --- article ---------------------------------------------------------------- */
+
+/* The card comes from `_partials/card.html` unchanged; this only gives it room to
+   breathe in a column of prose, where it arrives with no grid around it. */
+.article-embed {
+  margin: var(--space-6) 0;
+}
+
+/* Same collision `button` hit: `.prose a` is two classes to `.card`'s one, so inside
+   content the whole card came out accent-coloured and underlined. Anything reused from
+   the chrome inside prose needs this. */
+.prose a.card {
+  color: inherit;
+  box-shadow: none;
+}
+
+.prose a.card:hover {
+  box-shadow: none;
+}
+
+/* --- carousel --------------------------------------------------------------- */
+
+/* Native scroll-snap. No JavaScript, and nothing advances on its own — so there is no
+   motion to suppress under prefers-reduced-motion, and no pause control owed to anyone. */
+.carousel {
+  display: flex;
+  gap: var(--space-4);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  margin: var(--space-6) 0;
+  padding-bottom: var(--space-2);
+  scrollbar-width: thin;
+}
+
+.carousel:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: var(--radius-chip);
+}
+
+.carousel > figure {
+  flex: 0 0 min(100%, 22rem);
+  margin: 0;
+  scroll-snap-align: start;
+}
+
+/* Smooth scrolling is the one piece of motion here, and it goes when asked. */
+@media (prefers-reduced-motion: no-preference) {
+  .carousel {
+    scroll-behavior: smooth;
+  }
+}
+
+/* --- youtube-lite ----------------------------------------------------------- */
+
+/* A facade: a local poster, a play badge and a link. Nothing here reaches a Google host
+   until the reader clicks. */
+.yt-lite {
+  margin: var(--space-6) 0;
+}
+
+.yt-facade {
+  position: relative;
+  display: block;
+  border-radius: var(--radius-pager);
+  overflow: hidden;
+  box-shadow: none;
+}
+
+.prose a.yt-facade,
+.prose a.yt-facade:hover {
+  box-shadow: none;
+}
+
+.yt-facade img {
+  display: block;
+  width: 100%;
+}
+
+/* The badge is a solid token fill rather than a translucent overlay, so its contrast does
+   not depend on what the poster happens to look like behind it. */
+.yt-play {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 3.4rem;
+  height: 3.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--fg);
+  color: var(--surface);
+  font-size: 1.4rem;
+}
+
+.yt-frame {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: var(--radius-pager);
+}
+
+.yt-label {
+  display: block;
+  margin-top: var(--space-2);
+  font-size: 14px;
+  color: var(--fg-2);
+}
+
+/* --- tabs ------------------------------------------------------------------- */
+
+/* The unenhanced state is the default and is deliberately plain: a sequence of headed
+   sections, which is exactly what the markup is. Everything that makes it look like a
+   tab strip hangs off .is-enhanced, which `tabs.js` adds only after it has built the
+   tablist. Style it the other way round and a reader with no JavaScript sees panels
+   dressed as tabs that do not switch. */
+.tabs {
+  margin: var(--space-6) 0;
+}
+
+.tabs > .tab-panel + .tab-panel {
+  margin-top: var(--space-6);
+}
+
+.tab-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  border-bottom: 1px solid var(--line);
+  margin-bottom: var(--space-4);
+}
+
+.tab-button {
+  appearance: none;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  padding: var(--space-2) var(--space-3);
+  font: inherit;
+  font-size: 15px;
+  color: var(--fg-2);
+  cursor: pointer;
+}
+
+.tab-button:hover {
+  color: var(--fg);
+}
+
+/* The selected tab is marked by colour *and* an underline, so it is not identified by
+   colour alone. */
+.tab-button[aria-selected="true"] {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.tab-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  border-radius: var(--radius-chip);
+}
+
+/* The panel is focusable so a keyboard reader can move from the strip into the content;
+   it should not draw a permanent ring for that. */
+.is-enhanced .tab-panel:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: var(--radius-chip);
+}
+
+.is-enhanced > .tab-panel + .tab-panel {
+  margin-top: 0;
+}
+
+.tab-body > :last-child {
+  margin-bottom: 0;
+}
+
+/* --- gallery ---------------------------------------------------------------- */
+
+/* auto-fit with a floor rather than a fixed column count, so the grid reflows on its own
+   width instead of at breakpoints someone has to guess. Below the floor it becomes one
+   column, which is what a phone wants.
+
+   Note what is absent: no fixed row height and no object-fit. Every other image grid
+   crops to a uniform box, and cropping is the one thing this theme cannot do — a cover is
+   1200×630 with its title inside the artwork. Rows are as tall as their content instead. */
+.gallery {
+  display: grid;
+  gap: var(--space-4);
+  margin: var(--space-6) 0;
+}
+
+.gallery-2 {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+}
+
+.gallery-3 {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+}
+
+/* figure carries prose margins that would fight the grid gap. */
+.gallery figure {
+  margin: 0;
+}
+
+/* --- timeline --------------------------------------------------------------- */
+
+/* The line is a border on the marker column rather than a pseudo-element, so it cannot
+   drift out of alignment with the dots when the type scale changes. */
+.timeline {
+  margin: var(--space-6) 0;
+}
+
+/* Fixed marker column. Without it the column takes the width of whatever is in it, so an
+   entry with an icon indents further than one with a dot and the entries stop lining up —
+   which is the one thing a timeline has to get right. */
+.timeline-item {
+  --timeline-marker: 1.15rem;
+}
+
+.timeline-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-4);
+}
+
+.timeline-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--fg-3);
+  padding-top: 3px;
+  width: var(--timeline-marker);
+}
+
+/* The connecting line. It grows to fill whatever height the entry's content takes, and
+   the last entry has none, so the timeline stops at the last dot rather than trailing
+   off into empty space. */
+.timeline-marker::after {
+  content: "";
+  flex: 1;
+  width: 1px;
+  background: var(--line-strong);
+  min-height: var(--space-4);
+}
+
+.timeline-item:last-child .timeline-marker::after {
+  display: none;
+}
+
+.timeline-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex: none;
+}
+
+.timeline-content {
+  padding-bottom: var(--space-6);
+  min-width: 0;
+}
+
+.timeline-item:last-child .timeline-content {
+  padding-bottom: 0;
+}
+
+.timeline-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin: 0;
+}
+
+.timeline-header {
+  font-weight: 550;
+  color: var(--fg);
+}
+
+.timeline-sub {
+  margin: var(--space-1) 0 0;
+  font-size: 14px;
+  color: var(--fg-3);
+}
+
+.timeline-body {
+  margin-top: var(--space-3);
+}
+
+.timeline-body > :last-child {
+  margin-bottom: 0;
+}
+
+/* --- accordion -------------------------------------------------------------- */
+
+/* Everything here is <details>/<summary>. No JavaScript: open and close, keyboard
+   operation and the accessibility tree all come from the element itself. */
+.accordion {
+  margin: var(--space-6) 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pager);
+  overflow: hidden;
+}
+
+.accordion-item + .accordion-item {
+  border-top: 1px solid var(--line);
+}
+
+.accordion-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--fg);
+  background: var(--surface-2);
+}
+
+/* The default triangle is replaced by the theme's own chevron, so the control looks the
+   same in every browser. */
+.accordion-summary::-webkit-details-marker {
+  display: none;
+}
+
+.accordion-summary::marker {
+  content: "";
+}
+
+.accordion-summary:hover {
+  background: var(--accent-tint);
+}
+
+/* Focus has to stay visible: this is the one control in the set operated by keyboard. */
+.accordion-summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.accordion-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.accordion-chevron {
+  color: var(--fg-3);
+  transition: transform var(--dur-transform) var(--ease);
+}
+
+.accordion-item[open] > .accordion-summary .accordion-chevron {
+  transform: rotate(180deg);
+}
+
+/* The rotation is the only motion here, and it is a state indicator rather than
+   decoration — but it still goes when a reader has asked for less. */
+@media (prefers-reduced-motion: reduce) {
+  .accordion-chevron {
+    transition: none;
+  }
+}
+
+.accordion-body {
+  padding: var(--space-4);
+}
+
+.accordion-body > :last-child {
+  margin-bottom: 0;
+}
+
+/* --- figure ----------------------------------------------------------------- */
+
+/* <figure> and <figcaption> are already styled by prose.css for the Markdown render
+   hook, and this reuses them rather than declaring a parallel set. The only thing
+   needed here is the linked case: `.prose a` would paint the figure's box with a link
+   underline, which on an image reads as a rendering fault rather than a link. */
+.prose figure a {
+  box-shadow: none;
+}
+
+.prose figure a:hover {
+  box-shadow: none;
+}
+
+/* --- list ------------------------------------------------------------------- */
+
+/* .post-item brings its own row layout and its own divider from article.css; this only
+   spaces the block inside a column of prose and stops .prose a repainting the rows, the
+   same collision `button` and `article` both hit. */
+.post-list-embed {
+  margin: var(--space-6) 0;
+}
+
+.embed-title {
+  margin: 0 0 var(--space-4);
+}
+
+.prose a.post-item {
+  color: inherit;
+  box-shadow: none;
+}
+
+.prose a.post-item:hover {
+  box-shadow: none;
+}
+
+/* --- keyword / keywordList -------------------------------------------------- */
+
+/* Same wrap-don't-scroll reasoning as .swatches: a set of keywords has no reading order
+   worth preserving on one line. */
+.keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-6) 0;
+}
+
+/* Shares .badge's chip shape on purpose — both are "a small label" — but sits a step up
+   in size and padding, because a keyword is read as one of a set rather than as an aside
+   inside a sentence. */
+.keyword {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 13.5px;
+  line-height: var(--leading-ui);
+  color: var(--fg-2);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-chip);
+  padding: 5px 11px;
+}
+
+/* The pills are laid out by .keywords' flex row, so the paragraph Hugo wraps the nested
+   shortcodes in would otherwise become a single flex item holding all of them. */
+.keywords > p {
+  display: contents;
+}
+
+/* --- swatches -------------------------------------------------------------- */
+
+/* Wraps rather than scrolls: a row of chips has no reading order to preserve, so
+   dropping onto a second line at 375px is better than a scroll container. */
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: var(--space-6) 0;
+}
+
+.swatch {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-chip);
+  padding: var(--space-2) var(--space-3);
+}
+
+/* The chip's own border is a token rather than a darker shade of the swatch: a
+   colour close to the page background needs an edge to read as a chip at all, in
+   both modes, and only a token knows what the background currently is. */
+.swatch-chip {
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 4px;
+  border: 1px solid var(--line-strong);
+  flex: none;
+}
+
+.swatch-hex {
+  font-size: 12.5px;
+  color: var(--fg-2);
+  line-height: var(--leading-ui);
+}
+
+/* .prose code carries a fill and padding of its own, which would put a second box
+   inside the chip's box. The hex here is a label, not a code span in a sentence. */
+.prose .swatch-hex {
+  background: none;
+  border: 0;
+  padding: 0;
+}
+
 /* --- button ---------------------------------------------------------------- */
 
 /* .button itself is defined in article.css and reused as-is. The only thing needed

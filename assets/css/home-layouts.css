@@ -1,0 +1,299 @@
+/* ============================================================================
+   Home page layouts.
+
+   One arrangement per block, selected by `home.layout`. `stack` is not here: it
+   is the original homepage and its styles live in home.css with everything else,
+   which is what keeps the default byte-identical to what the theme shipped.
+
+   Same rules as the rest of the theme: tokens only, both colour modes, no
+   horizontal overflow at 375px, no gradients, no glass, no glow, no decorative
+   motion. Adding layouts did not suspend the design brief.
+   ============================================================================ */
+
+/* --- page ------------------------------------------------------------------ */
+
+.home-page {
+  padding-block: var(--space-9) var(--space-8);
+}
+
+/* `stack` puts the description and the body in separate blocks with their own rhythm.
+   Here they are siblings in one column, so without this the lede runs straight into the
+   first paragraph and the two read as one run-on block. */
+.home-page .intro-text {
+  margin-bottom: var(--space-6);
+}
+
+/* --- profile --------------------------------------------------------------- */
+
+.home-profile {
+  padding-block: var(--space-9) var(--space-8);
+  text-align: center;
+}
+
+.profile-avatar {
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto var(--space-5);
+  border: 1px solid var(--line);
+}
+
+.profile-name {
+  margin: 0;
+  font-size: var(--text-home-h1);
+  line-height: var(--leading-tight);
+}
+
+.profile-headline {
+  margin: var(--space-2) 0 0;
+  color: var(--fg-2);
+}
+
+.profile-bio {
+  margin: var(--space-4) auto 0;
+  max-width: 34rem;
+  color: var(--fg-2);
+  line-height: var(--leading-lede);
+}
+
+.profile-body {
+  margin: var(--space-4) auto 0;
+  max-width: 34rem;
+}
+
+.profile-socials {
+  justify-content: center;
+  margin-top: var(--space-5);
+}
+
+/* --- hero ------------------------------------------------------------------ */
+
+.home-hero {
+  padding-block: var(--space-9) var(--space-8);
+}
+
+.home-hero-inner {
+  display: grid;
+  gap: var(--space-7);
+  align-items: center;
+}
+
+@media (min-width: 62rem) {
+  .home-hero-inner {
+    grid-template-columns: 1fr 1.1fr;
+  }
+
+  /* With no cover anywhere on the site there is no second column to fill, so the text
+     takes the full measure rather than sitting in a half-width column beside a void. */
+  .home-hero.is-textonly .home-hero-inner {
+    grid-template-columns: 1fr;
+  }
+}
+
+.home-hero-kicker {
+  margin: var(--space-6) 0 var(--space-2);
+  font-size: var(--text-eyebrow);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+
+.home-hero-link {
+  font-size: var(--text-index-h3);
+  font-weight: 550;
+  line-height: var(--leading-snug);
+  color: var(--fg);
+}
+
+.home-hero-summary {
+  margin: var(--space-2) 0 0;
+  color: var(--fg-2);
+}
+
+/* The cover keeps its own ratio. No fixed band, no object-fit — a cover is
+   1200x630 with its title inside the artwork, and cropping destroys it. */
+.home-hero-media img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-panel);
+  border: 1px solid var(--line);
+}
+
+/* --- card ------------------------------------------------------------------ */
+
+.home-card {
+  margin-block: var(--space-8) var(--space-7);
+  padding: var(--space-7);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+}
+
+.home-card .intro-title {
+  margin-top: 0;
+}
+
+/* --- background ------------------------------------------------------------ */
+
+/* The one layout in tension with the design brief; see the header of
+   `_partials/home/background.html` for why it is built the way it is. */
+.home-bg {
+  background-size: cover;
+  background-position: center;
+}
+
+/* A flat scrim rather than a gradient, so the contrast it buys is the same at the
+   top of the block as at the bottom. Both colour modes get the same dark scrim,
+   because the photograph behind it does not invert when the palette does — a block
+   that flipped with the theme would be legible in one mode and not the other over
+   the same image. */
+.home-bg-scrim {
+  background: rgb(12 12 16 / 68%);
+  padding-block: var(--space-9);
+}
+
+/* Fixed light-on-dark, for the same reason. These are the only colours in the
+   theme that do not come from a mode-aware token, and that is deliberate. */
+.home-bg-scrim .intro-title,
+.home-bg-scrim .byline b {
+  color: #fff;
+}
+
+.home-bg-scrim .intro-text,
+.home-bg-scrim .intro-body,
+.home-bg-scrim .byline-headline {
+  color: rgb(255 255 255 / 86%);
+}
+
+.home-bg-scrim .socials a {
+  color: rgb(255 255 255 / 86%);
+}
+
+.home-bg-scrim .socials a:hover {
+  color: #fff;
+}
+
+/* --- split ----------------------------------------------------------------- */
+
+.home-split {
+  display: grid;
+  gap: var(--space-7);
+  padding-block: var(--space-8);
+}
+
+@media (min-width: 62rem) {
+  .home-split {
+    grid-template-columns: 20rem 1fr;
+    gap: var(--space-9);
+  }
+
+  /* Pinned only where there is room for it to be useful. */
+  .home-split-aside {
+    position: sticky;
+    top: var(--space-9);
+    align-self: start;
+  }
+}
+
+.home-split-aside .intro-title {
+  margin-top: 0;
+}
+
+/* --- gallery --------------------------------------------------------------- */
+
+.home-gallery-title {
+  margin-bottom: var(--space-6);
+}
+
+.home-gallery {
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  padding-bottom: var(--space-8);
+}
+
+.home-gallery-item {
+  display: block;
+  color: inherit;
+}
+
+/* Ratio preserved, not cropped. Same reason as everywhere else. */
+.home-gallery-item img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-thumb);
+  border: 1px solid var(--line);
+}
+
+/* Stands in for a missing cover, at the same aspect ratio so the grid rows stay level.
+   The title is repeated inside it rather than left blank, because an empty box beside
+   titled ones reads as an image that failed to load. */
+.home-gallery-blank {
+  display: flex;
+  align-items: center;
+  padding: var(--space-5);
+  aspect-ratio: 1200 / 630;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-thumb);
+  color: var(--fg-3);
+  line-height: var(--leading-snug);
+}
+
+.home-gallery-title-text {
+  display: block;
+  margin-top: var(--space-3);
+  font-weight: 500;
+  line-height: var(--leading-snug);
+}
+
+.home-gallery-item:hover .home-gallery-title-text {
+  color: var(--accent);
+}
+
+/* --- archive --------------------------------------------------------------- */
+
+.home-archive {
+  padding-block: var(--space-8);
+}
+
+.archive-year {
+  margin-top: var(--space-7);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--line);
+  font-size: var(--text-meta);
+  letter-spacing: 0.06em;
+  color: var(--fg-3);
+}
+
+.archive-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.archive-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.archive-row a {
+  color: var(--fg);
+  min-width: 0;
+}
+
+.archive-row a:hover {
+  color: var(--accent);
+}
+
+.archive-date {
+  flex: none;
+  font-size: var(--text-meta);
+  color: var(--fg-3);
+  font-variant-numeric: tabular-nums;
+}

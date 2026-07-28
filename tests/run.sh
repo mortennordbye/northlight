@@ -237,6 +237,257 @@ assert_grep '<span class=badge>' "$SHORTCODES" "badge renders as an inline chip"
 # button: pageRef must resolve to a real URL, not be echoed as written, and _blank must
 # bring rel=noopener with it or the opened page can reach back through window.opener.
 assert_grep 'class=button href=/docs/getting-started/' "$SHORTCODES" "button resolves pageRef to a URL"
+
+# email: the whole point is that the address is not in the source as an address. Assert
+# both halves — the href is percent-encoded, and the link text does not spell the
+# address out either.
+#
+# Percent-escapes rather than HTML entities, because the minifier decodes numeric
+# entities in attributes and in text, which hands the address straight back to a
+# scraper. Assert the whole encoded string, not a prefix: encoding only the first
+# character would pass a looser check.
+assert_grep 'href=mailto:%79%6F%75%40%65%78%61%6D%70%6C%65%2E%63%6F%6D' "$SHORTCODES" \
+  "email percent-encodes the address in the href"
+
+# The second half cannot be a check over the whole page: this page documents the
+# shortcode, so its code-fence examples necessarily show the address the way an author
+# types it. Scope it to the rendered anchors — split the markup on <a, keep the mailto
+# ones, cut each at its own </a>. Anchors cannot nest, so truncating at the first close
+# tag is safe. Guard on having found any: a refute over an empty string passes for the
+# wrong reason.
+MAILTOS=$(tr '\n' ' ' < "$SHORTCODES" | sed 's|<a |\
+<a |g' | grep '^<a [^>]*mailto:' | sed 's|</a>.*|</a>|')
+if [ -z "$MAILTOS" ]; then
+  bad "email leaves no plain address in the rendered link" "no mailto link on the page"
+elif printf '%s\n' "$MAILTOS" | grep -q 'you@example\.com'; then
+  bad "email leaves no plain address in the rendered link" \
+      "$(printf '%s\n' "$MAILTOS" | grep 'you@example\.com' | head -1)"
+else
+  ok "email leaves no plain address in the rendered link"
+fi
+# swatches: the colour has to survive into a style attribute. Go refuses to interpolate
+# an unvalidated value into one and emits ZgotmplZ instead, which renders as a chip with
+# no colour and no error — so assert the declaration is really there, and assert the
+# label separately, since a chip without its hex is a block of colour and nothing else.
+assert_grep 'class=swatch-chip style=background:#4f57c4' "$SHORTCODES" \
+  "swatches puts the colour in the style attribute"
+refute_grep 'ZgotmplZ' "$SHORTCODES" "no value was rejected by the template escaper"
+SWATCHES=$(grep -o 'class=swatch-hex>#[0-9a-fA-F]*' "$SHORTCODES" | wc -l | tr -d ' ')
+assert_count 3 "$SWATCHES" "swatches labels every chip with its hex value"
+
+# ltr/rtl: the guarantee is a `dir` attribute, not a class that happens to look the same.
+# `dir` is real HTML — it drives the bidirectional algorithm, alignment, list markers and
+# punctuation placement together, and it survives a reader-mode view or a feed reader that
+# has dropped the stylesheet. A CSS class does none of that while looking identical in a
+# browser, so it would be an easy and invisible regression. Assert on the attribute.
+assert_grep '<div dir=rtl>' "$SHORTCODES" "rtl marks the block with a dir attribute"
+assert_grep '<div dir=ltr>' "$SHORTCODES" "ltr marks the block with a dir attribute"
+
+# icon: exposing the partial makes the icon names a public surface, so the documented set
+# and the real set have to be the same set. Compare them directly rather than counting:
+# a number here would need bumping by hand, and the failure it is guarding against is
+# precisely that somebody changed the icons and did not think about the documentation.
+#
+# This covers the half the build cannot: an icon added to the partial and never written
+# up. The other half is already fatal earlier — a documented name that no longer exists
+# makes the partial warn, and the gate runs with --panicOnWarning, so the build stops
+# before the suite starts. Renaming an icon trips both at once.
+#
+# Names come from the docs table, where each entry pairs the rendered icon with its label
+# as `</span> <code>name</code>`, which also proves the label belongs to a real icon.
+ICONS_DEFINED=$(sed -n '/\$icons := dict/,/^-}}/p' "$ROOT/layouts/_partials/icon.html" \
+  | grep -oE '^ *"[a-z-]+"' | tr -d ' "' | sort)
+ICONS_SHOWN=$(grep -o '</span> <code>[a-z-]*</code>' "$SHORTCODES" \
+  | sed 's|</span> <code>||; s|</code>||' | sort)
+if [ -z "$ICONS_DEFINED" ]; then
+  bad "the documented icon set matches the real one" "read no icon names from the partial"
+elif [ "$ICONS_DEFINED" = "$ICONS_SHOWN" ]; then
+  ok "the documented icon set matches the real one"
+else
+  bad "the documented icon set matches the real one" \
+      "partial: $(printf '%s' "$ICONS_DEFINED" | tr '\n' ' ') / docs: $(printf '%s' "$ICONS_SHOWN" | tr '\n' ' ')"
+fi
+
+# keyword: Hugo wraps the nested shortcodes in a <p>, which would become one flex item
+# holding every pill and collapse the row to a single line item. `.keywords > p` is set to
+# `display: contents` to let the pills be the flex items instead. Assert the <p> is really
+# there, because the CSS rule that neutralises it looks like dead code otherwise and is
+# exactly the kind of thing a later cleanup deletes.
+assert_grep '<div class=keywords><p><span class=keyword>' "$SHORTCODES" \
+  "keywordList wraps its pills in the paragraph the CSS expects"
+KEYWORDS=$(grep -o '<span class=keyword>' "$SHORTCODES" | wc -l | tr -d ' ')
+assert_count 3 "$KEYWORDS" "keywordList renders every pill"
+
+# article: the point is that it reuses `_partials/card.html` rather than growing a second
+# card. Assert the real card markup, not a wrapper class — a hand-rolled lookalike would
+# satisfy a check on `.article-embed` alone and then drift from the listing cards, which is
+# the whole failure this shortcode exists to avoid.
+assert_grep '<div class=article-embed><a class=card href=/blog/' "$SHORTCODES" \
+  "article embeds a real post card"
+assert_grep 'class=card-cover' "$SHORTCODES" "the embedded card keeps its cover"
+
+# list: reuses the post index row, but at a heading level that nests where it lands. The
+# post index keeps h2, because there the only other heading is the list's own h1. Embedded
+# in a page whose sections are already h2, an h2 item title reads as *ending* the section
+# it sits inside — wrong for anyone navigating by heading, and invisible on screen, which
+# is why it needs a test rather than an eyeball.
+#
+# Untitled: items are h3. Titled: the title takes h3 and the items drop to h4, so the
+# block stays internally consistent either way.
+assert_grep '<div class=post-list-embed><a class=post-item' "$SHORTCODES" \
+  "list reuses the post index row"
+assert_grep '<h3 class=item-title' "$SHORTCODES" "an untitled list puts its items at h3"
+assert_grep '<h3 class=embed-title>' "$SHORTCODES" "a list title renders at h3"
+assert_grep '<h4 class=item-title' "$SHORTCODES" "a titled list drops its items to h4"
+
+# The whole point of the level parameter is that the post index did not move.
+assert_grep '<h2 class=item-title' "$PUBLIC/blog/index.html" \
+  "the post index keeps its own heading level"
+
+# No heading level may be skipped anywhere on the shortcodes page. This page now carries
+# h1 through h4 from three different sources — its own Markdown, the list embeds and the
+# icon table — so a skip is easy to introduce and impossible to see.
+DOCLEVELS=$(grep -oE '<h[1-6][ >]' "$SHORTCODES" | grep -oE '[1-6]' | sort -u | tr -d '\n')
+case "$DOCLEVELS" in
+  1234|123|12) ok "heading levels on the shortcodes page descend without a gap" ;;
+  *) bad "heading levels on the shortcodes page descend without a gap" "levels present: $DOCLEVELS" ;;
+esac
+
+# figure: the whole reason it goes through img-attrs.html is to get the identical srcset,
+# sizes and intrinsic dimensions a Markdown image gets. A hand-rolled <img src> would look
+# right on a fast desktop connection and cost a phone the full-size file forever, so assert
+# the pipeline attributes rather than the tag.
+assert_grep '<figure><a href=/docs/writing/><img class=img-light src=/docs/shortcodes/diagram.png srcset=' "$SHORTCODES" \
+  "figure runs through the image pipeline and can be a link"
+assert_grep 'sizes="(max-width: 47rem) 100vw, 44.2rem" width=1600 height=470' "$SHORTCODES" \
+  "figure declares intrinsic dimensions, so it reserves its box"
+assert_grep '<figcaption>' "$SHORTCODES" "figure renders its caption"
+
+# Dark variants, on the same terms as the render hook. The shortcode's own documentation
+# claims pipeline parity, and without this it would put a light-mode diagram in the middle
+# of a dark page — the exact problem the render hook exists to solve. Both images must be
+# emitted; CSS decides which is shown, so a media query would not be enough.
+assert_grep '<img class=img-light' "$SHORTCODES" "figure emits the light variant"
+assert_grep '<img class=img-dark' "$SHORTCODES" "figure picks up a -dark sibling"
+
+# Never cropped, the invariant that forced the previous theme's local override. Only widths
+# are generated, so every srcset candidate keeps the source ratio. A fixed box would show up
+# here as a height that is not proportional to its width.
+assert_grep 'width=1600 height=470' "$SHORTCODES" "figure keeps the source aspect ratio"
+
+# alert: it reuses the admonition render hook's classes rather than introducing a second
+# callout style. Assert the shared class, because a parallel `.alert` block would look
+# identical on the day it shipped and drift the first time either was restyled.
+assert_grep '<div class="admonition admonition-warning"' "$SHORTCODES" \
+  "alert reuses the admonition styling"
+assert_grep '<span>Reviewed</span>' "$SHORTCODES" "alert accepts a custom title"
+
+# timeline: role=list / role=listitem rather than a real <ol>, because a container whose
+# children are shortcodes can end up with a paragraph wrapper and a <p> inside an <ol> is
+# invalid. The roles are the semantics, so they are the thing worth asserting.
+assert_grep '<div class=timeline role=list><div class=timeline-item role=listitem>' "$SHORTCODES" \
+  "timeline exposes list semantics without invalid markup"
+assert_grep 'class=timeline-dot' "$SHORTCODES" "a timeline entry without an icon gets a dot"
+
+# accordion: the entire control is <details>/<summary>. No JavaScript, and not as a
+# fallback — if this ever becomes a div with a click handler it loses keyboard operation
+# and its place in the accessibility tree, and it would still look identical.
+assert_grep '<details class=accordion-item' "$SHORTCODES" "accordion is built on <details>"
+assert_grep '<summary class=accordion-summary>' "$SHORTCODES" "accordion panels have a real summary"
+
+# single=true is a shared `name` on the <details>, which browsers make mutually exclusive
+# natively. Both panels of that accordion must carry the *same* name, and panels of a
+# different accordion must not carry one at all, or two accordions on a page would close
+# each other's panels.
+ACC_NAMES=$(grep -o '<details class=accordion-item name=[a-z0-9-]*' "$SHORTCODES" \
+  | sed 's/.*name=//' | sort -u | wc -l | tr -d ' ')
+ACC_NAMED=$(grep -c '<details class=accordion-item name=' "$SHORTCODES" | tr -d ' ')
+assert_count 1 "$ACC_NAMES" "a single-open accordion shares one group name"
+assert_count 2 "$ACC_NAMED" "only the single-open accordion's panels are grouped"
+
+# The shortcodes page must not have grown a script tag for any of this.
+refute_grep 'accordion.js' "$SHORTCODES" "accordion ships no JavaScript"
+
+# gallery: it has no image handling of its own, it grids nested `figure` calls. Assert a
+# real <figure> with pipeline attributes inside it — a gallery that grew its own <img> tag
+# would look identical and quietly lose srcset, intrinsic dimensions and dark variants.
+assert_grep '<div class="gallery gallery-3"><figure><img src=/docs/shortcodes/shot-a.png srcset=' "$SHORTCODES" \
+  "gallery grids real figures, pipeline included"
+
+# The never-crop invariant, in the place most likely to break it. Every image grid in the
+# wild uses object-fit: cover to force a uniform box, and a cover here is 1200×630 with its
+# title inside the artwork, so a crop destroys it. Assert the CSS never gains one.
+# Anchored to a declaration rather than the bare word, because the comment above the
+# gallery rules explains why object-fit is absent and a naive grep matches its own
+# documentation.
+if grep -qE '^[[:space:]]*object-fit[[:space:]]*:' "$ROOT/assets/css/shortcodes.css"; then
+  bad "the gallery never crops its images" "an object-fit declaration appeared in shortcodes.css"
+else
+  ok "the gallery never crops its images"
+fi
+
+# tabs: the served markup must be the *fallback*, not the tab strip. A reader with no
+# JavaScript gets a sequence of headed <section> elements with every panel visible; the
+# script builds the tablist afterwards. These assertions are on the server output, so they
+# are checking exactly what that reader receives.
+#
+# This is the most easily broken thing in the set: someone "tidying" the heading away, or
+# moving role=tablist into the template, would look identical in a browser with scripting
+# on and silently destroy the no-JavaScript version.
+assert_grep '<section class=tab-panel data-tab-label=' "$SHORTCODES" \
+  "tabs are served as headed sections, not as a tab strip"
+assert_grep '<h3 class=tab-heading>' "$SHORTCODES" \
+  "each panel carries a real heading for the no-JavaScript reader"
+refute_grep 'role=tablist' "$SHORTCODES" \
+  "the tablist is built by script, never served as markup"
+refute_grep '<section class=tab-panel[^>]*hidden' "$SHORTCODES" \
+  "no panel is hidden before the script runs"
+
+# The panel headings are h3 for the same reason list's items are: a page's own sections
+# are h2, and an h2 here would read as ending the section the tabs sit inside.
+assert_grep 'class=tab-heading' "$SHORTCODES" "panel headings nest under the page's sections"
+
+# carousel: scroll-snap, no script. Nothing advances on its own, so there is no motion to
+# suppress and no pause control owed to anyone. If this ever grows an autoplay timer it
+# also grows an obligation to prefers-reduced-motion, so assert the CSS stays declarative.
+assert_grep '<div class=carousel tabindex=0 role=group aria-label=' "$SHORTCODES" \
+  "the carousel is a labelled, focusable scroll region"
+if grep -qE '^[[:space:]]*scroll-snap-type' "$ROOT/assets/css/shortcodes.css"; then
+  ok "the carousel scrolls natively rather than by script"
+else
+  bad "the carousel scrolls natively rather than by script" "no scroll-snap-type declaration"
+fi
+
+# youtube-lite: the entire point is that no Google host is contacted on page view. This is
+# the assertion that matters — a poster fetched from ytimg.com, or an iframe present in the
+# markup, would look identical to a reader and silently reintroduce the third-party request
+# the facade exists to prevent.
+# Scoped to URL attributes rather than the bare host name: the section documenting why the
+# poster must be local names ytimg.com in its prose, and a plain refute matches its own
+# explanation. Same trap as the object-fit check above.
+if grep -oE '(src|srcset|href)="?[^" >]*ytimg[^" >]*' "$SHORTCODES" | grep -q .; then
+  bad "the poster is local, never fetched from the video host" \
+      "$(grep -oE '(src|srcset|href)="?[^" >]*ytimg[^" >]*' "$SHORTCODES" | head -1)"
+else
+  ok "the poster is local, never fetched from the video host"
+fi
+refute_grep '<iframe' "$SHORTCODES" "no iframe is served before the reader clicks"
+assert_grep 'class=yt-facade href="https://www.youtube.com/watch' "$SHORTCODES" \
+  "the facade is a plain link, so it works with JavaScript off"
+assert_grep 'data-yt-id=' "$SHORTCODES" "the video id is available to the click handler"
+
+# Nothing anywhere in the built site may request a third-party host on page view. The
+# theme makes no calls home, and this is the check that keeps it that way as shortcodes
+# accumulate. Only the facade's own href may name youtube.com, and an href is not a request.
+if grep -oE '(src|href)="https?://[^"]+"' "$SHORTCODES" \
+     | grep -vE 'youtube\.com/watch|gohugo\.io|github\.com|schema\.org|example\.com' \
+     | grep -qE 'src="https?://'; then
+  bad "no third-party asset is requested on page view" \
+      "$(grep -oE 'src="https?://[^"]+"' "$SHORTCODES" | head -1)"
+else
+  ok "no third-party asset is requested on page view"
+fi
+
 BLANK=$(grep -o '<a class=button[^>]*_blank[^>]*>' "$SHORTCODES" | head -1)
 case "$BLANK" in
   *noopener*) ok "button with target=_blank sets rel=noopener" ;;
@@ -247,6 +498,84 @@ if grep -o '<span class=badge>[^<]*<p' "$SHORTCODES" >/dev/null; then
   bad "badge inner content stays inline" "inner content was wrapped in a paragraph"
 else
   ok "badge inner content stays inline"
+fi
+
+# Every docs page must be reachable from the navigation. The shortcodes page shipped
+# without a menu entry and was only findable by typing the URL — the page existed, built,
+# and was linked from other pages, so nothing else noticed. This compares the docs pages
+# that were built against the links in the rendered Docs dropdown.
+DOCS_BUILT=$(find "$PUBLIC/docs" -mindepth 2 -maxdepth 2 -name index.html \
+  | sed "s|$PUBLIC/docs/||; s|/index.html||" | sort)
+DOCS_IN_NAV=$(grep -o 'href=/docs/[a-z-]*/' "$PUBLIC/index.html" \
+  | sed 's|href=/docs/||; s|/$||' | sort -u)
+MISSING=$(echo "$DOCS_BUILT" | while read -r d; do
+  [ -n "$d" ] || continue
+  echo "$DOCS_IN_NAV" | grep -qx "$d" || echo "$d"
+done | tr '\n' ' ')
+# Distinguish "one page is missing from the menu" from "the menu did not render at all".
+# Without this, a broken dropdown reports every page as missing and reads like seven
+# separate mistakes rather than one.
+if [ -z "$(printf '%s' "$DOCS_IN_NAV" | tr -d ' ')" ]; then
+  bad "every docs page is reachable from the navigation" "the Docs menu rendered no links at all"
+elif [ -n "$(printf '%s' "$MISSING" | tr -d ' ')" ]; then
+  bad "every docs page is reachable from the navigation" "not in the menu: $MISSING"
+else
+  ok "every docs page is reachable from the navigation"
+fi
+
+# --------------------------------------------------------------------------------
+group "Home layouts"
+
+# home.html is a dispatcher; the arrangements live in _partials/home/. Only the configured
+# one renders in any given build, so the suite checks the default's output and the presence
+# of the rest. The unknown-layout path fails the build outright and so cannot be asserted
+# from here — it is exercised by hand and recorded in the plan.
+for L in stack page profile hero card background split gallery archive custom; do
+  assert_file "$ROOT/layouts/_partials/home/$L.html" "home layout exists: $L"
+done
+assert_file "$ROOT/layouts/_partials/home/intro.html" "the shared home intro block exists"
+
+# The default is `stack`, which is the homepage this theme shipped with. A site that never
+# sets the param must see no change, so these assert the original markup specifically. If
+# the dispatcher ever defaults to something else, every existing site's homepage silently
+# changes and this is what catches it.
+assert_grep 'class=intro'      "$PUBLIC/index.html" "the default home layout is still stack"
+assert_grep 'class=feature'    "$PUBLIC/index.html" "stack still renders the featured post"
+assert_grep 'class=card-grid'  "$PUBLIC/index.html" "stack still renders the recent card grid"
+
+# Covers are never cropped, in the layouts as much as anywhere. Anchored to a declaration
+# rather than the bare word, because the comments explaining the rule name it.
+# Scoped to the post-cover rules specifically: the profile avatar *is* deliberately
+# cropped with object-fit, because a round avatar of an arbitrary photo has to be, and a
+# blanket ban would forbid the one legitimate use.
+BADCROP=$(awk '/\.home-hero-media img|\.home-gallery-item img/,/}/' "$ROOT/assets/css/home-layouts.css" \
+  | grep -cE '^[[:space:]]*object-fit' | tr -d ' ')
+assert_count 0 "$BADCROP" "no home layout crops a post cover"
+
+# The stylesheet has to be in the bundle, or every layout but stack renders unstyled.
+assert_grep 'home-layouts.css' "$ROOT/layouts/_partials/head.html" \
+  "the home layout stylesheet is in the bundle"
+
+# Every layout is rendered live by the example site's layout switcher, one page each, so a
+# layout that stopped building would take a route with it. This is what makes the ten
+# genuinely exercised rather than merely present as files.
+for L in stack page profile hero card background split gallery archive custom; do
+  assert_file "$PUBLIC/layouts/$L/index.html" "layout demo page builds: $L"
+done
+
+# base.css blockifies every svg, which takes a whole line in running text. Content hit this
+# with the icon shortcode and the archive layout hit it again with its external-link mark.
+# Any icon sitting inside a line of text needs the .icon-inline wrapper.
+assert_grep 'icon-inline' "$PUBLIC/layouts/archive/index.html" \
+  "the archive external-link mark stays on its line"
+
+# The hover colour must stay behind :hover. A stray edit once promoted it to an
+# unconditional rule, which made every gallery caption read as a visited link.
+if grep -qE '^\.home-gallery-title-text \{\s*$' "$ROOT/assets/css/home-layouts.css" \
+   && grep -A3 -E '^\.home-gallery-title-text \{' "$ROOT/assets/css/home-layouts.css" | grep -q 'color: var(--accent)'; then
+  bad "the gallery caption colour is only applied on hover" "an unconditional accent colour is set"
+else
+  ok "the gallery caption colour is only applied on hover"
 fi
 
 # --------------------------------------------------------------------------------

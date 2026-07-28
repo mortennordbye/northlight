@@ -1,0 +1,19 @@
+{{- /*
+  rtl — marks a block as right-to-left inside a left-to-right page.
+
+  This is the per-block counterpart to the site-wide `rtl` param, which sets dir on
+  <html>. Use that one for a site that is entirely RTL; use this for a quotation, an
+  address or an example in the other direction on a page that is not.
+
+  `dir` is the whole mechanism. It is a real HTML attribute rather than a styling
+  convention, so it drives the bidirectional algorithm, text alignment, list marker
+  and punctuation placement together, and it keeps working in a reader-mode view or a
+  feed reader that drops the stylesheet entirely. A CSS `direction` property would do
+  only the first part of that.
+
+  Inner content is Markdown, rendered as a block, so paragraphs and lists behave
+  normally inside one.
+
+  Call:  {{< rtl >}}Markdown **here**.{{< /rtl >}}
+*/ -}}
+<div dir="rtl">{{ .Inner | .Page.RenderString (dict "display" "block") }}</div>

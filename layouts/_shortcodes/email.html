@@ -1,0 +1,63 @@
+{{- /*
+  email — a mailto link with the address obfuscated at build time.
+
+  Two different techniques, because one does not cover both places the address appears.
+
+  The href is percent-encoded, character by character. That is URL syntax rather than
+  markup, so it survives everything downstream and the browser decodes it before acting
+  on the link. HTML entities were the obvious first choice and do not work here: Hugo's
+  minifier decodes numeric entities in attributes *and* in text, so the address ends up
+  in the output in clear — which is exactly what a scraper reads. Percent-escapes it
+  leaves alone.
+
+  The link text cannot be percent-encoded, because it is text rather than a URL. Instead
+  the @ and the dots are preceded by an empty span, which the minifier keeps. A pattern
+  looking for an address in the markup does not match across a tag boundary, while
+  selection and copy-paste are unaffected: an empty span contributes nothing to the text
+  content.
+
+  Be honest about what this buys: it stops naive address harvesting and nothing more.
+  Anything that renders the page reads the address fine. The reason to prefer it over
+  the usual alternatives is what it does *not* break — obfuscating with JavaScript stops
+  working with scripting off, and the CSS reversal trick breaks copy and paste.
+
+  Parameters:
+    email    the address (required)
+    text     link text; defaults to the obfuscated address
+    subject  pre-fills the subject line
+
+  Call:  {{< email email="you@example.com" >}}
+         {{< email email="you@example.com" text="Say hello" subject="About the theme" >}}
+*/ -}}
+
+{{- $email := .Get "email" -}}
+{{- if not $email -}}
+  {{- errorf "email shortcode: email is required (%s)" .Position -}}
+{{- end -}}
+
+{{- $enc := "" -}}
+{{- if $email -}}
+  {{- range $i := seq 0 (sub (len $email) 1) -}}
+    {{- $enc = printf "%s%%%02X" $enc (index $email $i) -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $href := printf "mailto:%s" $enc -}}
+{{- with .Get "subject" -}}
+  {{- $href = printf "%s?subject=%s" $href (. | urlquery) -}}
+{{- end -}}
+
+{{- /* No safeURL. Go's templates sanitise URLs in an href, which is worth keeping, and
+       there is nothing here for it to mangle: every character taken from the parameter
+       is now %XX, so no quote, angle bracket or colon survives to close the attribute or
+       change the scheme, and the scheme itself is the literal "mailto:" written above.
+       Supplied link text goes through the normal escaping path. */ -}}
+<a href="{{ $href }}">
+  {{- with .Get "text" -}}
+    {{ . | $.Page.RenderString }}
+  {{- else -}}
+    {{ $email | replaceRE "([@.])" "<span></span>$1" | safeHTML }}
+  {{- end -}}
+</a>
+{{- /* No trailing newline: it would collapse to a visible space before any punctuation
+       following the link. */ -}}

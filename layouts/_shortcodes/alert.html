@@ -1,0 +1,48 @@
+{{- /*
+  alert — a callout box.
+
+  The plan asked whether this was worth building at all, given admonitions already ship as
+  a render hook over GitHub's `> [!NOTE]` syntax with five types and colours in both modes.
+  Answer: built, but only as a thin wrapper over that same CSS, never as a second styling
+  system. It reuses `.admonition` and `.admonition-<type>` exactly, so a callout written
+  either way is the same box.
+
+  What it adds over the render hook, and the only reason it exists:
+
+    - a custom icon, which the blockquote syntax has no way to express
+    - a custom title independent of the type
+    - a callout inside another shortcode, where `>` blockquote syntax does not survive
+
+  If you need none of those, use `> [!NOTE]`. It renders identically, and it stays
+  readable in any Markdown renderer, which this does not.
+
+  Parameters:
+    type   note | tip | important | warning | caution (default note)
+    icon   an icon name, overriding the one the type implies
+    title  heading text, overriding the type name
+
+  Call:  {{< alert type="warning" >}}Renaming a config key is a breaking change.{{< /alert >}}
+*/ -}}
+{{- $icons := dict
+  "note"      "info"
+  "tip"       "bulb"
+  "important" "megaphone"
+  "warning"   "alert"
+  "caution"   "octagon"
+-}}
+{{- $type := lower (.Get "type" | default "note") -}}
+{{- $icon := index $icons $type -}}
+{{- if not $icon -}}
+  {{- /* Fail rather than falling back to note. A misspelled type would otherwise render a
+         warning as a neutral note, which is a callout quietly saying the wrong thing —
+         worse than one that does not build. The list is duplicated from
+         `_markup/render-blockquote.html`; both must gain a type together. */ -}}
+  {{- errorf "alert shortcode: unknown type %q — expected one of note, tip, important, warning, caution (%s)" $type .Position -}}
+{{- else -}}
+  {{- $icon = .Get "icon" | default $icon -}}
+  {{- $title := .Get "title" | default (title $type) -}}
+  <div class="admonition admonition-{{ $type }}" role="note">
+    <p class="admonition-label">{{ partial "icon.html" $icon }}<span>{{ $title }}</span></p>
+    <div class="admonition-body">{{ .Inner | .Page.RenderString (dict "display" "block") }}</div>
+  </div>
+{{- end -}}

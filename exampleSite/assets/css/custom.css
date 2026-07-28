@@ -1,103 +1,43 @@
-/* Site-level CSS, owned by this site rather than by the theme.
+/* Example-site only. Styles the layout-demo switcher, which is demo scaffolding and not
+   part of the theme — see exampleSite/layouts/layouts/single.html. */
 
-   Northlight picks up assets/css/custom.css automatically if it exists and appends it
-   to its own bundle, so it is minified and fingerprinted along with everything else and
-   costs no extra request. Nothing has to be configured to switch it on, and the theme
-   ships no file of this name, so there is nothing to conflict with.
-
-   Because it lands last in the cascade, a plain rule beats the theme's equivalent at the
-   same specificity. Retuning a design token is usually the tidier move:
-
-       :root { --measure: 40rem; }
-       html[data-palette="clay"] { --accent: #9c4737; }
-
-   Two real examples follow rather than placeholders: the documentation index, which is
-   a layout this site has and the theme does not, and print styles, which the theme has
-   no opinion about. */
-
-/* --- documentation index -------------------------------------------------- */
-
-.doc-index {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: var(--space-4);
+.layout-demo-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
   margin-top: var(--space-6);
-}
-
-.doc-card {
-  display: block;
-  padding: var(--space-5);
+  padding: var(--space-3) var(--space-4);
+  background: var(--accent-tint);
   border: 1px solid var(--line);
-  border-radius: var(--radius-card);
-  background: var(--surface);
-  transition:
-    border-color var(--dur-card),
-    transform var(--dur-card);
+  border-radius: var(--radius-pager);
 }
 
-.doc-card:hover {
-  border-color: var(--accent-pastel);
-  transform: translateY(-2px);
-}
-
-.doc-card-title {
-  font-size: var(--text-card-h3);
-  font-weight: 600;
-  margin: 0 0 var(--space-2);
-}
-
-.doc-card-text {
-  font-size: var(--text-meta);
-  line-height: 1.55;
-  color: var(--fg-3);
+.layout-demo-note {
   margin: 0;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .doc-card {
-    transition: none;
-  }
-
-  .doc-card:hover {
-    transform: none;
-  }
+.layout-demo-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--line);
 }
 
-/* --- print ---------------------------------------------------------------- */
+.layout-demo-nav a {
+  font-size: var(--text-meta);
+  font-family: var(--font-mono);
+  color: var(--fg-2);
+  padding: 3px 9px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-chip);
+}
 
-@media print {
-  /* Chrome and Safari drop backgrounds when printing, which would leave the
-     admonitions as unlabelled floating text. Give them a visible edge instead. */
-  .admonition {
-    border: 1px solid #999;
-    border-left-width: 3px;
-    break-inside: avoid;
-  }
-
-  /* Interface, not content. None of it means anything on paper. */
-  .site-header,
-  .site-footer,
-  .toc,
-  .reading-progress,
-  .back-to-top,
-  .share,
-  .pager,
-  .related,
-  .edit-link {
-    display: none;
-  }
-
-  /* The measure exists to stop the eye travelling too far on a screen. A sheet of A4
-     is already narrower than that, so let the text use the page. */
-  .prose,
-  .wrap {
-    max-width: none;
-  }
-
-  /* A printed link is a dead end unless its destination is written out. */
-  .prose a[href^="http"]::after {
-    content: " (" attr(href) ")";
-    font-size: 0.85em;
-    word-break: break-all;
-  }
+.layout-demo-nav a[aria-current="page"] {
+  color: var(--fg);
+  border-color: var(--line-strong);
+  background: var(--surface-2);
 }

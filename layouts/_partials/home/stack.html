@@ -1,0 +1,63 @@
+{{- /*
+  stack — the arrangement Northlight shipped with, and the default.
+
+  Intro, one featured post with its cover, then a card grid of recent posts. Moved here
+  from `home.html` unchanged when the layout dispatcher arrived; the output is asserted
+  identical, because a refactor that quietly restyles every existing site's homepage is
+  not a refactor.
+*/ -}}
+{{- $ctx := .ctx -}}
+{{- $home := .home -}}
+{{- $author := .author -}}
+{{- $posts := .posts -}}
+{{- $showFeatured := partial "param-bool.html" (dict "map" $home "key" "showFeatured" "default" true) -}}
+{{- $recentCount := int ($home.recentCount | default 3) -}}
+
+{{- $featured := "" -}}
+{{- $recent := $posts -}}
+{{- if and $showFeatured $posts -}}
+  {{- $featured = index $posts 0 -}}
+  {{- $recent = after 1 $posts -}}
+{{- end -}}
+
+{{- partial "home/intro.html" (dict "ctx" $ctx "author" $author) -}}
+
+<div class="wrap">
+  {{- with $featured }}
+  <div class="section-head">
+    <h2 class="section-title">{{ i18n "featured" }}</h2>
+  </div>
+  <a class="feature" href="{{ .RelPermalink }}">
+    {{- with .Resources.GetMatch "{cover,featured}.*" }}
+      {{- $img := . }}
+      {{- if in (slice "png" "jpeg" "gif" "webp") .MediaType.SubType }}{{ $img = .Resize "700x q85" }}{{ end }}
+      {{- /* fetchpriority high, matching cover.html. This is the largest contentful paint
+             element on the home page, and without the hint it queues behind the stylesheet
+             and fonts. Never lazy: it is above the fold on every viewport. */ -}}
+      <img class="feature-cover" src="{{ $img.RelPermalink }}" alt=""
+           width="{{ $img.Width }}" height="{{ $img.Height }}"
+           fetchpriority="high" decoding="async">
+    {{- end }}
+    <div class="feature-body">
+      {{ partial "eyebrow.html" . }}
+      <h3 class="feature-title">{{ .LinkTitle }}</h3>
+      {{- with .Description }}<p class="feature-text">{{ . }}</p>{{ end }}
+      {{ partial "post-meta.html" (dict "ctx" .) }}
+    </div>
+  </a>
+  {{- end }}
+
+  {{- with first $recentCount $recent }}
+  <div class="section-head">
+    <h2 class="section-title">{{ i18n "recentPosts" }}</h2>
+    {{- with site.GetPage (printf "/%s" (index site.Params.mainSections 0)) }}
+      <a class="section-more" href="{{ .RelPermalink }}">
+        {{ i18n "allNPosts" (len $posts) }} <span class="nudge">{{ partial "icon.html" "arrow-right" }}</span>
+      </a>
+    {{- end }}
+  </div>
+  <div class="card-grid">
+    {{- range . }}{{ partial "card.html" . }}{{ end }}
+  </div>
+  {{- end }}
+</div>

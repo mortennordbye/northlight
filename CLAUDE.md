@@ -198,8 +198,8 @@ templates. Templates read resolved values; they do not re-derive defaults inline
 
 Every param needs a default. The pattern is `site.Params.x | default "y"`, and page-level front
 matter overrides site-level where that makes sense (`.Params.showToc | default site.Params.article.showToc`).
-Never read a param that has not been documented in `README.md` and demonstrated in
-`exampleSite/hugo.toml`.
+Never read a param that has not been documented on the docs site's Configuration page and
+demonstrated in `exampleSite/hugo.toml`.
 
 ### Safety rules for AI-assisted changes
 
@@ -254,7 +254,11 @@ gap at some point.
    `exampleSite/content/docs/`: getting-started, configuration, writing, appearance, integrations
    or translating. The docs are built by the theme, so write the page such that it *demonstrates*
    what it describes rather than only describing it.
-5. **`README.md` config reference.** One row: key, default, what it changes.
+5. **The docs site is the config reference, not `README.md`.** A new param's row — key, default,
+   what it changes — goes on `exampleSite/content/docs/configuration.md`. `README.md` carries the
+   pitch, the install steps, the config the theme cannot start without, and links into the docs
+   site; a parameter table there is a second copy that goes stale. If the feature needed a new
+   docs page, add its `[[menu.main]]` entry too.
 6. **`CHANGELOG.md`** under Unreleased, in the right subsection. Say what breaks, if anything.
 7. **`docs/FEATURE-SURVEY.md`.** Update the row's status. If you decided *not* to build
    something, mark it Rejected with the reason rather than leaving it as an open candidate.
@@ -278,7 +282,7 @@ solving the wrong problem — surface it as a param instead.
 ```
 .
 ├── CLAUDE.md              # this file
-├── README.md              # public docs: install + full config reference
+├── README.md              # the pitch, install, and the config the theme cannot start without
 ├── BACKLOG.md             # known gaps deliberately left for later
 ├── theme.toml             # Hugo theme gallery metadata
 ├── Makefile               # every workflow, containerised

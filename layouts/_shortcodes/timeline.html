@@ -1,0 +1,15 @@
+{{- /*
+  timeline — a vertical sequence of dated entries.
+
+  Container only; the entries are `timelineItem`.
+
+  role="list" rather than a real <ol>, because Hugo wraps the nested shortcode calls in a
+  paragraph and a <p> inside an <ol> is invalid HTML — the browser would close the list
+  early and the nesting would be wrong. The roles put the semantics back without the
+  invalid markup, and there is a test asserting the accessibility tree really sees a list,
+  because `display: contents` on the wrapping paragraph has historically dropped elements
+  out of it.
+
+  Call:  {{< timeline >}}{{< timelineItem header="..." >}}…{{< /timelineItem >}}{{< /timeline >}}
+*/ -}}
+<div class="timeline" role="list">{{ .Inner | .Page.RenderString (dict "display" "block") }}</div>

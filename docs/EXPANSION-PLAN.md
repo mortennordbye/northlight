@@ -57,7 +57,7 @@ importer. All of them fetch a third-party API during `hugo build`.
 **Resolved as:** not built. Listed under *Not building* with the reason. This is the single
 largest cut from the surveyed list — roughly nine shortcodes — and it is not a matter of effort.
 
-### FLAG-3 — Three shortcodes need a third-party script · deferred, see Part C
+### FLAG-3 — Three shortcodes need a third-party script · deferred, see Part D
 
 Charts, diagrams and typewriter effects each need a rendering library that would be fetched or
 bundled. The security baseline in `CLAUDE.md` forbids third-party requests by default, and
@@ -79,6 +79,35 @@ page view. If even that is unacceptable, delete the one file — nothing else re
 `_partials/icon.html` is currently internal. A shortcode makes the icon names a public, stable
 surface — renaming one becomes a breaking change under the rule in `CLAUDE.md`. Accepted because
 the set is small and stable, but it is a commitment, not a free feature.
+
+### FLAG-6 — This reverses "one homepage, one considered choice" · **decided: build ten**
+
+`docs/FEATURE-SURVEY.md` §3 records homepage layout variants as **Rejected**, on the argument that
+one considered choice matching `design/northlight.html` beats a menu of them. Part D said the same.
+
+**Decided by the owner, 2026-07-28:** build ten homepage layouts, and correct the documents that
+say otherwise rather than leaving them contradicting the code. Same handling as FLAG-1: as each
+lands, the §3 row moves off Rejected, and the Part D row is narrowed to the variants that are
+still not being built (hero styles, header layouts, card/list switches).
+
+Reasoning behind the reversal is the same one that carried FLAG-1. The theme is published for
+other people, whose homepage is not this blog's homepage. A site with no posts yet, a portfolio,
+a documentation root and a personal profile page all want different things above the fold, and
+none of them is served by a single opinionated arrangement.
+
+**The design brief still binds.** "No glare" is not suspended by adding layouts. Concretely:
+
+- Nothing gains a gradient, a glass panel, a glow or decorative motion.
+- Every layout is built from the tokens in `assets/css/tokens.css` and works in both colour modes.
+- `background` is the one in genuine tension with the brief, because a photograph behind text is
+  exactly the glare the theme exists to avoid. It is built with a required scrim and a measured
+  contrast floor, and the documentation says plainly that it is the least Northlight-ish option.
+
+**Not a breaking change.** `home.layout` defaults to `stack`, which is today's homepage. A site
+that never sets the param sees no difference, and the test suite asserts that.
+
+**To reverse:** delete `layouts/_partials/home/`, drop the `home.layout` param and restore
+`home.html` to its current body. Nothing else depends on any of it.
 
 ---
 
@@ -161,19 +190,19 @@ No JavaScript, no new dependencies, small CSS.
       `layouts/_shortcodes/` directory, the shortcode CSS entry point and the docs page all work
       before anything harder lands.
 - [x] **`badge`** — small inline pill for metadata. Inner text. Branch `feat/shortcode-badge`.
-- [ ] **`keyword` / `keywordList`** — a wrapping row of labelled pills, optionally with an icon.
+- [x] **`keyword` / `keywordList`** — a wrapping row of labelled pills, optionally with an icon.
       Container plus item. Depends on A1 `badge` for its CSS foundation and on A2 `icon` for the
       optional icon. Branch `feat/shortcode-keywords`.
-- [ ] **`swatches`** — renders colour chips from hex values. Takes up to three positional
+- [x] **`swatches`** — renders colour chips from hex values. Takes up to three positional
       parameters in the surveyed themes; build it variadic instead, there is no reason for the
       limit. Branch `feat/shortcode-swatches`. Genuinely useful in a theme whose docs are about
       design tokens.
 - [x] **`button`** — styled call-to-action link. Parameters: `href`, `pageRef`, `target`, `rel`.
       Must set `rel="noopener"` when `target="_blank"`, and must not accept raw HTML.
       Branch `feat/shortcode-button`.
-- [ ] **`email`** — obfuscated `mailto:` link. Parameters: `email`, `text`, `subject`. Obfuscation
+- [x] **`email`** — obfuscated `mailto:` link. Parameters: `email`, `text`, `subject`. Obfuscation
       is build-time, not JS, so it survives with scripting off. Branch `feat/shortcode-email`.
-- [ ] **`ltr` / `rtl`** — direction override for a block. Two tiny files. Relevant because the
+- [x] **`ltr` / `rtl`** — direction override for a block. Two tiny files. Relevant because the
       theme's RTL support is the row most likely to be wrong (`docs/FEATURE-SURVEY.md` §7).
       Branch `feat/shortcode-direction`.
 
@@ -181,21 +210,21 @@ No JavaScript, no new dependencies, small CSS.
 
 These wrap existing partials, so they are mostly plumbing and docs.
 
-- [ ] **`icon`** — exposes `_partials/icon.html` to content, sized in `em` to match surrounding
+- [x] **`icon`** — exposes `_partials/icon.html` to content, sized in `em` to match surrounding
       text. See FLAG-5. Branch `feat/shortcode-icon`.
-- [ ] **`article`** — embeds a single post as a card, given a path. Reuses `_partials/card.html`.
+- [x] **`article`** — embeds a single post as a card, given a path. Reuses `_partials/card.html`.
       Must fail loudly on an unresolvable path rather than rendering an empty card.
       Branch `feat/shortcode-article`.
-- [ ] **`list`** — embeds N recent posts, optionally filtered by a taxonomy term. Reuses
+- [x] **`list`** — embeds N recent posts, optionally filtered by a taxonomy term. Reuses
       `_partials/post-item.html`. Parameters: `limit`, `title`, `where`, `value`.
       Branch `feat/shortcode-list`.
-- [ ] **`figure`** — image with caption, link and alt, going through the same Hugo image pipeline
+- [x] **`figure`** — image with caption, link and alt, going through the same Hugo image pipeline
       as `_markup/render-image.html` so it gets identical intrinsic dimensions, `srcset` and lazy
       loading. **Must not crop** — the 1200×630 invariant in `CLAUDE.md` applies here too.
       Branch `feat/shortcode-figure`. Note: the Markdown image render hook stays the documented
       default; this exists for the cases Markdown syntax cannot express (a linked figure, a
       class).
-- [ ] **`alert`** — callout box. Branch `feat/shortcode-alert`. **Check before building:**
+- [x] **`alert`** — callout box. Branch `feat/shortcode-alert`. **Check before building:**
       admonitions already ship as a render hook over GitHub `> [!NOTE]` syntax, with five types
       and colours in both modes. If this is only a second syntax for the same thing, it is not
       worth the surface — build it as a thin wrapper that reuses the admonition CSS and accepts a
@@ -203,30 +232,30 @@ These wrap existing partials, so they are mostly plumbing and docs.
 
 ### A3 · Layout components (CSS-driven, JS-optional)
 
-- [ ] **`timeline` / `timelineItem`** — vertical timeline. Container plus item, item parameters
+- [x] **`timeline` / `timelineItem`** — vertical timeline. Container plus item, item parameters
       `header`, `subheader`, `badge`, `icon`. Pure CSS. Watch the 375px width.
       Branch `feat/shortcode-timeline`.
-- [ ] **`accordion` / `accordionItem`** — collapsible panels built on `<details>`/`<summary>`, so
+- [x] **`accordion` / `accordionItem`** — collapsible panels built on `<details>`/`<summary>`, so
       they work with JS disabled and are keyboard-accessible for free. The `mode` (single vs
       multiple open) behaviour is the only part needing JS, and it degrades to multiple-open.
       Branch `feat/shortcode-accordion`.
-- [ ] **`gallery`** — responsive image grid. Reuse the image pipeline; every image needs its
+- [x] **`gallery`** — responsive image grid. Reuse the image pipeline; every image needs its
       aspect ratio declared, per the no-layout-shift rule. Branch `feat/shortcode-gallery`.
-- [ ] **`tabs` / `tab`** — tabbed panels. Needs real ARIA (`role="tablist"`, arrow-key
+- [x] **`tabs` / `tab`** — tabbed panels. Needs real ARIA (`role="tablist"`, arrow-key
       navigation, `aria-selected`) and must render all panels as sequential headed sections with
       JS off. Optional `group` syncs tabs across a page. Branch `feat/shortcode-tabs`.
       The most accessibility-sensitive item in Part A — do not ship a `<div>` soup version.
-- [ ] **`carousel`** — sliding image viewer. Branch `feat/shortcode-carousel`.
+- [x] **`carousel`** — sliding image viewer. Branch `feat/shortcode-carousel`.
       **Lowest priority in Part A, and a candidate to drop.** It needs JS, autoplay is hostile to
       `prefers-reduced-motion`, and a gallery covers most of the same ground without the motion.
       Build it last; dropping it costs nothing.
 
 ### A4 · Media
 
-- [ ] **`video`** — local or self-hosted video, with `poster`, `caption`, `ratio`, `controls`,
+- [~] **`video`** — *blocked on a sample file, see `BACKLOG.md`.* Local or self-hosted video, with `poster`, `caption`, `ratio`, `controls`,
       `loop`, `muted`, `preload`, `start`/`end` fragments. No third-party contact. Autoplay must
       be opt-in *and* must respect `prefers-reduced-motion`. Branch `feat/shortcode-video`.
-- [ ] **`youtube-lite`** — facade embed: static thumbnail plus play button, no third-party request
+- [x] **`youtube-lite`** — facade embed: static thumbnail plus play button, no third-party request
       until the reader clicks. See FLAG-4. The thumbnail must be a local file supplied by the
       author, not fetched from the video host, or the facade is pointless.
       Branch `feat/shortcode-youtube-lite`.
@@ -275,7 +304,70 @@ means flipping that row to **Have** in the same commit.
 
 ---
 
-## Part C — Not building
+## Part C — Homepage layouts
+
+Ten arrangements for the home page, selected by one param. See FLAG-6 for why this reverses a
+recorded decision.
+
+**The shape of the work.** `home.layout` picks a partial from `layouts/_partials/home/`.
+`home.html` becomes a dispatcher and nothing else: it resolves the param, gathers the post list
+once, and hands both to the chosen partial. That keeps the ten from growing ten copies of the
+post-gathering logic, and it is what makes `custom` possible without a fork.
+
+**Rules every layout obeys.** These are the ones that will actually get broken:
+
+1. **`stack` is today's homepage, byte for byte.** It is the default, so an existing site sees no
+   change. Build it first, by moving the current `home.html` body into a partial unchanged, and
+   assert the output is identical before touching anything else.
+2. **Degrade to nothing gracefully.** Every layout must render with no author configured, no
+   cover images, no `description`, and **zero posts**. An empty site is the first thing a new
+   adopter sees, and a layout that renders a stray heading over an empty grid is the first
+   impression it makes. Test the zero-post case specifically.
+3. **No layout shift.** Every image declares its aspect ratio. Covers are 1200×630 and are
+   **never cropped** — the invariant that forced the previous theme's local override applies here
+   exactly as it does in an article.
+4. **The LCP element keeps its hint.** Whichever image a layout puts above the fold takes
+   `fetchpriority="high"` and is never lazy-loaded. `stack` already does this for the featured
+   cover; the others each need it on their own largest image, and there is a test group for it.
+5. **Both colour modes, no horizontal overflow at 375px.** As everywhere.
+6. **Every string through `i18n/en.toml`.** Several of these introduce new headings.
+
+- [x] **`stack`** — the current homepage: intro, one featured post with its cover, then a card
+      grid of recent posts. Ships as the default. Branch `feat/home-stack`, and it is a refactor
+      rather than a feature: prove the output is unchanged.
+- [x] **`page`** — the page's own title and Markdown content, and nothing else. No featured post,
+      no cards, no byline. For a site whose homepage is a written page rather than an index, and
+      the layout a documentation site wants. Branch `feat/home-page`.
+- [x] **`profile`** — centred avatar, name, headline, bio and social row, with posts listed
+      beneath. The personal-site arrangement. Reuses the author block `stack` already has rather
+      than inventing a second one. Branch `feat/home-profile`.
+- [x] **`hero`** — the newest post's cover at full width in its exact 1200×630 box, with the title
+      and description alongside it on wide screens and beneath it on narrow. The strongest LCP
+      case in the set, so the priority hint matters most here. Branch `feat/home-hero`.
+- [x] **`card`** — the whole intro inside one bordered panel, posts as cards below. Quieter than
+      `stack` because the intro stops being full-bleed. Branch `feat/home-card`.
+- [x] **`background`** — a site-supplied image behind the intro block, full-bleed.
+      **The one in tension with the design brief.** Requires a scrim, and the documentation must
+      state the contrast floor and that the author is responsible for an image that clears it.
+      Do not ship it without measuring text contrast over a real photograph in both modes.
+      Branch `feat/home-background`.
+- [x] **`split`** — two columns on wide screens: intro and author pinned in one, the post list in
+      the other. Collapses to one column below the breakpoint, intro first. Branch
+      `feat/home-split`.
+- [x] **`gallery`** — no intro furniture at all; posts as a cover-led grid, two or three across.
+      For a photography or project site where the images are the content. Branch
+      `feat/home-gallery`.
+- [x] **`archive`** — no intro, no covers; every post in one dense chronological list grouped by
+      year. Reuses the `groupByYear` logic the post index already has. The fastest homepage in the
+      set and the right one for a long-running blog. Branch `feat/home-archive`.
+- [x] **`custom`** — renders `layouts/_partials/home/custom.html`, which the theme ships as a
+      documented stub for a site to override. The escape hatch, so that an arrangement nobody
+      anticipated does not require a fork. Must fail with a clear message rather than a blank page
+      when the override is missing. Branch `feat/home-custom`.
+
+---
+
+## Part D — Not building
 
 Recorded so the same questions are not reopened from scratch. Each of these appears in the
 surveyed themes and is deliberately absent here.
@@ -294,7 +386,7 @@ surveyed themes and is deliberately absent here.
 | Additional analytics vendors | `extend-head.html` is the supported route. A theme should not ship five vendors. |
 | Multiple authors, author taxonomy, author badges | Single-author theme by design. `docs/FEATURE-SURVEY.md` §2. |
 | Series taxonomy | Decision recorded in `BACKLOG.md`. Build it when a post needs it. |
-| Homepage layout variants, hero style variants, header layout variants, card/list switches | One considered choice each, matching `design/northlight.html`. `docs/FEATURE-SURVEY.md` §3. |
+| Hero style variants, header layout variants, card/list switches | One considered choice each, matching `design/northlight.html`. `docs/FEATURE-SURVEY.md` §3. Note this no longer covers *homepage* layouts, which moved to Part C — see FLAG-6. |
 | Image zoom / lightbox | JS weight for a gesture the browser already offers. |
 | Zen mode | The layout is already the focus mode. |
 | Browser language redirect | Client-side redirects on a static site. |
@@ -371,3 +463,200 @@ silently.
   Author-supplied URLs are **not** passed through `safeURL`. Go's templates sanitise URLs in an
   `href`, which neutralises `javascript:`; `safeURL` would switch that off. `render-link.html`
   does use `safeURL`, which is a separate and older decision about Markdown links.
+
+- **`feat/shortcode-email`** — `email`. Two deviations from the plan, both deliberate.
+
+  **The work is on a pushed branch and a pull request, not local-only.** The "Working method"
+  section above says everything stays local with no remote branches; that was overridden by the
+  owner from `feat/shortcodes` onward. Treat the PR flow as current and that paragraph as stale.
+
+  **Obfuscation is percent-encoding, not HTML entities.** Entities are the obvious choice and do
+  not work, which cost three iterations to pin down. This is the thing to know before writing any
+  shortcode that tries to keep a string out of the output:
+
+  > **Hugo's minifier decodes numeric HTML entities — in attributes *and* in text.** Whatever you
+  > encode as `&#121;` lands in `public/` as `y`. `safeHTMLAttr` on the whole attribute does not
+  > help; the minifier decodes inside attributes too and emits `href=mailto:you@example.com`.
+
+  The `href` is therefore percent-encoded character by character, which is URL syntax rather than
+  markup and so passes through untouched. The link text cannot be — it is text, not a URL — so
+  the `@` and the dots are each preceded by an empty `<span>`. That defeats a pattern match
+  across the tag boundary while contributing nothing to text content, leaving copy and paste
+  intact.
+
+  Also worth knowing for later items:
+
+  - **A "this string is absent" assertion cannot be scoped to a whole documentation page.** The
+    first version grepped the page for the plain address and could never pass, because the page
+    documents the shortcode and its code fences necessarily show the address as an author types
+    it. The check is now scoped to the rendered anchors — split on `<a`, keep the `mailto:` ones,
+    cut each at its own `</a>`, since anchors cannot nest. Any later shortcode whose guarantee is
+    *absence* will hit the same problem on its own docs page.
+  - **Guard a refute on having found anything.** A "no match" assertion over an empty extraction
+    passes for the wrong reason and reads as coverage. The email case fails loudly if no `mailto:`
+    link is found at all.
+
+- **`feat/shortcode-swatches`** — `swatches`, variadic rather than capped at three. Each chip is
+  labelled with its own hex value in visible text, because a bare block of colour carries its
+  meaning in the colour alone, which is the one thing a screen reader, a greyscale print and a
+  colourblind reader all lose.
+
+  **Do not reach for `safeCSS` on a value going into a `style` attribute.** The first draft used
+  it, with a confident comment explaining why the regex above made it safe. Both the comment and
+  the `safeCSS` were wrong, and this generalises to every later item that interpolates an author
+  parameter into an attribute — `figure`, `gallery` and `video` all will:
+
+  > Go's contextual escaper already guards a `style` attribute, and guards it well. A hex value
+  > passes through untouched; a value carrying a semicolon, a `url()` or an `expression()` is
+  > replaced wholesale with `ZgotmplZ`. Adding `safeCSS` **switches that off**, leaving whatever
+  > validation the template happens to do as the only defence. The built-in is stronger than one
+  > we maintain, and it is free.
+
+  Verified by probing: with no `safeCSS` and no validation,
+  `red;background-image:url(https://evil.example/x.png)` and `expression(alert(1))` both came out
+  as `ZgotmplZ`, while a plain hex came out intact.
+
+  So the regex stayed, but its job changed from safety to **diagnostics**. The escaper's failure
+  mode is silent — a mistyped colour becomes `ZgotmplZ`, which renders as a chip with no colour,
+  on a green build, on a page nobody re-reads. Validating first turns that into a build failure
+  naming the value and its position. `tests/run.sh` also refutes `ZgotmplZ` across the page, which
+  catches any *future* shortcode that silently loses a value this way.
+
+  The lesson for the checklist: when a template reaches for a `safe*` function, first check
+  whether the escaper was going to do the right thing anyway. Usually it was.
+
+- **`feat/shortcode-direction`** — `ltr` and `rtl`, each one `<div>` carrying a `dir` attribute.
+  No CSS was needed: `dir` is real HTML, and the browser's own default of `text-align: start`
+  follows it. A CSS `direction` property would have been the wrong tool, and the test asserts on
+  the attribute specifically, because swapping it for a class looks identical in a browser while
+  silently losing the bidirectional algorithm, list markers, punctuation placement and any
+  reader-mode view.
+
+  **`ltr` is demonstrated nested inside `rtl`.** On a left-to-right page an `ltr` block does
+  nothing observable, so demonstrating it alone would have been a section claiming a feature the
+  page could not show. Nested, it is both the real use case — a command line inside RTL prose —
+  and the only arrangement where the reader can see it working. Worth remembering for any later
+  item whose effect depends on its context.
+
+  **Found while testing, not fixed:** `.prose th, .prose td` sets `text-align: left` outright, so
+  table cells do not follow the direction, under this shortcode *or* under the site-wide `rtl`
+  param. Measured: a `<td>` inside `dir="rtl"` computes to `left`. Recorded in `BACKLOG.md` rather
+  than fixed here, because it changes rendering for any site already running `rtl = true` and that
+  is a decision rather than a drive-by edit inside a shortcode commit.
+
+- **`feat/shortcode-icon`** — `icon`, exposing `_partials/icon.html` to content. FLAG-5 is now
+  live: the 21 names are a public surface, and the docs page lists all of them.
+
+  **`base.css` blockifies every `img`, `svg` and `video`, and content is the first place that
+  shows.** Everywhere else in the theme an icon sits in a flex container, where a blockified
+  child behaves identically, so this had never mattered. In running prose it takes a whole line:
+  `built with {icon} anywhere` broke across three lines, and every cell of the icon table put the
+  icon above its label. Nothing was wrong with the shortcode — the fix is a wrapper span set to
+  `inline-block`.
+
+  The wrapper is a span rather than a `.prose .icon` rule for a specific reason: the admonition
+  marks from `_markup/render-blockquote.html` are *also* icons inside `.prose`, and that selector
+  would have relaid them out. Verified after the change that they still compute to `display:
+  block` inside their flex label. **Any later item styling `.prose <something generic>` should
+  check what else already matches it.**
+
+  On the test: it compares the documented set against the names parsed out of the partial rather
+  than counting them, so there is no number to bump by hand — and the failure it guards against
+  is exactly somebody changing the icons without thinking about the docs. The reverse direction
+  is already fatal earlier, since an unknown name warns and the gate runs `--panicOnWarning`.
+
+  Also: the suite greps `layouts`, `assets`, `i18n` and `README.md` for AI tool names, and a
+  comment in the first draft of this shortcode cited the repo guidance file by name and tripped
+  it. Cite `docs/EXPANSION-PLAN.md` for a decision instead.
+
+- **Part A is complete except `video`.** `figure`, `alert`, `timeline`, `accordion`, `gallery`,
+  `tabs`, `carousel` and `youtube-lite` all landed. Four things generalise, and they are the ones
+  worth reading before starting Part C:
+
+  **Goldmark does not wrap block-level shortcode output in a paragraph.** Only inline output gets
+  wrapped. The `display: contents` rules written for `timeline` and `accordion` were dead on
+  arrival and were deleted; the one on `.keywords` is real, because its children are `<span>`s.
+  Check the built markup before writing a rule to neutralise a wrapper that may not exist.
+
+  **A boolean shortcode parameter must not go through `param-bool.html`.** That partial returns
+  the raw map value, which is a real boolean for site params and front matter but a *string* for
+  a shortcode — and `"false"` is truthy in a Go template. Compare the string.
+
+  **An assertion about an absent thing matches its own documentation.** The `object-fit` check
+  and the `ytimg` check both failed on the prose explaining why those things are absent. Anchor
+  such checks to a declaration or an attribute, never the bare word. This is the third variant of
+  the same trap, after the `email` page-wide address check.
+
+  **Two shortcodes were built better than the plan asked for.** `accordion`'s single-open mode
+  needs no JavaScript — a shared `name` on `<details>` is native. `carousel` needs none either,
+  because CSS scroll-snap removes all three objections the plan raised against it (script,
+  autoplay, reduced motion). Check whether the platform has grown a feature before reaching for
+  a script.
+
+- **Part C is complete.** All ten layouts landed in one branch, with `home.html` reduced to a
+  dispatcher. Three things worth carrying forward:
+
+  **The `stack` refactor was verified byte-identical, not assumed.** The rendered `<main>` was
+  extracted from the homepage before and after and compared: 4937 bytes, identical. The only
+  whole-file difference was the CSS bundle hash, which adding a stylesheet must change. Any
+  refactor claiming to preserve behaviour should be proved this way rather than eyeballed.
+
+  **Type tokens are named `--text-*`, not `--step-*`.** The first draft invented a scale that
+  did not exist and wrote `var(--step-4, 2rem)`; the fallback meant it *looked* fine in a
+  browser and only the "every custom property used is defined" assertion caught it. A CSS
+  fallback will hide a typo'd token indefinitely.
+
+  **`background` fixes its text colour in both modes on purpose.** It is the only place in the
+  theme where a colour does not come from a mode-aware token. The photograph does not invert
+  when the palette does, so text that followed the theme would be legible in one mode and
+  illegible in the other over the same image.
+
+  **A page can exist, build, be linked from other pages, and still be unreachable.** The
+  shortcodes docs page shipped without a `[[menu.main]]` entry and was findable only by typing
+  the URL. Nothing caught it: the page built, the sitemap listed it, other pages linked to it,
+  and the suite asserted its contents. There is now a check comparing the docs pages that were
+  built against the links in the rendered Docs dropdown. Adding a page means adding its menu
+  entry, and the menu weights are separate from the front-matter weights.
+
+  `video` is the one row not done, and it is blocked on an asset rather than on effort: there is
+  no encoder available to produce a sample file, and committing a hand-assembled binary nobody
+  has watched play would demonstrate a broken feature. Recorded in `BACKLOG.md` with what
+  unblocks it, including the autoplay/`prefers-reduced-motion` decision to make alongside it.
+
+- **`feat/shortcode-keywords`** — `keyword` and `keywordList`. Reuses `badge`'s chip shape a step
+  larger, and the `icon-inline` wrapper from the item above for the optional icon.
+
+  **A container shortcode whose children are shortcodes gets a `<p>` it did not ask for.**
+  `RenderString` with block display wraps the nested calls in a paragraph, so `.keywords`' flex
+  row saw one child holding every pill rather than a row of them. Fixed with `display: contents`
+  on `.keywords > p`. Any later container/item pair — `timeline`, `accordion`, `tabs`, `gallery`
+  — will hit exactly this, so budget for it rather than rediscovering it four more times.
+
+  There is a test asserting the `<p>` is present. That reads backwards until you notice the CSS
+  rule neutralising it looks like dead code without one, and dead-looking CSS is what a later
+  cleanup deletes.
+
+  Inner text is required and its absence fails the build: an icon-only pill is one whose meaning
+  the reader has to guess. Confirmed the failure path.
+
+- **`feat/shortcode-article`** and **`feat/shortcode-list`** — both reuse an existing listing
+  partial rather than growing a second one, which is the point of them.
+
+  **`_partials/post-item.html` now takes a dict, `(dict "ctx" . "level" 3)`.** Its heading was
+  hardcoded to `h2` with a comment explaining that it is only ever used by `section.html`, where
+  the only other heading is the list's own `h1`. `list` is the second call site, and it lands in
+  a page whose sections are already `h2` — an `h2` item title there reads as *ending* the
+  section it sits inside. Items are `h3`, or `h4` when a `title` takes the `h3`.
+
+  This is invisible on screen and only matters to someone navigating by heading, which is
+  exactly why it is asserted rather than eyeballed. There is also a check that no heading level
+  is skipped anywhere on the shortcodes page, since that page now draws `h1`–`h4` from three
+  different sources.
+
+  **Every partial reused from the chrome inside prose needs a `.prose a.x` override** — `.card`
+  and `.post-item` both arrived accent-coloured and underlined, the same collision `button` hit.
+  That is now three for three: assume it, rather than discovering it each time.
+
+  Both fail the build on a reference that resolves to nothing — an unresolvable `link`, a
+  `where` without a `value`, a filter matching no posts. An embed that renders as nothing is
+  indistinguishable from a shortcode nobody typed.

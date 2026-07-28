@@ -1,0 +1,43 @@
+{{- /*
+  The intro block: title, description, page body, and the author byline with social links.
+
+  Shared by every layout that wants it, so the byline markup exists once. `page`, `gallery`
+  and `archive` deliberately do not call it.
+
+  Takes:
+    ctx     the home page
+    author  resolved author config
+    bare    when true, omits the <section class="intro"> wrapper so a layout can place the
+            block inside its own container
+*/ -}}
+{{- $ctx := .ctx -}}
+{{- $author := .author -}}
+{{- $bare := .bare | default false -}}
+
+{{- if not $bare }}<section class="intro"><div class="wrap">{{ end -}}
+  <h1 class="intro-title">{{ $ctx.Title }}</h1>
+  {{- with $ctx.Description }}<p class="intro-text">{{ . }}</p>{{ end }}
+  {{- with $ctx.Content }}<div class="intro-body">{{ . }}</div>{{ end }}
+
+  {{- if $author.name }}
+  <div class="byline-row">
+    <div class="byline">
+      {{- with partial "image-url.html" $author.image }}<img class="byline-avatar" src="{{ . }}" alt="" width="40" height="40">{{ end }}
+      <span>
+        <b>{{ $author.name }}</b>
+        {{- with $author.headline }}<span class="byline-headline">{{ . }}</span>{{ end }}
+      </span>
+    </div>
+
+    {{- with $author.links }}
+    <div class="socials">
+      {{- range . }}
+        {{- range $name, $url := . }}
+          <a href="{{ $url }}" rel="noopener" target="_blank" aria-label="{{ $name | title }}">{{ partial "icon.html" $name }}</a>
+        {{- end }}
+      {{- end }}
+    </div>
+    {{- end }}
+  </div>
+  {{- end }}
+{{- if not $bare }}</div></section>{{ end -}}

@@ -128,10 +128,13 @@ some point.
 3. **Demonstrate it in `exampleSite/`.** Config in `hugo.toml`, commented out if switching it on
    would send data to a third party, plus content if the feature is content-shaped.
 4. **Document it in the docs site**, on the page it belongs to under `exampleSite/content/docs/`:
-   getting-started, configuration, writing, appearance, integrations or translating. Those pages
-   are built by the theme, so write yours so that it *demonstrates* what it describes rather than
-   only describing it.
-5. **Add a `README.md` row**: key, default, what it changes.
+   getting-started, configuration, writing, shortcodes, appearance, integrations or translating.
+   Those pages are built by the theme, so write yours so that it *demonstrates* what it describes
+   rather than only describing it. **This is where a new param's row goes** — key, default, what
+   it changes — on the Configuration page.
+5. **Add its menu entry** to `[[menu.main]]` in `exampleSite/hugo.toml` if the feature needed a
+   new docs page. A page that builds, is linked from other pages and appears in the sitemap can
+   still be unreachable from the navigation, and nothing else catches that.
 6. **Add a `CHANGELOG.md` entry** under Unreleased, in the right subsection. Say what breaks, if
    anything.
 7. **Update `docs/FEATURE-SURVEY.md`.** Set the row's status. If you decided *not* to build
@@ -162,8 +165,13 @@ Every param needs a default, and page-level front matter overrides site-level wh
 sense. Booleans go through `_partials/param-bool.html` — `| default true` is wrong for a boolean,
 because `false` is a zero value and `default` would silently flip an explicit `false` back to true.
 
-Never read a param that is not documented in `README.md` and demonstrated in
-`exampleSite/hugo.toml`.
+Never read a param that is not documented on the Configuration page of the docs site and
+demonstrated in `exampleSite/hugo.toml`.
+
+**The `README.md` is not the config reference.** It carries the pitch, the install steps, the
+config the theme cannot start without, and links into the docs site. A full parameter table there
+is a second copy of something the docs site already renders from the code that implements it, and
+the copy is the one that goes stale. Keep it out.
 
 ### Patterns
 

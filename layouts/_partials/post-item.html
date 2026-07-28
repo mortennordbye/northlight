@@ -1,11 +1,23 @@
-{{- /* A row in the post index: cover on the left, everything else on the right. */ -}}
+{{- /* A row in the post index: cover on the left, everything else on the right.
+
+       Takes a dict, because the heading level depends on where it is used:
+
+         ctx     the page (required)
+         level   heading level for the title, 2 or 3 (default 2)
+
+       `section.html` uses the default 2, where the only other heading is the list's own
+       h1. The `list` shortcode passes 3, because it drops into a page whose sections are
+       already h2 and an h2 there would read as ending the section it sits inside. */ -}}
 {{- /* externalUrl points a listing entry at somewhere else: a piece published on
        another site, a link-blog entry. The card links straight out rather than to a
        local page that only says "this is elsewhere". rel and target mark it as
        leaving, and the icon says so before the click. */ -}}
-{{- $href := .RelPermalink -}}
+{{- $ctx := .ctx -}}
+{{- $level := int (.level | default 2) -}}
+{{- $href := $ctx.RelPermalink -}}
 {{- $external := false -}}
-{{- with .Params.externalUrl }}{{ $href = . }}{{ $external = true }}{{ end -}}
+{{- with $ctx.Params.externalUrl }}{{ $href = . }}{{ $external = true }}{{ end -}}
+{{- with $ctx -}}
 <a class="post-item{{ if $external }} is-external{{ end }}" href="{{ $href }}"{{ if $external }} rel="noopener" target="_blank"{{ end }}>
   {{- with .Resources.GetMatch "{cover,featured}.*" }}
     {{- $img := . }}
@@ -18,7 +30,7 @@
     {{- /* h2, not h3. This partial is only ever used by section.html, where the sole other
            heading is the list's own h1, so an h3 skips a level. The year rule above is
            deliberately a <div> rather than a heading, so it does not fill the gap. */ -}}
-    <h2 class="item-title">{{ if .Draft }}<span class="draft-label">{{ i18n "draft" }}</span>{{ end }}{{ .LinkTitle }}{{ if $external }} {{ partial "icon.html" "external" }}{{ end }}</h2>
+    <h{{ $level }} class="item-title">{{ if .Draft }}<span class="draft-label">{{ i18n "draft" }}</span>{{ end }}{{ .LinkTitle }}{{ if $external }} {{ partial "icon.html" "external" }}{{ end }}</h{{ $level }}>
     {{- with .Description }}<p class="item-text">{{ . }}</p>{{ end }}
     {{- with .GetTerms "tags" }}
       <div class="item-tags">
@@ -28,3 +40,4 @@
     {{ partial "post-meta.html" (dict "ctx" . "showWords" true) }}
   </div>
 </a>
+{{- end -}}

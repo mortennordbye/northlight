@@ -1,0 +1,68 @@
+{{- /*
+  hero — the newest post's cover at full width, with the title and description alongside it
+  on wide screens and beneath it on narrow.
+
+  The strongest largest-contentful-paint case in the set, so the priority hint matters more
+  here than anywhere: this image *is* the LCP element on nearly every viewport.
+
+  The cover keeps its exact 1200×630 box and is never cropped. With no posts, or a newest
+  post with no cover, it falls back to the intro alone rather than reserving an empty band.
+*/ -}}
+{{- $ctx := .ctx -}}
+{{- $posts := .posts -}}
+{{- $recentCount := int (.home.recentCount | default 3) -}}
+{{- /* The newest post *that has a cover*, not simply the newest.
+
+       This layout is built around the image, so featuring a coverless post empties the
+       half of it that carries the whole idea. A blog that occasionally posts without
+       artwork would otherwise get a broken-looking homepage at random, depending on what
+       it published last. Falls back to the newest post overall when nothing has a cover,
+       and to the intro alone when there are no posts. */ -}}
+{{- $lead := "" -}}
+{{- $cover := "" -}}
+{{- range $posts -}}
+  {{- if not $cover -}}
+    {{- with .Resources.GetMatch "{cover,featured}.*" -}}
+      {{- $cover = . -}}
+    {{- end -}}
+    {{- if $cover }}{{ $lead = . }}{{ end -}}
+  {{- end -}}
+{{- end -}}
+{{- if not $lead -}}{{ with $posts }}{{ $lead = index . 0 }}{{ end }}{{ end -}}
+
+<section class="home-hero{{ if not $cover }} is-textonly{{ end }}">
+  <div class="wrap home-hero-inner">
+    <div class="home-hero-text">
+      <h1 class="intro-title">{{ $ctx.Title }}</h1>
+      {{- with $ctx.Description }}<p class="intro-text">{{ . }}</p>{{ end }}
+      {{- with $lead }}
+        <p class="home-hero-kicker">{{ i18n "featured" }}</p>
+        <a class="home-hero-link" href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
+        {{- with .Description }}<p class="home-hero-summary">{{ . }}</p>{{ end }}
+      {{- end }}
+    </div>
+    {{- with $cover }}
+      {{- $img := . }}
+      {{- if in (slice "png" "jpeg" "gif" "webp") .MediaType.SubType }}{{ $img = .Resize "900x q85" }}{{ end }}
+      <a class="home-hero-media" href="{{ $lead.RelPermalink }}">
+        <img src="{{ $img.RelPermalink }}" alt=""
+             width="{{ $img.Width }}" height="{{ $img.Height }}"
+             fetchpriority="high" decoding="async">
+      </a>
+    {{- end }}
+  </div>
+</section>
+
+{{- /* Exclude the post actually featured, which is not necessarily the first one — the
+       lead is the newest *with a cover*. Skipping index 0 instead would show the featured
+       post twice on any site whose newest post has no artwork. */ -}}
+{{- $rest := slice -}}
+{{- range $posts }}{{ if ne . $lead }}{{ $rest = $rest | append . }}{{ end }}{{ end -}}
+{{- with first $recentCount $rest }}
+<div class="wrap">
+  <div class="section-head">
+    <h2 class="section-title">{{ i18n "recentPosts" }}</h2>
+  </div>
+  <div class="card-grid">{{ range . }}{{ partial "card.html" . }}{{ end }}</div>
+</div>
+{{- end -}}

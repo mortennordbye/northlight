@@ -11,7 +11,7 @@
 baseURL = "https://example.com/"
 locale = "en"                      # replaces languageCode, deprecated in Hugo 0.158
 defaultContentLanguage = "en"
-title = "Example Blog"
+title = "Northlight"
 theme = "northlight"
 
 enableRobotsTXT = true
@@ -77,18 +77,26 @@ summaryLength = 30
   #   fediverse = "@you@instance.tld"   # Mastodon verified-author byline on link previews
 
   [params.author]
-    name = "Your Name"
-    headline = "What you do"
+    name = "Morten Victor Nordbye"
+    headline = "Writes about building things that stay simple"
     image = "images/profile.svg"   # square, 160px or larger; sized and cropped in CSS
     links = [
-      { linkedin = "https://www.linkedin.com/in/you" },
-      { github = "https://github.com/you" },
-      { link = "https://example.com" },
+      { linkedin = "https://www.linkedin.com/in/morten-victor-nordbye" },
+      { github = "https://github.com/mortennordbye" },
+      { link = "https://nordbye.it" },
     ]
 
   [params.home]
+    # Which homepage arrangement to render. One of: stack, page, profile, hero, card,
+    # background, split, gallery, archive, custom.        (default: "stack")
+    # "stack" is the layout the theme shipped with, so leaving this unset changes nothing.
+    # An unknown value fails the build rather than quietly falling back.
+    layout = "stack"
     showFeatured = true        # large featured card for the newest post (default: true)
     recentCount = 3            # cards under the featured post          (default: 3)
+    # Only read by layout = "background". Without it that layout renders the ordinary
+    # intro rather than an empty band.
+    backgroundImage = "images/backdrop.svg"
 
   [params.article]
     showBreadcrumbs = true
@@ -115,6 +123,10 @@ summaryLength = 30
     groupByYear = true
 
   [params.footer]
+    # Links the theme name in the footer attribution. The theme cannot default this to its
+    # own repository: that URL carries its author's name, and no theme file may. Unset, the
+    # name renders as plain text.
+    themeURL = "https://github.com/mortennordbye/northlight"
     showCopyright = true
     showThemeAttribution = true
 
@@ -184,19 +196,29 @@ summaryLength = 30
     weight = 3
   [[menu.main]]
     parent = "docs"
+    name = "Shortcodes"
+    pageRef = "docs/shortcodes"
+    weight = 4
+  [[menu.main]]
+    parent = "docs"
     name = "Appearance"
     pageRef = "docs/appearance"
-    weight = 4
+    weight = 5
   [[menu.main]]
     parent = "docs"
     name = "Integrations"
     pageRef = "docs/integrations"
-    weight = 5
+    weight = 6
   [[menu.main]]
     parent = "docs"
     name = "Translating"
     pageRef = "docs/translating"
-    weight = 6
+    weight = 7
+
+  [[menu.main]]
+    name = "Layouts"
+    pageRef = "layouts"
+    weight = 25
 
   [[menu.main]]
     name = "Tags"
