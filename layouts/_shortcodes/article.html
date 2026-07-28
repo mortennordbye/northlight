@@ -1,0 +1,29 @@
+{{- /*
+  article — embeds one post as a card, given its path.
+
+  Reuses `_partials/card.html` rather than building a second card, so an embedded post
+  and a post in the home grid cannot drift apart. Everything the card already knows how
+  to do — the cover at its exact aspect ratio, the draft label, the external-link
+  treatment, the date and first tag — comes along for free.
+
+  An unresolvable path fails the build. The alternative is a card with no title linking
+  nowhere, which looks like a styling bug rather than a broken reference and survives
+  every review, including the one where somebody renames the post being pointed at.
+
+  Parameters:
+    link   path to the page, as `ref` understands it (required)
+
+  Call:  {{< article link="/blog/hello-northlight" >}}
+*/ -}}
+{{- $link := .Get "link" -}}
+{{- if not $link -}}
+  {{- errorf "article shortcode: link is required (%s)" .Position -}}
+{{- end -}}
+{{- with $link -}}
+  {{- $page := site.GetPage . -}}
+  {{- if not $page -}}
+    {{- errorf "article shortcode: no page found at %q (%s)" . $.Position -}}
+  {{- else -}}
+    <div class="article-embed">{{ partial "card.html" $page }}</div>
+  {{- end -}}
+{{- end -}}

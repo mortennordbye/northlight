@@ -10,6 +10,12 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **`article`** — embeds one post as a card, given its `link`. Reuses `_partials/card.html`
+  rather than growing a second card, so an embedded post and a listed one cannot drift apart:
+  the cover at its exact aspect ratio, the draft label, the external-link treatment, the date
+  and first tag all come along. A path that resolves to nothing fails the build, because the
+  alternative is a card with no title linking nowhere, which reads as a styling bug rather than
+  a broken reference.
 - **`keyword` and `keywordList`** — a wrapping row of labelled pills, for a set of things listed
   together: the stack behind a project, the topics a post covers. `keyword` takes an optional
   `icon`. It shares a shape with `badge` on purpose, since both are small labels and a reader

@@ -46,6 +46,26 @@
   vertical-align: -0.14em;
 }
 
+/* --- article ---------------------------------------------------------------- */
+
+/* The card comes from `_partials/card.html` unchanged; this only gives it room to
+   breathe in a column of prose, where it arrives with no grid around it. */
+.article-embed {
+  margin: var(--space-6) 0;
+}
+
+/* Same collision `button` hit: `.prose a` is two classes to `.card`'s one, so inside
+   content the whole card came out accent-coloured and underlined. Anything reused from
+   the chrome inside prose needs this. */
+.prose a.card {
+  color: inherit;
+  box-shadow: none;
+}
+
+.prose a.card:hover {
+  box-shadow: none;
+}
+
 /* --- keyword / keywordList -------------------------------------------------- */
 
 /* Same wrap-don't-scroll reasoning as .swatches: a set of keywords has no reading order

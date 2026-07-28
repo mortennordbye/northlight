@@ -212,7 +212,7 @@ These wrap existing partials, so they are mostly plumbing and docs.
 
 - [x] **`icon`** — exposes `_partials/icon.html` to content, sized in `em` to match surrounding
       text. See FLAG-5. Branch `feat/shortcode-icon`.
-- [ ] **`article`** — embeds a single post as a card, given a path. Reuses `_partials/card.html`.
+- [x] **`article`** — embeds a single post as a card, given a path. Reuses `_partials/card.html`.
       Must fail loudly on an unresolvable path rather than rendering an empty card.
       Branch `feat/shortcode-article`.
 - [ ] **`list`** — embeds N recent posts, optionally filtered by a taxonomy term. Reuses

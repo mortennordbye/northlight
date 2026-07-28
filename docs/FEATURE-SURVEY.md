@@ -183,7 +183,8 @@ duplicated as shortcodes — and every shortcode is additive, replacing no Markd
 | LTR/RTL | **Have** | A `dir` attribute rather than a CSS property, so it survives without the stylesheet |
 | Keyword | **Have** | Shares `badge`'s shape; inner text required so a pill always carries a label |
 | Icon | **Have** | Exposes the internal icon partial; the names are a public surface from now on |
-| Article · List · Figure | Gap | Wrap partials the theme already has |
+| Article | **Have** | Reuses `_partials/card.html`; an unresolvable path fails the build |
+| List · Figure | Gap | Wrap partials the theme already has |
 | Alert | Gap | Only if it can reuse the admonition render hook's colours; a second syntax for the same thing is not worth the surface |
 | Accordion · Gallery · Tabs · Timeline | Gap | CSS-driven, JS-optional |
 | Carousel | Gap | Lowest priority and a candidate to drop — needs JS, and autoplay fights `prefers-reduced-motion` |

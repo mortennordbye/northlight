@@ -199,6 +199,28 @@ where you can see it working.
 Without the inner `ltr`, the trailing path and punctuation of that command get pulled
 around by the bidirectional algorithm and the line becomes unreadable.
 
+## `article`
+
+Embeds one post as a card, given its path.
+
+```text
+{{</* article link="/blog/hello-northlight" */>}}
+```
+
+{{< article link="/blog/hello-northlight" >}}
+
+| Parameter | Required | What it does |
+|---|---|---|
+| `link` | yes | Path to the page, as `ref` understands it |
+
+The card is the same one the home page and taxonomy pages use, so an embedded post cannot
+drift away from a listed one. The cover renders at its exact aspect ratio, and a draft, an
+external link post or a post with no cover all behave here as they do in a listing.
+
+A path that resolves to nothing fails the build. The alternative is a card with no title
+linking nowhere, which reads as a styling bug rather than a broken reference and survives
+every review, including the one where somebody renames the post it pointed at.
+
 ## `keyword` and `keywordList`
 
 A wrapping row of labelled pills, for a set of things listed together: the stack behind a

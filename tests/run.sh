@@ -318,6 +318,14 @@ assert_grep '<div class=keywords><p><span class=keyword>' "$SHORTCODES" \
 KEYWORDS=$(grep -o '<span class=keyword>' "$SHORTCODES" | wc -l | tr -d ' ')
 assert_count 3 "$KEYWORDS" "keywordList renders every pill"
 
+# article: the point is that it reuses `_partials/card.html` rather than growing a second
+# card. Assert the real card markup, not a wrapper class — a hand-rolled lookalike would
+# satisfy a check on `.article-embed` alone and then drift from the listing cards, which is
+# the whole failure this shortcode exists to avoid.
+assert_grep '<div class=article-embed><a class=card href=/blog/' "$SHORTCODES" \
+  "article embeds a real post card"
+assert_grep 'class=card-cover' "$SHORTCODES" "the embedded card keeps its cover"
+
 BLANK=$(grep -o '<a class=button[^>]*_blank[^>]*>' "$SHORTCODES" | head -1)
 case "$BLANK" in
   *noopener*) ok "button with target=_blank sets rel=noopener" ;;
