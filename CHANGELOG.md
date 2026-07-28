@@ -10,6 +10,13 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **`email`** — a `mailto:` link with the address obfuscated at build time, taking `email` plus
+  an optional `text` and `subject`. The obfuscation happens during the build rather than in the
+  browser, so it survives with scripting off and does not break copy and paste, which is what
+  the JavaScript and CSS-reversal alternatives each give up. The `href` is percent-encoded and
+  the link text has its `@` and dots split by empty spans, because the minifier decodes numeric
+  HTML entities in attributes and text alike and hands the address straight back. It stops naive
+  harvesting and nothing more; anything that renders the page reads the address fine.
 - **`button`** — a link styled as a call to action, taking `pageRef` for a page on this site or
   `href` for anything off it. It reuses the `.button` the 404 page and share row already use, so
   a button in content and a button in the chrome cannot drift apart. `target="_blank"` adds

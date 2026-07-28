@@ -171,7 +171,7 @@ No JavaScript, no new dependencies, small CSS.
 - [x] **`button`** — styled call-to-action link. Parameters: `href`, `pageRef`, `target`, `rel`.
       Must set `rel="noopener"` when `target="_blank"`, and must not accept raw HTML.
       Branch `feat/shortcode-button`.
-- [ ] **`email`** — obfuscated `mailto:` link. Parameters: `email`, `text`, `subject`. Obfuscation
+- [x] **`email`** — obfuscated `mailto:` link. Parameters: `email`, `text`, `subject`. Obfuscation
       is build-time, not JS, so it survives with scripting off. Branch `feat/shortcode-email`.
 - [ ] **`ltr` / `rtl`** — direction override for a block. Two tiny files. Relevant because the
       theme's RTL support is the row most likely to be wrong (`docs/FEATURE-SURVEY.md` §7).
@@ -371,3 +371,35 @@ silently.
   Author-supplied URLs are **not** passed through `safeURL`. Go's templates sanitise URLs in an
   `href`, which neutralises `javascript:`; `safeURL` would switch that off. `render-link.html`
   does use `safeURL`, which is a separate and older decision about Markdown links.
+
+- **`feat/shortcode-email`** — `email`. Two deviations from the plan, both deliberate.
+
+  **The work is on a pushed branch and a pull request, not local-only.** The "Working method"
+  section above says everything stays local with no remote branches; that was overridden by the
+  owner from `feat/shortcodes` onward. Treat the PR flow as current and that paragraph as stale.
+
+  **Obfuscation is percent-encoding, not HTML entities.** Entities are the obvious choice and do
+  not work, which cost three iterations to pin down. This is the thing to know before writing any
+  shortcode that tries to keep a string out of the output:
+
+  > **Hugo's minifier decodes numeric HTML entities — in attributes *and* in text.** Whatever you
+  > encode as `&#121;` lands in `public/` as `y`. `safeHTMLAttr` on the whole attribute does not
+  > help; the minifier decodes inside attributes too and emits `href=mailto:you@example.com`.
+
+  The `href` is therefore percent-encoded character by character, which is URL syntax rather than
+  markup and so passes through untouched. The link text cannot be — it is text, not a URL — so
+  the `@` and the dots are each preceded by an empty `<span>`. That defeats a pattern match
+  across the tag boundary while contributing nothing to text content, leaving copy and paste
+  intact.
+
+  Also worth knowing for later items:
+
+  - **A "this string is absent" assertion cannot be scoped to a whole documentation page.** The
+    first version grepped the page for the plain address and could never pass, because the page
+    documents the shortcode and its code fences necessarily show the address as an author types
+    it. The check is now scoped to the rendered anchors — split on `<a`, keep the `mailto:` ones,
+    cut each at its own `</a>`, since anchors cannot nest. Any later shortcode whose guarantee is
+    *absence* will hit the same problem on its own docs page.
+  - **Guard a refute on having found anything.** A "no match" assertion over an empty extraction
+    passes for the wrong reason and reads as coverage. The email case fails loudly if no `mailto:`
+    link is found at all.

@@ -239,9 +239,32 @@ assert_grep '<span class=badge>' "$SHORTCODES" "badge renders as an inline chip"
 assert_grep 'class=button href=/docs/getting-started/' "$SHORTCODES" "button resolves pageRef to a URL"
 
 # email: the whole point is that the address is not in the source as an address. Assert
-# both halves — the entities are present, and the plain form is nowhere on the page.
-assert_grep 'mailto:&#121;&#111;&#117;' "$SHORTCODES" "email obfuscates the address as entities"
-refute_grep 'you@example.com' "$SHORTCODES" "email leaves no plain address in the markup"
+# both halves — the href is percent-encoded, and the link text does not spell the
+# address out either.
+#
+# Percent-escapes rather than HTML entities, because the minifier decodes numeric
+# entities in attributes and in text, which hands the address straight back to a
+# scraper. Assert the whole encoded string, not a prefix: encoding only the first
+# character would pass a looser check.
+assert_grep 'href=mailto:%79%6F%75%40%65%78%61%6D%70%6C%65%2E%63%6F%6D' "$SHORTCODES" \
+  "email percent-encodes the address in the href"
+
+# The second half cannot be a check over the whole page: this page documents the
+# shortcode, so its code-fence examples necessarily show the address the way an author
+# types it. Scope it to the rendered anchors — split the markup on <a, keep the mailto
+# ones, cut each at its own </a>. Anchors cannot nest, so truncating at the first close
+# tag is safe. Guard on having found any: a refute over an empty string passes for the
+# wrong reason.
+MAILTOS=$(tr '\n' ' ' < "$SHORTCODES" | sed 's|<a |\
+<a |g' | grep '^<a [^>]*mailto:' | sed 's|</a>.*|</a>|')
+if [ -z "$MAILTOS" ]; then
+  bad "email leaves no plain address in the rendered link" "no mailto link on the page"
+elif printf '%s\n' "$MAILTOS" | grep -q 'you@example\.com'; then
+  bad "email leaves no plain address in the rendered link" \
+      "$(printf '%s\n' "$MAILTOS" | grep 'you@example\.com' | head -1)"
+else
+  ok "email leaves no plain address in the rendered link"
+fi
 BLANK=$(grep -o '<a class=button[^>]*_blank[^>]*>' "$SHORTCODES" | head -1)
 case "$BLANK" in
   *noopener*) ok "button with target=_blank sets rel=noopener" ;;

@@ -92,9 +92,8 @@ nowhere. A call to action that silently leads to a 404 is worse than a red build
 
 ## `email`
 
-A `mailto:` link with the address obfuscated at build time. Every character is emitted
-as a numeric HTML entity, so a scraper reading the raw HTML sees `&#121;&#111;&#117;…`
-rather than an address.
+A `mailto:` link with the address obfuscated at build time, so a scraper reading the raw
+HTML does not find an address to harvest. Nothing here depends on JavaScript.
 
 | Parameter | Required | What it does |
 |---|---|---|
@@ -109,11 +108,25 @@ rather than an address.
 
 {{< email email="you@example.com" >}} · {{< email email="you@example.com" text="Say hello" subject="About the theme" >}}
 
-Browsers decode entities before acting on a link, so both of those work normally and the
-address copies and pastes normally. View source and neither is readable as an address.
+Both of those behave like ordinary links, and the address copies and pastes normally.
+View source and neither is readable as an address.
+
+Two techniques are at work, because the address appears in two places and one method
+does not cover both.
+
+The **href** is percent-encoded character by character, so `you@example.com` is written
+`%79%6F%75%40…`. That is URL syntax rather than markup, which matters: the browser
+decodes it before acting on the link, and nothing in the build rewrites it on the way
+out. Numeric HTML entities were the obvious first choice and do not survive — Hugo's
+minifier decodes them in attributes and in text alike, putting the address back in clear
+exactly where a scraper reads it.
+
+The **link text** cannot be percent-encoded, being text rather than a URL. There the `@`
+and the dots are each preceded by an empty `<span>`. A pattern looking for an address
+does not match across a tag boundary, while an empty span contributes nothing to the
+text content, so selection and copy-paste are unaffected.
 
 Be honest about what this buys: it stops naive address harvesting and nothing more.
-Anything that renders the page, or simply decodes entities, reads the address fine. The
-reason to prefer it over the alternatives is what it does *not* break — obfuscating with
-JavaScript stops working with scripting off, and the CSS reversal trick breaks copy and
-paste.
+Anything that renders the page reads the address fine. The reason to prefer it over the
+alternatives is what it does *not* break — obfuscating with JavaScript stops working
+with scripting off, and the CSS reversal trick breaks copy and paste.

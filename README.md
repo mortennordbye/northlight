@@ -341,6 +341,7 @@ gets the raw `{{< … >}}` back. Everything here is additive, and nothing replac
 | `lead` | Markdown | An introductory paragraph in larger, lighter type. A post's `description` already renders this way at the top of the page; use this for a lede inside the body, or when the description is busy being the meta description, the card summary and the feed entry. |
 | `badge` | Inline Markdown | A small inline label for a status or a piece of metadata. Same shape as a tag, without a tag's link behaviour. |
 | `button` | Inline Markdown | A link styled as a call to action. `pageRef` or `href`, plus optional `target` and `rel`. `target="_blank"` adds `rel="noopener"` on its own. An unresolvable `pageRef` fails the build. |
+| `email` | — | A `mailto:` link with the address obfuscated at build time, so it survives with JavaScript off. `email`, plus optional `text` and `subject`. |
 
 The full list, with every parameter and a live example of each, is on the
 [Shortcodes](https://mortennordbye.github.io/northlight/docs/shortcodes/) page of the demo site.
