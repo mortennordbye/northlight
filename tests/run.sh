@@ -945,6 +945,16 @@ done
 assert_grep 'partial "thumb.html"' "$ROOT/layouts/home.json" \
   "the search index resolves covers through thumb.html"
 
+# The second navigation row. On in the demo, and previously shipped with no assertion —
+# a dropped row would have looked like a passing build.
+assert_grep 'subnav-bar' "$PUBLIC/index.html" "the subnav renders when enabled"
+
+# The reading-progress bar, on by default. Article pages only: a progress bar on a page
+# with no article to progress through is noise. The quote is optional because the
+# minifier strips it.
+assert_grep 'id="\{0,1\}reading-progress' "$MEASURING" "the reading-progress bar renders on articles"
+refute_grep 'id="\{0,1\}reading-progress' "$PUBLIC/index.html" "the reading-progress bar stays off listings"
+
 # Zen mode. The toggle itself must survive the hiding, or the mode has no visible way out.
 assert_grep 'data-toggle-zen' "$PUBLIC/blog/measuring/index.html" "the zen control renders when enabled"
 assert_grep 'data-toggle-zen hidden' "$PUBLIC/blog/measuring/index.html" \
@@ -1092,6 +1102,16 @@ assert_grep 'aria-pressed=false' "$PUBLIC/index.html" "the underline control is 
 # Two underlines on one link is a smudge.
 assert_grep 'html\[data-underline-links\] \.prose a' "$ROOT/assets/css/interaction.css" \
   "the underline mode drops the prose link's own rule"
+
+# Comments get the same treatment: giscus is built in, but unconfigured it must load
+# nothing. The refutation names the client script, not the bare domain: comments.js
+# carries giscus.app for its postMessage origin check, and the Integrations docs page
+# mentions it in prose — both belong in the output whether configured or not.
+if grep -rq 'giscus\.app/client\.js' "$PUBLIC" 2>/dev/null; then
+  bad "giscus does not fire unconfigured" "found the giscus client script in the built output"
+else
+  ok "giscus does not fire unconfigured"
+fi
 
 # Analytics. The invariant is not that any provider works but that *none* fires unless it
 # is configured — the theme makes no third-party request by default, and exampleSite leaves

@@ -79,7 +79,7 @@ summaryLength = 30
 [params]
   description = "A short site description, used for meta tags and the RSS feed."
 
-  colorScheme = "periwinkle"   # periwinkle | sage | clay      (default: periwinkle)
+  colorScheme = "periwinkle"   # periwinkle | sage | clay | plum | slate | rose  (default: periwinkle)
   defaultAppearance = "light"  # light | dark                  (default: light)
   autoSwitchAppearance = true  # follow prefers-color-scheme    (default: true)
 
@@ -104,6 +104,50 @@ summaryLength = 30
 
   dateFormat = "2 Jan 2006"    # Go reference layout                    (default: "2 Jan 2006")
   rtl = false                  # sets dir="rtl" on <html>               (default: false)
+
+  # Less-common switches, shown with their defaults. Each is documented on the
+  # Configuration page; they are commented here because the default is the demo.
+  # smartTOCHideUnfocusedChildren = false  # collapse TOC child lists except under the current heading
+  # enableStyledScrollbar = true           # off hands the scrollbar back to the operating system
+  # disableTextInHeader = false            # logo-only header; the home link keeps an aria-label
+  # fingerprintAlgorithm = "sha512"        # md5 | sha256 | sha384 | sha512 — changing it renames every asset
+  # imagePosition = "center"               # object-position for the images that ARE cropped (avatars, card thumbs)
+  # disableImageOptimization = false       # serve original rasters instead of resized copies
+  # backgroundImageWidth = 1600            # resize cap for the background home layout's artwork
+  # hotlinkFeatureImage = false            # lets front matter set featureImageURL = "https://…" — a
+  #                                        # third-party request on page view, which is why it is off
+
+  # Which sources fill the meta description (and the og:/twitter: ones), first
+  # non-empty wins. The default is the order the theme has always used.
+  # [params.seo]
+  #   metaDescriptionOrder = ["description", "summary", "siteDescription"]
+
+  # Which page kinds stay out of the sitemap. Replaces the list rather than adding
+  # to it, so a site that wants taxonomies in can say so with [].
+  # [params.sitemap]
+  #   excludedKinds = ["taxonomy", "term"]
+
+  # One-time notice suggesting the reader's own language, multilingual sites only.
+  # Off by default: a redirect the reader did not ask for is disorienting.
+  # [params.languageRedirect]
+  #   enabled = false
+  #   browserRedirectHomeOnly = true       # the home page is the one safe place to guess
+  #   fallbackLanguage = "en"              # optional
+  #   storageKey = "northlight-language"   # optional
+
+  # RSSNext follow widget in the feed. Off unless both are set.
+  # [params.rssnext]
+  #   feedId = "..."
+  #   userId = "..."
+
+  # Advertising and tipping, both third-party scripts, both off. AdSense tracks
+  # readers across sites — a site enabling it almost certainly needs a consent
+  # banner, and the theme does not ship one. See the Integrations page.
+  # [params.advertisement]
+  #   adsense = "ca-pub-XXXXXXXXXXXXXXXX"
+  # [params.buymeacoffee]
+  #   identifier = "yourname"
+  #   globalWidget = true
 
   # logo = "images/logo.svg"   # replaces the dot and the wordmark in the header
   # logoDark = "images/logo-dark.svg"   # optional counterpart for dark mode
@@ -183,6 +227,7 @@ anyone notices."""
     email = "hello@example.com"
 
     image = "images/profile.svg"   # square, 160px or larger; sized and cropped in CSS
+    # imageQuality = 85            # JPEG quality for the resized avatar (1-100; lossy formats only)
     links = [
       { linkedin = "https://www.linkedin.com/in/morten-victor-nordbye" },
       { github = "https://github.com/mortennordbye" },
@@ -209,6 +254,7 @@ anyone notices."""
     showReadingTime = true
     showWordCount = true
     showHero = true            # the 1200x630 cover. Never cropped.
+    # heroStyle = "basic"      # basic | big | background | thumbAndBackground; overridable per post
     showTableOfContents = true
     showProgress = true        # 2px reading-progress bar
     showTaxonomies = true
@@ -246,8 +292,16 @@ anyone notices."""
     editURL = "https://github.com/mortennordbye/northlight/edit/main/exampleSite/content"
     editAppendPath = true      # append the post's own path to editURL  (default: true)
 
+    # The rest of the article switches, at their defaults:
+    # showDateOnlyInArticle = false   # date on the article page but not on listings
+    # showHeadingAnchors = true       # anchor links beside headings; overridable per page
+    # invertPagination = false        # swap which side older and newer land on
+    # externalLinkForceNewTab = true  # external links open in a new tab, rel=noopener either way
+    # seriesOpened = false            # whether series navigation starts expanded
+
   [params.header]
     showSubNav = true          # second navigation row  (default: false)
+    # layout = "fixed"         # fixed | basic — basic lets the header scroll away
 
   [params.list]
     groupByYear = true
@@ -256,6 +310,14 @@ anyone notices."""
     # Off by default, because turning it on changes every listing on an existing site.
     # "A Post With No Description" in the index is the entry that exercises it.
     showSummary = true             # (default: false)
+    # cardView = false             # cards instead of rows on section pages; wins over groupByYear
+    # orderByWeight = false        # order by front-matter weight instead of date
+
+  # Term pages. Both at their defaults: the count has always rendered, and term pages
+  # have always been cards, so only turning these off changes anything.
+  # [params.taxonomy]
+  #   showTermCount = true
+  #   cardView = true
 
   [params.footer]
     # Links the theme name in the footer attribution. The theme cannot default this to its
@@ -264,6 +326,9 @@ anyone notices."""
     themeURL = "https://github.com/mortennordbye/northlight"
     showCopyright = true
     showThemeAttribution = true
+    # showMenu = true                # the footer menu ([[menu.footer]] entries)
+    # showAppearanceSwitcher = true  # the light/dark toggle in the footer
+    # showScrollToTop = true         # the back-to-top button
 
 # --- Comments -----------------------------------------------------------------
 # giscus (GitHub Discussions) is built in and driven entirely by these params — the
