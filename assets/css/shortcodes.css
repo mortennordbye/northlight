@@ -592,3 +592,35 @@
 .prose a.button:hover {
   box-shadow: none;
 }
+
+/* --- mermaid ---------------------------------------------------------------- */
+
+/* Before the script runs — and permanently, with JavaScript off — this is a <pre> holding
+   the diagram's own source. That text is the fallback, and for a flowchart it is genuinely
+   readable, so it is styled as a code block rather than hidden. Hiding it would trade a
+   readable fallback for a blank space. */
+pre.mermaid {
+  margin: var(--space-6) 0;
+  padding: var(--space-4);
+  background: var(--surface-2);
+  border-radius: var(--radius-pager);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-x: auto;
+}
+
+/* Once mermaid has replaced the text with an SVG, the code-block treatment is wrong: the
+   diagram brings its own background and needs to centre rather than sit in a tinted slab.
+   `data-processed` is mermaid's own marker, so this switches over at exactly the moment
+   the content stops being text. */
+pre.mermaid[data-processed] {
+  padding: 0;
+  background: none;
+  text-align: center;
+}
+
+pre.mermaid svg {
+  max-width: 100%;
+  height: auto;
+}

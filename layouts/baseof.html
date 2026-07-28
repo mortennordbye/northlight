@@ -53,6 +53,31 @@
   {{- $js = $js | fingerprint "sha512" }}
   <script src="{{ $js.RelPermalink }}" integrity="{{ $js.Data.Integrity }}" crossorigin="anonymous" defer></script>
 
+  {{- /* Mermaid, only where there is a diagram to draw. The library is 3.5MB, which is
+         more than the rest of this theme's assets put together, so it is gated on the
+         page actually using the shortcode rather than added to the bundle. `HasShortcode`
+         is Hugo's own answer to this and needs no bookkeeping of our own.
+
+         Self-hosted and fingerprinted like everything else. The upstream file is vendored
+         under assets/js/vendor/ rather than pulled from a CDN, because a CDN reference is
+         a third-party request on page view — the one thing this theme does not do.
+
+         Not deferred *and* not async: the init script below needs `mermaid` to exist, and
+         two plain deferred scripts run in document order, which is the guarantee being
+         relied on here. */ -}}
+  {{- if .HasShortcode "mermaid" }}
+    {{- with resources.Get "js/vendor/mermaid.min.js" }}
+      {{- $lib := . | fingerprint "sha512" }}
+      <script src="{{ $lib.RelPermalink }}" integrity="{{ $lib.Data.Integrity }}" crossorigin="anonymous" defer></script>
+    {{- end }}
+    {{- with resources.Get "js/mermaid-init.js" }}
+      {{- $init := . }}
+      {{- if hugo.IsProduction }}{{ $init = $init | minify }}{{ end }}
+      {{- $init = $init | fingerprint "sha512" }}
+      <script src="{{ $init.RelPermalink }}" integrity="{{ $init.Data.Integrity }}" crossorigin="anonymous" defer></script>
+    {{- end }}
+  {{- end }}
+
   {{ partial "analytics.html" . }}
 
   {{ partial "extend-footer.html" . }}

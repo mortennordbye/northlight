@@ -97,19 +97,39 @@ assert_grep 'integrity=' "$PUBLIC/index.html" "subresource integrity present"
 group "Theme purity"
 # A theme is copied verbatim into other people's repositories. Nothing about any one
 # author may appear in it.
+#
+# `assets/js/vendor/` is excluded from every scan in this group. It holds third-party
+# libraries committed verbatim, which are not ours to edit and are held to their own
+# upstream standards — a minified bundle happening to contain one of these words in a
+# comment would be a false positive, not a leak. Everything the theme actually authors
+# lives outside that directory and is still scanned.
+VENDOR_SKIP="--exclude-dir=vendor"
 
-if grep -rqi 'nordbye' "$ROOT/layouts" "$ROOT/assets" "$ROOT/static" "$ROOT/i18n" 2>/dev/null; then
+if grep -rqi $VENDOR_SKIP 'nordbye' "$ROOT/layouts" "$ROOT/assets" "$ROOT/static" "$ROOT/i18n" 2>/dev/null; then
   bad "no author-specific values in theme files" "grep -ri nordbye matched"
 else
   ok "no author-specific values in theme files"
 fi
 
-if grep -rqiE 'claude|anthropic|copilot' \
+if grep -rqiE $VENDOR_SKIP 'claude|anthropic|copilot' \
      "$ROOT/layouts" "$ROOT/assets" "$ROOT/i18n" "$ROOT/README.md" 2>/dev/null; then
   bad "no AI tool attribution in theme or docs" "matched a tool name"
 else
   ok "no AI tool attribution in theme or docs"
 fi
+
+# Vendored code has to be attributable. A minified blob with no record of what it is or
+# what licence it carries is the kind of thing that becomes nobody's problem until it is
+# everybody's, so each file needs a row in the manifest.
+for f in "$ROOT/assets/js/vendor"/*.js; do
+  [ -e "$f" ] || continue
+  b=$(basename "$f")
+  if grep -q "$b" "$ROOT/assets/js/vendor/VENDOR.md" 2>/dev/null; then
+    ok "vendored $b is recorded in VENDOR.md"
+  else
+    bad "vendored $b is recorded in VENDOR.md" "no row for $b"
+  fi
+done
 
 # --------------------------------------------------------------------------------
 group "Feeds and the search index"
@@ -485,11 +505,21 @@ DOCWORD=$(awk -v n="$DOCCOUNT" 'BEGIN{
   split("zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty twenty-one twenty-two twenty-three twenty-four twenty-five", w, " ")
   print w[n+1]
 }')
+# README names the count twice — once in the Overview table and once in the docs links —
+# and the second one was missed when the first was fixed. Both are checked, because a
+# number that appears twice goes stale in whichever copy nobody remembered.
+DOCWORD_CAP=$(printf '%s' "$DOCWORD" | awk '{print toupper(substr($0,1,1)) substr($0,2)}')
 if grep -q "All $DOCWORD, each running live on the page" "$ROOT/README.md"; then
-  ok "README's shortcode count matches the docs page"
+  ok "README's docs link states the shortcode count"
 else
-  bad "README's shortcode count matches the docs page" \
+  bad "README's docs link states the shortcode count" \
       "docs page documents $DOCCOUNT ($DOCWORD); README says: $(grep -o 'All [a-z-]*, each running live' "$ROOT/README.md" || echo 'no match')"
+fi
+if grep -q "| Shortcodes | $DOCWORD_CAP, and a render hook" "$ROOT/README.md"; then
+  ok "README's overview table states the shortcode count"
+else
+  bad "README's overview table states the shortcode count" \
+      "expected $DOCWORD_CAP; got: $(grep -o '| Shortcodes | [A-Za-z-]*' "$ROOT/README.md" || echo 'no match')"
 fi
 
 # video: the box carries an exact aspect-ratio, which is what reserves the space before any
@@ -694,6 +724,28 @@ refute_grep 'Updated <time' "$PUBLIC/blog/two-modes/index.html" "no updated date
 # Nor when lastmod is later but renders as the same day: "27 Jul 2026 - Updated 27 Jul 2026"
 # says nothing twice.
 refute_grep 'Updated <time' "$WRITING" "no updated date when it renders as the same day"
+
+# mermaid. The whole justification for vendoring 3.5MB is that it is loaded only where a
+# diagram exists. If that gate ever breaks, the theme quietly becomes the heaviest thing on
+# the reader's page, on every page — so this is the assertion that matters most here.
+assert_grep 'vendor/mermaid' "$SHORTCODES" "the mermaid library loads on a page with a diagram"
+refute_grep 'vendor/mermaid' "$PUBLIC/index.html" "the home page loads no mermaid"
+refute_grep 'vendor/mermaid' "$MEASURING" "a post with no diagram loads no mermaid"
+
+# And it must never reach the shared bundle, which every page loads.
+if [ -n "$JS_REF" ] && grep -q 'mermaid' "$PUBLIC/$JS_REF" 2>/dev/null; then
+  bad "mermaid is not in the main bundle" "found mermaid in $JS_REF"
+else
+  ok "mermaid is not in the main bundle"
+fi
+
+# Self-hosted, like every other asset. A CDN reference would be a third-party request on
+# page view, which is the one thing this theme does not do.
+refute_grep 'cdn\.jsdelivr\|unpkg\.com\|cdnjs' "$SHORTCODES" "mermaid is self-hosted, not from a CDN"
+
+# The source stays in the <pre>, which is the JS-off fallback and the input the theme
+# re-renders from when the colour mode changes. An empty container would be neither.
+assert_grep '<pre class=mermaid>graph LR' "$SHORTCODES" "the diagram source is served as text"
 
 # Multiple authors. The co-authored post credits two people from data/authors/.
 COAUTH="$PUBLIC/blog/co-authored/index.html"
@@ -943,7 +995,10 @@ fi
 
 # Every runtime lookup needs an English fallback, so a missing catalogue leaves working
 # controls rather than blank ones.
-BAD_T=$(grep -rhoE '\bt\("[A-Za-z0-9_]+"\)' "$ROOT/assets/js" | sort -u)
+# --exclude-dir=vendor for the same reason as the purity group above: a minified
+# third-party bundle is full of one-letter function calls, and holding upstream code to
+# this theme's i18n conventions produces noise, not coverage.
+BAD_T=$(grep -rhoE --exclude-dir=vendor '\bt\("[A-Za-z0-9_]+"\)' "$ROOT/assets/js" | sort -u)
 if [ -n "$BAD_T" ]; then
   bad "every t() call passes a fallback" "$(echo "$BAD_T" | tr '\n' ' ')"
 else

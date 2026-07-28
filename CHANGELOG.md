@@ -10,6 +10,17 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **`mermaid`** — diagrams written as text, rendered in the browser. **The library is loaded
+  only on pages that contain a diagram**, gated on Hugo's own `.HasShortcode`, because mermaid is
+  3.5MB — more than the rest of the theme's assets put together — and it never enters the shared
+  bundle. It is **vendored under `assets/js/vendor/` and self-hosted**, not pulled from a CDN,
+  since a CDN reference is a third-party request on page view. Fingerprinted and integrity-hashed
+  like every other asset. With JavaScript off the reader gets the diagram's source in a code
+  block, which for a flowchart is genuinely readable; the script replaces it in place. Diagrams
+  follow the colour mode — mermaid bakes its palette into the SVG, so a mode change re-renders
+  from the source, driven by the theme's existing `northlight:appearance` event.
+  `assets/js/vendor/VENDOR.md` records what is vendored, at what version and under what licence,
+  and the suite asserts every file there has a row.
 - **Multiple authors** — `authors = ["alice", "bob"]` in front matter credits several people,
   resolved from one file per person in `data/authors/`. The byline names them all, with
   **`article.showAuthorsBadges`** linking each to an author page (register `author = "authors"`

@@ -229,6 +229,51 @@ Like [`gallery`](#gallery), it has no image handling of its own — it scrolls n
 Reach for a gallery when the images are a set the reader should see at once, and this when
 they are a sequence.
 
+## `mermaid`
+
+A diagram written as text, rendered in the browser.
+
+```text
+{{</* mermaid */>}}
+graph LR
+  A[Markdown] --> B{Shortcode?}
+  B -->|no| C[Render hook]
+  B -->|yes| D[Theme syntax]
+  C --> E[Portable]
+  D --> F[Theme-specific]
+{{</* /mermaid */>}}
+```
+
+{{< mermaid >}}
+graph LR
+  A[Markdown] --> B{Shortcode?}
+  B -->|no| C[Render hook]
+  B -->|yes| D[Theme syntax]
+  C --> E[Portable]
+  D --> F[Theme-specific]
+{{< /mermaid >}}
+
+**The library is only loaded on pages that use this.** Mermaid is 3.5MB — more than the
+rest of the theme's assets put together — so the script is gated on the page actually
+containing a diagram. Every other page on this site loads none of it. It is self-hosted
+and fingerprinted like every other asset here; nothing is fetched from a CDN.
+
+**With JavaScript off you get the diagram's source**, in a code block, because that is
+what the shortcode emits and the script replaces it in place. For a flowchart or a
+sequence diagram that text is genuinely readable — `A --> B` says what it means — which is
+why the fallback is the source rather than an empty box.
+
+The diagram follows the colour mode. Mermaid bakes its palette into the SVG it generates,
+so switching modes re-renders from the source rather than restyling what is there; the
+theme's own `northlight:appearance` event is what triggers it.
+
+Inner content is taken raw rather than rendered as Markdown. Diagram syntax is full of
+characters Goldmark would otherwise treat as markup — `-->`, `|`, `#`, underscores — and a
+diagram quietly reformatted into emphasis is a bug with no error message.
+
+A diagram with a syntax error renders mermaid's own error in place rather than taking the
+page down. That is more use to whoever wrote it than a blank space.
+
 ## `video`
 
 A self-hosted video player. The file is yours, so nothing here contacts another host.

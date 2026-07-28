@@ -20,7 +20,9 @@ on them:
   every user of it."*
 - `docs/SPEC.md` §1: the theme must build with no network access.
 
-Both survive if these ship **opt-in and default-off**, with self-hosted assets where the library
+**Decided: vendor and self-host, loaded lazily.** `mermaid` is the worked example — see
+`assets/js/vendor/VENDOR.md` and the `.HasShortcode` gate in `baseof.html`. Both rules survive if
+these ship **opt-in and default-off**, with self-hosted assets where the library
 allows it — the first rule already says "by default", and a build-time fetch only happens on a
 page that uses the shortcode. What does not survive is a default-on version of any of them.
 Decide this once, here, and every `[opt-in]` row below inherits it.
@@ -41,7 +43,7 @@ Unlocks content, audiences or authorship that is impossible today.
 | 2 | ~~**Multiple authors**~~ **DONE** | `authors` front matter resolved from `data/authors/`, author taxonomy pages, `showAuthorsBadges`, `showAuthorBottom`. Falls back to the single `[params.author]`, so existing sites render unchanged | Medium |
 | 3 | ~~**Author profile fields**~~ **MOSTLY DONE** | `bio` and `email` built. **`imageQuality` deferred** — the avatar deliberately does not go through Hugo's image pipeline, because `image-url.html` also has to pass SVG through untouched, and routing rasters through `.Resize` is a separate change. Tracked in `BACKLOG.md` | Small |
 | 4 | ~~**Series**~~ **DONE** | Navigation block above the body, `<details>` so no JS. `series_order` required — a scrambled series is worse than none, so a post missing it fails the build. A one-post series renders nothing | Medium |
-| 5 | **Mermaid diagrams** `[opt-in]` | Diagrams as text in the post. The most-requested capability on a technical blog after code fences | Medium |
+| 5 | ~~**Mermaid diagrams**~~ **DONE** | Vendored and self-hosted, loaded only on pages with a diagram via `.HasShortcode` — never in the shared bundle. JS-off fallback is the diagram source; follows the colour mode | Medium |
 | 6 | **Maths rendering** `[opt-in]` | KaTeX. Site config (`markup.goldmark.extensions.passthrough`) plus a renderer | Medium |
 | 7 | **Charts** `[opt-in]` | Chart.js from structured data in the shortcode body | Medium |
 | 8 | ~~**Sharing providers**~~ **DONE** | 2 → 11. Every one a plain URL, no script. Added `article.mastodonInstance`, since Mastodon is federated and has no central share host. Also fixed labels coming from `title`-casing the config key, which rendered "Linkedin" | Small |
