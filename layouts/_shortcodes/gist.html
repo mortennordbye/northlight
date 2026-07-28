@@ -25,17 +25,8 @@
 {{- $api := printf "https://api.github.com/gists/%s" $id -}}
 {{- $want := .Get "file" -}}
 
-{{- $res := "" -}}{{- $offline := "" -}}{{- $missing := false -}}
-{{- with try (resources.GetRemote $api) -}}
-  {{- with .Err -}}{{ $offline = printf "%s" . }}{{- else -}}{{ $res = .Value }}{{- end -}}
-{{- end -}}
-{{- if and (not $res) (not $offline) -}}{{ $missing = true }}{{ end -}}
-{{- if $missing -}}
-  {{- warnidf "repo-card-missing" "gist shortcode: %q returned nothing — the gist may have been deleted, or GitHub may be rate-limiting. Falling back to a plain link." $api -}}
-{{- end -}}
-{{- with $offline -}}
-  {{- warnidf "repo-card-offline" "gist shortcode: could not reach %q (%s) — falling back to a plain link" $api . -}}
-{{- end -}}
+{{- $res := (partial "fetch-remote.html" (dict "url" $api "who" "gist shortcode"
+      "hint" "the gist may have been deleted, or GitHub may be rate-limiting. Falling back to a plain link.")).res -}}
 
 {{- $shown := false -}}
 {{- with $res -}}

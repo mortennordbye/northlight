@@ -1023,7 +1023,7 @@ done
 # docs/SPEC.md §1 forbids. The two paths are separate in the source.
 assert_grep 'warnf "repo-card' "$ROOT/layouts/_partials/repo-card.html" \
   "a missing repository warns, so a dead card fails CI"
-assert_grep 'warnidf "repo-card-offline"' "$ROOT/layouts/_partials/repo-card.html" \
+assert_grep 'warnidf "repo-card-offline"' "$ROOT/layouts/_partials/fetch-remote.html" \
   "an unreachable network uses a suppressible log, not a hard warning"
 assert_grep "ignoreLogs = \['repo-card-offline', 'repo-card-missing'\]" "$ROOT/exampleSite/hugo.toml" \
   "the demo site can be built with no network and under a rate limit"

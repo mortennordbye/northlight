@@ -15,16 +15,7 @@
 {{- $url := .Get "url" -}}
 {{- if not $url -}}{{ errorf "mdimporter shortcode: url is required (%s)" .Position }}{{ end -}}
 
-{{- $res := "" -}}{{- $offline := "" -}}
-{{- with try (resources.GetRemote $url) -}}
-  {{- with .Err -}}{{ $offline = printf "%s" . }}{{- else -}}{{ $res = .Value }}{{- end -}}
-{{- end -}}
-{{- with $offline -}}
-  {{- warnidf "repo-card-offline" "mdimporter: could not reach %q (%s) — falling back to a link" $url . -}}
-{{- end -}}
-{{- if and (not $res) (not $offline) -}}
-  {{- warnidf "repo-card-missing" "mdimporter: %q returned nothing — falling back to a link" $url -}}
-{{- end -}}
+{{- $res := (partial "fetch-remote.html" (dict "url" $url "who" "mdimporter")).res -}}
 
 {{- with $res -}}
   <div class="md-import">{{ $.Page.RenderString .Content }}</div>

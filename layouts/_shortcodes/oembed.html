@@ -30,16 +30,8 @@
 {{- end -}}
 {{- $api := printf "%s?url=%s&format=json" $endpoint (urlquery $url) -}}
 
-{{- $res := "" -}}{{- $offline := "" -}}
-{{- with try (resources.GetRemote $api) -}}
-  {{- with .Err -}}{{ $offline = printf "%s" . }}{{- else -}}{{ $res = .Value }}{{- end -}}
-{{- end -}}
-{{- with $offline -}}
-  {{- warnidf "repo-card-offline" "oembed: could not reach %q (%s) — falling back to a plain link" $api . -}}
-{{- end -}}
-{{- if and (not $res) (not $offline) -}}
-  {{- warnidf "repo-card-missing" "oembed: %q returned nothing — the provider may not support oEmbed for this URL, or may be rate-limiting" $api -}}
-{{- end -}}
+{{- $res := (partial "fetch-remote.html" (dict "url" $api "who" "oembed"
+      "hint" "the provider may not support oEmbed for this URL, or may be rate-limiting. Falling back to a plain link.")).res -}}
 
 {{- $title := $url -}}{{- $author := "" -}}{{- $provider := "" -}}{{- $thumb := "" -}}{{- $live := false -}}
 {{- with $res -}}
