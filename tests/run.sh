@@ -1697,6 +1697,29 @@ case "$ART_IMG" in
 esac
 
 # --------------------------------------------------------------------------------
+group "Structure and accessibility, every page"
+
+# The assertions above check that particular strings appear in particular files. That
+# catches a feature disappearing; it cannot catch malformed markup, a duplicate id, an
+# unlabelled control or a dead internal link, because none of those look different from
+# valid output to a grep — and it only ever looks at the handful of pages somebody wrote
+# an assertion for.
+#
+# tests/structure.py walks every built page instead. It found real defects the moment it
+# was written: twelve term pages skipping from h1 to h3, an image-only link with no
+# accessible name, and two demo posts jumping h2 to h4 on a page that is the theme's own
+# integration test.
+if [ "$HAVE_PY" -eq 1 ]; then
+  if STRUCT=$(python3 "$ROOT/tests/structure.py" 2>&1); then
+    ok "every page is well formed, named and linked ($(printf '%s' "$STRUCT" | head -1))"
+  else
+    bad "every page is well formed, named and linked" "$(printf '%s' "$STRUCT" | tail -n +1 | head -4 | tr '\n' ' ')"
+  fi
+else
+  skip "structural sweep (python3 not available)"
+fi
+
+# --------------------------------------------------------------------------------
 printf '\n'
 if [ "$FAIL" -gt 0 ]; then
   red "FAILED  $FAIL failed, $PASS passed, $SKIP skipped"

@@ -12,7 +12,7 @@
 
   {{- if (partialCached "init.html" .).taxonomy.cardView }}
   <div class="card-grid">
-    {{- range $paginator.Pages }}{{ partial "card.html" . }}{{ end }}
+    {{- range $paginator.Pages }}{{ partial "card.html" (dict "ctx" . "level" 2) }}{{ end }}
   </div>
   {{- else }}
   <div class="post-list">

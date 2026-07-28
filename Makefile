@@ -92,7 +92,10 @@ check-remote: ## THE GATE, for a Docker daemon that cannot bind-mount this direc
 test: ## Run the test suite against the current build (see check)
 	@sh tests/run.sh
 
+fuzz: ## Throw hostile input at every shortcode parameter
+	@python3 tests/fuzz.py
+
 clean: ## Remove build output and caches
 	$(RUN) --entrypoint sh $(HUGO_IMAGE) -c 'rm -rf $(PATHS)'
 
-.PHONY: help serve build check check-remote test clean
+.PHONY: help serve build check check-remote test fuzz clean

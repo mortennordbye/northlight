@@ -121,6 +121,12 @@ The site config enables `unsafe` HTML, so posts may contain markup like this:
 
 ## Fourth level
 
+### A third level, so the fourth does not skip one
+
+A heading level may not be skipped: an `h2` followed by an `h4` reads to a screen
+reader as a missing section, and this page is the theme's own integration test, so it
+should not demonstrate the mistake.
+
 #### This is an h4
 
 It should render, and it should appear in the table of contents, which is configured for

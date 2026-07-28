@@ -40,6 +40,11 @@ more and the steps stop being distinguishable, which defeats the point of having
 - Lede at 19px, body at 17px
 - Meta at 13.5px
 
+### A third level, so the next one does not skip
+
+The scale runs without gaps for the same reason the measure does: skipping a level is a
+hole in the document outline, and the outline is how a screen reader navigates.
+
 #### A fourth level, for completeness
 
 It exists, it appears in the table of contents, and it is styled — but four levels of
