@@ -88,7 +88,7 @@ author can do. It is not a measure of effort.
 | **Nested / dropdown menus** | **Have** | — | One level, as a `<details>` disclosure rather than a hover dropdown |
 | Sub-navigation bar | Rejected | Low | Second nav for a six-post blog |
 | Header layout variants (fixed, fill, blur) | Rejected | — | Four variants where one considered choice is better |
-| Homepage layouts | Gap | High | Reversed on 2026-07-28 — see FLAG-6 in `docs/EXPANSION-PLAN.md`. Ten layouts selected by `home.layout`, defaulting to today's homepage |
+| Homepage layouts | **Have** | — | Ten, selected by `home.layout`. Defaults to `stack`, the original homepage, verified byte-identical |
 | Hero styles (basic/big/background/thumb) | Rejected | — | Covers are 1200×630 with the title baked in; only one treatment is correct |
 | Card vs list view switches | Rejected | — | See `BACKLOG.md` |
 | `groupByYear` on the index | **Have** | — | |

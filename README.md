@@ -360,6 +360,19 @@ gets the raw `{{< … >}}` back. Everything here is additive, and nothing replac
 The full list, with every parameter and a live example of each, is on the
 [Shortcodes](https://mortennordbye.github.io/northlight/docs/shortcodes/) page of the demo site.
 
+### `[params.home]`
+
+| Key | Default | What it changes |
+|---|---|---|
+| `layout` | `"stack"` | Home page arrangement: `stack`, `page`, `profile`, `hero`, `card`, `background`, `split`, `gallery`, `archive` or `custom`. An unknown value fails the build. |
+| `backgroundImage` | — | Only read by `layout = "background"`. Without it that layout renders the ordinary intro. |
+| `showFeatured` | `true` | Large featured card for the newest post (`stack`). |
+| `recentCount` | `3` | How many posts appear beneath the intro. |
+
+`stack` is the layout the theme shipped with, so leaving `layout` unset changes nothing.
+The full comparison, and the trade `background` asks you to accept, is on the
+[Appearance](https://mortennordbye.github.io/northlight/docs/appearance/) page of the demo site.
+
 ### `[params.analytics.cloudflare]`
 
 Cloudflare Web Analytics is the one provider wired directly, because it sets no cookies and needs

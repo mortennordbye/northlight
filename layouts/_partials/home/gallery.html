@@ -1,0 +1,32 @@
+{{- /*
+  gallery — no intro furniture; posts as a cover-led grid.
+
+  For a site where the images are the content: photography, projects, screenshots. The
+  title still renders, because a page with no h1 is a page with no name, but everything
+  else that would compete with the covers is gone.
+
+  The first cover is the LCP element and takes the hint; the rest stay lazy. Covers keep
+  their exact ratio — the never-crop rule applies here as everywhere.
+*/ -}}
+{{- $ctx := .ctx -}}
+<div class="wrap">
+  <h1 class="intro-title home-gallery-title">{{ $ctx.Title }}</h1>
+  {{- with $ctx.Description }}<p class="intro-text">{{ . }}</p>{{ end }}
+
+  {{- with .posts }}
+  <div class="home-gallery">
+    {{- range $i, $p := . }}
+      <a class="home-gallery-item" href="{{ $p.RelPermalink }}">
+        {{- with $p.Resources.GetMatch "{cover,featured}.*" }}
+          {{- $img := . }}
+          {{- if in (slice "png" "jpeg" "gif" "webp") .MediaType.SubType }}{{ $img = .Resize "600x q80" }}{{ end }}
+          <img src="{{ $img.RelPermalink }}" alt=""
+               width="{{ $img.Width }}" height="{{ $img.Height }}"
+               {{ if eq $i 0 }}fetchpriority="high"{{ else }}loading="lazy"{{ end }} decoding="async">
+        {{- end }}
+        <span class="home-gallery-title-text">{{ $p.LinkTitle }}</span>
+      </a>
+    {{- end }}
+  </div>
+  {{- end }}
+</div>

@@ -1,0 +1,32 @@
+{{- /*
+  archive — every post in one dense chronological list, grouped by year.
+
+  No intro, no covers, no images at all. The fastest homepage in the set and the right one
+  for a long-running blog, where a reader arriving at the root wants to find a piece rather
+  than be introduced to the author.
+
+  The year is a <div> rather than a heading, matching the post index: it is a rule between
+  groups, and making it an h2 would put a dozen meaningless entries in the heading outline.
+*/ -}}
+{{- $ctx := .ctx -}}
+<div class="wrap home-archive">
+  <h1 class="intro-title">{{ $ctx.Title }}</h1>
+  {{- with $ctx.Description }}<p class="intro-text">{{ . }}</p>{{ end }}
+
+  {{- range .posts.GroupByDate "2006" }}
+    <div class="archive-year">{{ .Key }}</div>
+    <ul class="archive-list">
+      {{- range .Pages }}
+        <li class="archive-row">
+          <a href="{{ with .Params.externalUrl }}{{ . }}{{ else }}{{ .RelPermalink }}{{ end }}"
+             {{- with .Params.externalUrl }} rel="noopener" target="_blank"{{ end }}>
+            {{- if .Draft }}<span class="draft-label">{{ i18n "draft" }}</span>{{ end }}
+            {{ .LinkTitle }}
+            {{- with .Params.externalUrl }} {{ partial "icon.html" "external" }}{{ end -}}
+          </a>
+          <time class="archive-date" datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format (site.Params.dateFormat | default "2 Jan 2006") }}</time>
+        </li>
+      {{- end }}
+    </ul>
+  {{- end }}
+</div>

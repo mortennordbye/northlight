@@ -10,6 +10,17 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **Ten home page layouts**, selected by `home.layout`: `stack`, `page`, `profile`, `hero`,
+  `card`, `background`, `split`, `gallery`, `archive` and `custom`. This reverses the earlier
+  decision to ship one homepage; the reasoning is recorded as FLAG-6 in
+  `docs/EXPANSION-PLAN.md`. **Not a breaking change:** `stack` is the arrangement the theme
+  shipped with and is the default, and the refactor that moved it into a partial was verified
+  to leave the rendered `<main>` byte-identical. `home.html` is now a dispatcher that gathers
+  the post list once and hands it to the chosen partial, which is also what lets `custom`
+  work without forking the theme. An unknown layout fails the build rather than falling back
+  to the default and looking like the setting had no effect. `background` carries a flat scrim
+  and fixed light-on-dark text in both colour modes, because the photograph behind it does not
+  invert when the palette does.
 - **`carousel`** — a horizontally scroll-snapping row of nested `figure` shortcodes. The plan
   listed this as a candidate to drop because it needs JavaScript and autoplay fights
   `prefers-reduced-motion`; CSS scroll-snap answers both. There is **no JavaScript and no

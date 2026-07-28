@@ -87,8 +87,16 @@ summaryLength = 30
     ]
 
   [params.home]
+    # Which homepage arrangement to render. One of: stack, page, profile, hero, card,
+    # background, split, gallery, archive, custom.        (default: "stack")
+    # "stack" is the layout the theme shipped with, so leaving this unset changes nothing.
+    # An unknown value fails the build rather than quietly falling back.
+    layout = "stack"
     showFeatured = true        # large featured card for the newest post (default: true)
     recentCount = 3            # cards under the featured post          (default: 3)
+    # Only read by layout = "background". Without it that layout renders the ordinary
+    # intro rather than an empty band.
+    # backgroundImage = "images/backdrop.png"   # only read by layout = "background"
 
   [params.article]
     showBreadcrumbs = true

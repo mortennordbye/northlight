@@ -501,6 +501,39 @@ else
 fi
 
 # --------------------------------------------------------------------------------
+group "Home layouts"
+
+# home.html is a dispatcher; the arrangements live in _partials/home/. Only the configured
+# one renders in any given build, so the suite checks the default's output and the presence
+# of the rest. The unknown-layout path fails the build outright and so cannot be asserted
+# from here — it is exercised by hand and recorded in the plan.
+for L in stack page profile hero card background split gallery archive custom; do
+  assert_file "$ROOT/layouts/_partials/home/$L.html" "home layout exists: $L"
+done
+assert_file "$ROOT/layouts/_partials/home/intro.html" "the shared home intro block exists"
+
+# The default is `stack`, which is the homepage this theme shipped with. A site that never
+# sets the param must see no change, so these assert the original markup specifically. If
+# the dispatcher ever defaults to something else, every existing site's homepage silently
+# changes and this is what catches it.
+assert_grep 'class=intro'      "$PUBLIC/index.html" "the default home layout is still stack"
+assert_grep 'class=feature'    "$PUBLIC/index.html" "stack still renders the featured post"
+assert_grep 'class=card-grid'  "$PUBLIC/index.html" "stack still renders the recent card grid"
+
+# Covers are never cropped, in the layouts as much as anywhere. Anchored to a declaration
+# rather than the bare word, because the comments explaining the rule name it.
+# Scoped to the post-cover rules specifically: the profile avatar *is* deliberately
+# cropped with object-fit, because a round avatar of an arbitrary photo has to be, and a
+# blanket ban would forbid the one legitimate use.
+BADCROP=$(awk '/\.home-hero-media img|\.home-gallery-item img/,/}/' "$ROOT/assets/css/home-layouts.css" \
+  | grep -cE '^[[:space:]]*object-fit' | tr -d ' ')
+assert_count 0 "$BADCROP" "no home layout crops a post cover"
+
+# The stylesheet has to be in the bundle, or every layout but stack renders unstyled.
+assert_grep 'home-layouts.css' "$ROOT/layouts/_partials/head.html" \
+  "the home layout stylesheet is in the bundle"
+
+# --------------------------------------------------------------------------------
 group "Accessible names and heading order"
 
 # Below 720px both .search-trigger-label and the kbd hint are display:none, so the button

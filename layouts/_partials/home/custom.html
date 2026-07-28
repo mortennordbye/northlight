@@ -1,0 +1,25 @@
+{{- /*
+  custom — the escape hatch.
+
+  This file is a documented stub. A site overrides it by creating its own
+  `layouts/_partials/home/custom.html`, which Hugo resolves ahead of the theme's copy, and
+  gets the same dict every other layout receives:
+
+      ctx     the home page
+      cfg     resolved theme config from init.html
+      home    site.Params.home
+      posts   pages from mainSections, newest first
+      author  resolved author config
+
+  It exists so that an arrangement nobody anticipated does not require forking the theme.
+
+  The warning is deliberate. Left silent, a site that sets `layout = "custom"` and forgets
+  the override gets a blank homepage with a green build, which looks like the theme is
+  broken. `--panicOnWarning` turns this into a failed build for anyone running the gate.
+*/ -}}
+{{- warnf "home.layout is \"custom\" but the theme's stub partial is still in use. Create layouts/_partials/home/custom.html in your site to override it." -}}
+<div class="wrap home-page">
+  <h1 class="intro-title">{{ .ctx.Title }}</h1>
+  {{- with .ctx.Description }}<p class="intro-text">{{ . }}</p>{{ end }}
+  {{- with .ctx.Content }}<div class="prose">{{ . }}</div>{{ end }}
+</div>

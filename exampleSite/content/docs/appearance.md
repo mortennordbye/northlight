@@ -114,3 +114,71 @@ the theme's behaviour.
 
 Two partials exist purely as escape hatches and are meant to be overridden:
 `extend-head.html` and `extend-footer.html`. See [Integrations](../integrations/).
+
+
+## Home page layouts
+
+The home page has ten arrangements, chosen with one setting:
+
+```toml
+[params.home]
+  layout = "stack"   # default
+```
+
+| Layout | What it is | Reach for it when |
+|---|---|---|
+| `stack` | Intro, one featured post with its cover, then a card grid | The default. A blog whose newest post deserves the space |
+| `page` | The page's own title and Markdown, nothing else | The homepage is a written page: a documentation root, a landing page, a site with no posts yet |
+| `profile` | Centred avatar, name, headline, bio and social row, posts beneath | A personal site where the person is the subject |
+| `hero` | The newest post's cover at full width, title alongside it | The covers are strong and the newest post is the point |
+| `card` | The intro inside one bordered panel, cards below | You want `stack` but quieter — the intro as an object rather than a band |
+| `background` | A site-supplied image behind the intro | You have one good photograph and accept the trade below |
+| `split` | Intro pinned in one column, posts in the other | The intro is worth keeping on screen while the reader scans posts |
+| `gallery` | No intro furniture; posts as a cover-led grid | The images are the content: photography, projects, screenshots |
+| `archive` | No intro, no covers; every post by year | A long-running blog where arriving readers want to find a piece |
+| `custom` | Renders your own partial | None of the above, and you would rather not fork the theme |
+
+`stack` is the layout the theme shipped with, so leaving `layout` unset changes nothing.
+An unknown value **fails the build** rather than quietly falling back to the default, which
+would look like the setting had no effect.
+
+Every layout renders with no author configured, no cover images and **no posts at all** —
+an empty site is the first thing a new adopter sees, and a layout that renders a stray
+heading over an empty grid is a poor first impression.
+
+### `background` is the one with a trade
+
+A photograph behind text is the glare this theme exists to avoid, so it is built with
+guards rather than left open:
+
+- A **flat scrim** sits between image and text — a solid colour at a fixed opacity, not a
+  gradient, so the contrast it buys is the same at the top of the block as at the bottom.
+- The text is **fixed light-on-dark in both colour modes**. The photograph does not invert
+  when the palette does, so text that followed the theme would be legible in one mode and
+  not the other over the same image.
+- Without `home.backgroundImage` set, it renders as the ordinary intro. No empty band.
+
+None of that rescues text over an image with a bright patch exactly where the heading
+sits. **Check your own image in both modes** — the theme cannot do that for you.
+
+```toml
+[params.home]
+  layout = "background"
+  backgroundImage = "images/backdrop.jpg"   # assets/ or static/
+```
+
+### `custom`
+
+Create `layouts/_partials/home/custom.html` in your own site. It receives the same data
+every built-in layout gets:
+
+| Key | What it is |
+|---|---|
+| `ctx` | The home page |
+| `cfg` | Resolved theme config |
+| `home` | Everything under `[params.home]` |
+| `posts` | Pages from `mainSections`, newest first |
+| `author` | Resolved author config |
+
+Selecting `custom` without providing that file emits a build warning rather than a blank
+page, so the mistake surfaces instead of looking like a broken theme.

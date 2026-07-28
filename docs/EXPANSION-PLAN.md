@@ -332,35 +332,35 @@ post-gathering logic, and it is what makes `custom` possible without a fork.
 5. **Both colour modes, no horizontal overflow at 375px.** As everywhere.
 6. **Every string through `i18n/en.toml`.** Several of these introduce new headings.
 
-- [ ] **`stack`** — the current homepage: intro, one featured post with its cover, then a card
+- [x] **`stack`** — the current homepage: intro, one featured post with its cover, then a card
       grid of recent posts. Ships as the default. Branch `feat/home-stack`, and it is a refactor
       rather than a feature: prove the output is unchanged.
-- [ ] **`page`** — the page's own title and Markdown content, and nothing else. No featured post,
+- [x] **`page`** — the page's own title and Markdown content, and nothing else. No featured post,
       no cards, no byline. For a site whose homepage is a written page rather than an index, and
       the layout a documentation site wants. Branch `feat/home-page`.
-- [ ] **`profile`** — centred avatar, name, headline, bio and social row, with posts listed
+- [x] **`profile`** — centred avatar, name, headline, bio and social row, with posts listed
       beneath. The personal-site arrangement. Reuses the author block `stack` already has rather
       than inventing a second one. Branch `feat/home-profile`.
-- [ ] **`hero`** — the newest post's cover at full width in its exact 1200×630 box, with the title
+- [x] **`hero`** — the newest post's cover at full width in its exact 1200×630 box, with the title
       and description alongside it on wide screens and beneath it on narrow. The strongest LCP
       case in the set, so the priority hint matters most here. Branch `feat/home-hero`.
-- [ ] **`card`** — the whole intro inside one bordered panel, posts as cards below. Quieter than
+- [x] **`card`** — the whole intro inside one bordered panel, posts as cards below. Quieter than
       `stack` because the intro stops being full-bleed. Branch `feat/home-card`.
-- [ ] **`background`** — a site-supplied image behind the intro block, full-bleed.
+- [x] **`background`** — a site-supplied image behind the intro block, full-bleed.
       **The one in tension with the design brief.** Requires a scrim, and the documentation must
       state the contrast floor and that the author is responsible for an image that clears it.
       Do not ship it without measuring text contrast over a real photograph in both modes.
       Branch `feat/home-background`.
-- [ ] **`split`** — two columns on wide screens: intro and author pinned in one, the post list in
+- [x] **`split`** — two columns on wide screens: intro and author pinned in one, the post list in
       the other. Collapses to one column below the breakpoint, intro first. Branch
       `feat/home-split`.
-- [ ] **`gallery`** — no intro furniture at all; posts as a cover-led grid, two or three across.
+- [x] **`gallery`** — no intro furniture at all; posts as a cover-led grid, two or three across.
       For a photography or project site where the images are the content. Branch
       `feat/home-gallery`.
-- [ ] **`archive`** — no intro, no covers; every post in one dense chronological list grouped by
+- [x] **`archive`** — no intro, no covers; every post in one dense chronological list grouped by
       year. Reuses the `groupByYear` logic the post index already has. The fastest homepage in the
       set and the right one for a long-running blog. Branch `feat/home-archive`.
-- [ ] **`custom`** — renders `layouts/_partials/home/custom.html`, which the theme ships as a
+- [x] **`custom`** — renders `layouts/_partials/home/custom.html`, which the theme ships as a
       documented stub for a site to override. The escape hatch, so that an arrangement nobody
       anticipated does not require a fork. Must fail with a clear message rather than a blank page
       when the override is missing. Branch `feat/home-custom`.
@@ -592,6 +592,24 @@ silently.
   because CSS scroll-snap removes all three objections the plan raised against it (script,
   autoplay, reduced motion). Check whether the platform has grown a feature before reaching for
   a script.
+
+- **Part C is complete.** All ten layouts landed in one branch, with `home.html` reduced to a
+  dispatcher. Three things worth carrying forward:
+
+  **The `stack` refactor was verified byte-identical, not assumed.** The rendered `<main>` was
+  extracted from the homepage before and after and compared: 4937 bytes, identical. The only
+  whole-file difference was the CSS bundle hash, which adding a stylesheet must change. Any
+  refactor claiming to preserve behaviour should be proved this way rather than eyeballed.
+
+  **Type tokens are named `--text-*`, not `--step-*`.** The first draft invented a scale that
+  did not exist and wrote `var(--step-4, 2rem)`; the fallback meant it *looked* fine in a
+  browser and only the "every custom property used is defined" assertion caught it. A CSS
+  fallback will hide a typo'd token indefinitely.
+
+  **`background` fixes its text colour in both modes on purpose.** It is the only place in the
+  theme where a colour does not come from a mode-aware token. The photograph does not invert
+  when the palette does, so text that followed the theme would be legible in one mode and
+  illegible in the other over the same image.
 
   `video` is the one row not done, and it is blocked on an asset rather than on effort: there is
   no encoder available to produce a sample file, and committing a hand-assembled binary nobody

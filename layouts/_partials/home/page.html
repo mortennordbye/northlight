@@ -1,0 +1,15 @@
+{{- /*
+  page — the page's own title and Markdown content, and nothing else.
+
+  No featured post, no cards, no byline. For a site whose homepage is a written page rather
+  than an index: a documentation root, a landing page, a site with no posts yet.
+
+  Deliberately does not call `home/intro.html`, because the byline is the thing this layout
+  exists to leave out.
+*/ -}}
+{{- $ctx := .ctx -}}
+<div class="wrap home-page">
+  <h1 class="intro-title">{{ $ctx.Title }}</h1>
+  {{- with $ctx.Description }}<p class="intro-text">{{ . }}</p>{{ end }}
+  {{- with $ctx.Content }}<div class="prose">{{ . }}</div>{{ end }}
+</div>
