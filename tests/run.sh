@@ -740,6 +740,33 @@ refute_grep 'Updated <time' "$PUBLIC/blog/two-modes/index.html" "no updated date
 # says nothing twice.
 refute_grep 'Updated <time' "$WRITING" "no updated date when it renders as the same day"
 
+# Site-wide image fallbacks. The point is that a coverless post is still illustrated and
+# still previews as a card when linked, without every post needing its own artwork.
+COAUTH_PAGE="$PUBLIC/blog/co-authored/index.html"
+assert_grep 'figure class=article-cover><img src=/images/example.svg' "$COAUTH_PAGE" \
+  "a post with no cover falls back to defaultFeaturedImage"
+assert_grep 'og:image" content="https://example.com/images/example.svg"' "$COAUTH_PAGE" \
+  "a post with no cover falls back to defaultSocialImage"
+
+# ...and a post with its own cover is untouched, which is what makes this non-breaking.
+assert_grep 'og:image" content="https://example.com/blog/measuring/cover.png"' "$MEASURING" \
+  "a post with its own cover ignores the fallbacks"
+
+# taxonomy.showTermCount. The count already rendered; only the switch is new, so the
+# default is true and this asserts the default rather than the switch.
+assert_grep 'class=term-count' "$PUBLIC/tags/index.html" "term counts render by default"
+
+# Palettes. Each accent was measured against its own tint before shipping, which is the
+# case that decided clay. Assert the set the theme claims to support matches what
+# tokens.css actually defines, so a palette cannot be documented and missing.
+PALETTES_CSS=$(grep -oE 'html\[data-palette="[a-z]+"\]' "$ROOT/assets/css/tokens.css" | grep -oE '"[a-z]+"' | tr -d '"' | sort | tr '\n' ' ')
+PALETTES_INIT=$(grep -oE 'slice "periwinkle"[^)]*' "$ROOT/layouts/_partials/init.html" | grep -oE '"[a-z]+"' | tr -d '"' | grep -v periwinkle | sort | tr '\n' ' ')
+if [ "$PALETTES_CSS" = "$PALETTES_INIT" ]; then
+  ok "every accepted palette is defined in tokens.css"
+else
+  bad "every accepted palette is defined in tokens.css" "css: [$PALETTES_CSS] init: [$PALETTES_INIT]"
+fi
+
 # Multilingual. Hugo does the routing; the theme owes the reader a way to switch, and
 # owes a crawler the alternates. These assertions cover both, plus the fallbacks.
 NB_POST="$PUBLIC/nb/blog/two-modes/index.html"

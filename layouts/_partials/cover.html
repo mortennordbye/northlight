@@ -30,6 +30,33 @@
 {{- $ctx := .ctx -}}
 {{- $style := .style | default "basic" -}}
 {{- $cover := $ctx.Resources.GetMatch "{cover,featured}.*" -}}
+{{- /* A post with no cover of its own falls back to the site-wide default, so a listing
+       or a hero is not half-illustrated. Resolved through image-url.html, which returns
+       nothing for a configured-but-missing file rather than a 404 on every such page.
+
+       The fallback is a plain path rather than a page resource, so it cannot be resized
+       or measured here; `$raster` below is therefore false for it and it renders without
+       srcset. That is the right trade for a decorative default. */ -}}
+{{- $fallback := "" -}}
+{{- if not $cover }}{{ $fallback = partial "image-url.html" (partialCached "init.html" $ctx).defaultFeaturedImage }}{{ end -}}
+
+{{- if and (not $cover) $fallback -}}
+  {{- $img := printf `<img src="%s" alt="" fetchpriority="high">` $fallback -}}
+  {{- if eq $style "background" -}}
+    <div class="article-hero-bg">
+      {{ $img | safeHTML }}
+      <div class="article-hero-scrim">
+        <header class="article-head article-head-on-cover">
+          {{ partial "article-head.html" $ctx }}
+        </header>
+      </div>
+    </div>
+  {{- else -}}
+    <figure class="article-cover{{ if eq $style "big" }} article-cover-big{{ end }}">
+      {{ $img | safeHTML }}
+    </figure>
+  {{- end -}}
+{{- end -}}
 
 {{- with $cover -}}
   {{- $raster := in (slice "png" "jpeg" "gif" "webp" "tiff" "bmp") .MediaType.SubType -}}

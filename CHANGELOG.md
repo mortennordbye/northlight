@@ -10,6 +10,16 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **Three more colour palettes** — `plum`, `slate` and `rose`, taking the set to six. Each
+  accent was **measured before it shipped**, against its own `--accent-tint` rather than the
+  page background, which is the case that decided `clay`. Light mode: `plum` 4.82, `rose` 4.63,
+  `slate` 4.54, against `periwinkle` 4.90, `sage` 4.17, `clay` 4.16. A fourth candidate measured
+  4.40 — below every palette already shipped — and was dropped rather than tuned.
+- **`defaultFeaturedImage`, `defaultSocialImage`** — site-wide image fallbacks, so a post with
+  no cover of its own is still illustrated and still previews as a card when linked. A post with
+  its own cover is unaffected. A configured-but-missing file renders nothing rather than a 404.
+- **`taxonomy.showTermCount`** — the article count beside each term was already rendered; this
+  adds the switch. Default `true`, so nothing changes for an existing site.
 - **Multilingual sites.** Declare `[languages]` and the theme supplies the rest: a language
   switcher in the header, `hreflang` alternates including `x-default` in `<head>`, a search
   index per language, per-language date formats and menus. **The switcher links to the

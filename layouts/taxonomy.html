@@ -1,4 +1,5 @@
 {{ define "main" }}
+{{- $cfg := partialCached "init.html" . -}}
 <div class="wrap">
   <header class="list-head">
     <h1 class="list-title">{{ .Title }}</h1>
@@ -13,7 +14,7 @@
     {{- range sort . "Pages" "desc" }}
       <a class="term" href="{{ .RelPermalink }}">
         {{ with .Data.Term }}{{ . }}{{ else }}{{ .LinkTitle }}{{ end }}
-        <span class="term-count">{{ len .Pages }}</span>
+        {{- if $cfg.taxonomy.showTermCount }}<span class="term-count">{{ len .Pages }}</span>{{ end }}
       </a>
     {{- end }}
   </div>

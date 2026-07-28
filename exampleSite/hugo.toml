@@ -93,6 +93,11 @@ summaryLength = 30
   #   bing = "..."
   #   fediverse = "@you@instance.tld"   # Mastodon verified-author byline on link previews
 
+  # Site-wide image fallbacks. Each is optional; a configured-but-missing file renders
+  # nothing rather than a 404 on every page that would have fallen back to it.
+  defaultFeaturedImage = "images/example.svg"   # cover for posts that have none
+  defaultSocialImage = "images/example.svg"     # OpenGraph/Twitter card image
+
   [params.author]
     name = "Morten Victor Nordbye"
     headline = "Writes about building things that stay simple"

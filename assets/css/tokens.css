@@ -222,6 +222,70 @@ html[data-palette="sage"] {
   --tok-tag: light-dark(#2f6b7a, #8fcbd6);
 }
 
+/* The three palettes below were added later, and each accent was measured before it
+   shipped rather than picked by eye — the same procedure that darkened clay. The binding
+   case is not the page background but the accent sitting on its *own* --accent-tint,
+   which is where a featured card's eyebrow lands.
+
+   Measured accent-on-own-tint, light mode: plum 4.82, rose 4.63, slate 4.54, against
+   periwinkle 4.90, sage 4.17 and clay 4.16. A fourth candidate, an ochre, measured 4.40 —
+   below every palette already shipped — and was dropped rather than tuned, because a
+   palette that needs special pleading before it is added will need it again later. */
+
+html[data-palette="plum"] {
+  --accent: #8a4a9e;
+  --accent: light-dark(#8a4a9e, #d9a8ea);
+  --accent-pastel: #d9a8ea;
+  --accent-pastel: light-dark(#d9a8ea, #9c5fb0);
+  --accent-tint: rgba(138, 74, 158, 0.08);
+  --accent-tint: light-dark(rgba(138, 74, 158, 0.08), rgba(217, 168, 234, 0.11));
+
+  --tok-key: #b5476f;
+  --tok-key: light-dark(#b5476f, #f0a2bd);
+  --tok-str: #3f7a5c;
+  --tok-str: light-dark(#3f7a5c, #9fd6a8);
+  --tok-num: #a2641b;
+  --tok-num: light-dark(#a2641b, #f0c48d);
+  --tok-tag: #3f6d8f;
+  --tok-tag: light-dark(#3f6d8f, #9cc4e0);
+}
+
+html[data-palette="slate"] {
+  --accent: #3f6d8f;
+  --accent: light-dark(#3f6d8f, #9cc4e0);
+  --accent-pastel: #9cc4e0;
+  --accent-pastel: light-dark(#9cc4e0, #54809f);
+  --accent-tint: rgba(63, 109, 143, 0.08);
+  --accent-tint: light-dark(rgba(63, 109, 143, 0.08), rgba(156, 196, 224, 0.11));
+
+  --tok-key: #7a5bb5;
+  --tok-key: light-dark(#7a5bb5, #c5b0ef);
+  --tok-str: #2f7a58;
+  --tok-str: light-dark(#2f7a58, #9cd9b4);
+  --tok-num: #a2641b;
+  --tok-num: light-dark(#a2641b, #f0c48d);
+  --tok-tag: #8a4a9e;
+  --tok-tag: light-dark(#8a4a9e, #d9a8ea);
+}
+
+html[data-palette="rose"] {
+  --accent: #a8446a;
+  --accent: light-dark(#a8446a, #f0a3bf);
+  --accent-pastel: #f0a3bf;
+  --accent-pastel: light-dark(#f0a3bf, #bd5a7e);
+  --accent-tint: rgba(168, 68, 106, 0.08);
+  --accent-tint: light-dark(rgba(168, 68, 106, 0.08), rgba(240, 163, 191, 0.11));
+
+  --tok-key: #7a5bb5;
+  --tok-key: light-dark(#7a5bb5, #c5b0ef);
+  --tok-str: #3f7a5c;
+  --tok-str: light-dark(#3f7a5c, #9fd6a8);
+  --tok-num: #a2641b;
+  --tok-num: light-dark(#a2641b, #f0c48d);
+  --tok-tag: #3f6d8f;
+  --tok-tag: light-dark(#3f6d8f, #9cc4e0);
+}
+
 html[data-palette="clay"] {
   /* Clay's light tone is darkened a touch from #b6543f: it cleared 4.9:1 on the page
      but only 4.37:1 on its own --accent-tint, which is exactly where the eyebrow on a

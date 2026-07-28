@@ -33,6 +33,18 @@ Three, set with `colorScheme`:
 | `periwinkle` | The default. Cool, quiet blue-violet. |
 | `sage` | Muted green. |
 | `clay` | Warm terracotta. |
+| `plum` | Deep purple. |
+| `slate` | Desaturated blue. |
+| `rose` | Muted pink-red. |
+
+Every accent is **measured before it ships**, not chosen by eye. The binding case is not
+the page background — almost anything clears that — but the accent sitting on its own
+`--accent-tint`, which is where a featured card's eyebrow lands. Measured there in light
+mode: `periwinkle` 4.90, `plum` 4.82, `rose` 4.63, `slate` 4.54, `sage` 4.17, `clay` 4.16.
+
+A fourth candidate, an ochre, measured 4.40 — below every palette already shipped — and was
+dropped rather than tuned. A palette that needs special pleading to be added will need it
+again the next time something changes.
 
 Three considered palettes rather than sixteen. Every accent is measured against its own
 background in both modes, which is work that does not scale to a colour picker.

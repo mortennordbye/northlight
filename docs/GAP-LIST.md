@@ -58,14 +58,14 @@ Substantial author control over presentation, or a visible reader feature.
 | 10 | ~~**`heroStyle` variants**~~ **DONE** | All four, and the never-crop rule survives all of them: the box stays an exact 1200×630 `contain`, so `background` shows the whole cover under a scrim rather than filling a band | Medium |
 | 11 | **`header.layout` variants** | `basic`, `fixed`, and the sticky variants | Medium |
 | 12 | **Card-view toggles** | `cardView` / `cardViewScreenWidth` across home, list, taxonomy and term | Medium |
-| 13 | **More colour schemes** | 3 → many. One block in `tokens.css` each, per the existing pattern | Small each |
+| 13 | ~~**More colour schemes**~~ **DONE** | 3 → 6: `plum`, `slate`, `rose`. Each measured against its own tint before shipping; a fourth candidate was dropped for measuring below every existing palette | Small each |
 | 14 | **Analytics vendor blocks** | Fathom, Umami (incl. anti-adblock `scriptName`), Seline. Reachable via `extend-head.html` today, so this is convenience, not capability | Small each |
-| 15 | **Site-wide image fallbacks** | `defaultFeaturedImage`, `defaultBackgroundImage`, `defaultSocialImage` | Small |
+| 15 | ~~**Site-wide image fallbacks**~~ **DONE** | `defaultFeaturedImage` and `defaultSocialImage`. `defaultBackgroundImage` folded in: `home.backgroundImage` already covers it | Small |
 | 16 | **Accessibility toggle** | `enableA11y` — a visible control, not just good defaults | Medium |
 | 17 | **Image zoom / lightbox** `[opt-in]` | Click to enlarge. Needs JS and a focus trap to be done properly | Medium |
 | 18 | **Views and likes** `[opt-in]` | Firebase-backed counters. The only row needing a backend and credentials; those are site config, never theme files | Large |
 | 19 | **Repository cards** `[opt-in]` | GitHub, GitLab, Codeberg, Gitea, Forgejo, Ansible Galaxy, Hugging Face. One fetch-and-render mechanism, seven skins — build the mechanism once | Medium once, Small each |
-| 20 | **`taxonomy.showTermCount`** | Article count beside each term | Small |
+| 20 | ~~**`taxonomy.showTermCount`**~~ **DONE** | The count already rendered; this is the switch. Default true | Small |
 | 21 | ~~**Reply by email**~~ **DONE** | Built alongside row 3, because `author.email` on its own would have been a param nothing reads | Small |
 
 ## Tier 3 — Medium

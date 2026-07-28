@@ -12,7 +12,7 @@
 */ -}}
 
 {{- $palette := site.Params.colorScheme | default "periwinkle" -}}
-{{- if not (in (slice "periwinkle" "sage" "clay") $palette) -}}
+{{- if not (in (slice "periwinkle" "sage" "clay" "plum" "slate" "rose") $palette) -}}
   {{- $palette = "periwinkle" -}}
 {{- end -}}
 
@@ -61,6 +61,13 @@
   "showSummary" (partial "param-bool.html" (dict "map" $l "key" "showSummary" "default" false))
 -}}
 
+{{- /* Taxonomy options. The term count has always rendered; only the switch is new, so
+       the default is true and an existing site sees no change. */ -}}
+{{- $t := site.Params.taxonomy | default dict -}}
+{{- $taxonomy := dict
+  "showTermCount" (partial "param-bool.html" (dict "map" $t "key" "showTermCount" "default" true))
+-}}
+
 {{- $footer := dict
   "showCopyright"        (partial "param-bool.html" (dict "map" $f "key" "showCopyright"        "default" true))
   "showThemeAttribution" (partial "param-bool.html" (dict "map" $f "key" "showThemeAttribution" "default" true))
@@ -72,6 +79,10 @@
        moves into config. */ -}}
 {{- $dateFormat := site.Params.dateFormat | default "2 Jan 2006" -}}
 
+{{- /* Site-wide image fallbacks. Each is a path resolved the same way the author avatar
+       is, so a configured-but-missing file renders nothing rather than a 404 on every page
+       that falls back to it. A comment cannot sit inside the dict literal below — it parses
+       as an operand and fails with "unexpected { in operand". */ -}}
 {{- return dict
   "palette" $palette
   "defaultAppearance" $appearance
@@ -85,6 +96,10 @@
   "enableCodeCopy" (partial "param-bool.html" (dict "map" site.Params "key" "enableCodeCopy" "default" true))
   "article" $article
   "list" $list
+  "taxonomy" $taxonomy
+  "defaultFeaturedImage" (site.Params.defaultFeaturedImage | default "")
+  "defaultSocialImage" (site.Params.defaultSocialImage | default "")
+  "defaultBackgroundImage" (site.Params.defaultBackgroundImage | default "")
   "footer" $footer
   "author" (site.Params.author | default dict)
 -}}

@@ -21,7 +21,10 @@
   {{- $heroStyle = "basic" -}}
 {{- end -}}
 {{- $onCover := and $showHero (in (slice "background" "thumbAndBackground") $heroStyle) -}}
-{{- $hasCover := .Resources.GetMatch "{cover,featured}.*" -}}
+{{- /* Either the page's own cover or the site-wide fallback counts: without the second
+       half, a site that sets defaultFeaturedImage would get the background hero on posts
+       with their own artwork and the plain header on the rest. */ -}}
+{{- $hasCover := or (.Resources.GetMatch "{cover,featured}.*") (partial "image-url.html" $cfg.defaultFeaturedImage) -}}
 
 <article class="article wrap">
   {{- if and $onCover $hasCover }}
