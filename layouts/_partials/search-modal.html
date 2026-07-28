@@ -7,11 +7,15 @@
   <div class="search-panel">
     <div class="search-field">
       {{ partial "icon.html" "search" }}
+      {{- /* Combobox wiring: the input keeps focus while the arrow keys move the
+             selection below, and aria-activedescendant (set by search.js) is how a
+             screen reader hears which option is current. */}}
       <input type="search" data-search-input placeholder="{{ i18n "searchPlaceholder" }}" autocomplete="off"
-             spellcheck="false" aria-label="{{ i18n "searchPosts" }}">
+             spellcheck="false" aria-label="{{ i18n "searchPosts" }}"
+             role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="search-listbox">
       <button class="search-esc" type="button" data-search-close aria-label="{{ i18n "closeSearch" }}">{{ i18n "escapeKey" }}</button>
     </div>
-    <div class="search-results" data-search-results role="listbox" aria-label="{{ i18n "searchResults" }}"></div>
+    <div class="search-results" id="search-listbox" data-search-results role="listbox" aria-label="{{ i18n "searchResults" }}"></div>
     <div class="search-hints">
       <span><b>↑↓</b> {{ i18n "searchHintNavigate" }}</span>
       <span><b>↵</b> {{ i18n "searchHintOpen" }}</span>

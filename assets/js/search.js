@@ -18,6 +18,7 @@
   var t = (window.Northlight || {}).t || function (key, fallback) { return fallback; };
   var input = modal.querySelector("[data-search-input]");
   var results = modal.querySelector("[data-search-results]");
+  var closeBtn = modal.querySelector("[data-search-close]");
   var endpoint = modal.getAttribute("data-search-index");
   var posts = null;
   var selected = 0;
@@ -84,23 +85,33 @@
         '<p class="search-empty">' +
         t("searchNoResults", "No posts match “%s”.").replace("%s", escape(term)) +
         "</p>";
+      syncActive();
       return;
     }
 
     results.innerHTML = hits
       .map(function (p, i) {
         return (
-          '<a class="search-result' + (i === 0 ? " is-selected" : "") + '" href="' + escape(p.url) + '" role="option" aria-selected="' + (i === 0) + '">' +
+          '<a class="search-result' + (i === 0 ? " is-selected" : "") + '" id="search-result-' + i + '" href="' + escape(p.url) + '" role="option" aria-selected="' + (i === 0) + '">' +
           (p.thumb ? '<img class="search-thumb" src="' + escape(p.thumb) + '" alt="" loading="lazy">' : '<span class="search-thumb"></span>') +
           '<span class="search-text"><b>' + escape(p.title) + "</b>" +
           '<span class="search-meta">' + escape(p.date || "") + (p.readingTime ? " &middot; " + t("readingTimeShort", "%s min").replace("%s", escape(p.readingTime)) : "") + "</span></span></a>"
         );
       })
       .join("");
+    syncActive();
   }
 
   function items() {
     return Array.prototype.slice.call(results.querySelectorAll(".search-result"));
+  }
+
+  /* aria-activedescendant is how a screen reader hears which option the arrow keys
+     have reached while focus stays in the field. */
+  function syncActive() {
+    var list = items();
+    if (list[selected]) input.setAttribute("aria-activedescendant", list[selected].id);
+    else input.removeAttribute("aria-activedescendant");
   }
 
   function select(next) {
@@ -112,6 +123,7 @@
       el.setAttribute("aria-selected", i === selected);
     });
     list[selected].scrollIntoView({ block: "nearest" });
+    syncActive();
   }
 
   function open() {
@@ -120,6 +132,7 @@
     document.body.classList.add("is-modal-open");
     input.value = "";
     results.innerHTML = "";
+    input.setAttribute("aria-expanded", "true");
     load().then(function () { render(""); });
     input.focus();
   }
@@ -127,6 +140,8 @@
   function close() {
     modal.hidden = true;
     document.body.classList.remove("is-modal-open");
+    input.setAttribute("aria-expanded", "false");
+    input.removeAttribute("aria-activedescendant");
     if (lastFocused && lastFocused.focus) lastFocused.focus();
   }
 
@@ -171,10 +186,12 @@
       return;
     }
 
-    /* Keep focus in the dialog: tab cycles between the field and the results. */
+    /* Focus stays inside the dialog, with two real stops: the field and the close
+       button. The arrow keys, not Tab, move the result selection — hijacking Tab for
+       selection left the visible close button unreachable by keyboard. */
     if (key === "tab") {
       e.preventDefault();
-      select(selected + (e.shiftKey ? -1 : 1));
+      if (closeBtn) (document.activeElement === closeBtn ? input : closeBtn).focus();
     }
   });
 })();

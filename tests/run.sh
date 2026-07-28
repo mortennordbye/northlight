@@ -1608,6 +1608,14 @@ refute_grep 'northlight-strings>"' "$PUBLIC/index.html" "runtime string block is
 # Controls that need JavaScript must ship hidden, so no-JS readers see no dead affordances.
 assert_grep 'data-toggle-appearance hidden' "$PUBLIC/index.html" "appearance toggle ships hidden"
 
+# The search field is a real combobox: focus stays in the field while the arrow keys
+# move the selection, and aria-activedescendant is how a screen reader hears which
+# option is current. Tab must reach the close button rather than being hijacked for
+# selection — a visible control keyboard focus cannot reach fails WCAG 2.1.1.
+assert_grep 'role="combobox"' "$ROOT/layouts/_partials/search-modal.html" "search input is a combobox"
+assert_grep 'aria-activedescendant' "$ROOT/assets/js/search.js" "search selection is announced"
+assert_grep 'closeBtn' "$ROOT/assets/js/search.js" "search close button is reachable by keyboard"
+
 # counters.js is gated on firebase alone. counters.html honours page-level front-matter
 # overrides, so gating the script on the site-level show flags left an opted-in post with
 # markup but no script — invisibly, because the block ships hidden until the script runs.
