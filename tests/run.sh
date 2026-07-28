@@ -740,6 +740,32 @@ refute_grep 'Updated <time' "$PUBLIC/blog/two-modes/index.html" "no updated date
 # says nothing twice.
 refute_grep 'Updated <time' "$WRITING" "no updated date when it renders as the same day"
 
+# header.layout. `fixed` is the current sticky header and the default, so this asserts the
+# default rather than the option — the risk here is a silent behaviour change for sites
+# that set nothing.
+assert_grep 'data-header=fixed' "$PUBLIC/index.html" "the header is sticky by default"
+assert_grep 'html\[data-header="basic"\] \.site-header' "$ROOT/assets/css/layout.css" \
+  "basic makes the header scroll away"
+
+# Card views. The section index is a list by default and term pages are cards, which is
+# what the approved design shows; each has a switch to the other. Both defaults asserted,
+# because turning either on by accident changes every listing on a site.
+assert_grep 'class=post-list' "$PUBLIC/blog/index.html" "the section index is a list by default"
+refute_grep 'class=card-grid' "$PUBLIC/blog/index.html" "the section index is not a card grid by default"
+assert_grep 'class=card-grid' "$PUBLIC/tags/design/index.html" "term pages are cards by default"
+
+# The underline-links control. Named for what it does; a control whose effect a reader
+# cannot predict is not an accessibility feature.
+assert_grep 'data-toggle-underline' "$PUBLIC/index.html" "the underline control renders when enabled"
+assert_grep 'data-toggle-underline hidden' "$PUBLIC/index.html" \
+  "the underline control ships hidden, so JS-off readers get no dead control"
+assert_grep 'aria-pressed=false' "$PUBLIC/index.html" "the underline control is a pressed-state toggle"
+
+# The rule has to beat .prose a, which carries its own faux underline as a box-shadow.
+# Two underlines on one link is a smudge.
+assert_grep 'html\[data-underline-links\] \.prose a' "$ROOT/assets/css/interaction.css" \
+  "the underline mode drops the prose link's own rule"
+
 # Analytics. The invariant is not that any provider works but that *none* fires unless it
 # is configured — the theme makes no third-party request by default, and exampleSite leaves
 # every provider commented out precisely so the built demo proves it.

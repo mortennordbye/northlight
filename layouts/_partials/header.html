@@ -56,6 +56,15 @@
         </button>
       {{- end }}
 
+      {{- if $cfg.enableA11y }}
+        {{- /* aria-pressed rather than a label that changes: the control has an on and an
+               off state, and that is what aria-pressed is for. The script sets it. */ -}}
+        <button class="icon-button" type="button" data-toggle-underline hidden
+                aria-pressed="false" aria-label="{{ i18n "underlineLinks" }}">
+          {{ partial "icon.html" "underline" }}
+        </button>
+      {{- end }}
+
       <button class="icon-button" type="button" data-toggle-appearance hidden aria-label="{{ i18n "switchColourMode" }}">
         <span class="only-light">{{ partial "icon.html" "moon" }}</span>
         <span class="only-dark">{{ partial "icon.html" "sun" }}</span>

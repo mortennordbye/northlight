@@ -10,6 +10,20 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **`header.layout`** — `fixed` keeps the header sticky, which is the current behaviour and
+  therefore the default; `basic` lets it scroll away. The anchor offset follows the choice, so
+  `basic` does not leave a gap above every heading it jumps to.
+- **`list.cardView` and `taxonomy.cardView`** — the section index is a list and term pages are
+  cards, which is what the approved design shows; each can now be switched to the other. Both
+  defaults are unchanged. Year grouping does not apply to a card grid — a grid interrupted by
+  full-width headings reads as several grids — so `cardView` wins over `groupByYear`.
+- **`enableA11y`** — a control that underlines every link on the page. It is named for what it
+  does rather than presented as an "accessibility mode": a control whose effect a reader cannot
+  predict is not an accessibility feature. The reason it exists is WCAG 1.4.1 — a link
+  distinguished from its text by colour alone is invisible to a reader who cannot separate those
+  colours, and the theme's own faint prose rule does not extend to navigation, cards or footers.
+  Off by default, since it overrides a deliberate design decision site-wide. Ships `hidden` and
+  is revealed by its script, so a reader with no JavaScript is not shown a dead control.
 - **Four more analytics providers** — Fathom, Umami (with optional self-hosted domain and
   renamed script for ad-block resilience) and Seline join Cloudflare as first-class config
   blocks, and **Google Analytics** is wired through Hugo's own template. All four of the first

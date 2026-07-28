@@ -392,3 +392,25 @@ body.is-modal-open {
     padding: 0;
   }
 }
+
+/* --- underline links -------------------------------------------------------- */
+
+/* Set by a11y.js when the control is on. Underlines every link on the page, which is
+   WCAG 1.4.1: a link separated from its text only by colour is invisible to a reader who
+   cannot tell those colours apart.
+
+   `:where()` keeps this at zero specificity for the class slot so component rules still
+   win on colour, while `text-decoration` is inherited by the descendants that carry the
+   visible text. Excluded: links that are already an obvious control rather than a run of
+   text — buttons, tags, cards and icon-only links — where an underline reads as damage
+   rather than as an affordance. */
+html[data-underline-links] a:not(.button):not(.tag):not(.card):not(.icon-button):not(.brand):not(.yt-facade) {
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+/* The prose link already carries its own rule as a box-shadow. Two underlines on one link
+   is a smudge, so the shadow goes when the real underline arrives. */
+html[data-underline-links] .prose a {
+  box-shadow: none;
+}

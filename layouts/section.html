@@ -1,6 +1,10 @@
 {{ define "main" }}
 {{- $list := site.Params.list | default dict -}}
 {{- $groupByYear := partial "param-bool.html" (dict "map" $list "key" "groupByYear" "default" true) -}}
+{{- /* Cards or rows. The card grid has no year rule in it — grouping by year is a property
+       of a vertical list, and a grid of cards interrupted by full-width headings reads as
+       several grids rather than one — so cardView wins over groupByYear where both are on. */ -}}
+{{- $cardView := (partialCached "init.html" .).list.cardView -}}
 {{- $paginator := .Paginate .Pages -}}
 
 <div class="wrap">
@@ -10,7 +14,11 @@
     {{- with .Content }}<div class="list-body">{{ . }}</div>{{ end }}
   </header>
 
-  {{- if $groupByYear }}
+  {{- if $cardView }}
+    <div class="card-grid">
+      {{- range $paginator.Pages }}{{ partial "card.html" . }}{{ end }}
+    </div>
+  {{- else if $groupByYear }}
     {{- /* Grouped within the current page of results, not across the whole section, so
            a year heading never claims to introduce posts that are on another page. */ -}}
     {{- range $paginator.Pages.GroupByDate "2006" }}

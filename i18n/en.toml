@@ -86,6 +86,10 @@ watchOnYouTube = "Watch on YouTube"
 # hand the file to something that can play it.
 downloadVideo = "Download the video"
 
+# The underline-links control. Named for what it does rather than as an "accessibility
+# mode": a control whose effect a reader cannot predict is not an accessibility feature.
+underlineLinks = "Underline links"
+
 # Accessible name for the language switcher. The visible text is the current language's
 # own name, which says what is selected but not what the control does.
 changeLanguage = "Change language"

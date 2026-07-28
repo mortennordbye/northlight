@@ -78,6 +78,12 @@ summaryLength = 30
   enableSearch = true          # ⌘K modal; needs JSON in [outputs].home (default: true)
   enableCodeCopy = true        # copy button on code blocks     (default: true)
 
+  # Shows a control that underlines every link on the page. Named for what it does rather
+  # than as an "accessibility mode": a control whose effect a reader cannot predict is not
+  # an accessibility feature. Off by default, because the theme's own link styling is a
+  # deliberate decision and this overrides it site-wide.
+  enableA11y = true            # underline-links control        (default: false)
+
   mainSections = ["blog"]      # which sections appear in lists (default: ["blog"])
                                # `docs` is deliberately absent: the manual should not
                                # appear in the blog index, the feed or the archive.

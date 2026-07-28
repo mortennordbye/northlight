@@ -1,6 +1,6 @@
 {{- $cfg := partialCached "init.html" . -}}
 <!doctype html>
-<html lang="{{ site.Language.Lang }}"{{ if $cfg.rtl }} dir="rtl"{{ end }}
+<html lang="{{ site.Language.Lang }}"{{ if $cfg.rtl }} dir="rtl"{{ end }} data-header="{{ $cfg.headerLayout }}"
       data-palette="{{ $cfg.palette }}"
       data-appearance-default="{{ $cfg.defaultAppearance }}"
       data-appearance-auto="{{ $cfg.autoSwitchAppearance }}">
@@ -48,6 +48,7 @@
   {{- $scripts := slice (resources.Get "js/strings.js") (resources.Get "js/toggle.js") (resources.Get "js/scroll.js") (resources.Get "js/toc.js") (resources.Get "js/comments.js") (resources.Get "js/tabs.js") (resources.Get "js/youtube-lite.js") -}}
   {{- if $cfg.enableCodeCopy }}{{ $scripts = $scripts | append (resources.Get "js/code-copy.js") }}{{ end -}}
   {{- if $cfg.enableSearch }}{{ $scripts = $scripts | append (resources.Get "js/search.js") }}{{ end -}}
+  {{- if $cfg.enableA11y }}{{ $scripts = $scripts | append (resources.Get "js/a11y.js") }}{{ end -}}
   {{- $js := $scripts | resources.Concat "js/northlight.js" -}}
   {{- if hugo.IsProduction }}{{ $js = $js | minify }}{{ end -}}
   {{- $js = $js | fingerprint "sha512" }}

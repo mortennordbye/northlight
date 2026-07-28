@@ -341,3 +341,21 @@ main {
     min-width: 0;
   }
 }
+
+/* --- header layout ---------------------------------------------------------- */
+
+/* `fixed` is the default and is the sticky header declared above; `basic` lets it scroll
+   away with the page. Written as an override rather than by moving the sticky rule behind
+   a selector, so a site that sets nothing gets byte-identical behaviour to before this
+   option existed.
+
+   The anchor offset has to go with it: with a header that scrolls away there is nothing
+   for a heading to clear, and keeping the offset would leave a gap above every anchor
+   target for no reason. */
+html[data-header="basic"] .site-header {
+  position: static;
+}
+
+html[data-header="basic"] {
+  --sticky-offset: var(--space-5);
+}

@@ -24,6 +24,8 @@ default inline, so every default below lives in exactly one place in the source.
 | `autoSwitchAppearance` | `true` | Follow the reader's operating system. |
 | `enableSearch` | `true` | The ⌘K modal. Needs `JSON` in `[outputs].home`. |
 | `enableCodeCopy` | `true` | Copy button on code blocks. |
+| `enableA11y` | `false` | Shows a control that underlines every link on the page. Named for what it does: a control whose effect a reader cannot predict is not an accessibility feature. |
+| `header.layout` | `"fixed"` | `fixed` keeps the header sticky (the current behaviour); `basic` lets it scroll away. |
 | `mainSections` | `["blog"]` | Which sections count as posts for the home page, index, RSS and search. |
 | `dateFormat` | `"2 Jan 2006"` | Go reference layout. |
 | `rtl` | `false` | Sets `dir="rtl"` on `<html>`. |
@@ -156,6 +158,9 @@ browsers.
 | Key | Default | What it does |
 |---|---|---|
 | `list.groupByYear` | `true` | Year headings in the post index, grouped within each page of results. |
+| `list.cardView` | `false` | Render the section index as a card grid instead of a list. Year grouping does not apply to a grid, so this wins over `list.groupByYear`. |
+| `taxonomy.showTermCount` | `true` | Article count beside each term. |
+| `taxonomy.cardView` | `true` | Term pages as a card grid. Set `false` for the same row list the section index uses. |
 | `list.showSummary` | `false` | On listings, fall back to the post's summary when it has no `description`. A `description` always wins where one exists. Off by default, because turning it on changes every listing on an existing site. |
 | `footer.showCopyright` | `true` | Copyright line. |
 | `footer.showThemeAttribution` | `true` | The "built with Hugo and the Northlight theme" line. |

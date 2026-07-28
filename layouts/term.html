@@ -10,9 +10,15 @@
     {{- with .Content }}<div class="list-body">{{ . }}</div>{{ end }}
   </header>
 
+  {{- if (partialCached "init.html" .).taxonomy.cardView }}
   <div class="card-grid">
     {{- range $paginator.Pages }}{{ partial "card.html" . }}{{ end }}
   </div>
+  {{- else }}
+  <div class="post-list">
+    {{- range $paginator.Pages }}{{ partial "post-item.html" (dict "ctx" .) }}{{ end }}
+  </div>
+  {{- end }}
 
   {{ partial "pagination.html" . }}
 </div>
