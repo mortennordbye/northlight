@@ -6,6 +6,19 @@ and versions follow [semantic versioning](https://semver.org/).
 **Config keys are API.** A key is never renamed or repurposed without a major version bump. New
 keys are added with defaults that preserve existing behaviour.
 
+## [0.3.0](https://github.com/mortennordbye/northlight/compare/v0.2.0...v0.3.0) (2026-07-28)
+
+
+### Features
+
+* fifteen more shortcodes, ten home page layouts, and a slimmer README ([#20](https://github.com/mortennordbye/northlight/issues/20)) ([4634368](https://github.com/mortennordbye/northlight/commit/463436897ac2ad02939676f582b8363c01e1b0cb))
+* shortcode surface, first three shortcodes, and a gate for remote Docker daemons ([#18](https://github.com/mortennordbye/northlight/issues/18)) ([bf36a80](https://github.com/mortennordbye/northlight/commit/bf36a8078119bc48fd39d9305fb5e87183d25e70))
+
+
+### Bug Fixes
+
+* stop five assertions assuming the site is served from the root ([#22](https://github.com/mortennordbye/northlight/issues/22)) ([c7c873b](https://github.com/mortennordbye/northlight/commit/c7c873be0c3ef45fcc3c6db32ad597221608c990))
+
 ## [Unreleased]
 
 ### Added
