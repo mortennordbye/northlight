@@ -6,7 +6,9 @@ and versions follow [semantic versioning](https://semver.org/).
 **Config keys are API.** A key is never renamed or repurposed without a major version bump. New
 keys are added with defaults that preserve existing behaviour.
 
-## [Unreleased]
+## [0.4.0](https://github.com/mortennordbye/northlight/compare/v0.3.0...v0.4.0) (2026-07-28)
+
+Shipped in [#24](https://github.com/mortennordbye/northlight/pull/24).
 
 ### Added
 
@@ -584,6 +586,5 @@ table of contents is a list of working links, and the colour mode follows the sy
 - No horizontal scrolling at 1440, 1024, 768 or 375; code blocks and tables scroll inside
   themselves.
 
-[Unreleased]: https://github.com/mortennordbye/northlight/compare/v0.2.0...HEAD
 [0.2.0]: https://github.com/mortennordbye/northlight/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/mortennordbye/northlight/releases/tag/v0.1.0
