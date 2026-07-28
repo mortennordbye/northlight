@@ -8,6 +8,12 @@ keys are added with defaults that preserve existing behaviour.
 
 ## [Unreleased]
 
+Nothing yet.
+
+## [0.3.0](https://github.com/mortennordbye/northlight/compare/v0.2.0...v0.3.0) (2026-07-28)
+
+Shipped in [#18](https://github.com/mortennordbye/northlight/pull/18), [#20](https://github.com/mortennordbye/northlight/pull/20), [#22](https://github.com/mortennordbye/northlight/pull/22).
+
 ### Added
 
 - **`footer.themeURL`** — links the theme name in the footer attribution. Unset, it renders as
