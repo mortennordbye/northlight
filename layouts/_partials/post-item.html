@@ -20,11 +20,9 @@
 {{- with $ctx -}}
 <a class="post-item{{ if $external }} is-external{{ end }}" href="{{ $href }}"{{ if $external }} rel="noopener" target="_blank"{{ end }}>
   {{- with .Resources.GetMatch "{cover,featured}.*" }}
-    {{- $img := . }}
-    {{- $raster := in (slice "png" "jpeg" "gif" "webp") .MediaType.SubType -}}
-    {{- if and $raster (not (partialCached "init.html" .).disableImageOptimization) }}{{ $img = .Resize "640x q80" }}{{ end }}
-    <img class="item-cover" src="{{ $img.RelPermalink }}" alt=""
-         {{ if $raster }}width="{{ $img.Width }}" height="{{ $img.Height }}" {{ end }}loading="lazy" decoding="async">
+    {{- $t := partial "thumb.html" (dict "img" . "spec" "640x q80") }}
+    <img class="item-cover" src="{{ $t.img.RelPermalink }}" alt=""
+         {{ if $t.raster }}width="{{ $t.img.Width }}" height="{{ $t.img.Height }}" {{ end }}loading="lazy" decoding="async">
   {{- end }}
   <div class="item-body">
     {{ partial "eyebrow.html" . }}

@@ -1,0 +1,26 @@
+{{- /*
+  thumb — resolves a cover resource into a display-ready thumbnail.
+
+  One home for the raster whitelist and the disableImageOptimization check. It exists
+  because the same four lines lived in seven templates, and the SVG guard — a cover
+  with no pixel dimensions must be served untouched, because .Resize and .Width both
+  error on it rather than returning zero — had already been fixed in three of those
+  places separately before this partial gave it a single home.
+
+  Takes a dict:
+    img   the matched cover resource (required)
+    spec  a Hugo .Resize spec such as "500x q80" (required)
+
+  Returns a dict:
+    img     the resource to serve — resized where that is possible and allowed
+    raster  whether pixel dimensions (width/height) may be read from it
+
+  Emitting the <img> stays with the caller: class names, loading behaviour and fetch
+  priority genuinely differ per surface, and the LCP tests assert on them.
+*/ -}}
+{{- $img := .img -}}
+{{- $raster := in (slice "png" "jpeg" "gif" "webp") $img.MediaType.SubType -}}
+{{- if and $raster (not (partialCached "init.html" $img).disableImageOptimization) -}}
+  {{- $img = $img.Resize .spec -}}
+{{- end -}}
+{{- return (dict "img" $img "raster" $raster) -}}

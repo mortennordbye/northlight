@@ -923,15 +923,21 @@ assert_grep 'object-position: var(--image-position)' "$ROOT/assets/css/article.c
   "cropped images honour imagePosition"
 
 # disableImageOptimization has to reach every place a cover is resized, or it silently
-# half-works. Six partials do that.
+# half-works. The check lives in thumb.html, and every thumbnail surface must resolve
+# through that partial — a template calling .Resize on a cover itself has stepped
+# outside the one home the flag reaches.
+assert_grep 'disableImageOptimization' "$ROOT/layouts/_partials/thumb.html" \
+  "thumb.html honours disableImageOptimization"
 for f in card post-item related; do
-  assert_grep 'disableImageOptimization' "$ROOT/layouts/_partials/$f.html" \
-    "$f.html honours disableImageOptimization"
+  assert_grep 'partial "thumb.html"' "$ROOT/layouts/_partials/$f.html" \
+    "$f.html resolves covers through thumb.html"
 done
 for f in hero gallery stack; do
-  assert_grep 'disableImageOptimization' "$ROOT/layouts/_partials/home/$f.html" \
-    "home/$f.html honours disableImageOptimization"
+  assert_grep 'partial "thumb.html"' "$ROOT/layouts/_partials/home/$f.html" \
+    "home/$f.html resolves covers through thumb.html"
 done
+assert_grep 'partial "thumb.html"' "$ROOT/layouts/home.json" \
+  "the search index resolves covers through thumb.html"
 
 # Zen mode. The toggle itself must survive the hiding, or the mode has no visible way out.
 assert_grep 'data-toggle-zen' "$PUBLIC/blog/measuring/index.html" "the zen control renders when enabled"
@@ -1216,20 +1222,21 @@ assert_grep 'basic" "big" "background" "thumbAndBackground"' "$ROOT/layouts/page
   "an unknown heroStyle falls back to basic"
 
 # SVG covers. Hugo's .Width errors on an SVG rather than returning zero, so every partial
-# that reads it has to guard first. Before this, a single SVG cover failed the whole build
-# in six places. The hero demo posts use SVG covers precisely so this stays exercised.
+# that reads dimensions has to guard on the raster flag thumb.html returns. Before the
+# guard existed, a single SVG cover failed the whole build in six places. The hero demo
+# posts use SVG covers precisely so this stays exercised.
 for f in related card post-item; do
-  if grep -q 'if \$raster' "$ROOT/layouts/_partials/$f.html"; then
+  if grep -q 'if \$t.raster' "$ROOT/layouts/_partials/$f.html"; then
     ok "$f.html guards image dimensions for SVG covers"
   else
-    bad "$f.html guards image dimensions for SVG covers" "no \$raster guard"
+    bad "$f.html guards image dimensions for SVG covers" "no \$t.raster guard"
   fi
 done
 for f in hero gallery stack; do
-  if grep -q 'if \$raster' "$ROOT/layouts/_partials/home/$f.html"; then
+  if grep -q 'if \$t.raster' "$ROOT/layouts/_partials/home/$f.html"; then
     ok "home/$f.html guards image dimensions for SVG covers"
   else
-    bad "home/$f.html guards image dimensions for SVG covers" "no \$raster guard"
+    bad "home/$f.html guards image dimensions for SVG covers" "no \$t.raster guard"
   fi
 done
 

@@ -29,14 +29,12 @@
   </div>
   <a class="feature" href="{{ .RelPermalink }}">
     {{- with .Resources.GetMatch "{cover,featured}.*" }}
-      {{- $img := . }}
-      {{- $raster := in (slice "png" "jpeg" "gif" "webp") .MediaType.SubType -}}
-      {{- if and $raster (not (partialCached "init.html" .).disableImageOptimization) }}{{ $img = .Resize "700x q85" }}{{ end }}
+      {{- $t := partial "thumb.html" (dict "img" . "spec" "700x q85") }}
       {{- /* fetchpriority high, matching cover.html. This is the largest contentful paint
              element on the home page, and without the hint it queues behind the stylesheet
              and fonts. Never lazy: it is above the fold on every viewport. */ -}}
-      <img class="feature-cover" src="{{ $img.RelPermalink }}" alt=""
-           {{ if $raster }}width="{{ $img.Width }}" height="{{ $img.Height }}"{{ end }}
+      <img class="feature-cover" src="{{ $t.img.RelPermalink }}" alt=""
+           {{ if $t.raster }}width="{{ $t.img.Width }}" height="{{ $t.img.Height }}"{{ end }}
            fetchpriority="high" decoding="async">
     {{- end }}
     <div class="feature-body">
