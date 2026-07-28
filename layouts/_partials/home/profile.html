@@ -21,6 +21,11 @@
     {{- end }}
     <h1 class="profile-name">{{ with $author.name }}{{ . }}{{ else }}{{ $ctx.Title }}{{ end }}</h1>
     {{- with $author.headline }}<p class="profile-headline">{{ . }}</p>{{ end }}
+    {{- /* The author's bio, rendered as Markdown so it can carry a link. Distinct from
+           `headline`, which is one line, and from the page's own description below it:
+           the headline says what you do, the bio says who you are, and the description
+           describes the site. A site setting none of them still gets a coherent page. */ -}}
+    {{- with $author.bio }}<div class="profile-bio">{{ $ctx.RenderString . }}</div>{{ end }}
     {{- with $ctx.Description }}<p class="profile-bio">{{ . }}</p>{{ end }}
     {{- with $ctx.Content }}<div class="profile-body">{{ . }}</div>{{ end }}
     {{- with $author.links }}

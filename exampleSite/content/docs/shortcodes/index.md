@@ -666,11 +666,13 @@ one as a breaking change, the same as renaming a config key.
 | | | | |
 |---|---|---|---|
 | {{< icon "github" >}} `github` | {{< icon "linkedin" >}} `linkedin` | {{< icon "reddit" >}} `reddit` | {{< icon "rss" >}} `rss` |
-| {{< icon "link" >}} `link` | {{< icon "external" >}} `external` | {{< icon "search" >}} `search` | {{< icon "pencil" >}} `pencil` |
-| {{< icon "arrow-left" >}} `arrow-left` | {{< icon "arrow-right" >}} `arrow-right` | {{< icon "arrow-up" >}} `arrow-up` | {{< icon "chevron-down" >}} `chevron-down` |
-| {{< icon "moon" >}} `moon` | {{< icon "sun" >}} `sun` | {{< icon "copy" >}} `copy` | {{< icon "check" >}} `check` |
-| {{< icon "info" >}} `info` | {{< icon "bulb" >}} `bulb` | {{< icon "megaphone" >}} `megaphone` | {{< icon "alert" >}} `alert` |
-| {{< icon "octagon" >}} `octagon` | | | |
+| {{< icon "mastodon" >}} `mastodon` | {{< icon "bluesky" >}} `bluesky` | {{< icon "hackernews" >}} `hackernews` | {{< icon "email" >}} `email` |
+| {{< icon "x" >}} `x` | {{< icon "facebook" >}} `facebook` | {{< icon "telegram" >}} `telegram` | {{< icon "whatsapp" >}} `whatsapp` |
+| {{< icon "pinterest" >}} `pinterest` | {{< icon "link" >}} `link` | {{< icon "external" >}} `external` | {{< icon "search" >}} `search` |
+| {{< icon "pencil" >}} `pencil` | {{< icon "arrow-left" >}} `arrow-left` | {{< icon "arrow-right" >}} `arrow-right` | {{< icon "arrow-up" >}} `arrow-up` |
+| {{< icon "chevron-down" >}} `chevron-down` | {{< icon "moon" >}} `moon` | {{< icon "sun" >}} `sun` | {{< icon "copy" >}} `copy` |
+| {{< icon "check" >}} `check` | {{< icon "info" >}} `info` | {{< icon "bulb" >}} `bulb` | {{< icon "megaphone" >}} `megaphone` |
+| {{< icon "alert" >}} `alert` | {{< icon "octagon" >}} `octagon` | | |
 
 The last five are the admonition marks, and they are drawn to be told apart by outline
 alone rather than by the colour beside them.

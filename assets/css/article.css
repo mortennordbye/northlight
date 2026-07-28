@@ -243,6 +243,14 @@ a.tag:hover {
   color: var(--fg-3);
 }
 
+/* Sits between the share row and the pager, and takes the same bottom margin as .share so
+   the run of blocks at the foot of an article stays evenly spaced. Without it the button
+   collides with the pager card, because a bare <div> around an inline-flex button
+   contributes no spacing of its own. */
+.reply-by-email {
+  margin-bottom: var(--space-7);
+}
+
 .button {
   display: inline-flex;
   align-items: center;

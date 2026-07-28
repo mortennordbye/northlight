@@ -79,6 +79,22 @@ summaryLength = 30
   [params.author]
     name = "Morten Victor Nordbye"
     headline = "Writes about building things that stay simple"
+
+    # A paragraph, rendered as Markdown, shown on the `profile` home layout. The headline
+    # says what you do in one line; this says who you are. Both are optional.
+    #
+    # The continuation lines are flush left on purpose. TOML keeps the indentation inside
+    # a """ string, and Markdown reads four leading spaces as a code block — indent these
+    # to match the keys around them and the bio renders as a grey <pre> slab.
+    bio = """
+Builds small, boring tools and writes about why they stayed small. Currently thinking \
+about static sites, colour contrast, and how much of a framework you can delete before \
+anyone notices."""
+
+    # Used by the reply-by-email link when `article.replyByEmail` is on. Nothing renders
+    # if either is missing, because a reply link with no address is worse than none.
+    email = "hello@example.com"
+
     image = "images/profile.svg"   # square, 160px or larger; sized and cropped in CSS
     links = [
       { linkedin = "https://www.linkedin.com/in/morten-victor-nordbye" },
@@ -112,8 +128,21 @@ summaryLength = 30
     showRelated = true
     relatedLimit = 3
     showPagination = true      # prev / next
-    sharingLinks = ["linkedin", "reddit"]
+    # Eleven providers are supported; the order here is the order they render in.
+    # Every one is a plain share URL, so nothing is requested until a reader clicks.
+    # Supported: linkedin, reddit, mastodon, bluesky, hackernews, email, x, facebook,
+    #            telegram, whatsapp, pinterest
+    sharingLinks = ["mastodon", "bluesky", "linkedin", "reddit", "hackernews", "email"]
+
+    # Mastodon is federated, so there is no central share URL — name the instance to
+    # post to. Listing "mastodon" above without this fails the build rather than
+    # silently dropping the button.
+    mastodonInstance = "mastodon.social"
     showComments = false       # giscus is built in; see [params.comments.giscus] below
+
+    # A "reply by email" link at the foot of each post: no third party, no script, and it
+    # works with JavaScript off. Needs [params.author].email to be set.
+    replyByEmail = true        # (default: false)
 
     showEdit = true            # "Edit this page" link                  (default: false)
     editURL = "https://github.com/mortennordbye/northlight/edit/main/exampleSite/content"
@@ -121,6 +150,11 @@ summaryLength = 30
 
   [params.list]
     groupByYear = true
+
+    # Fall back to the post's summary on listings when it has no `description`.
+    # Off by default, because turning it on changes every listing on an existing site.
+    # "A Post With No Description" in the index is the entry that exercises it.
+    showSummary = true             # (default: false)
 
   [params.footer]
     # Links the theme name in the footer attribution. The theme cannot default this to its

@@ -1,0 +1,29 @@
+{{- /*
+  A "reply by email" link at the foot of an article.
+
+  The quiet alternative to a comment system: no third party, no script, no moderation
+  queue, and it works with JavaScript off because it is a `mailto:` link. It is off by
+  default and renders nothing at all unless `article.replyByEmail` is on *and*
+  `author.email` is set — a reply link with no address to reply to is worse than none.
+
+  The subject is prefilled with the post title, so a reply arrives with the context
+  already attached rather than as a bare "Re:".
+
+  The address is written into the href as plain text. `_shortcodes/email.html`
+  percent-encodes and span-splits an address precisely to frustrate scrapers, and the
+  same reasoning applies here — but the two are not the same situation. That shortcode
+  hides an address inside body copy the author chose to publish; this one is a site-wide
+  control on every article, and an author turning it on has decided to publish the
+  address. Obfuscation here would buy very little and cost the plain, inspectable href.
+  A site wanting the obfuscated form can leave this off and use the shortcode instead.
+*/ -}}
+{{- $cfg := partialCached "init.html" . -}}
+{{- if $cfg.article.replyByEmail -}}
+  {{- with $cfg.author.email -}}
+    <div class="reply-by-email">
+      <a class="button" href="mailto:{{ . }}?subject={{ printf "Re: %s" $.Title | urlquery }}">
+        {{ partial "icon.html" "email" }}<span>{{ i18n "replyByEmail" }}</span>
+      </a>
+    </div>
+  {{- end -}}
+{{- end -}}

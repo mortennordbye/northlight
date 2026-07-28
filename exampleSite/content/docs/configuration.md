@@ -36,8 +36,16 @@ default inline, so every default below lives in exactly one place in the source.
 |---|---|---|
 | `name` | — | Article meta line and the home byline. Omit it and both disappear. |
 | `headline` | — | One line under the name on the home page. |
+| `bio` | — | A paragraph, rendered as Markdown, shown on the `profile` home layout. The headline says what you do; this says who you are. |
+| `email` | — | Used by the reply-by-email link. Nothing renders unless `article.replyByEmail` is also on. |
 | `image` | — | Square avatar, 160px or larger. Looked up in `assets/` then `static/`; a missing file renders nothing rather than a broken image. |
 | `links` | — | Array of single-key tables. Supported: `linkedin`, `github`, `rss`, `link`. |
+
+**Writing a `bio` in TOML has one trap.** A `"""` string keeps its indentation, and
+Markdown reads four leading spaces as a code block, so a bio indented to line up with the
+keys around it renders as a grey `<pre>` slab rather than as prose. Keep the continuation
+lines flush left — `exampleSite/hugo.toml` shows the shape, and the test suite asserts the
+bio never renders as a code block.
 
 ## `[params.home]`
 
@@ -63,8 +71,10 @@ default inline, so every default below lives in exactly one place in the source.
 | `showRelated` | `true` | "Read next" block. Needs the `[related]` config. |
 | `relatedLimit` | `3` | How many related posts. |
 | `showPagination` | `true` | Older and newer post links. |
-| `sharingLinks` | `["linkedin", "reddit"]` | Share buttons. An unknown name warns at build time and renders nothing. |
+| `sharingLinks` | `["linkedin", "reddit"]` | Share buttons, rendered in the order you list them. See the eleven supported names below. An unknown name warns at build time and renders nothing. |
+| `mastodonInstance` | — | The Mastodon instance to post to, e.g. `mastodon.social`. Required if `sharingLinks` includes `mastodon`. |
 | `showComments` | `false` | Comments. Also needs `[params.comments.giscus]`. |
+| `replyByEmail` | `false` | A "reply by email" link at the foot of each post. Needs `[params.author].email`; renders nothing without it. No third party, no script, and it works with JavaScript off. |
 | `showEdit` | `false` | "Edit this page" link. |
 | `editURL` | — | Base URL for that link. Renders nothing when unset. |
 | `editAppendPath` | `true` | Append the page's own path to `editURL`. |
@@ -72,11 +82,48 @@ default inline, so every default below lives in exactly one place in the source.
 The edit link on the page you are reading is live. It points at this file in the theme's
 own repository, built from `editURL` plus the content path.
 
+### Sharing links
+
+Eleven services are supported. Any post on this site shows the row live at the foot of
+the article.
+
+| Name | Goes to |
+|---|---|
+| `linkedin` | LinkedIn's share dialogue |
+| `reddit` | Reddit's submit page, with the title prefilled |
+| `mastodon` | Your configured instance's compose page |
+| `bluesky` | Bluesky's compose intent |
+| `hackernews` | Hacker News' submit page |
+| `email` | The reader's own mail client, via `mailto:` |
+| `x` | X's post intent |
+| `facebook` | Facebook's sharer |
+| `telegram` | Telegram's share URL |
+| `whatsapp` | WhatsApp's share URL |
+| `pinterest` | Pinterest's pin builder |
+
+**Every one of these is a plain link.** No script, no SDK and no widget is loaded, so
+nothing is requested from any of these services until a reader actually clicks. That is
+why the list is limited to services with a documented share URL — a provider needing a
+script would put a third-party request on every article page for a button most readers
+never press.
+
+**`mastodon` needs `mastodonInstance`.** Mastodon is federated, so there is no central
+host to post to: the share URL belongs to an instance. A static site cannot know the
+reader's own instance, and routing through a third-party instance picker would be a call
+to somebody else's server on every click, so the site names the instance instead.
+Listing `mastodon` without setting `mastodonInstance` fails the build rather than quietly
+dropping the button.
+
+**`email` opens a mail client**, not a website, so it is the one entry with no
+`target="_blank"` — opening a `mailto:` in a new tab leaves an empty tab behind in most
+browsers.
+
 ## `[params.list]` and `[params.footer]`
 
 | Key | Default | What it does |
 |---|---|---|
 | `list.groupByYear` | `true` | Year headings in the post index, grouped within each page of results. |
+| `list.showSummary` | `false` | On listings, fall back to the post's summary when it has no `description`. A `description` always wins where one exists. Off by default, because turning it on changes every listing on an existing site. |
 | `footer.showCopyright` | `true` | Copyright line. |
 | `footer.showThemeAttribution` | `true` | The "built with Hugo and the Northlight theme" line. |
 | `footer.themeURL` | — | Links the theme name in that line to a URL. Unset, the name is plain text. The theme cannot default this to its own repository, because that URL contains its author's name and no theme file is allowed to carry one. |

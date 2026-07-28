@@ -31,7 +31,21 @@
            heading is the list's own h1, so an h3 skips a level. The year rule above is
            deliberately a <div> rather than a heading, so it does not fill the gap. */ -}}
     <h{{ $level }} class="item-title">{{ if .Draft }}<span class="draft-label">{{ i18n "draft" }}</span>{{ end }}{{ .LinkTitle }}{{ if $external }} {{ partial "icon.html" "external" }}{{ end }}</h{{ $level }}>
-    {{- with .Description }}<p class="item-text">{{ . }}</p>{{ end }}
+    {{- /* The excerpt. `description` is the deliberate one — it is also the meta
+           description and the feed entry — so it always wins. `list.showSummary` adds a
+           fallback for posts that have none, using Hugo's own `.Summary`: either the
+           `summary` set in front matter, or the first `summaryLength` words of the body.
+
+           Off by default, because on is a visible change to every listing on an existing
+           site. `.Summary` carries markup, so it is stripped and truncated rather than
+           printed: an excerpt that opens a tag it never closes would leak formatting into
+           the rest of the card, and `plainify` before `truncate` means the count is words
+           the reader sees rather than characters of markup. */ -}}
+    {{- $excerpt := .Description -}}
+    {{- if and (not $excerpt) (partialCached "init.html" .).list.showSummary -}}
+      {{- $excerpt = .Summary | plainify | strings.TrimSpace | truncate 200 -}}
+    {{- end -}}
+    {{- with $excerpt }}<p class="item-text">{{ . }}</p>{{ end }}
     {{- with .GetTerms "tags" }}
       <div class="item-tags">
         {{- range . }}<span class="tag">{{ with .Data.Term }}{{ . }}{{ else }}{{ .LinkTitle }}{{ end }}</span>{{ end }}

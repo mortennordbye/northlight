@@ -10,6 +10,34 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **`author.bio`** — a paragraph, rendered as Markdown, on the `profile` home layout. `headline`
+  says what you do in one line; this says who you are. Note that a TOML `"""` string keeps its
+  indentation and Markdown reads four leading spaces as a code block, so the continuation lines
+  have to sit flush left; the suite asserts the bio never renders as a `<pre>`.
+- **`author.email`** and **`article.replyByEmail`** — a "reply by email" link at the foot of each
+  post. The quiet alternative to a comment system: a `mailto:` with the post title prefilled as
+  the subject, so no third party is contacted, no script loads, and it works with JavaScript off.
+  Off by default, and renders nothing unless both the flag and an address are set, because a
+  reply link with nowhere to reply to is worse than none.
+- **`list.showSummary`** — on listings, fall back to a post's summary when it has no
+  `description`. A `description` still always wins where one exists, since it is also the meta
+  description and the feed entry. The summary is stripped of markup and truncated before it is
+  printed, so an unclosed tag cannot leak formatting into the rest of the card. Off by default,
+  because turning it on changes every listing on an existing site.
+- **Nine more sharing providers**, taking `article.sharingLinks` from two to eleven: Mastodon,
+  Bluesky, Hacker News, email, X, Facebook, Telegram, WhatsApp and Pinterest join LinkedIn and
+  Reddit. They render in the order you list them. **Every one is a plain link** — no script, no
+  SDK, no widget — so nothing is requested from any of these services until a reader clicks; that
+  is why the list covers only services with a documented share URL.
+  - **`article.mastodonInstance`** — new. Mastodon is federated, so there is no central host to
+    share to. Rather than routing through a third-party instance picker, which would be a call to
+    somebody else's server on every click, the site names the instance. Listing `mastodon` in
+    `sharingLinks` without setting this fails the build rather than dropping the button silently.
+  - `email` is the one entry that opens a mail client rather than a website, so it carries no
+    `target="_blank"` — a `mailto:` opened in a new tab leaves an empty tab behind.
+  - Nine icons added to the set: `mastodon`, `bluesky`, `hackernews`, `email`, `x`, `facebook`,
+    `telegram`, `whatsapp`, `pinterest`. Icon names are a stable surface, so these are additive.
+
 - **`video`** — a self-hosted video player, the local-file sibling of `youtube-lite`. Source and
   poster both resolve out of the page bundle or `assets/`, so a page carrying one makes no more
   third-party requests than a page carrying none. Takes `src`, `poster`, `caption`, `ratio`,
@@ -24,6 +52,22 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Fixed
 
+- **`make check` now refuses to run while a dev server is up**, which resolves the intermittent
+  large-block failures that had been recorded in `BACKLOG.md` as an unexplained flake. `make
+  serve` renders to disk, into the same `exampleSite/public` that `make check` builds and
+  `tests/run.sh` reads. With a server running and any file being edited, the watcher rebuilds
+  with `--buildDrafts` and a localhost baseURL while the gate rebuilds without them, and the
+  suite reads whichever finished last. Measured at **4 failures in 8 runs** with a server up and
+  a template being touched, against **0 in 55 runs** with no server — which is why it only ever
+  appeared during active development and always went green on a retry. It was never a bind-mount
+  race; host writes were separately confirmed visible to the container 5/5 at zero delay.
+- **Sharing link labels no longer come from title-casing the config key.** `{{ $name | title }}`
+  rendered `linkedin` as "Linkedin", and would have rendered `hackernews` as "Hackernews". It was
+  also a user-facing string built in a template, which makes it invisible to a translator. Service
+  names are now `shareName*` keys in `i18n/en.toml`, on the same reasoning as `themeName`: proper
+  nouns that most translations will leave alone but some need to transliterate. Each link also
+  gained an `aria-label` ("Share on LinkedIn"), because the visible text is only the service name,
+  which out of context reads as a link *to* that service rather than an action.
 - **Table cells and the "next" pager now follow the text direction.** `.prose th`, `.prose td`
   and `.pager-next` used physical `text-align: left` / `right`, which ignores `dir`, so on a site
   running `rtl = true` — or inside the `rtl` shortcode — every table cell and the next-post link

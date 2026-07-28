@@ -695,6 +695,105 @@ refute_grep 'Updated <time' "$PUBLIC/blog/two-modes/index.html" "no updated date
 # says nothing twice.
 refute_grep 'Updated <time' "$WRITING" "no updated date when it renders as the same day"
 
+# author.bio on the profile layout. Distinct from `headline`, which is one line, and from
+# the page's own description.
+PROFILE="$PUBLIC/layouts/profile/index.html"
+assert_grep 'class=profile-bio>Builds small, boring tools' "$PROFILE" \
+  "the author bio renders on the profile layout"
+
+# ...and renders as prose, not as a code block. A TOML """ string keeps its indentation,
+# and Markdown reads four leading spaces as a code fence, so a bio indented to line up with
+# the keys around it comes out as a grey <pre> slab. That is exactly what the first version
+# of the exampleSite config did, and it looks like a styling bug rather than a config one.
+if grep -q 'class=profile-bio><pre>' "$PROFILE"; then
+  bad "the author bio is prose, not a code block" "indented TOML turned the bio into a <pre>"
+else
+  ok "the author bio is prose, not a code block"
+fi
+
+# reply-by-email: a mailto, so it needs no third party and works with JavaScript off. The
+# subject carries the post title so a reply arrives with its context attached.
+assert_grep 'class=reply-by-email' "$MEASURING" "the reply-by-email link renders"
+assert_grep 'href="mailto:hello@example.com?subject=Re%3A+Measuring' "$MEASURING" \
+  "the reply link prefills the subject with the post title"
+
+# It must render nothing when there is no address to reply to, rather than a dead link.
+# Asserted on the partial, since the exampleSite always has an address configured.
+assert_grep 'with \$cfg.author.email' "$ROOT/layouts/_partials/reply-by-email.html" \
+  "the reply link is gated on an address existing"
+
+# list.showSummary: the fallback excerpt for a post with no `description`. Searched across
+# every listing page rather than a fixed one, for the same reason as externalUrl below —
+# pagination decides where the post lands and content changes move it.
+#
+# Anchored to `item-text>`, the listing's excerpt element. The first version of this looked
+# for the sentence anywhere under blog/, which also matched the post's own page, where the
+# sentence is the body copy — so it passed with the feature switched off. It was caught by
+# turning showSummary off and finding the test still green.
+if grep -rq 'item-text>This post deliberately has no description' "$PUBLIC/blog/"; then
+  ok "showSummary falls back to the summary when a post has no description"
+else
+  bad "showSummary falls back to the summary when a post has no description"
+fi
+
+# The summary carries markup and the description does not, so the fallback has to be
+# stripped before it is printed. An excerpt that opened a tag it never closed would leak
+# formatting into the rest of the card.
+#
+# The first tag after `item-text>` must be the closing `</p>`, so this looks for an
+# *opening* tag instead — `<` followed by a letter. Written that way because the obvious
+# version, looking for the <code> that the backticks in the source would produce, could not
+# fail: dropping plainify makes .Summary bring its own wrapping <p>, so the very first
+# character after `item-text>` is already `<` and a pattern expecting text first never
+# matched. This catches that <p> and any other tag equally.
+if grep -rq 'item-text>[^<]*<[a-zA-Z]' "$PUBLIC/blog/"; then
+  bad "the summary fallback is plain text" \
+      "$(grep -rho 'item-text>[^<]*<[a-zA-Z][a-z]*' "$PUBLIC/blog/" | head -1)"
+else
+  ok "the summary fallback is plain text"
+fi
+
+# `description` is the deliberate excerpt and must still win where one exists, or turning
+# showSummary on would silently replace every hand-written excerpt with body text. Searched
+# across the listing pages for the same pagination reason as above; asserting on a fixed
+# page is how the first version of this got it wrong.
+if grep -rq 'item-text>Dark mode built by flipping the lightness' "$PUBLIC/blog/"; then
+  ok "a post with a description still uses it, not its summary"
+else
+  bad "a post with a description still uses it, not its summary"
+fi
+
+# Sharing links. The guarantee is that the row is *links* — no script, no SDK, no widget —
+# so nothing is requested from any of these services until a reader clicks. The theme-purity
+# group already refutes third-party <script> tags site-wide; this pins the share row's own
+# shape, since a provider needing a script is exactly how that rule would get broken.
+SHARE_LINKS=$(grep -oE '<a class=button href="[^"]*" aria-label="Share [^"]*"' "$MEASURING" | wc -l | tr -d ' ')
+assert_count 6 "$SHARE_LINKS" "every configured sharing link renders"
+
+# Each provider builds a different URL shape, and getting one wrong produces a button that
+# looks right and shares nothing. Assert the host per provider rather than just the count.
+assert_grep 'href="https://mastodon.social/share?text=' "$MEASURING" "mastodon posts to the configured instance"
+assert_grep 'href="https://bsky.app/intent/compose?text=' "$MEASURING" "bluesky uses the compose intent"
+assert_grep 'href="https://news.ycombinator.com/submitlink?u=' "$MEASURING" "hackernews uses submitlink"
+assert_grep 'href="https://www.linkedin.com/sharing/share-offsite/?url=' "$MEASURING" "linkedin uses the share-offsite URL"
+assert_grep 'href="https://www.reddit.com/submit?url=' "$MEASURING" "reddit uses the submit URL"
+
+# email is the one entry that is not an external site. A mailto opened with target=_blank
+# leaves an empty tab behind in most browsers, so it must not carry one.
+if grep -oE '<a class=button href="mailto:[^>]*>' "$MEASURING" | grep -q 'target'; then
+  bad "the email share link does not open a new tab" "$(grep -oE '<a class=button href="mailto:[^>]*>' "$MEASURING" | head -1)"
+else
+  ok "the email share link does not open a new tab"
+fi
+
+# Service names come from i18n, not from title-casing the config key. `title` renders
+# "linkedin" as "Linkedin" and "hackernews" as "Hackernews", both wrong, and a name built
+# in a template is invisible to a translator. Assert the two the naive version gets wrong.
+assert_grep 'aria-label="Share on LinkedIn"'   "$MEASURING" "LinkedIn keeps its capital I"
+assert_grep 'aria-label="Share on Hacker News"' "$MEASURING" "Hacker News keeps its space"
+refute_grep 'Linkedin'   "$MEASURING" "no title-cased service name survives"
+refute_grep 'Hackernews' "$MEASURING" "no run-together service name survives"
+
 assert_grep 'nav-group'  "$PUBLIC/index.html" "nested menu renders as a disclosure"
 assert_grep '<details'   "$PUBLIC/index.html" "nested menu uses details, not a hover dropdown"
 # Pagination decides which listing page it lands on, so search all of them rather than

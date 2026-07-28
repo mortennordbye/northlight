@@ -51,6 +51,7 @@
         {{- end }}
 
         {{ partial "share.html" . }}
+        {{ partial "reply-by-email.html" . }}
         {{ if $a.showPagination }}{{ partial "pager.html" . }}{{ end }}
         {{ if $a.showRelated }}{{ partial "related.html" . }}{{ end }}
         {{ if $a.showComments }}{{ partial "comments.html" . }}{{ end }}

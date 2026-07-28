@@ -40,7 +40,23 @@ serve: ## Live-reload dev server on http://localhost:1313
 build: ## Production build of exampleSite
 	$(RUN) $(HUGO_IMAGE) $(SITE) --minify --gc
 
+# `serve` renders to disk, into the same exampleSite/public that this target builds and
+# tests/run.sh then reads. With a dev server running and any file being edited, the two
+# race: the watcher rebuilds with --buildDrafts and a localhost baseURL, `check` rebuilds
+# without them, and the suite reads whichever finished last. Measured at 4 failures in 8
+# runs with a server up and a template being touched, against 0 in 55 runs with no server
+# — which is why this looked like a mysterious intermittent flake for so long, and why it
+# always went green on a re-run.
+#
+# Refusing is deliberate rather than papering over it: a gate that silently produces a
+# different answer depending on what else is running is worse than one that stops.
 check: ## THE GATE — build with warnings as errors, then run the test suite
+	@if docker ps --filter ancestor=$(HUGO_IMAGE) --format '{{.Command}}' 2>/dev/null | grep -q serv; then \
+		echo "make check: a dev server is running, and it writes the same exampleSite/public"; \
+		echo "            this gate builds and tests. Stop it first (Ctrl-C in the 'make serve'"; \
+		echo "            terminal), or the results depend on which build finished last."; \
+		exit 1; \
+	fi
 	$(RUN) $(HUGO_IMAGE) $(SITE) --minify --gc --panicOnWarning
 	@sh tests/run.sh
 

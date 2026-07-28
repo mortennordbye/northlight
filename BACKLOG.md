@@ -9,36 +9,25 @@ Empty is the correct state for this file.
 
 ## Open
 
-### The intermittent `make check` failure has not been reproduced
+### `author.imageQuality` is not implemented
 
-**What.** `make check` was reported failing in large blocks — 18, 22, 33, 39 and 40 assertions in
-separate runs on 2026-07-28 — where an immediately repeated run with no change was green, roughly
-one run in four during the shortcode work. The signature was a stale or partial
-`exampleSite/public` rather than a real regression.
+**What.** `bio` and `email` landed as part of the author-fields row in `docs/GAP-LIST.md`.
+`imageQuality` did not.
 
-**What was measured since.** The warm loop was sampled twice against an unchanged tree, which is
-what the previous version of this entry asked for: **0 failures in 25 runs idle, and 0 in 30 runs
-under synthetic CPU and filesystem load** (six spinners and three `dd` loops, load average above
-11). 55 warm runs, no reproduction.
+**Why deferred.** The avatar does not go through Hugo's image pipeline at all.
+`_partials/image-url.html` resolves a configured path to a URL and returns it untouched,
+deliberately: it has to pass an SVG through, and `exampleSite/` uses `profile.svg`. A quality
+setting only means something once raster avatars are routed through `.Resize`, which changes
+what that partial is for, needs a raster avatar in `exampleSite/` to be exercised, and needs the
+SVG path to keep working alongside it. That is a separate change with its own verification, not
+a parameter.
 
-**The likelier explanation, and why this entry stays open.** Two apparent reproductions during
-that sampling both turned out to be self-inflicted: the tree was edited *while the loop was
-running*, once adding an `i18n` key reference before the key existed, once breaking `README.md`
-deliberately for an unrelated check. Both produced exactly the reported signature — a big block of
-failures, green on the next run once the tree settled. That is a mundane and complete explanation
-for "fails during active development, passes on retry", and it needs no bind-mount race at all.
-It is not *proof* that is what the original observer hit, which is why this is not in the Closed
-table.
+**What unblocks it.** Deciding that the avatar should be processed. Then: branch `image-url.html`
+on media type, resize rasters at the configured quality, pass SVG through as now, add a raster
+avatar to `exampleSite/` so both branches are exercised, and assert both.
 
-**What would unblock it.** Reproducing it once, deliberately, with the tree held still. If it
-cannot be reproduced that way, the entry should be closed as "editing during the check", and the
-fix is procedural rather than technical: do not run the gate against a tree you are still typing
-into. If it *is* reproduced, `make check-remote` already avoids the bind mount entirely by
-shipping the source over the daemon socket, and removing `exampleSite/public` before each build
-would stop a partial write from being read as a complete one.
-
-**Where.** `Makefile`, the `RUN` variable and the `check` target; `tests/run.sh` reads
-`exampleSite/public`.
+**Where.** `layouts/_partials/image-url.html`; callers are `_partials/home/intro.html` and
+`_partials/home/profile.html`. Row 3 in `docs/GAP-LIST.md`.
 
 ---
 
@@ -84,7 +73,7 @@ Kept as a short record so the same questions are not reopened from scratch.
 | Search was substring-only with no ranking | Fixed: field-weighted scoring, and every term must match. Still no library, still no dependency. |
 | Draft labels unbuilt | Built, with a draft post in `exampleSite/` to exercise it. |
 | Cover art duplicates the post title | Not a bug. Documented in `README.md` under Covers, with `showHero = false` as the per-post escape. |
-| Bind-mount build race | Superseded by the Open entry above. The "0 failures in 62 cold container-side builds" measurement stands, but it measured cold builds and the reported failures were warm ones, so it never answered the question. 55 warm runs have since also come back clean. |
+| Intermittent `make check` failures | **Cause found: `make serve` was running.** It renders to disk, into the same `exampleSite/public` that `check` builds and `tests/run.sh` reads. With a server up and any file being edited, the watcher rebuilds with `--buildDrafts` and a localhost baseURL while the gate rebuilds without them, and the suite reads whichever finished last. Reproduced at 4 failures in 8 runs; 0 in 55 runs with no server. Never a bind-mount race — host writes were confirmed visible to the container 5/5 at zero delay. `make check` now refuses to run while a server is up. |
 | `v0.1.0` not tagged | Tagged. |
 | `design/northlight.html` reinterpreted DOM text as HTML | Fixed. The mockup's mock search escapes what it interpolates, matching `assets/js/search.js`. Nothing shipped was affected — the file is a local reference and is never served — but an unescaped `innerHTML` in the artifact people read as the target reads as the pattern to copy. |
 | The `video` shortcode had no sample file | Built. The blocker was "no encoder on the host", and the answer was the rule the repo already lives by: run it in a container. A one-off `linuxserver/ffmpeg` produced an 8s, 116KB clip, which was then decoded frame by frame and watched playing in a browser before being committed, so "a sample nobody has watched play" stopped applying. |
@@ -92,8 +81,13 @@ Kept as a short record so the same questions are not reopened from scratch.
 
 ### Deliberately not built
 
-These were the Tier 2 list in `docs/SPEC.md`. They are not deferred work — they are decisions, and
-reopening one needs a reason that did not exist when it was made.
+These were the Tier 2 list in `docs/SPEC.md`.
+
+> **Series, card views and maths have since been reopened.** `docs/GAP-LIST.md` is the current
+> build order and puts them back in scope, so the reasoning below is history rather than policy —
+> worth reading for what the objection was, not as a decision still standing. Each entry gets
+> deleted from this list in the commit that builds it. Video autoplay is the one that still holds,
+> because its objection is that the promise cannot be kept, not that the feature is unwanted.
 
 - **Series taxonomy.** Configured on the site Northlight replaces, used by zero posts there. This
   theme exists because an audit found two thirds of the previous one to be unused surface; adding

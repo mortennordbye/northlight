@@ -7,8 +7,13 @@ larger than the site it served needs.
 
 Read it to answer two questions: *does the reference theme do something we should?* and *has
 this already been decided?* Where a row says **Rejected**, the reason is in `BACKLOG.md` under
-"Deliberately not built" or in the notes here — reopening one needs an argument that did not
-exist when the decision was made.
+"Deliberately not built" or in the notes here.
+
+> **The Rejected rows are being reopened.** `docs/GAP-LIST.md` is now the build order, and it
+> puts every gap in scope — including rows marked Rejected here. Until a feature actually lands,
+> the row below still describes what the theme *does*, which is what this document is for; the
+> **status** is what is stale. Each row gets corrected in the commit that builds it. Where the
+> two disagree about intent, `docs/GAP-LIST.md` is current.
 
 **Before building anything off this page**, read "Shipping a feature" in `CONTRIBUTING.md`. A
 feature here is not done when it works: it needs its default resolved in `init.html`, its strings
@@ -49,13 +54,13 @@ author can do. It is not a measure of effort.
 | Prev/next pagination | **Have** | — | |
 | Related content | **Have** | — | |
 | Tag display | **Have** | — | |
-| Share links | **Partial** | Low | LinkedIn and Reddit. Reference theme offers 11 |
+| Share links | **Have** | — | Eleven providers, all plain URLs with no script. Mastodon needs `article.mastodonInstance`, since it is federated |
 | **Admonitions / callouts** | **Have** | — | Five types via GitHub `> [!NOTE]` syntax, colours outside the palette system |
 | **Responsive images in prose** | **Have** | — | `render-image.html`: intrinsic dimensions, srcset, lazy, async |
 | Image captions | **Have** | — | Markdown title becomes a `<figcaption>` |
 | Image zoom / lightbox | Rejected | Low | JS weight for a gesture the browser already offers |
 | Zen / focus mode | Rejected | — | The layout is already the focus mode |
-| Reply by email link | Gap | Low | |
+| Reply by email link | **Have** | — | `article.replyByEmail` plus `author.email`. A `mailto:` with the title prefilled: no third party, no script, works with JS off |
 | oEmbed rich cards | Rejected | Low | Remote requests at build time |
 
 ## 2. Content model and front matter
@@ -74,7 +79,7 @@ author can do. It is not a measure of effort.
 | `externalUrl` link posts | **Have** | — | Listing entries link off-site, with an icon before the click |
 | Custom `summary` | **Have** | — | Hugo built-in |
 | Series / `series_order` | Rejected | — | Zero posts use it. See `BACKLOG.md` |
-| Multiple authors | Rejected | — | Single-author theme by design |
+| Multiple authors | Gap | — | Reopened; see `docs/GAP-LIST.md` row 2. The author fields it needs (`bio`, `email`) now exist |
 | Author taxonomy and badges | Rejected | — | Follows from the above |
 | Categories as a second taxonomy | Rejected | — | `taxonomy.html` is generic, so a site can add one in config without theme changes |
 | Custom taxonomies | **Have** | — | Hugo config; `taxonomy.html` is generic |
@@ -215,8 +220,9 @@ seven rows are still Gap or Partial, all Low value or narrow:
   while everything around them flipped. Fixed, and `tests/run.sh` now refuses any
   `text-align: left|right` in the CSS so it cannot creep back. The lesson generalises: the
   remaining RTL risk is other physical properties, not `dir` itself.
-* **Share links** covers LinkedIn and Reddit. More providers are trivial to add and worth
-  adding when someone asks for a specific one.
+* **Share links** now covers eleven providers. The limit is not effort but the no-script
+  rule: a provider needing an SDK would put a third-party request on every article page for
+  a button most readers never press.
 * **Meta description fallback order** is fixed rather than configurable.
 * `extend-head-uncached.html`, custom icons from the site repo, reply-by-email, and
   RSSNext ownership tags are all unbuilt and none has been asked for.
