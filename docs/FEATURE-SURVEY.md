@@ -58,7 +58,7 @@ author can do. It is not a measure of effort.
 | **Admonitions / callouts** | **Have** | — | Five types via GitHub `> [!NOTE]` syntax, colours outside the palette system |
 | **Responsive images in prose** | **Have** | — | `render-image.html`: intrinsic dimensions, srcset, lazy, async |
 | Image captions | **Have** | — | Markdown title becomes a `<figcaption>` |
-| Image zoom / lightbox | Rejected | Low | JS weight for a gesture the browser already offers |
+| Image zoom / lightbox | **Have** | — | `enableLightbox`, off by default. A `<dialog>`, so the focus trap and Escape handling are the browser's rather than hand-rolled |
 | Zen / focus mode | Rejected | — | The layout is already the focus mode |
 | Reply by email link | **Have** | — | `article.replyByEmail` plus `author.email`. A `mailto:` with the title prefilled: no third party, no script, works with JS off |
 | oEmbed rich cards | Rejected | Low | Remote requests at build time |

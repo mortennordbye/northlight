@@ -62,7 +62,7 @@ Substantial author control over presentation, or a visible reader feature.
 | 14 | ~~**Analytics vendor blocks**~~ **DONE** | Fathom, Umami (with self-hosted domain and renamed script), Seline. Nothing fires unless configured, asserted against the built demo | Small each |
 | 15 | ~~**Site-wide image fallbacks**~~ **DONE** | `defaultFeaturedImage` and `defaultSocialImage`. `defaultBackgroundImage` folded in: `home.backgroundImage` already covers it | Small |
 | 16 | ~~**Accessibility toggle**~~ **DONE** | `enableA11y` shows an underline-links control, named for its actual effect. WCAG 1.4.1: the theme's faint prose rule does not reach nav, cards or footers | Medium |
-| 17 | **Image zoom / lightbox** `[opt-in]` | Click to enlarge. Needs JS and a focus trap to be done properly | Medium |
+| 17 | ~~**Image zoom / lightbox**~~ **DONE** | Built on `<dialog>`, so the focus trap, backdrop and Escape handling are the browser's. Focus returns to the opener; linked images are left alone | Medium |
 | 18 | **Views and likes** `[opt-in]` | Firebase-backed counters. The only row needing a backend and credentials; those are site config, never theme files | Large |
 | 19 | **Repository cards** `[opt-in]` | GitHub, GitLab, Codeberg, Gitea, Forgejo, Ansible Galaxy, Hugging Face. One fetch-and-render mechanism, seven skins — build the mechanism once | Medium once, Small each |
 | 20 | ~~**`taxonomy.showTermCount`**~~ **DONE** | The count already rendered; this is the switch. Default true | Small |

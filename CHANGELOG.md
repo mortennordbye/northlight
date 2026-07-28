@@ -10,6 +10,12 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **`enableLightbox`** — click a prose image to see it full size. Built on `<dialog>`, so the
+  modal semantics, the backdrop, the focus trap and the Escape handler all come from the browser
+  rather than from this theme; those four are what hand-rolled lightboxes get wrong. Focus
+  returns to the image that opened it. An image that is already a link is left alone, since it
+  has a destination the author chose. Off by default — the browser already offers "open image in
+  new tab", and a lightbox with a bad focus trap is worse than none.
 - **`header.layout`** — `fixed` keeps the header sticky, which is the current behaviour and
   therefore the default; `basic` lets it scroll away. The anchor offset follows the choice, so
   `basic` does not leave a gap above every heading it jumps to.

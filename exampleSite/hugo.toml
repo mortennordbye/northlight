@@ -84,6 +84,12 @@ summaryLength = 30
   # deliberate decision and this overrides it site-wide.
   enableA11y = true            # underline-links control        (default: false)
 
+  # Click a prose image to see it full size. Opt-in: the browser already offers "open
+  # image in new tab", and a lightbox with a bad focus trap is worse than none. This one
+  # uses a <dialog>, so the modal semantics, backdrop, focus trap and Escape handling come
+  # from the browser rather than from this theme.
+  enableLightbox = true        # click prose images to enlarge  (default: false)
+
   mainSections = ["blog"]      # which sections appear in lists (default: ["blog"])
                                # `docs` is deliberately absent: the manual should not
                                # appear in the blog index, the feed or the archive.

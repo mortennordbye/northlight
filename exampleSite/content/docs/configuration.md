@@ -24,6 +24,7 @@ default inline, so every default below lives in exactly one place in the source.
 | `autoSwitchAppearance` | `true` | Follow the reader's operating system. |
 | `enableSearch` | `true` | The ⌘K modal. Needs `JSON` in `[outputs].home`. |
 | `enableCodeCopy` | `true` | Copy button on code blocks. |
+| `enableLightbox` | `false` | Click a prose image to see it full size. Uses a `<dialog>`, so the modal semantics, backdrop, focus trap and Escape handling come from the browser. Images that are already links are left alone. |
 | `enableA11y` | `false` | Shows a control that underlines every link on the page. Named for what it does: a control whose effect a reader cannot predict is not an accessibility feature. |
 | `header.layout` | `"fixed"` | `fixed` keeps the header sticky (the current behaviour); `basic` lets it scroll away. |
 | `mainSections` | `["blog"]` | Which sections count as posts for the home page, index, RSS and search. |

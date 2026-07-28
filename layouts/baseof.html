@@ -42,6 +42,8 @@
       "codeCopiedToClipboard" (i18n "codeCopiedToClipboard")
       "switchToDarkMode"      (i18n "switchToDarkMode")
       "switchToLightMode"     (i18n "switchToLightMode")
+      "viewFullSize"          (i18n "viewFullSize")
+      "closeLightbox"         (i18n "closeLightbox")
       | jsonify | safeJS -}}
   </script>
 
@@ -49,6 +51,7 @@
   {{- if $cfg.enableCodeCopy }}{{ $scripts = $scripts | append (resources.Get "js/code-copy.js") }}{{ end -}}
   {{- if $cfg.enableSearch }}{{ $scripts = $scripts | append (resources.Get "js/search.js") }}{{ end -}}
   {{- if $cfg.enableA11y }}{{ $scripts = $scripts | append (resources.Get "js/a11y.js") }}{{ end -}}
+  {{- if $cfg.enableLightbox }}{{ $scripts = $scripts | append (resources.Get "js/lightbox.js") }}{{ end -}}
   {{- $js := $scripts | resources.Concat "js/northlight.js" -}}
   {{- if hugo.IsProduction }}{{ $js = $js | minify }}{{ end -}}
   {{- $js = $js | fingerprint "sha512" }}

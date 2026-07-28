@@ -740,6 +740,39 @@ refute_grep 'Updated <time' "$PUBLIC/blog/two-modes/index.html" "no updated date
 # says nothing twice.
 refute_grep 'Updated <time' "$WRITING" "no updated date when it renders as the same day"
 
+# Lightbox. The parts that make it a feature rather than an accessibility regression are
+# all in the source, since nothing here opens a browser: a real <dialog> (which brings the
+# modal semantics, backdrop, focus trap and Escape handler with it), a focusable trigger,
+# and focus restored on close.
+# The module is concatenated into the shared bundle, so its filename never appears in the
+# HTML — assert on the bundle's contents, as the mermaid check does.
+if [ -n "$JS_REF" ] && grep -q 'lightbox-trigger' "$PUBLIC/$JS_REF" 2>/dev/null; then
+  ok "the lightbox script is in the bundle when enabled"
+else
+  bad "the lightbox script is in the bundle when enabled" "no lightbox code in $JS_REF"
+fi
+assert_grep 'document.createElement("dialog")' "$ROOT/assets/js/lightbox.js" \
+  "the lightbox is a real dialog, not a hand-rolled overlay"
+assert_grep 'opener.focus()' "$ROOT/assets/js/lightbox.js" \
+  "focus returns to the trigger when the lightbox closes"
+
+# display:contents on the trigger gives it a 0x0 box and makes it unfocusable, so the
+# lightbox becomes unreachable by keyboard — measured, not assumed. The trigger must keep
+# a real box.
+TRIGGER_RULE=$(awk '/^\.lightbox-trigger \{/,/^\}/' "$ROOT/assets/css/interaction.css")
+case "$TRIGGER_RULE" in
+  *"display: contents"*) bad "the lightbox trigger is focusable" "display:contents makes the button unfocusable" ;;
+  *"display: block"*)    ok "the lightbox trigger is focusable" ;;
+  *)                     bad "the lightbox trigger is focusable" "no display declared on .lightbox-trigger" ;;
+esac
+
+# An enlarged image exists to be seen whole, so the never-crop rule applies here too.
+LB_RULE=$(awk '/^\.lightbox-image \{/,/^\}/' "$ROOT/assets/css/interaction.css")
+case "$LB_RULE" in
+  *"object-fit: contain"*) ok "the lightbox never crops the image" ;;
+  *) bad "the lightbox never crops the image" "the .lightbox-image rule does not use object-fit: contain" ;;
+esac
+
 # header.layout. `fixed` is the current sticky header and the default, so this asserts the
 # default rather than the option — the risk here is a silent behaviour change for sites
 # that set nothing.

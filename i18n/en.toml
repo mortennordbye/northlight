@@ -86,6 +86,11 @@ watchOnYouTube = "Watch on YouTube"
 # hand the file to something that can play it.
 downloadVideo = "Download the video"
 
+# The lightbox. Both strings only exist after a click, so they are rendered into the JSON
+# block in baseof.html and read at runtime rather than into the markup.
+viewFullSize = "View full size"
+closeLightbox = "Close image"
+
 # The underline-links control. Named for what it does rather than as an "accessibility
 # mode": a control whose effect a reader cannot predict is not an accessibility feature.
 underlineLinks = "Underline links"
