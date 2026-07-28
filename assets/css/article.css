@@ -310,7 +310,9 @@ a.tag:hover {
 }
 
 .pager-next {
-  text-align: right;
+  /* Logical, so the "next" pager follows the text direction rather than always
+     hugging the right edge. Identical to `right` under LTR. */
+  text-align: end;
 }
 
 .pager-next .pager-key {
@@ -412,7 +414,7 @@ a.tag:hover {
   }
 
   .pager-next {
-    text-align: left;
+    text-align: start;
   }
 
   .pager-next .pager-key {

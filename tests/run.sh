@@ -429,6 +429,21 @@ else
   ok "the gallery never crops its images"
 fi
 
+# Text direction. `text-align: left|right` is physical: it ignores `dir`, so under the
+# site-wide rtl param or the `rtl` shortcode every table cell and the "next" pager pin
+# themselves to the wrong edge while the surrounding block flips. `start`/`end` are
+# identical under LTR and correct under RTL, so there is no case for the physical pair.
+# `center` is direction-neutral and stays allowed.
+#
+# This is asserted across every stylesheet rather than prose alone because the bug was
+# in two files, and the reason it survived is that nothing was watching for it.
+PHYSALIGN=$(grep -rnE '^[[:space:]]*text-align[[:space:]]*:[[:space:]]*(left|right)' "$ROOT/assets/css/" || true)
+if [ -n "$PHYSALIGN" ]; then
+  bad "no physical text-align survives in the CSS" "$(printf '%s' "$PHYSALIGN" | head -3 | tr '\n' ' ')"
+else
+  ok "no physical text-align survives in the CSS"
+fi
+
 # tabs: the served markup must be the *fallback*, not the tab strip. A reader with no
 # JavaScript gets a sequence of headed <section> elements with every panel visible; the
 # script builds the tablist afterwards. These assertions are on the server output, so they
@@ -459,6 +474,68 @@ if grep -qE '^[[:space:]]*scroll-snap-type' "$ROOT/assets/css/shortcodes.css"; t
   ok "the carousel scrolls natively rather than by script"
 else
   bad "the carousel scrolls natively rather than by script" "no scroll-snap-type declaration"
+fi
+
+# README claims a number of shortcodes ("All nineteen"). That number went stale the moment
+# this shortcode landed and nothing noticed, which is the same failure the icon check below
+# exists for: prose that counts something is a second copy of it. Spelled out rather than
+# numeric because that is how the sentence reads.
+DOCCOUNT=$(grep -c '^## `' "$ROOT/exampleSite/content/docs/shortcodes/index.md")
+DOCWORD=$(awk -v n="$DOCCOUNT" 'BEGIN{
+  split("zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty twenty-one twenty-two twenty-three twenty-four twenty-five", w, " ")
+  print w[n+1]
+}')
+if grep -q "All $DOCWORD, each running live on the page" "$ROOT/README.md"; then
+  ok "README's shortcode count matches the docs page"
+else
+  bad "README's shortcode count matches the docs page" \
+      "docs page documents $DOCCOUNT ($DOCWORD); README says: $(grep -o 'All [a-z-]*, each running live' "$ROOT/README.md" || echo 'no match')"
+fi
+
+# video: the box carries an exact aspect-ratio, which is what reserves the space before any
+# video arrives. Asserted on the computed pair rather than the author's string because the
+# two are not the same thing — an interpolated *string* in a CSS value is rejected by the
+# template escaper and becomes ZgotmplZ, so this also pins the conversion that avoids it.
+# (The ZgotmplZ refutation above is the general net; this names the specific box.)
+assert_grep 'class=video-box style=aspect-ratio:16/9' "$SHORTCODES" \
+  "the video box reserves its space with an exact aspect-ratio"
+
+# The deliberate absence, and the one most likely to be "helpfully" added back. CSS cannot
+# stop playback, so an autoplay here could only respect prefers-reduced-motion via
+# JavaScript, and it would therefore ignore the reader's stated preference whenever
+# scripting is off.
+#
+# Anchored to the attribute on the tag, not the bare word: the section above documents at
+# length why autoplay is absent, so a plain refutation matches its own explanation. Third
+# time this trap has been worth writing down — see object-fit and ytimg below.
+if grep -oE '<video[^>]*>' "$SHORTCODES" | grep -q 'autoplay'; then
+  bad "the video never autoplays" "$(grep -oE '<video[^>]*autoplay[^>]*>' "$SHORTCODES" | head -1)"
+else
+  ok "the video never autoplays"
+fi
+
+# And the parameter does not exist to be turned on. Content that simply never passes
+# autoplay would keep the rendered output clean while the parameter sat there working,
+# so this reads the template rather than the output. `.Get` is how a shortcode reads a
+# parameter, which makes it the thing to look for rather than the word itself.
+refute_grep '\.Get "autoplay"' "$ROOT/layouts/_shortcodes/video.html" \
+  "the video shortcode has no autoplay parameter to be turned on"
+
+# A browser that cannot decode the container still gets the file, rather than an empty
+# player and no way forward.
+assert_grep '<a href=/docs/shortcodes/clip.mp4 download>' "$SHORTCODES" \
+  "an unplayable video degrades to a download link"
+assert_grep 'poster=/docs/shortcodes/clip.jpg' "$SHORTCODES" \
+  "the poster is served, so the player is not a blank rectangle"
+
+# The sample has to actually be a video. A zero-byte or truncated placeholder would satisfy
+# every assertion above while demonstrating a broken feature, which is the specific reason
+# this shortcode sat in BACKLOG.md unbuilt.
+CLIP="$ROOT/exampleSite/content/docs/shortcodes/clip.mp4"
+if [ -s "$CLIP" ] && head -c 12 "$CLIP" | grep -q 'ftyp'; then
+  ok "the sample clip is a real MP4"
+else
+  bad "the sample clip is a real MP4" "missing, empty, or no ftyp box: ${CLIP#"$ROOT"/}"
 fi
 
 # youtube-lite: the entire point is that no Google host is contacted on page view. This is

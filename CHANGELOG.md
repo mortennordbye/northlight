@@ -8,7 +8,35 @@ keys are added with defaults that preserve existing behaviour.
 
 ## [Unreleased]
 
-Nothing yet.
+### Added
+
+- **`video`** — a self-hosted video player, the local-file sibling of `youtube-lite`. Source and
+  poster both resolve out of the page bundle or `assets/`, so a page carrying one makes no more
+  third-party requests than a page carrying none. Takes `src`, `poster`, `caption`, `ratio`,
+  `controls`, `loop`, `muted`, `preload` and `start`/`end` media fragments. The box is an exact
+  `aspect-ratio`, so it reserves its space before any video arrives and a clip whose own ratio
+  differs letterboxes rather than crops — no `object-fit` needed, since the HTML spec already
+  requires that. **There is deliberately no `autoplay`:** CSS cannot stop playback, so honouring
+  `prefers-reduced-motion` would take JavaScript, and an autoplay that ignores the reader's
+  stated preference whenever scripting is off is not a promise this theme can keep. This closes
+  the last unbuilt row of Part A in `docs/EXPANSION-PLAN.md`, which had been blocked on having a
+  sample file to demonstrate it with.
+
+### Fixed
+
+- **Table cells and the "next" pager now follow the text direction.** `.prose th`, `.prose td`
+  and `.pager-next` used physical `text-align: left` / `right`, which ignores `dir`, so on a site
+  running `rtl = true` — or inside the `rtl` shortcode — every table cell and the next-post link
+  pinned themselves to the wrong edge while the surrounding block flipped. They now use the
+  logical `start` / `end`, which is identical under LTR. **Visible change for RTL sites only**,
+  and in the direction of correctness; LTR rendering is byte-identical.
+
+### Changed
+
+- `design/northlight.html`, the approved visual reference, now escapes the values its mock search
+  interpolates into `innerHTML`, matching what `assets/js/search.js` has always done. The file is
+  a local reference and is never served, so nothing shipped was affected, but an unescaped
+  `innerHTML` in the artifact people read as the target reads as the pattern to copy.
 
 ## [0.3.0](https://github.com/mortennordbye/northlight/compare/v0.2.0...v0.3.0) (2026-07-28)
 

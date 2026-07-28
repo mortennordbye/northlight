@@ -169,7 +169,7 @@ describe.
 | [Getting started](https://mortennordbye.github.io/northlight/docs/getting-started/) | Install, required config, first post |
 | [Configuration](https://mortennordbye.github.io/northlight/docs/configuration/) | Every `site.Params` key, its default and what it changes |
 | [Writing content](https://mortennordbye.github.io/northlight/docs/writing/) | Front matter, admonitions, images, covers, code fences, tables |
-| [Shortcodes](https://mortennordbye.github.io/northlight/docs/shortcodes/) | All eighteen, each running live on the page |
+| [Shortcodes](https://mortennordbye.github.io/northlight/docs/shortcodes/) | All nineteen, each running live on the page |
 | [Appearance](https://mortennordbye.github.io/northlight/docs/appearance/) | Palettes, colour modes, the ten home layouts, custom CSS |
 | [Integrations](https://mortennordbye.github.io/northlight/docs/integrations/) | Comments, analytics, verification tags, the head and footer hooks |
 | [Translating](https://mortennordbye.github.io/northlight/docs/translating/) | The string catalogue, and adding a language |

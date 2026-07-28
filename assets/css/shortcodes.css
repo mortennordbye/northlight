@@ -157,6 +157,48 @@
   color: var(--fg-2);
 }
 
+/* --- video ------------------------------------------------------------------ */
+
+/* The self-hosted sibling of youtube-lite. <figure> and <figcaption> come from
+   prose.css, as they do for `figure`, so only the box is declared here. */
+.video-figure {
+  margin: var(--space-6) 0;
+}
+
+/* The ratio itself is an inline style, because it is a per-call parameter; this carries
+   everything that does not vary. The box reserves its space before a single byte of
+   video arrives, which is what keeps the no-layout-shift rule true for a <video> whose
+   dimensions are not known until the metadata loads. */
+.video-box {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-pager);
+  /* The same fixed dark in both colour modes, and for the same reason as
+     `.home-bg-scrim`: what shows through here is letterbox bars around the video, and
+     the video does not invert when the palette does. A mode-aware token would make this
+     `--fg`, which is near-white in dark mode — a bright slab framing a dark video on a
+     dark page. Measured before it was fixed: rgb(242 242 245) in dark mode. */
+  background: rgb(12 12 16);
+}
+
+/* `.prose video` already carries margin-block, a radius and height:auto, and it matches
+   this selector's specificity — so without resetting them here the last stylesheet loaded
+   wins and the result is arbitrary. Measured before the reset: the video sat 20px below
+   the top of its own box and overflowed the bottom by the same 20px, clipped and looking
+   like a rendering fault. The box owns the geometry and the radius; the video fills it.
+   No object-fit: the HTML spec already centres video content at the largest size that
+   fits with its aspect ratio preserved, so a clip that does not match the box letterboxes
+   rather than crops — the never-crop rule, kept for free. Declaring object-fit here would
+   also trip the gallery's never-crop assertion in tests/run.sh. */
+.video-box video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border-radius: 0;
+}
+
 /* --- tabs ------------------------------------------------------------------- */
 
 /* The unenhanced state is the default and is deliberately plain: a sequence of headed

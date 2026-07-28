@@ -153,7 +153,7 @@ author can do. It is not a measure of effort.
 |---|---|---|---|
 | **Translatable UI strings** | **Have** | — | `i18n/en.toml`. Nothing user-facing is hardcoded, plurals included |
 | Multilingual sites | Rejected | — | Full multi-language routing is out of scope per `docs/SPEC.md` |
-| RTL support | **Partial** | Low | `rtl = true` sets `dir`. Layout mirrors, but this has had no real-world exercise |
+| RTL support | **Partial** | Low | `rtl = true` sets `dir`. Layout mirrors, and physical `text-align` is now gone from the CSS and asserted against, but this has still had no real-world exercise |
 | Configurable date format | **Have** | — | `dateFormat`, a Go reference layout |
 | Browser language redirect | Rejected | Low | Client-side redirects on a static site |
 
@@ -192,7 +192,7 @@ duplicated as shortcodes — and every shortcode is additive, replacing no Markd
 | Gallery | **Have** | Grids nested `figure` calls, so one image path; never crops |
 | Tabs | **Have** | Headed sections upgraded to an ARIA tablist; full keyboard support, readable with JS off |
 | Carousel | **Have** | Built with CSS scroll-snap instead: no JavaScript, no autoplay, so neither objection applies |
-| Video · YouTube Lite | Gap | Local files only; the YouTube one as a click-to-load facade, so nothing is requested on page view |
+| Video · YouTube Lite | **Have** | `video` for local files, `youtube-lite` as a click-to-load facade. Neither requests anything on page view; `video` has no autoplay, because CSS cannot honour `prefers-reduced-motion` for playback |
 | Repository cards (six forges) · Ansible · Hugging Face · Code importer · Markdown importer | Rejected | Each calls a third-party API during the build. `docs/SPEC.md` §1 requires the theme to build with no network access |
 | Gist | Rejected | Third-party script on page view; the code fence with a filename bar covers it locally |
 | Chart · Mermaid · TypeIt | Rejected | Each needs a rendering library shipped to every page that uses it. `extend-head.html` is the route |
@@ -210,7 +210,11 @@ seven rows are still Gap or Partial, all Low value or narrow:
 
 * **RTL** is Partial. `rtl = true` sets `dir` and the layout mirrors, but nothing here has
   been exercised by someone actually reading right to left. That is the row most likely
-  to be wrong.
+  to be wrong — and it has now been wrong once in a way worth recording: table cells and
+  the "next" pager used physical `text-align`, so they stayed pinned to the left edge
+  while everything around them flipped. Fixed, and `tests/run.sh` now refuses any
+  `text-align: left|right` in the CSS so it cannot creep back. The lesson generalises: the
+  remaining RTL risk is other physical properties, not `dir` itself.
 * **Share links** covers LinkedIn and Reddit. More providers are trivial to add and worth
   adding when someone asks for a specific one.
 * **Meta description fallback order** is fixed rather than configurable.

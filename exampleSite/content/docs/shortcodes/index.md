@@ -229,6 +229,44 @@ Like [`gallery`](#gallery), it has no image handling of its own — it scrolls n
 Reach for a gallery when the images are a set the reader should see at once, and this when
 they are a sequence.
 
+## `video`
+
+A self-hosted video player. The file is yours, so nothing here contacts another host.
+
+```text
+{{</* video src="clip.mp4" poster="clip.jpg" caption="Eight seconds of north light" */>}}
+```
+
+{{< video src="clip.mp4" poster="clip.jpg" caption="Eight seconds of north light" >}}
+
+| Parameter | Required | What it does |
+|---|---|---|
+| `src` | yes | The video, a page resource or `assets/` path |
+| `poster` | no | A still shown before play. Strongly recommended |
+| `caption` | no | Figure caption, rendered as inline Markdown |
+| `ratio` | no | The box, as `W/H`. Default `16/9` |
+| `controls` | no | Player controls. Default `true` |
+| `loop` | no | Restart on end. Default `false` |
+| `muted` | no | Start muted. Default `false` |
+| `preload` | no | `none`, `metadata` or `auto`. Default `metadata` |
+| `start` | no | Seek to this many seconds on load |
+| `end` | no | Stop at this many seconds |
+
+**There is deliberately no `autoplay`.** CSS cannot stop playback, so honouring
+`prefers-reduced-motion` would take JavaScript, and every script in this theme has to
+degrade to something sane when scripting is off. An autoplay that quietly ignores a
+reader's stated preference whenever JS is unavailable is not a promise the theme can
+keep, so the parameter does not exist rather than existing and being unreliable.
+
+The box is an exact `aspect-ratio`, so it reserves its space before any video arrives and
+the page does not shift when the metadata lands. A clip whose own ratio differs from the
+box letterboxes rather than crops, on the same never-crop terms as covers and galleries.
+
+Without a `poster` the player paints a flat rectangle until the first frame decodes. That
+is layout-shift-free but ugly, which is why the parameter is recommended rather than
+merely available. A browser that cannot play the file gets a download link, so it can
+hand the video to something that can.
+
 ## `youtube-lite`
 
 A YouTube embed that contacts nobody until the reader asks it to.

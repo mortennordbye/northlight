@@ -289,7 +289,10 @@ html[data-theme="dark"] .img-dark {
 
 .prose th,
 .prose td {
-  text-align: left;
+  /* `start`, not `left`: under `dir="rtl"` — the site-wide rtl param or the `rtl`
+     shortcode — a physical `left` pins every cell to the wrong edge while the rest of
+     the block flips. Identical to `left` under LTR. */
+  text-align: start;
   padding: var(--space-2) var(--space-3);
   border-bottom: 1px solid var(--line);
 }

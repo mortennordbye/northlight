@@ -252,9 +252,16 @@ These wrap existing partials, so they are mostly plumbing and docs.
 
 ### A4 · Media
 
-- [~] **`video`** — *blocked on a sample file, see `BACKLOG.md`.* Local or self-hosted video, with `poster`, `caption`, `ratio`, `controls`,
-      `loop`, `muted`, `preload`, `start`/`end` fragments. No third-party contact. Autoplay must
-      be opt-in *and* must respect `prefers-reduced-motion`. Branch `feat/shortcode-video`.
+- [x] **`video`** — local or self-hosted video, with `poster`, `caption`, `ratio`, `controls`,
+      `loop`, `muted`, `preload`, `start`/`end` fragments. No third-party contact.
+      **Autoplay was dropped rather than made opt-in.** The requirement above was that it respect
+      `prefers-reduced-motion`, and that cannot be met: CSS cannot stop playback, so the guard
+      would be JavaScript, and with scripting off the theme would autoplay straight past a
+      reader's stated preference. An opt-in that silently fails is worse than an absent
+      parameter, so the parameter is absent and `tests/run.sh` asserts it stays that way.
+      The sample it was blocked on is `exampleSite/content/docs/shortcodes/clip.mp4`, generated
+      with a containerised ffmpeg so nothing had to be installed on the host, and decode-checked
+      frame by frame before being committed.
 - [x] **`youtube-lite`** — facade embed: static thumbnail plus play button, no third-party request
       until the reader clicks. See FLAG-4. The thumbnail must be a local file supplied by the
       author, not fetched from the video host, or the facade is pointless.
@@ -569,9 +576,9 @@ silently.
   comment in the first draft of this shortcode cited the repo guidance file by name and tripped
   it. Cite `docs/EXPANSION-PLAN.md` for a decision instead.
 
-- **Part A is complete except `video`.** `figure`, `alert`, `timeline`, `accordion`, `gallery`,
-  `tabs`, `carousel` and `youtube-lite` all landed. Four things generalise, and they are the ones
-  worth reading before starting Part C:
+- **Part A is complete.** `figure`, `alert`, `timeline`, `accordion`, `gallery`, `tabs`,
+  `carousel`, `youtube-lite` and `video` all landed. Four things generalise, and they are the
+  ones worth reading before starting Part C:
 
   **Goldmark does not wrap block-level shortcode output in a paragraph.** Only inline output gets
   wrapped. The `display: contents` rules written for `timeline` and `accordion` were dead on
@@ -618,10 +625,21 @@ silently.
   built against the links in the rendered Docs dropdown. Adding a page means adding its menu
   entry, and the menu weights are separate from the front-matter weights.
 
-  `video` is the one row not done, and it is blocked on an asset rather than on effort: there is
-  no encoder available to produce a sample file, and committing a hand-assembled binary nobody
-  has watched play would demonstrate a broken feature. Recorded in `BACKLOG.md` with what
-  unblocks it, including the autoplay/`prefers-reduced-motion` decision to make alongside it.
+  **`video` is now done, and the thing that unblocked it generalises.** It sat blocked on an
+  asset rather than on effort: no encoder on the host to produce a sample, and committing a
+  hand-assembled binary nobody had watched play would have demonstrated a broken feature. The
+  answer was the rule the repo already lives by — *run it in a container*. A one-off
+  `linuxserver/ffmpeg` container generated the clip without installing anything, and the file was
+  then decoded frame by frame and inspected before being committed, so "nobody has watched it
+  play" stopped being true. **Reach for a container before recording an asset as a blocker.**
+
+  **An interpolated string in a `style` attribute is silently destroyed.** `aspect-ratio: {{ $s }}`
+  where `$s` is the author's `"16/9"` renders `aspect-ratio:ZgotmplZ` — a collapsed box and no
+  error. Splitting it and passing two *numbers* renders `aspect-ratio:16/9` intact. Go's escaper
+  trusts numeric values and not strings, so the fix is to convert before interpolating, never to
+  reach for `safeCSS`. This is the same escaper note recorded for `swatches` above, but the
+  failure there was loud and here it was invisible: the existing `ZgotmplZ` refutation in
+  `tests/run.sh` is what caught it, which is a good argument for that assertion existing at all.
 
 - **`feat/shortcode-keywords`** — `keyword` and `keywordList`. Reuses `badge`'s chip shape a step
   larger, and the `icon-inline` wrapper from the item above for the optional icon.

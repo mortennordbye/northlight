@@ -81,6 +81,11 @@ carousel = "Image carousel"
 # site: with scripting off the facade is a plain link to YouTube.
 watchOnYouTube = "Watch on YouTube"
 
+# The fallback inside a self-hosted <video>, shown only by a browser that cannot play
+# the file. A download link rather than an apology, because such a browser can still
+# hand the file to something that can play it.
+downloadVideo = "Download the video"
+
 # --- Pluralised. Keep these last; see the note at the top. --------------------
 [readingTime]
 one = "{{ . }} min read"
