@@ -533,6 +533,28 @@ assert_count 0 "$BADCROP" "no home layout crops a post cover"
 assert_grep 'home-layouts.css' "$ROOT/layouts/_partials/head.html" \
   "the home layout stylesheet is in the bundle"
 
+# Every layout is rendered live by the example site's layout switcher, one page each, so a
+# layout that stopped building would take a route with it. This is what makes the ten
+# genuinely exercised rather than merely present as files.
+for L in stack page profile hero card background split gallery archive custom; do
+  assert_file "$PUBLIC/layouts/$L/index.html" "layout demo page builds: $L"
+done
+
+# base.css blockifies every svg, which takes a whole line in running text. Content hit this
+# with the icon shortcode and the archive layout hit it again with its external-link mark.
+# Any icon sitting inside a line of text needs the .icon-inline wrapper.
+assert_grep 'icon-inline' "$PUBLIC/layouts/archive/index.html" \
+  "the archive external-link mark stays on its line"
+
+# The hover colour must stay behind :hover. A stray edit once promoted it to an
+# unconditional rule, which made every gallery caption read as a visited link.
+if grep -qE '^\.home-gallery-title-text \{\s*$' "$ROOT/assets/css/home-layouts.css" \
+   && grep -A3 -E '^\.home-gallery-title-text \{' "$ROOT/assets/css/home-layouts.css" | grep -q 'color: var(--accent)'; then
+  bad "the gallery caption colour is only applied on hover" "an unconditional accent colour is set"
+else
+  ok "the gallery caption colour is only applied on hover"
+fi
+
 # --------------------------------------------------------------------------------
 group "Accessible names and heading order"
 

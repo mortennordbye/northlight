@@ -23,6 +23,12 @@
           <img src="{{ $img.RelPermalink }}" alt=""
                width="{{ $img.Width }}" height="{{ $img.Height }}"
                {{ if eq $i 0 }}fetchpriority="high"{{ else }}loading="lazy"{{ end }} decoding="async">
+        {{- else }}
+          {{- /* A post with no cover still gets a tile the size of one. Skipping it would
+                 hide content, and letting it collapse to a bare line leaves holes in the
+                 grid that read as a rendering fault. The tile holds the cover's aspect
+                 ratio so the rows stay level. */ -}}
+          <span class="home-gallery-blank">{{ $p.LinkTitle }}</span>
         {{- end }}
         <span class="home-gallery-title-text">{{ $p.LinkTitle }}</span>
       </a>

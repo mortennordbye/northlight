@@ -16,6 +16,13 @@
   padding-block: var(--space-9) var(--space-8);
 }
 
+/* `stack` puts the description and the body in separate blocks with their own rhythm.
+   Here they are siblings in one column, so without this the lede runs straight into the
+   first paragraph and the two read as one run-on block. */
+.home-page .intro-text {
+  margin-bottom: var(--space-6);
+}
+
 /* --- profile --------------------------------------------------------------- */
 
 .home-profile {
@@ -75,6 +82,12 @@
 @media (min-width: 62rem) {
   .home-hero-inner {
     grid-template-columns: 1fr 1.1fr;
+  }
+
+  /* With no cover anywhere on the site there is no second column to fill, so the text
+     takes the full measure rather than sitting in a half-width column beside a void. */
+  .home-hero.is-textonly .home-hero-inner {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -211,6 +224,21 @@
   height: auto;
   border-radius: var(--radius-thumb);
   border: 1px solid var(--line);
+}
+
+/* Stands in for a missing cover, at the same aspect ratio so the grid rows stay level.
+   The title is repeated inside it rather than left blank, because an empty box beside
+   titled ones reads as an image that failed to load. */
+.home-gallery-blank {
+  display: flex;
+  align-items: center;
+  padding: var(--space-5);
+  aspect-ratio: 1200 / 630;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-thumb);
+  color: var(--fg-3);
+  line-height: var(--leading-snug);
 }
 
 .home-gallery-title-text {

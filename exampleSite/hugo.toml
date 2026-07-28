@@ -96,7 +96,7 @@ summaryLength = 30
     recentCount = 3            # cards under the featured post          (default: 3)
     # Only read by layout = "background". Without it that layout renders the ordinary
     # intro rather than an empty band.
-    # backgroundImage = "images/backdrop.png"   # only read by layout = "background"
+    backgroundImage = "images/backdrop.svg"
 
   [params.article]
     showBreadcrumbs = true

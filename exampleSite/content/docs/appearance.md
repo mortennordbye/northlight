@@ -118,6 +118,9 @@ Two partials exist purely as escape hatches and are meant to be overridden:
 
 ## Home page layouts
 
+**[Cycle through all ten live]({{< ref "/layouts" >}})** — each one rendered with this
+site's real content, with a switcher to move between them.
+
 The home page has ten arrangements, chosen with one setting:
 
 ```toml
