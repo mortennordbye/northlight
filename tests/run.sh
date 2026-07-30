@@ -767,6 +767,23 @@ assert_grep '<h2 class=item-title' "$PUBLIC/blog/index.html" \
 refute_grep '<h3 class=item-title' "$PUBLIC/blog/index.html" \
   "post list titles are not h3"
 
+# The card branch of section.html has the same h1-to-h3 problem, and the two assertions
+# above cannot see it: `list.cardView` is a site-level param, this demo leaves it off, so
+# the post index is always the row list and the card grid in section.html is never built
+# here. That made it the one heading-order path with no coverage, and it was wrong —
+# `card.html` defaults to level 3, correct under the home page's h2 section-title, and
+# section.html was calling it bare.
+#
+# So this reads the template instead of the output. A source assertion is the weaker kind
+# and worth avoiding where an output one will do, but "assert on the built page" is not
+# available without turning cardView on for the whole demo and changing the post index
+# design to buy a test. Comments are stripped so the explanation above the call cannot
+# satisfy the match.
+without_comments "$ROOT/layouts/section.html" | grep -q 'partial "card.html" (dict "ctx" . "level" 2)' \
+  && ok "section.html asks card.html for h2, not its home-page default of h3" \
+  || bad "section.html asks card.html for h2, not its home-page default of h3" \
+         "cards on a section index would skip h1 -> h3"
+
 # Every heading level that appears on a list page must be reachable without a jump. This
 # catches the general regression rather than the one instance above.
 LEVELS=$(grep -oE '<h[1-6][ >]' "$PUBLIC/blog/index.html" | grep -oE '[1-6]' | sort -u | tr -d '\n')

@@ -9,12 +9,30 @@ Empty is the correct state for this file.
 
 ## Open
 
-Nothing. Every entry that was here has been built or decided, and the record of each is in
-*Closed* below.
+### `list.cardView` is not exercised anywhere in `exampleSite`
 
-That is the intended state of this file, not an achievement to preserve — the next thing
-deferred belongs here, with what it is, why it was deferred, what would unblock it, and
-where the code lives.
+**What.** The param is read by `section.html` and documented, but no page in the demo turns it
+on, so the card branch of `section.html` is never built by `make check`. Nothing in
+`tests/run.sh` or `tests/structure.py` can see that path.
+
+**Why deferred.** The obvious fix — set `list.cardView = true` in `exampleSite/hugo.toml` —
+changes the post index from the row list with covers to a card grid for the whole demo. The row
+list is a deliberate design decision and the docs describe it, so flipping it to gain test
+coverage trades the wrong thing. The alternative, a per-section override so one section could use
+cards, is new config surface added to serve a test, which is worse.
+
+This is not hypothetical: it is why the section index shipped with cards skipping `h1` to `h3`
+through 0.4.0. That bug is fixed and now has a source assertion in `tests/run.sh`, but a source
+assertion is the weaker kind and the underlying gap is still here.
+
+**What unblocks it.** A decision on one of: accept a card grid as the demo's post index; add a
+second content section to the demo whose only purpose is to demonstrate cards, and accept that it
+appears in the nav; or extend the test harness to build a variant site with cardView on, the way
+`tests/fuzz.py` already builds a site per case. The third is the most honest and the most work.
+
+**Where.** `layouts/section.html:22-29`, `layouts/_partials/init.html:69`,
+`exampleSite/hugo.toml` (`[params.list]`), `tests/run.sh` (the *Accessible names and heading
+order* group).
 
 ## Closed
 
