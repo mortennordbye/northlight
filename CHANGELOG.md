@@ -6,6 +6,18 @@ and versions follow [semantic versioning](https://semver.org/).
 **Config keys are API.** A key is never renamed or repurposed without a major version bump. New
 keys are added with defaults that preserve existing behaviour.
 
+## [0.5.0](https://github.com/mortennordbye/northlight/compare/v0.4.1...v0.5.0) (2026-07-30)
+
+
+### Bug Fixes
+
+* work through the full code audit, high to low ([#27](https://github.com/mortennordbye/northlight/issues/27)) ([83c6895](https://github.com/mortennordbye/northlight/commit/83c6895301183acad039a0c05c6f06ee54889ade))
+
+
+### Miscellaneous Chores
+
+* set the release version for the code audit ([71a8a4e](https://github.com/mortennordbye/northlight/commit/71a8a4ee6818ee4fcca0ca76318efbacddcf566e))
+
 ## [Unreleased]
 
 ### Added
