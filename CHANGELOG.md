@@ -8,12 +8,7 @@ keys are added with defaults that preserve existing behaviour.
 
 ## [0.4.1](https://github.com/mortennordbye/northlight/compare/v0.4.0...v0.4.1) (2026-07-30)
 
-
-### Bug Fixes
-
-* stop cards on a section index skipping a heading level ([#28](https://github.com/mortennordbye/northlight/issues/28)) ([fb67a9e](https://github.com/mortennordbye/northlight/commit/fb67a9e93f106baf4f249fdb175e65c6d655a364))
-
-## [Unreleased]
+Shipped in [#28](https://github.com/mortennordbye/northlight/pull/28).
 
 ### Fixed
 
