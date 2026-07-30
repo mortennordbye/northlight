@@ -6,6 +6,14 @@ and versions follow [semantic versioning](https://semver.org/).
 **Config keys are API.** A key is never renamed or repurposed without a major version bump. New
 keys are added with defaults that preserve existing behaviour.
 
+## [0.6.0](https://github.com/mortennordbye/northlight/compare/v0.5.0...v0.6.0) (2026-07-30)
+
+
+### Features
+
+* add a showcase page listing sites built with the theme ([#31](https://github.com/mortennordbye/northlight/issues/31)) ([97dbd23](https://github.com/mortennordbye/northlight/commit/97dbd237ab93392debe330c60873d18f17bd557f))
+* add accentEmphasis, letting the palette reach five more surfaces ([#32](https://github.com/mortennordbye/northlight/issues/32)) ([ed87094](https://github.com/mortennordbye/northlight/commit/ed8709478c9ec5c1872ed14050eb4f56202f82ff))
+
 ## [Unreleased]
 
 ### Added
