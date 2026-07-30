@@ -5,16 +5,12 @@
   the page rather than a band across it. Reuses the shared intro block in its bare form so
   the byline markup is not duplicated.
 */ -}}
-{{- $recentCount := int (.home.recentCount | default 6) -}}
 <div class="wrap">
   <section class="home-card">
     {{- partial "home/intro.html" (dict "ctx" .ctx "author" .author "bare" true) -}}
   </section>
 
-  {{- with first $recentCount .posts }}
-  <div class="section-head">
-    <h2 class="section-title">{{ i18n "recentPosts" }}</h2>
-  </div>
-  <div class="card-grid">{{ range . }}{{ partial "card.html" . }}{{ end }}</div>
+  {{- with .posts }}
+    {{ partial "home/recent.html" (dict "posts" . "home" $.home "fallback" 6) }}
   {{- end }}
 </div>

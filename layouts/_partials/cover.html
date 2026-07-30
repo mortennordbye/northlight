@@ -53,36 +53,15 @@
 {{- $fallback := "" -}}
 {{- if not $cover }}{{ $fallback = partial "image-url.html" (partialCached "init.html" $ctx).defaultFeaturedImage }}{{ end -}}
 
-{{- if and (not $cover) $hotlink -}}
-  {{- $img := printf `<img src="%s" alt="%s" fetchpriority="high">` $hotlink (htmlEscape ($ctx.Params.coverAlt | default "")) -}}
-  <figure class="article-cover{{ if eq $style "big" }} article-cover-big{{ end }}">
-    {{ $img | safeHTML }}
-  </figure>
-{{- else if and (not $cover) $fallback -}}
-  {{- $img := printf `<img src="%s" alt="" fetchpriority="high">` $fallback -}}
-  {{- if eq $style "background" -}}
-    <div class="article-hero-bg">
-      {{ $img | safeHTML }}
-      <div class="article-hero-scrim">
-        <header class="article-head article-head-on-cover">
-          {{ partial "article-head.html" $ctx }}
-        </header>
-      </div>
-    </div>
-  {{- else -}}
-    <figure class="article-cover{{ if eq $style "big" }} article-cover-big{{ end }}">
-      {{ $img | safeHTML }}
-    </figure>
-  {{- end -}}
-{{- end -}}
-
+{{- /* The <img> is built once per source and the container chosen once below, so a
+       srcset fix — or a container fix — cannot land in one treatment and miss the
+       others. The three sources, in precedence order: the page's own cover, then a
+       hotlinked URL, then the site-wide fallback. */ -}}
+{{- $img := "" -}}
+{{- $canBackground := true -}}
 {{- with $cover -}}
   {{- $raster := in (slice "png" "jpeg" "gif" "webp" "tiff" "bmp") .MediaType.SubType -}}
   {{- $alt := htmlEscape ($ctx.Params.coverAlt | default "") -}}
-
-  {{- /* The <img> is identical in every style; only its container changes. Built once
-         here so a srcset fix cannot land in one treatment and miss the others. */ -}}
-  {{- $img := "" -}}
   {{- if $raster -}}
     {{- $srcset := slice -}}
     {{- range (slice 480 800 1200) -}}
@@ -98,8 +77,20 @@
   {{- else -}}
     {{- $img = printf `<img src="%s" alt="%s" fetchpriority="high">` .RelPermalink $alt -}}
   {{- end -}}
+{{- else -}}
+  {{- if $hotlink -}}
+    {{- $img = printf `<img src="%s" alt="%s" fetchpriority="high">` (htmlEscape $hotlink) (htmlEscape ($ctx.Params.coverAlt | default "")) -}}
+    {{- /* A hotlink's dimensions are unknown, so the background treatment — which
+           needs a box it can reserve — is not offered; it renders as a card in every
+           style. This matches what the branch did before the containers merged. */ -}}
+    {{- $canBackground = false -}}
+  {{- else if $fallback -}}
+    {{- $img = printf `<img src="%s" alt="" fetchpriority="high">` $fallback -}}
+  {{- end -}}
+{{- end -}}
 
-  {{- if eq $style "background" -}}
+{{- if $img -}}
+  {{- if and (eq $style "background") $canBackground -}}
     <div class="article-hero-bg">
       {{ $img | safeHTML }}
       {{- /* The scrim carries fixed light-on-dark text, for the same reason

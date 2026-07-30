@@ -812,8 +812,14 @@ assert_grep 'resources.Get (printf "icons/%s.svg"' "$ROOT/layouts/_partials/icon
   "a site can supply its own icons"
 
 # Meta description order is configurable, defaulting to what the theme always did.
-assert_grep 'metaDescriptionOrder' "$ROOT/layouts/_partials/head.html" \
+# It is resolved in social-meta.html, which head.html and the og/twitter partials all
+# read, so the three never disagree about what a page says.
+assert_grep 'metaDescriptionOrder' "$ROOT/layouts/_partials/social-meta.html" \
   "the meta description order is configurable"
+for f in head opengraph twitter_cards; do
+  assert_grep 'social-meta.html' "$ROOT/layouts/_partials/$f.html" \
+    "$f.html reads the shared social meta"
+done
 assert_grep '<meta name=description content="Four of the theme' "$MEASURING" \
   "the default order still prefers the page description"
 
@@ -923,15 +929,31 @@ assert_grep 'object-position: var(--image-position)' "$ROOT/assets/css/article.c
   "cropped images honour imagePosition"
 
 # disableImageOptimization has to reach every place a cover is resized, or it silently
-# half-works. Six partials do that.
+# half-works. The check lives in thumb.html, and every thumbnail surface must resolve
+# through that partial — a template calling .Resize on a cover itself has stepped
+# outside the one home the flag reaches.
+assert_grep 'disableImageOptimization' "$ROOT/layouts/_partials/thumb.html" \
+  "thumb.html honours disableImageOptimization"
 for f in card post-item related; do
-  assert_grep 'disableImageOptimization' "$ROOT/layouts/_partials/$f.html" \
-    "$f.html honours disableImageOptimization"
+  assert_grep 'partial "thumb.html"' "$ROOT/layouts/_partials/$f.html" \
+    "$f.html resolves covers through thumb.html"
 done
 for f in hero gallery stack; do
-  assert_grep 'disableImageOptimization' "$ROOT/layouts/_partials/home/$f.html" \
-    "home/$f.html honours disableImageOptimization"
+  assert_grep 'partial "thumb.html"' "$ROOT/layouts/_partials/home/$f.html" \
+    "home/$f.html resolves covers through thumb.html"
 done
+assert_grep 'partial "thumb.html"' "$ROOT/layouts/home.json" \
+  "the search index resolves covers through thumb.html"
+
+# The second navigation row. On in the demo, and previously shipped with no assertion —
+# a dropped row would have looked like a passing build.
+assert_grep 'subnav-bar' "$PUBLIC/index.html" "the subnav renders when enabled"
+
+# The reading-progress bar, on by default. Article pages only: a progress bar on a page
+# with no article to progress through is noise. The quote is optional because the
+# minifier strips it.
+assert_grep 'id="\{0,1\}reading-progress' "$MEASURING" "the reading-progress bar renders on articles"
+refute_grep 'id="\{0,1\}reading-progress' "$PUBLIC/index.html" "the reading-progress bar stays off listings"
 
 # Zen mode. The toggle itself must survive the hiding, or the mode has no visible way out.
 assert_grep 'data-toggle-zen' "$PUBLIC/blog/measuring/index.html" "the zen control renders when enabled"
@@ -1017,7 +1039,7 @@ done
 # docs/SPEC.md §1 forbids. The two paths are separate in the source.
 assert_grep 'warnf "repo-card' "$ROOT/layouts/_partials/repo-card.html" \
   "a missing repository warns, so a dead card fails CI"
-assert_grep 'warnidf "repo-card-offline"' "$ROOT/layouts/_partials/repo-card.html" \
+assert_grep 'warnidf "repo-card-offline"' "$ROOT/layouts/_partials/fetch-remote.html" \
   "an unreachable network uses a suppressible log, not a hard warning"
 assert_grep "ignoreLogs = \['repo-card-offline', 'repo-card-missing'\]" "$ROOT/exampleSite/hugo.toml" \
   "the demo site can be built with no network and under a rate limit"
@@ -1080,6 +1102,16 @@ assert_grep 'aria-pressed=false' "$PUBLIC/index.html" "the underline control is 
 # Two underlines on one link is a smudge.
 assert_grep 'html\[data-underline-links\] \.prose a' "$ROOT/assets/css/interaction.css" \
   "the underline mode drops the prose link's own rule"
+
+# Comments get the same treatment: giscus is built in, but unconfigured it must load
+# nothing. The refutation names the client script, not the bare domain: comments.js
+# carries giscus.app for its postMessage origin check, and the Integrations docs page
+# mentions it in prose — both belong in the output whether configured or not.
+if grep -rq 'giscus\.app/client\.js' "$PUBLIC" 2>/dev/null; then
+  bad "giscus does not fire unconfigured" "found the giscus client script in the built output"
+else
+  ok "giscus does not fire unconfigured"
+fi
 
 # Analytics. The invariant is not that any provider works but that *none* fires unless it
 # is configured — the theme makes no third-party request by default, and exampleSite leaves
@@ -1216,20 +1248,21 @@ assert_grep 'basic" "big" "background" "thumbAndBackground"' "$ROOT/layouts/page
   "an unknown heroStyle falls back to basic"
 
 # SVG covers. Hugo's .Width errors on an SVG rather than returning zero, so every partial
-# that reads it has to guard first. Before this, a single SVG cover failed the whole build
-# in six places. The hero demo posts use SVG covers precisely so this stays exercised.
+# that reads dimensions has to guard on the raster flag thumb.html returns. Before the
+# guard existed, a single SVG cover failed the whole build in six places. The hero demo
+# posts use SVG covers precisely so this stays exercised.
 for f in related card post-item; do
-  if grep -q 'if \$raster' "$ROOT/layouts/_partials/$f.html"; then
+  if grep -q 'if \$t.raster' "$ROOT/layouts/_partials/$f.html"; then
     ok "$f.html guards image dimensions for SVG covers"
   else
-    bad "$f.html guards image dimensions for SVG covers" "no \$raster guard"
+    bad "$f.html guards image dimensions for SVG covers" "no \$t.raster guard"
   fi
 done
 for f in hero gallery stack; do
-  if grep -q 'if \$raster' "$ROOT/layouts/_partials/home/$f.html"; then
+  if grep -q 'if \$t.raster' "$ROOT/layouts/_partials/home/$f.html"; then
     ok "home/$f.html guards image dimensions for SVG covers"
   else
-    bad "home/$f.html guards image dimensions for SVG covers" "no \$raster guard"
+    bad "home/$f.html guards image dimensions for SVG covers" "no \$t.raster guard"
   fi
 done
 
@@ -1554,6 +1587,28 @@ else
   ok "no hardcoded user-facing strings in templates"
 fi
 
+# The admonition labels are looked up dynamically (`printf "admonition%s"`), which the
+# every-key-used check above cannot see, so their existence is asserted by name. Without
+# them a translated site shows English callout labels.
+ADM_MISSING=""
+for key in admonitionNote admonitionTip admonitionImportant admonitionWarning admonitionCaution; do
+  grep -q "^${key} =" "$I18N" || ADM_MISSING="$ADM_MISSING $key"
+done
+if [ -n "$ADM_MISSING" ]; then
+  bad "admonition labels are in the catalogue" "missing:$ADM_MISSING"
+else
+  ok "admonition labels are in the catalogue"
+fi
+
+# The search modal's keyboard-hints row once carried literal English next to a proper
+# i18n call, invisible to translators.
+assert_grep 'searchHintNavigate' "$ROOT/layouts/_partials/search-modal.html" "search hints come from the catalogue"
+
+# related.html once hardcoded both the date format and a literal "min" while every other
+# meta line used dateFormat and the readingTime key.
+assert_grep 'dateFormat' "$ROOT/layouts/_partials/related.html" "related cards honour dateFormat"
+assert_grep 'i18n "readingTime"' "$ROOT/layouts/_partials/related.html" "related cards translate reading time"
+
 # Every runtime lookup needs an English fallback, so a missing catalogue leaves working
 # controls rather than blank ones.
 # --exclude-dir=vendor for the same reason as the purity group above: a minified
@@ -1585,6 +1640,31 @@ refute_grep 'northlight-strings>"' "$PUBLIC/index.html" "runtime string block is
 
 # Controls that need JavaScript must ship hidden, so no-JS readers see no dead affordances.
 assert_grep 'data-toggle-appearance hidden' "$PUBLIC/index.html" "appearance toggle ships hidden"
+
+# The search field is a real combobox: focus stays in the field while the arrow keys
+# move the selection, and aria-activedescendant is how a screen reader hears which
+# option is current. Tab must reach the close button rather than being hijacked for
+# selection — a visible control keyboard focus cannot reach fails WCAG 2.1.1.
+assert_grep 'role="combobox"' "$ROOT/layouts/_partials/search-modal.html" "search input is a combobox"
+assert_grep 'aria-activedescendant' "$ROOT/assets/js/search.js" "search selection is announced"
+assert_grep 'closeBtn' "$ROOT/assets/js/search.js" "search close button is reachable by keyboard"
+
+# counters.js is gated on firebase alone. counters.html honours page-level front-matter
+# overrides, so gating the script on the site-level show flags left an opted-in post with
+# markup but no script — invisibly, because the block ships hidden until the script runs.
+if without_comments "$ROOT/layouts/baseof.html" | grep 'counters\.js' | grep -q 'showViews'; then
+  bad "counters script is gated on firebase alone" "baseof.html gates counters.js on the site-level show flags"
+else
+  ok "counters script is gated on firebase alone"
+fi
+
+# A tab-group sync must update the synced set's state too, or the first arrow-key press
+# on the synced strip starts from the stale index and goes nowhere.
+assert_grep 'set.current = index' "$ROOT/assets/js/tabs.js" "tab activation tracks its own state"
+
+# Everything interpolated into search-result markup is escaped. readingTime is an integer
+# today, but it is one index-schema change away from not being one.
+assert_grep 'escape(p.readingTime)' "$ROOT/assets/js/search.js" "search result reading time is escaped"
 
 # --------------------------------------------------------------------------------
 group "CSS invariants"
@@ -1669,6 +1749,55 @@ if [ -n "$ADM_ONE_MODE" ]; then
 else
   ok "admonition colours declare both modes"
 fi
+
+# Zen mode hides the TOC by the class the templates actually render. The selector once
+# said `.toc-rail`, which matches nothing, so zen left the TOC visible below the article.
+assert_grep 'data-zen\] \.toc,' "$ROOT/assets/css/interaction.css" "zen mode hides the TOC"
+refute_grep 'toc-rail' "$ROOT/assets/css/interaction.css" "zen selector names a rendered class"
+
+# The blur treatment targets the media layer background.html renders. The selector once
+# expected an <img> that never existed, so layoutBackgroundBlur skipped the home background.
+assert_grep 'home-bg-media' "$ROOT/layouts/_partials/home/background.html" "home background renders a media layer"
+assert_grep 'data-bg-blur\] \.home-bg-media,' "$ROOT/assets/css/home-layouts.css" "background blur targets the media layer"
+
+# The TOC rail declares its edge with logical properties: the theme ships RTL support,
+# and a physical border-left paints the accent on the wrong side under dir="rtl".
+if strip_comments "$ROOT/assets/css/article.css" "$ROOT/assets/css/interaction.css" | grep -q 'border-left'; then
+  bad "TOC rail uses logical borders" "border-left found; use border-inline-start"
+else
+  ok "TOC rail uses logical borders"
+fi
+
+# Print: chrome hidden, code wrapping, links carrying their destination. Asserted in
+# the built bundle, not only the source, so dropping the file from the concat list is
+# caught too.
+assert_grep '@media print' "$ROOT/assets/css/print.css" "print styles exist"
+[ -n "$CSS_REF" ] && assert_grep '@media print' "$PUBLIC/$CSS_REF" "print styles reach the bundle"
+
+# theme-color is a copy of the --bg pair from tokens.css (palettes recolour accents,
+# not the page). A copy needs an assertion that keeps it honest.
+BG_LINE=$(grep -- '--bg: light-dark(' "$TOKENS" | head -1)
+BG_LIGHT=$(printf '%s' "$BG_LINE" | sed -E 's/.*light-dark\((#[0-9a-f]+), *(#[0-9a-f]+)\).*/\1/')
+BG_DARK=$(printf '%s' "$BG_LINE" | sed -E 's/.*light-dark\((#[0-9a-f]+), *(#[0-9a-f]+)\).*/\2/')
+assert_grep "prefers-color-scheme: light) *\" content=\"$BG_LIGHT\"" "$ROOT/layouts/_partials/head.html" \
+  "light theme-color matches the --bg token"
+assert_grep "prefers-color-scheme: dark) *\" content=\"$BG_DARK\"" "$ROOT/layouts/_partials/head.html" \
+  "dark theme-color matches the --bg token"
+
+# --------------------------------------------------------------------------------
+group "Template guards"
+
+# An explicit `mainSections = []` must not error the build. `index` on an empty slice
+# fails, so the first element is only ever taken inside a `with` on the slice itself.
+if grep -rq 'index site\.Params\.mainSections' "$ROOT/layouts"; then
+  bad "mainSections is never indexed unguarded" "wrap the index in a with on the slice"
+else
+  ok "mainSections is never indexed unguarded"
+fi
+
+# The hotlink cover URL is escaped like the alt text beside it: both land in the same
+# printf that is then marked safeHTML.
+assert_grep 'htmlEscape \$hotlink' "$ROOT/layouts/_partials/cover.html" "hotlink cover URL is escaped"
 
 # --------------------------------------------------------------------------------
 group "Toolchain pins"

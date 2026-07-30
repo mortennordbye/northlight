@@ -1,6 +1,5 @@
 {{ define "main" }}
-{{- $list := site.Params.list | default dict -}}
-{{- $groupByYear := partial "param-bool.html" (dict "map" $list "key" "groupByYear" "default" true) -}}
+{{- $groupByYear := (partialCached "init.html" .).list.groupByYear -}}
 {{- /* Cards or rows. The card grid has no year rule in it — grouping by year is a property
        of a vertical list, and a grid of cards interrupted by full-width headings reads as
        several grids rather than one — so cardView wins over groupByYear where both are on. */ -}}

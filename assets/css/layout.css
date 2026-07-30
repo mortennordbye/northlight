@@ -15,6 +15,29 @@ main {
   flex: 1 0 auto;
 }
 
+/* --- skip link ------------------------------------------------------------- */
+
+/* Pure CSS, no script involved — it lives here with the rest of the chrome rather
+   than in interaction.css, whose contract is script-driven controls only. */
+.skip-link {
+  position: absolute;
+  inset-inline-start: var(--space-3);
+  top: -60px;
+  z-index: 200;
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-control);
+  padding: 10px var(--space-4);
+  font-size: 14px;
+  font-weight: 500;
+  transition: top var(--dur-card);
+}
+
+.skip-link:focus {
+  top: var(--space-3);
+}
+
 /* --- header --------------------------------------------------------------- */
 
 .site-header {
@@ -97,14 +120,19 @@ main {
   display: block;
 }
 
-/* --- nested menu ---------------------------------------------------------- */
-/* A <details> disclosure, not a hover dropdown: it works by touch and by keyboard
-   with no JavaScript, and it closes on Escape for free. */
-.nav-group {
+/* --- disclosure menus ------------------------------------------------------- */
+/* The nested nav menu and the language switcher are the same <details> disclosure —
+   not a hover dropdown, so it works by touch and by keyboard with no JavaScript, and
+   it closes on Escape for free. They sit in the same row and do the same thing, so a
+   reader should not have to learn a second interaction: the shared chrome is grouped
+   here, and only each panel's anchor edge and width stay with the component. */
+.nav-group,
+.lang-switch {
   position: relative;
 }
 
-.nav-group > summary {
+.nav-group > summary,
+.lang-switch > summary {
   display: flex;
   align-items: center;
   gap: 3px;
@@ -121,12 +149,15 @@ main {
 }
 
 /* Safari still paints its own triangle without this. */
-.nav-group > summary::-webkit-details-marker {
+.nav-group > summary::-webkit-details-marker,
+.lang-switch > summary::-webkit-details-marker {
   display: none;
 }
 
 .nav-group > summary:hover,
-.nav-group[open] > summary {
+.nav-group[open] > summary,
+.lang-switch > summary:hover,
+.lang-switch[open] > summary {
   color: var(--fg);
   background: var(--surface-2);
 }
@@ -136,22 +167,23 @@ main {
   font-weight: 500;
 }
 
-.nav-group > summary .icon {
+.nav-group > summary .icon,
+.lang-switch > summary .icon {
   width: 0.9em;
   height: 0.9em;
   transition: transform var(--dur-card);
 }
 
-.nav-group[open] > summary .icon {
+.nav-group[open] > summary .icon,
+.lang-switch[open] > summary .icon {
   transform: rotate(180deg);
 }
 
-.nav-group-items {
+.nav-group-items,
+.lang-switch-items {
   position: absolute;
   top: calc(100% + 6px);
-  inset-inline-start: 0;
   z-index: 20;
-  min-width: 170px;
   display: flex;
   flex-direction: column;
   padding: var(--space-1);
@@ -161,10 +193,16 @@ main {
   box-shadow: var(--shadow);
 }
 
+.nav-group-items {
+  inset-inline-start: 0;
+  min-width: 170px;
+}
+
 /* On a narrow screen the header wraps and an absolutely positioned panel would sit
    on top of the page. Let it push the layout instead. */
 @media (max-width: 640px) {
-  .nav-group-items {
+  .nav-group-items,
+  .lang-switch-items {
     position: static;
     border: 0;
     box-shadow: none;
@@ -251,63 +289,12 @@ main {
 
 /* --- language switcher ------------------------------------------------------ */
 
-/* Deliberately the same disclosure as .nav-group: same summary shape, same panel, same
-   caret rotation. It sits in the same row and does the same thing — reveal a short list
-   of links — so a reader should not have to learn a second interaction for it. The rules
-   are shared rather than duplicated wherever the selector allows. */
-.lang-switch {
-  position: relative;
-}
-
-.lang-switch > summary {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  font-size: 14px;
-  font-weight: 450;
-  color: var(--fg-2);
-  padding: 7px var(--space-3);
-  border-radius: 7px;
-  cursor: pointer;
-  list-style: none;
-  transition:
-    color var(--dur-color),
-    background var(--dur-color);
-}
-
-.lang-switch > summary::-webkit-details-marker {
-  display: none;
-}
-
-.lang-switch > summary:hover,
-.lang-switch[open] > summary {
-  color: var(--fg);
-  background: var(--surface-2);
-}
-
-.lang-switch > summary .icon {
-  width: 0.9em;
-  height: 0.9em;
-  transition: transform var(--dur-card);
-}
-
-.lang-switch[open] > summary .icon {
-  transform: rotate(180deg);
-}
-
+/* The disclosure chrome is shared with .nav-group above; only what is specific to the
+   switcher lives here. The panel hangs from its end edge because the control sits at
+   the end of the row. */
 .lang-switch-items {
-  position: absolute;
-  top: calc(100% + 6px);
   inset-inline-end: 0;
-  z-index: 20;
   min-width: 150px;
-  display: flex;
-  flex-direction: column;
-  padding: var(--space-1);
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-thumb);
-  box-shadow: var(--shadow);
 }
 
 .lang-switch-items a,
@@ -328,18 +315,6 @@ main {
 .lang-switch-items .lang-current {
   color: var(--fg);
   font-weight: 500;
-}
-
-/* Same reasoning as .nav-group-items: on a narrow screen the header wraps, and an
-   absolutely positioned panel would sit on top of the page instead of moving it. */
-@media (max-width: 640px) {
-  .lang-switch-items {
-    position: static;
-    border: 0;
-    box-shadow: none;
-    padding: 0 0 0 var(--space-3);
-    min-width: 0;
-  }
 }
 
 /* --- header layout ---------------------------------------------------------- */

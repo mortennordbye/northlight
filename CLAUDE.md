@@ -193,8 +193,9 @@ build step beyond Hugo itself.
 
 ### Data flow rules
 
-Config flows one way: `site.Params` → `_partials/init.html` (which resolves defaults once) →
-templates. Templates read resolved values; they do not re-derive defaults inline.
+Config flows one way: `site.Params` → `_partials/init.html` (which resolves defaults once and
+returns them as a dict, read via `partialCached "init.html" .`) → templates. Templates read
+resolved values; they do not re-derive defaults inline.
 
 Every param needs a default. The pattern is `site.Params.x | default "y"`, and page-level front
 matter overrides site-level where that makes sense (`.Params.showToc | default site.Params.article.showToc`).
@@ -327,9 +328,9 @@ solving the wrong problem — surface it as a param instead.
 - **Partials take a dict, not a page.** Anything reusable is called as
   `partial "x.html" (dict "ctx" . "size" "sm")` so it can be composed. Page-only partials may
   take `.` directly.
-- **One resolve point for defaults.** `_partials/init.html` runs once per site and stashes
-  resolved config in `site.Store`. Templates read from there rather than repeating
-  `| default` chains.
+- **One resolve point for defaults.** `_partials/init.html` resolves config once per build
+  and returns it as a dict; templates read it via `partialCached "init.html" .` rather than
+  repeating `| default` chains.
 - **Tokens live in one file.** All colour, spacing and type tokens are custom properties in
   `assets/css/tokens.css`. Component CSS references `var(--x)` and never hardcodes a hex value.
   Adding a palette means adding one block there, nothing else.

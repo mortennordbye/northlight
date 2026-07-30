@@ -36,56 +36,13 @@
 {{- $lang := "" -}}
 {{- $live := false -}}
 
-{{- /* Three distinct failures, and only one of them used to be caught.
-
-       `resources.GetRemote` sets `.Err` for a transport failure — offline, DNS, timeout —
-       but for a 404 it returns **no resource at all**, with no error. The first version
-       here handled only `.Err`, so a renamed or deleted repository produced a silently
-       degraded card and a green build: precisely the quiet rot this warning exists to
-       prevent. Measured against a nonexistent repo, which built clean and said nothing.
-
-       So the resource is pulled out first and the empty case is checked on its own. */ -}}
-{{- $res := "" -}}
-{{- $offline := "" -}}
-{{- $missing := false -}}
-{{- with try (resources.GetRemote $api) -}}
-  {{- with .Err -}}
-    {{- $offline = printf "%s" . -}}
-  {{- else -}}
-    {{- $res = .Value -}}
-  {{- end -}}
-{{- end -}}
-{{- if and (not $res) (not $offline) -}}{{ $missing = true }}{{ end -}}
-
-{{- /* Only one of the two failures is worth failing a build over, and telling them apart
-       is what keeps `docs/SPEC.md` §1 true.
-
-       A **404** is a content problem: the repository has been renamed, moved or deleted,
-       the author does not know, and nobody will notice a quietly degraded card. That
-       warns, and `make check` turns warnings into failures, so it is caught in CI.
-
-       A **transport failure** — offline, DNS, a timeout — is an environment problem the
-       person building already knows about. Warning there would mean the theme's own gate
-       could not run without a network, which is exactly what §1 forbids. The card
-       degrades, the build stays green, and the page still works. */ -}}
-{{- with $missing -}}
-  {{- /* Suppressible, not a hard warning, and that is a correction rather than a
-         preference. `resources.GetRemote` returns no resource for *any* non-2xx and
-         exposes no status code, so a deleted repository (404) and a rate-limited one
-         (403) are indistinguishable here. GitHub allows sixty unauthenticated calls an
-         hour; a site with several cards, or a CI job that rebuilds often, will meet that
-         limit. Hard-failing on it would make the build non-deterministic — measured: this
-         gate went red on a 403 with nothing wrong in the content.
-
-         So it warns under its own id, and a site that wants a dead card to break CI
-         removes the id from `ignoreLogs`. The default is a build that does not fail for
-         somebody else's rate limit. */ -}}
-  {{- warnidf "repo-card-missing" "repo-card: %q returned nothing — the repository may have been renamed, moved or deleted, or the forge may be rate-limiting. The card has fallen back to a plain link." $api -}}
-{{- end -}}
-{{- with $offline -}}
-  {{- /* Deliberately not a warning. See above. */ -}}
-  {{- warnidf "repo-card-offline" "repo-card: could not reach %q (%s) — the card falls back to a plain link. This is not a build failure; a network was not available." $api . -}}
-{{- end -}}
+{{- /* The three-failure split — fetched, offline, missing — was learned here and now
+       lives in _partials/fetch-remote.html, which carries the full decision record:
+       why a 404 warns and a transport failure does not, and why both ids are
+       suppressible. Every fetching template routes through it so the distinction
+       cannot be reimplemented wrong. */ -}}
+{{- $res := (partial "fetch-remote.html" (dict "url" $api "who" "repo-card"
+      "hint" "the repository may have been renamed, moved or deleted, or the forge may be rate-limiting. The card has fallen back to a plain link.")).res -}}
 
 {{- with $res -}}
     {{- with try (unmarshal .Content) -}}
@@ -117,7 +74,7 @@
 
 <a class="repo-card{{ if not $live }} is-offline{{ end }}" href="{{ $url }}" rel="noopener" target="_blank">
   <span class="repo-card-head">
-    {{ partial "icon.html" (.icon | default "link") }}
+    {{ partialCached "icon.html" (.icon | default "link") (.icon | default "link") }}
     <b class="repo-card-name">{{ $name }}</b>
   </span>
   {{- with $desc }}<span class="repo-card-desc">{{ . }}</span>{{ end }}

@@ -50,13 +50,7 @@
            the render hook exists to solve. Two <img> elements and CSS rather than <picture>
            with a media query, because a media query only sees the operating system and this
            theme lets a reader override that with its own toggle. */ -}}
-    {{- $dark := false -}}
-    {{- if strings.Contains . "." -}}
-      {{- $ext := path.Ext . -}}
-      {{- $darkSrc := printf "%s-dark%s" (strings.TrimSuffix $ext .) $ext -}}
-      {{- $dark = $.Page.Resources.GetMatch $darkSrc -}}
-      {{- if not $dark -}}{{ $dark = resources.Get $darkSrc }}{{ end -}}
-    {{- end -}}
+    {{- $dark := partial "dark-variant.html" (dict "src" . "resources" $.Page.Resources) -}}
     {{- with $dark -}}
       {{- $tag = printf `<img class="img-light" %s alt="%s" loading="lazy" decoding="async"><img class="img-dark" %s alt="%s" loading="lazy" decoding="async">`
           $attrs $alt (partial "img-attrs.html" .) $alt -}}

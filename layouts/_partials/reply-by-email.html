@@ -22,7 +22,7 @@
   {{- with $cfg.author.email -}}
     <div class="reply-by-email">
       <a class="button" href="mailto:{{ . }}?subject={{ printf "Re: %s" $.Title | urlquery }}">
-        {{ partial "icon.html" "email" }}<span>{{ i18n "replyByEmail" }}</span>
+        {{ partialCached "icon.html" "email" "email" }}<span>{{ i18n "replyByEmail" }}</span>
       </a>
     </div>
   {{- end -}}

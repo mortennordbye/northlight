@@ -23,9 +23,9 @@
 {{- end -}}
 <details class="accordion-item"{{ with $name }} name="{{ . }}"{{ end }}{{ if $open }} open{{ end }}>
   <summary class="accordion-summary">
-    {{- with .Get "icon" -}}<span class="icon-inline">{{ partial "icon.html" . }}</span> {{ end -}}
+    {{- with .Get "icon" -}}<span class="icon-inline">{{ partialCached "icon.html" . . }}</span> {{ end -}}
     <span class="accordion-title">{{ $title }}</span>
-    <span class="accordion-chevron" aria-hidden="true">{{ partial "icon.html" "chevron-down" }}</span>
+    <span class="accordion-chevron" aria-hidden="true">{{ partialCached "icon.html" "chevron-down" "chevron-down" }}</span>
   </summary>
   <div class="accordion-body">{{ .Inner | .Page.RenderString (dict "display" "block") }}</div>
 </details>

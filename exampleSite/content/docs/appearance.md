@@ -26,7 +26,7 @@ back rather than freezing the page.
 
 ## Palettes
 
-Three, set with `colorScheme`:
+Six, set with `colorScheme`:
 
 | Value | Character |
 |---|---|
@@ -71,7 +71,7 @@ A fourth candidate, an ochre, measured 4.40 — below every palette already ship
 dropped rather than tuned. A palette that needs special pleading to be added will need it
 again the next time something changes.
 
-Three considered palettes rather than sixteen. Every accent is measured against its own
+Six considered palettes rather than sixteen. Every accent is measured against its own
 background in both modes, which is work that does not scale to a colour picker.
 
 ## Your own CSS
@@ -222,3 +222,14 @@ every built-in layout gets:
 
 Selecting `custom` without providing that file emits a build warning rather than a blank
 page, so the mistake surfaces instead of looking like a broken theme.
+
+## Printing
+
+Printing needs no configuration. A `@media print` pass at the end of the stylesheet hides
+the chrome — header, footer, table of contents, sharing, pagination — lets the article take
+the full measure, wraps code blocks rather than truncating them, and prints each external
+link's destination after it. Everything renders on the light palette, whatever the toggle
+said on screen, because paper is light. Print this page to see it.
+
+The browser's own chrome follows the page as well: `theme-color` meta tags tint it to the
+page background in both colour modes.

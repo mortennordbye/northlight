@@ -3,7 +3,11 @@
   colour from currentColor, and are marked aria-hidden because every one of them sits
   next to a text label or inside a labelled control.
 
-  Call: {{ partial "icon.html" "github" }}
+  Call: {{ partialCached "icon.html" "github" "github" }}
+
+  Cached by name — the output depends only on the name, and a plain partial re-parses
+  this dict and re-runs the assets/icons/ lookup on every call, dozens per page. The
+  name appears twice because the second argument is the cache key.
 
   No emoji anywhere in the UI, which is why this file exists.
 

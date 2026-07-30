@@ -21,7 +21,7 @@
 {{- end -}}
 <span class="keyword">
   {{- with .Get "icon" -}}
-    <span class="icon-inline">{{- partial "icon.html" . -}}</span>
+    <span class="icon-inline">{{- partialCached "icon.html" . . -}}</span>
   {{- end -}}
   {{- $inner | $.Page.RenderString -}}
 </span>

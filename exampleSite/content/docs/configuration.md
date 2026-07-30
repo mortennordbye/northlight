@@ -19,7 +19,7 @@ default inline, so every default below lives in exactly one place in the source.
 | Key | Default | What it does |
 |---|---|---|
 | `description` | — | Site description. Meta tags, the RSS channel, the home page. |
-| `colorScheme` | `"periwinkle"` | `periwinkle`, `sage` or `clay`. An unknown value falls back rather than rendering unstyled. |
+| `colorScheme` | `"periwinkle"` | `periwinkle`, `sage`, `clay`, `plum`, `slate` or `rose`. An unknown value falls back rather than rendering unstyled. |
 | `defaultAppearance` | `"light"` | `light` or `dark`. Only applies when `autoSwitchAppearance` is off. |
 | `autoSwitchAppearance` | `true` | Follow the reader's operating system. |
 | `enableSearch` | `true` | The ⌘K modal. Needs `JSON` in `[outputs].home`. |
@@ -30,6 +30,8 @@ default inline, so every default below lives in exactly one place in the source.
 | `smartTOCHideUnfocusedChildren` | `false` | Collapse TOC child lists except under the current heading. Off by default: extra motion in a component whose job is to stay still. |
 | `backgroundImageWidth` | `1600` | Scale target for the full-bleed background image, the largest image on any page that uses one. |
 | `hotlinkFeatureImage` | `false` | Allow `featureImageURL` in front matter to point at a remote image. Off, because that is a third-party request on page view. |
+| `defaultFeaturedImage` | — | Site-wide cover for posts that have none. A configured-but-missing file renders nothing rather than a 404 on every page. |
+| `defaultSocialImage` | — | The OpenGraph/Twitter card image for pages without a cover of their own. |
 | `seo.metaDescriptionOrder` | `["description", "summary", "siteDescription"]` | Which source fills the meta description, first non-empty wins. An unknown name is skipped rather than failing the build. |
 | `header.showSubNav` | `false` | A second navigation row from the `subnav` menu. Renders only when that menu has entries. |
 | `imagePosition` | `"center"` | `object-position` for cropped images — the avatar and card thumbnails. Covers are never cropped, so it does not affect the hero. |
@@ -96,8 +98,10 @@ bio never renders as a code block.
 
 | Key | Default | What it does |
 |---|---|---|
+| `layout` | `"stack"` | Which homepage arrangement to render: `stack`, `page`, `profile`, `hero`, `card`, `background`, `split`, `gallery`, `archive` or `custom`. An unknown value fails the build. The Appearance page shows each one. |
 | `showFeatured` | `true` | Large card for the newest post. |
-| `recentCount` | `3` | Cards below the featured post. |
+| `recentCount` | `3` or `6` | Recent posts below. Layouts that lead with a feature (`stack`, `hero`) default to 3; the rest to 6. |
+| `backgroundImage` | — | Only read by `layout = "background"`. Without it that layout renders the ordinary intro. |
 
 ## `[params.article]`
 

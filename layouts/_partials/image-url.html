@@ -35,8 +35,7 @@
              same picture. */ -}}
       {{- $img := . -}}
       {{- if in (slice "png" "jpeg" "webp" "tiff" "bmp") .MediaType.SubType -}}
-        {{- $q := int ((site.Params.author).imageQuality | default 85) -}}
-        {{- if or (lt $q 1) (gt $q 100) -}}{{ $q = 85 }}{{ end -}}
+        {{- $q := (partialCached "init.html" .).authorImageQuality -}}
         {{- if gt .Width 160 -}}{{ $img = .Resize (printf "160x q%d" $q) }}{{ end -}}
       {{- end -}}
       {{- $url = $img.RelPermalink -}}

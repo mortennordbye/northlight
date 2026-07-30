@@ -23,6 +23,9 @@
   var groups = {};
 
   function activate(set, index, focus) {
+    /* Tracked here rather than at the call sites, so a group sync updates the synced
+       set's state too — otherwise its arrow keys start from the stale index. */
+    set.current = index;
     set.tabs.forEach(function (tab, i) {
       var selected = i === index;
       tab.setAttribute("aria-selected", selected ? "true" : "false");
@@ -82,7 +85,6 @@
       tab.textContent = label;
 
       tab.addEventListener("click", function () {
-        set.current = i;
         activate(set, i, false);
       });
 
@@ -106,7 +108,6 @@
       else return;
 
       e.preventDefault();
-      set.current = next;
       activate(set, next, true);
     });
 

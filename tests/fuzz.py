@@ -91,6 +91,16 @@ ACCEPT = [
     ("rtl",           '{{< rtl >}}{V}{{< /rtl >}}'),
     ("email-text",    '{{< email email="a@b.com" text="{V}" >}}'),
     ("email-subject", '{{< email email="a@b.com" subject="{V}" >}}'),
+    ("figure-alt",     '{{< figure src="shot.png" alt="{V}" >}}'),
+    ("figure-caption", '{{< figure src="shot.png" caption="{V}" >}}'),
+    ("figure-class",   '{{< figure src="shot.png" class="{V}" >}}'),
+    ("chart-caption",  '{{< chart alt="x" caption="{V}" >}}{"type":"line"}{{< /chart >}}'),
+    ("timeline-subheader", '{{< timeline >}}{{< timelineItem header="h" subheader="{V}" >}}b{{< /timelineItem >}}{{< /timeline >}}'),
+    ("timeline-badge",     '{{< timeline >}}{{< timelineItem header="h" badge="{V}" >}}b{{< /timelineItem >}}{{< /timeline >}}'),
+    ("video-caption",  '{{< video src="clip.mp4" caption="{V}" >}}'),
+    ("youtube-alt",    '{{< youtube-lite id="abc" poster="shot.png" alt="{V}" >}}'),
+    ("button-target",  '{{< button href="https://example.com" target="{V}" >}}x{{< /button >}}'),
+    ("button-rel",     '{{< button href="https://example.com" rel="{V}" >}}x{{< /button >}}'),
 ]
 
 # Validated parameters. Each of these must fail the build.
@@ -128,6 +138,18 @@ REJECT = [
     ("tab empty label",       '{{< tabs >}}{{< tab label="" >}}b{{< /tab >}}{{< /tabs >}}'),
     ("email empty address",   '{{< email email="" >}}'),
     ("video empty src",       '{{< video src="" >}}'),
+    # Validated enums and casts that had an errorf path but no case here. Each was
+    # found by diffing every .Get against this file.
+    ("gallery cols",       '{{< gallery cols="5" >}}x{{< /gallery >}}'),
+    ("alert type",         '{{< alert type="banana" >}}x{{< /alert >}}'),
+    ("article no link",    '{{< article >}}'),
+    ("article bad link",   '{{< article link="/nowhere/at/all" >}}'),
+    ("oembed no url",      '{{< oembed >}}'),
+    ("list lone where",    '{{< list where="tags" >}}'),
+    ("list no match",      '{{< list where="tags" value="no-such-term" >}}'),
+    ("typeit bad speed",   '{{< typeit speed="banana" >}}x{{< /typeit >}}'),
+    ("video bad start",    '{{< video src="clip.mp4" start="banana" >}}'),
+    ("video bad end",      '{{< video src="clip.mp4" end="banana" >}}'),
 ]
 
 # Excluded, with the reason, so nobody has to rediscover it.

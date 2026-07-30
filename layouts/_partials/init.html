@@ -61,13 +61,12 @@
   "editAppendPath"  (partial "param-bool.html" (dict "map" $a "key" "editAppendPath"  "default" true))
 ) -}}
 
-{{- /* `groupByYear` is still resolved in section.html, where it predates this file. It is
-       left alone rather than moved, because moving it is a refactor and not this change. */ -}}
 {{- $l := site.Params.list | default dict -}}
 {{- $list := dict
   "showSummary" (partial "param-bool.html" (dict "map" $l "key" "showSummary" "default" false))
   "cardView"    (partial "param-bool.html" (dict "map" $l "key" "cardView"    "default" false))
   "orderByWeight" (partial "param-bool.html" (dict "map" $l "key" "orderByWeight" "default" false))
+  "groupByYear" (partial "param-bool.html" (dict "map" $l "key" "groupByYear" "default" true))
 -}}
 
 {{- /* Header treatment. `fixed` is the current behaviour and therefore the default: the
@@ -141,6 +140,18 @@
        moves into config. */ -}}
 {{- $dateFormat := site.Params.dateFormat | default "2 Jan 2006" -}}
 
+{{- /* The meta-description source order is shared by head.html and the social-card
+       partials through social-meta.html, so all three describe a page the same way. */ -}}
+{{- $seo := site.Params.seo | default dict -}}
+{{- $metaDescriptionOrder := $seo.metaDescriptionOrder | default (slice "description" "summary" "siteDescription") -}}
+
+{{- /* The avatar's JPEG quality, clamped to what Resize accepts: an out-of-range value
+       falls back rather than failing the build. */ -}}
+{{- $authorImageQuality := int ((site.Params.author).imageQuality | default 85) -}}
+{{- if or (lt $authorImageQuality 1) (gt $authorImageQuality 100) -}}{{ $authorImageQuality = 85 }}{{- end -}}
+
+{{- $sitemapExcludedKinds := (site.Params.sitemap).excludedKinds | default (slice "taxonomy" "term") -}}
+
 {{- /* Site-wide image fallbacks. Each is a path resolved the same way the author avatar
        is, so a configured-but-missing file renders nothing rather than a 404 on every page
        that falls back to it. A comment cannot sit inside the dict literal below — it parses
@@ -149,6 +160,9 @@
   "palette" $palette
   "defaultAppearance" $appearance
   "dateFormat" $dateFormat
+  "metaDescriptionOrder" $metaDescriptionOrder
+  "authorImageQuality" $authorImageQuality
+  "sitemapExcludedKinds" $sitemapExcludedKinds
   "rtl" (partial "param-bool.html" (dict "map" site.Params "key" "rtl" "default" false))
   "logo" (site.Params.logo | default "")
   "logoDark" (site.Params.logoDark | default "")
@@ -175,7 +189,6 @@
   "layoutBackgroundHeaderSpace" $layoutBackgroundHeaderSpace
   "defaultFeaturedImage" (site.Params.defaultFeaturedImage | default "")
   "defaultSocialImage" (site.Params.defaultSocialImage | default "")
-  "defaultBackgroundImage" (site.Params.defaultBackgroundImage | default "")
   "footer" $footer
   "author" (site.Params.author | default dict)
 -}}

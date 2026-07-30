@@ -15,11 +15,7 @@
 {{- range where (where site.RegularPages "Section" "in" site.Params.mainSections) "Params.excludeFromSearch" "!=" true -}}
   {{- $thumb := "" -}}
   {{- with .Resources.GetMatch "{cover,featured}.*" -}}
-    {{- $img := . -}}
-    {{- if in (slice "png" "jpeg" "gif" "webp") .MediaType.SubType -}}
-      {{- $img = .Resize "160x q70" -}}
-    {{- end -}}
-    {{- $thumb = $img.RelPermalink -}}
+    {{- $thumb = (partial "thumb.html" (dict "img" . "spec" "160x q70")).img.RelPermalink -}}
   {{- end -}}
   {{- $tags := slice -}}
   {{- range .GetTerms "tags" -}}

@@ -29,11 +29,11 @@
 
   {{- if $cfg.footer.showScrollToTop }}
   <button class="back-to-top" id="back-to-top" type="button" aria-label="{{ i18n "backToTop" }}" hidden>
-    {{ partial "icon.html" "arrow-up" }}
+    {{ partialCached "icon.html" "arrow-up" "arrow-up" }}
   </button>
   {{- end }}
 
-  {{- if $cfg.enableSearch }}{{ partial "search-modal.html" . }}{{ end }}
+  {{- if $cfg.enableSearch }}{{ partialCached "search-modal.html" . }}{{ end }}
 
   {{- /* One deferred bundle. Every module no-ops when the markup it needs is absent,
          so the same file is fine on every page. */ -}}
@@ -51,6 +51,8 @@
       "switchToLightMode"     (i18n "switchToLightMode")
       "viewFullSize"          (i18n "viewFullSize")
       "closeLightbox"         (i18n "closeLightbox")
+      "searchNoResults"       (i18n "searchNoResults" "%s")
+      "readingTimeShort"      (i18n "readingTimeShort" "%s")
       | jsonify | safeJS -}}
   </script>
 
@@ -60,7 +62,10 @@
   {{- if $cfg.enableA11y }}{{ $scripts = $scripts | append (resources.Get "js/a11y.js") }}{{ end -}}
   {{- if $cfg.enableLightbox }}{{ $scripts = $scripts | append (resources.Get "js/lightbox.js") }}{{ end -}}
   {{- if $cfg.article.showZenMode }}{{ $scripts = $scripts | append (resources.Get "js/zen.js") }}{{ end -}}
-  {{- if and site.Params.firebase (or $cfg.article.showViews $cfg.article.showLikes) }}{{ $scripts = $scripts | append (resources.Get "js/counters.js") }}{{ end -}}
+  {{- /* Gated on firebase alone, not the site-level show flags: counters.html honours
+         page-level front-matter overrides, so a site with both flags off can still have
+         one post that opts in. The script is a few hundred bytes in the bundle. */ -}}
+  {{- if site.Params.firebase }}{{ $scripts = $scripts | append (resources.Get "js/counters.js") }}{{ end -}}
   {{- if and (gt (len hugo.Sites) 1) site.Params.languageRedirect }}{{ $scripts = $scripts | append (resources.Get "js/language-redirect.js") }}{{ end -}}
   {{- $js := $scripts | resources.Concat "js/northlight.js" -}}
   {{- if hugo.IsProduction }}{{ $js = $js | minify }}{{ end -}}
@@ -86,44 +91,25 @@
          behind it: the obvious one is GPL-3.0 and this theme is MIT, so the effect is
          written in assets/js/typeit-init.js instead. See the note at the top of that
          file. */ -}}
+  {{- /* Library before init in each pair: both are plain deferred scripts, which run
+         in document order — the guarantee the init scripts rely on. */ -}}
   {{- if .HasShortcode "typeit" }}
-    {{- with resources.Get "js/typeit-init.js" }}
-      {{- $init := . }}
-      {{- if hugo.IsProduction }}{{ $init = $init | minify }}{{ end }}
-      {{- $init = $init | fingerprint $cfg.fingerprintAlgorithm }}
-      <script src="{{ $init.RelPermalink }}" integrity="{{ $init.Data.Integrity }}" crossorigin="anonymous" defer></script>
-    {{- end }}
+    {{ partial "script-tag.html" (dict "ctx" . "src" "js/typeit-init.js" "minify" true) }}
   {{- end }}
 
   {{- if .HasShortcode "chart" }}
-    {{- with resources.Get "js/vendor/chart.umd.min.js" }}
-      {{- $lib := . | fingerprint $cfg.fingerprintAlgorithm }}
-      <script src="{{ $lib.RelPermalink }}" integrity="{{ $lib.Data.Integrity }}" crossorigin="anonymous" defer></script>
-    {{- end }}
-    {{- with resources.Get "js/chart-init.js" }}
-      {{- $init := . }}
-      {{- if hugo.IsProduction }}{{ $init = $init | minify }}{{ end }}
-      {{- $init = $init | fingerprint $cfg.fingerprintAlgorithm }}
-      <script src="{{ $init.RelPermalink }}" integrity="{{ $init.Data.Integrity }}" crossorigin="anonymous" defer></script>
-    {{- end }}
+    {{ partial "script-tag.html" (dict "ctx" . "src" "js/vendor/chart.umd.min.js") }}
+    {{ partial "script-tag.html" (dict "ctx" . "src" "js/chart-init.js" "minify" true) }}
   {{- end }}
 
   {{- if .HasShortcode "mermaid" }}
-    {{- with resources.Get "js/vendor/mermaid.min.js" }}
-      {{- $lib := . | fingerprint $cfg.fingerprintAlgorithm }}
-      <script src="{{ $lib.RelPermalink }}" integrity="{{ $lib.Data.Integrity }}" crossorigin="anonymous" defer></script>
-    {{- end }}
-    {{- with resources.Get "js/mermaid-init.js" }}
-      {{- $init := . }}
-      {{- if hugo.IsProduction }}{{ $init = $init | minify }}{{ end }}
-      {{- $init = $init | fingerprint $cfg.fingerprintAlgorithm }}
-      <script src="{{ $init.RelPermalink }}" integrity="{{ $init.Data.Integrity }}" crossorigin="anonymous" defer></script>
-    {{- end }}
+    {{ partial "script-tag.html" (dict "ctx" . "src" "js/vendor/mermaid.min.js") }}
+    {{ partial "script-tag.html" (dict "ctx" . "src" "js/mermaid-init.js" "minify" true) }}
   {{- end }}
 
-  {{ partial "analytics.html" . }}
+  {{ partialCached "analytics.html" . }}
 
-  {{ partial "monetisation.html" . }}
+  {{ partialCached "monetisation.html" . }}
 
   {{ partial "language-redirect.html" . }}
 

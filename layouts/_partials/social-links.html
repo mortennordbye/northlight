@@ -18,8 +18,8 @@
 <div class="socials{{ with $.class }} {{ . }}{{ end }}">
   {{- range . }}
     {{- range $name, $url := . }}
-      <a href="{{ $url }}" rel="noopener" target="_blank" aria-label="{{ partial "service-name.html" $name }}">
-        {{- partial "icon.html" $name -}}
+      <a href="{{ $url }}" rel="noopener" target="_blank" aria-label="{{ partialCached "service-name.html" $name $name }}">
+        {{- partialCached "icon.html" $name $name -}}
       </a>
     {{- end }}
   {{- end }}

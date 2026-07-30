@@ -1,0 +1,20 @@
+{{- /*
+  script-tag — one fingerprinted, SRI-hashed, deferred <script> for a theme asset.
+
+  The minify → fingerprint → integrity sequence was repeated five times in
+  baseof.html for the per-feature scripts; the invariant it carries (every asset
+  fingerprinted, every script SRI'd) is asserted by the test suite and belongs in
+  one place.
+
+  Takes a dict:
+    ctx     the page (required — the fingerprint algorithm comes from init)
+    src     the asset path under assets/ (required)
+    minify  true for theme-authored files, which are minified in production;
+            vendored files arrive minified and are served as committed
+*/ -}}
+{{- with resources.Get .src -}}
+  {{- $r := . -}}
+  {{- if and $.minify hugo.IsProduction }}{{ $r = $r | minify }}{{ end -}}
+  {{- $r = $r | fingerprint (partialCached "init.html" $.ctx).fingerprintAlgorithm -}}
+  <script src="{{ $r.RelPermalink }}" integrity="{{ $r.Data.Integrity }}" crossorigin="anonymous" defer></script>
+{{- end -}}

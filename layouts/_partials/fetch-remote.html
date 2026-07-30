@@ -1,0 +1,49 @@
+{{- /*
+  fetch-remote — the try/offline/missing split every remote-fetching template needs.
+
+  `resources.GetRemote` sets `.Err` for a transport failure — offline, DNS, timeout —
+  but for a 404 it returns **no resource at all**, with no error. Handling only `.Err`
+  means a deleted upstream produces a silently degraded page and a green build — the
+  first version of repo-card.html did exactly that, measured against a nonexistent
+  repo which built clean and said nothing. This partial exists so the next fetching
+  template cannot reimplement the distinction wrong.
+
+  Why the two warnings are shaped the way they are:
+
+  A **404** is a content problem: the upstream has been renamed, moved or deleted, the
+  author does not know, and nobody will notice a quietly degraded page. It warns —
+  suppressibly, because GetRemote returns no resource for *any* non-2xx and exposes no
+  status code, so a deleted target (404) and a rate-limited one (403) are
+  indistinguishable here. GitHub allows sixty unauthenticated calls an hour, and this
+  gate has gone red on a 403 with nothing wrong in the content. A site that wants a
+  dead reference to break CI removes "repo-card-missing" from ignoreLogs.
+
+  A **transport failure** — offline, DNS, a timeout — is an environment problem the
+  person building already knows about. Warning hard there would mean the theme's own
+  gate could not run without a network, which docs/SPEC.md §1 forbids. The page
+  degrades, the build stays green.
+
+  Takes a dict:
+    url   the URL to fetch (required)
+    who   a short name for the caller, used in the warnings (required)
+    hint  optional advice appended to the missing warning
+
+  Returns a dict:
+    res      the resource, or "" when the fetch failed either way
+    offline  the transport error as a string, or ""
+    missing  true when the URL answered but returned nothing (404, rate limit)
+*/ -}}
+{{- $res := "" -}}
+{{- $offline := "" -}}
+{{- $missing := false -}}
+{{- with try (resources.GetRemote .url) -}}
+  {{- with .Err -}}{{ $offline = printf "%s" . }}{{- else -}}{{ $res = .Value }}{{- end -}}
+{{- end -}}
+{{- if and (not $res) (not $offline) -}}{{ $missing = true }}{{ end -}}
+{{- if $missing -}}
+  {{- warnidf "repo-card-missing" "%s: %q returned nothing — %s" .who .url (.hint | default "the target may have been deleted, or the host may be rate-limiting. Falling back to a plain link.") -}}
+{{- end -}}
+{{- with $offline -}}
+  {{- warnidf "repo-card-offline" "%s: could not reach %q (%s) — falling back to a plain link. This is not a build failure; a network was not available." $.who $.url . -}}
+{{- end -}}
+{{- return (dict "res" $res "offline" $offline "missing" $missing) -}}

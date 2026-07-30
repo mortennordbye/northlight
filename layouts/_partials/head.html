@@ -1,26 +1,18 @@
 {{- $cfg := partialCached "init.html" . -}}
-{{- /* The meta description, built from the first source that has anything in it.
-
-       The order is configurable because sites disagree about it honestly: one wants the
-       hand-written `description` always, another would rather show real opening prose than
-       a description written for a card. `seo.metaDescriptionOrder` takes any arrangement of
-       `description`, `summary` and `siteDescription`; the default is the order this theme
-       has always used, so nothing changes for a site that sets nothing.
-
-       An unknown name is skipped rather than failing the build — a typo here should cost
-       one fallback, not the site. */ -}}
-{{- $descOrder := (site.Params.seo).metaDescriptionOrder | default (slice "description" "summary" "siteDescription") -}}
-{{- $desc := "" -}}
-{{- range $descOrder -}}
-  {{- if $desc -}}{{/* already found */}}
-  {{- else if eq . "description" -}}{{ with $.Description }}{{ $desc = . }}{{ end }}
-  {{- else if eq . "summary" -}}{{ with $.Summary }}{{ $desc = . | plainify | chomp }}{{ end }}
-  {{- else if eq . "siteDescription" -}}{{ with site.Params.description }}{{ $desc = . }}{{ end }}
-  {{- end -}}
-{{- end -}}
+{{- /* The description and social image are resolved once for the page in
+       social-meta.html, shared with the og/twitter partials below, so the three never
+       disagree about what a page says or shows. */ -}}
+{{- $desc := (partial "social-meta.html" .).desc -}}
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+{{- /* Tints the browser's own chrome to match the page. The pair is the --bg token
+       from tokens.css — palettes recolour accents and washes, not the page, so two
+       values cover all of them; the test suite asserts this copy stays equal to the
+       token. The media attribute follows the OS scheme, which is the right source
+       for browser chrome: the in-page toggle styles the page, not the browser. */}}
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0b0b0e">
 <title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} · {{ site.Title }}{{ end }}</title>
 {{- with $desc }}
 <meta name="description" content="{{ . }}">
@@ -78,6 +70,7 @@
       (resources.Get "css/interaction.css")
       (resources.Get "css/shortcodes.css")
       (resources.Get "css/home-layouts.css")
+      (resources.Get "css/print.css")
 -}}
 {{- /* The site's own stylesheet, if it has one. Nothing in this theme provides
        assets/css/custom.css, so this resolves only against the consuming site — which
@@ -103,8 +96,8 @@
 <link rel="preload" href="{{ .RelPermalink }}" as="font" type="font/woff2" crossorigin>
 {{- end }}
 
-{{ partial "favicons.html" . }}
-{{ partial "verification.html" . }}
+{{ partialCached "favicons.html" . }}
+{{ partialCached "verification.html" . }}
 {{ partial "json-ld.html" . }}
 
 {{- with .OutputFormats.Get "rss" }}

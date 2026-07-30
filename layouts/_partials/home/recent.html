@@ -1,0 +1,41 @@
+{{- /*
+  recent — the "Recent posts" section every home layout ends with.
+
+  One home for the heading, the count and the two views. The same block lived in six
+  layouts, with recentCount resolved six times — and defaulting to 3 in two of them
+  and 6 in the rest before anywhere stated why. The split is deliberate and now lives
+  in one place: layouts that lead with a featured post (hero, stack) breathe with
+  three recents below the feature, the rest carry six, and each layout passes its own
+  fallback so the difference is written where the layout is.
+
+  Takes a dict:
+    posts     the pool, already excluding anything the layout featured above
+    home      the home params block; recentCount is read from it
+    fallback  the layout's default when home.recentCount is unset
+    view      "cards" for the card grid (default), "list" for the post list
+    bare      true to emit only the heading, without the .section-head band —
+              the split layout's column sets its own rhythm
+    more      optional dict ("page" p "total" n): an "All N posts" link in the head
+*/ -}}
+{{- $count := int (.home.recentCount | default .fallback) -}}
+{{- with first $count .posts }}
+  {{- if $.bare }}
+  <h2 class="section-title">{{ i18n "recentPosts" }}</h2>
+  {{- else }}
+  <div class="section-head">
+    <h2 class="section-title">{{ i18n "recentPosts" }}</h2>
+    {{- with $.more }}
+      <a class="section-more" href="{{ .page.RelPermalink }}">
+        {{ i18n "allNPosts" .total }} <span class="nudge">{{ partialCached "icon.html" "arrow-right" "arrow-right" }}</span>
+      </a>
+    {{- end }}
+  </div>
+  {{- end }}
+  {{- if eq ($.view | default "cards") "list" }}
+  <div class="post-list">
+    {{- range . }}{{ partial "post-item.html" (dict "ctx" . "level" 3) }}{{ end }}
+  </div>
+  {{- else }}
+  <div class="card-grid">{{ range . }}{{ partial "card.html" . }}{{ end }}</div>
+  {{- end }}
+{{- end -}}

@@ -14,6 +14,11 @@
 
   if (!("IntersectionObserver" in window)) return;
 
+  /* The trigger line sits just below the sticky header, whose height the CSS owns as
+     --sticky-offset (84px for the fixed header, less for `basic`). Read rather than
+     hardcoded, so the spy and the anchor offset cannot drift apart. */
+  var offset = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--sticky-offset"), 10) || 84;
+
   var byId = {};
   var headings = [];
   links.forEach(function (link) {
@@ -63,11 +68,11 @@
          out mid-section. */
       var above = null;
       headings.forEach(function (h) {
-        if (h.getBoundingClientRect().top < 100) above = h;
+        if (h.getBoundingClientRect().top < offset + 16) above = h;
       });
       if (above) setCurrent(above.id);
     },
-    { rootMargin: "-84px 0px -70% 0px", threshold: 0 }
+    { rootMargin: "-" + offset + "px 0px -70% 0px", threshold: 0 }
   );
 
   headings.forEach(function (h) {

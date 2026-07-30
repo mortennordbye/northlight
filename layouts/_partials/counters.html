@@ -28,12 +28,12 @@
        data-page-id="{{ $id }}"
        {{ if $showViews }}data-count-views{{ end }}>
     {{- if $showViews }}
-      <span class="counter">{{ partial "icon.html" "eye" }}<span data-views>0</span></span>
+      <span class="counter">{{ partialCached "icon.html" "eye" "eye" }}<span data-views>0</span></span>
     {{- end }}
     {{- if $showLikes }}
       <button class="counter counter-like" type="button" data-like aria-pressed="false"
               aria-label="{{ i18n "likeThisPost" }}">
-        {{ partial "icon.html" "heart" }}<span data-likes>0</span>
+        {{ partialCached "icon.html" "heart" "heart" }}<span data-likes>0</span>
       </button>
     {{- end }}
   </div>

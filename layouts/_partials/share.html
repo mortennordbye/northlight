@@ -68,11 +68,11 @@
     {{- end -}}
 
     {{- with $href }}
-      {{- $service := partial "service-name.html" $name -}}
+      {{- $service := partialCached "service-name.html" $name $name -}}
       {{- if not $label }}{{ $label = i18n "shareOn" $service }}{{ end -}}
       <a class="button" href="{{ . }}" aria-label="{{ $label }}"
          {{- if not $mail }} rel="noopener" target="_blank"{{ end }}>
-        {{ partial "icon.html" $name }}<span>{{ $service }}</span>
+        {{ partialCached "icon.html" $name $name }}<span>{{ $service }}</span>
       </a>
     {{- end }}
   {{- end }}

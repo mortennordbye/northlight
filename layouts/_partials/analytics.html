@@ -52,29 +52,35 @@
     {{- end -}}
   {{- end -}}
 
+  {{- /* The optional keys are read from the provider block itself, not `$.Params` —
+         `$` here is the page, and page front matter is the wrong scope for site-wide
+         analytics config. Read through `$.Params` these options simply never fired. */ -}}
   {{- with .fathom -}}
+    {{- $fathom := . -}}
     {{- with .site -}}
       {{- $src := "https://cdn.usefathom.com/script.js" -}}
-      {{- with $.Params.analytics.fathom.domain }}{{ $src = printf "https://%s/script.js" . }}{{ end -}}
+      {{- with $fathom.domain }}{{ $src = printf "https://%s/script.js" . }}{{ end -}}
       <script defer src="{{ $src }}" data-site="{{ . }}"></script>
     {{- end -}}
   {{- end -}}
 
   {{- with .umami -}}
+    {{- $umami := . -}}
     {{- with .websiteId -}}
       {{- /* A self-hosted instance and a renamed script are both anti-ad-block measures
              that Umami documents. Neither changes what is collected. */ -}}
-      {{- $host := $.Params.analytics.umami.domain | default "cloud.umami.is" -}}
-      {{- $name := $.Params.analytics.umami.scriptName | default "script.js" -}}
+      {{- $host := $umami.domain | default "cloud.umami.is" -}}
+      {{- $name := $umami.scriptName | default "script.js" -}}
       <script defer src="https://{{ $host }}/{{ $name }}" data-website-id="{{ . }}"></script>
     {{- end -}}
   {{- end -}}
 
   {{- with .plausible -}}
+    {{- $plausible := . -}}
     {{- with .domain -}}
       {{- /* `domain` is the site being measured, which Plausible calls data-domain; `host`
              is where the script lives and only differs for a self-hosted instance. */ -}}
-      {{- $host := $.Params.analytics.plausible.host | default "plausible.io" -}}
+      {{- $host := $plausible.host | default "plausible.io" -}}
       <script defer data-domain="{{ . }}" src="https://{{ $host }}/js/script.js"></script>
     {{- end -}}
   {{- end -}}

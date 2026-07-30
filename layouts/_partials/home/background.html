@@ -18,7 +18,6 @@
 */ -}}
 {{- $page := .ctx -}}
 {{- $bg := .home.backgroundImage -}}
-{{- $recentCount := int (.home.recentCount | default 6) -}}
 {{- $url := "" -}}
 {{- /* `backgroundImageWidth` scales the artwork down before it ships. A full-bleed
        background is the largest image on the page by a wide margin, and an unresized
@@ -42,7 +41,10 @@
 {{- end -}}
 
 {{- if $url -}}
-  <section class="home-bg" style="background-image:url({{ $url }})">
+  <section class="home-bg">
+    {{- /* The image lives on its own layer so `layoutBackgroundBlur` can blur it without
+           taking the scrim and the text with it. */ -}}
+    <div class="home-bg-media" style="background-image:url({{ $url }})" aria-hidden="true"></div>
     <div class="home-bg-scrim">
       <div class="wrap">
         {{- partial "home/intro.html" (dict "ctx" .ctx "author" .author "bare" true) -}}
@@ -53,11 +55,8 @@
   {{- partial "home/intro.html" (dict "ctx" .ctx "author" .author) -}}
 {{- end -}}
 
-{{- with first $recentCount .posts }}
+{{- with .posts }}
 <div class="wrap">
-  <div class="section-head">
-    <h2 class="section-title">{{ i18n "recentPosts" }}</h2>
-  </div>
-  <div class="card-grid">{{ range . }}{{ partial "card.html" . }}{{ end }}</div>
+  {{ partial "home/recent.html" (dict "posts" . "home" $.home "fallback" 6) }}
 </div>
 {{- end -}}

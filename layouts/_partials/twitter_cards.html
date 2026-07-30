@@ -7,17 +7,9 @@
   summary_large_image when there is a cover, summary when there is not: a large-image
   card with no image renders as an empty box.
 */ -}}
-{{- $desc := "" -}}
-{{- with .Description }}{{ $desc = . }}
-{{- else }}{{ with .Summary }}{{ $desc = . | plainify | chomp }}
-{{- else }}{{ $desc = site.Params.description }}{{ end }}{{ end -}}
-
-{{- $image := "" -}}
-{{- with .Resources.GetMatch "{cover,featured}.*" }}{{ $image = .Permalink }}{{ end -}}
-{{- /* A page with no cover of its own falls back to the site-wide social image, so a
-       link to it still previews as a card rather than as bare text. */ -}}
-{{- if not $image }}{{ with partial "image-url.html" (partialCached "init.html" .).defaultSocialImage }}{{ $image = . | absURL }}{{ end }}{{ end -}}
-{{- if not $image }}{{ with site.Params.image }}{{ $image = . | absURL }}{{ end }}{{ end -}}
+{{- $social := partial "social-meta.html" . -}}
+{{- $desc := $social.desc -}}
+{{- $image := $social.image -}}
 
 <meta name="twitter:card" content="{{ cond (ne $image "") "summary_large_image" "summary" }}">
 <meta name="twitter:title" content="{{ cond .IsHome site.Title .Title }}">

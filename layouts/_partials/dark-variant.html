@@ -1,0 +1,23 @@
+{{- /*
+  dark-variant — the `-dark` sibling of an image path, if the site ships one.
+
+  Drop `diagram-dark.png` beside `diagram.png` and it is used whenever the dark
+  palette is active. The lookup was written twice — in the image render hook and the
+  figure shortcode — and both must agree on the naming convention, so it lives here.
+
+  Takes a dict:
+    src        the image path; the sibling name is derived from it, so a path with no
+               extension resolves to nothing
+    resources  the page resource collection to search before global assets/ —
+               .Resources in a shortcode, .PageInner.Resources in a render hook
+
+  Returns the dark resource, or false.
+*/ -}}
+{{- $dark := false -}}
+{{- if strings.Contains .src "." -}}
+  {{- $ext := path.Ext .src -}}
+  {{- $darkSrc := printf "%s-dark%s" (strings.TrimSuffix $ext .src) $ext -}}
+  {{- $dark = .resources.GetMatch $darkSrc -}}
+  {{- if not $dark }}{{ $dark = resources.Get $darkSrc }}{{ end -}}
+{{- end -}}
+{{- return $dark -}}

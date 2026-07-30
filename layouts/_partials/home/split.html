@@ -5,17 +5,13 @@
   it in the same order as a wide screen. The intro column is sticky on desktop only, and
   only when it is short enough to be worth pinning.
 */ -}}
-{{- $recentCount := int (.home.recentCount | default 6) -}}
 <div class="wrap home-split">
   <aside class="home-split-aside">
     {{- partial "home/intro.html" (dict "ctx" .ctx "author" .author "bare" true) -}}
   </aside>
   <div class="home-split-main">
-    {{- with first $recentCount .posts }}
-      <h2 class="section-title">{{ i18n "recentPosts" }}</h2>
-      <div class="post-list">
-        {{- range . }}{{ partial "post-item.html" (dict "ctx" . "level" 3) }}{{ end }}
-      </div>
+    {{- with .posts }}
+      {{ partial "home/recent.html" (dict "posts" . "home" $.home "fallback" 6 "view" "list" "bare" true) }}
     {{- end }}
   </div>
 </div>
