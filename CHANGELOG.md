@@ -6,6 +6,24 @@ and versions follow [semantic versioning](https://semver.org/).
 **Config keys are API.** A key is never renamed or repurposed without a major version bump. New
 keys are added with defaults that preserve existing behaviour.
 
+## [Unreleased]
+
+### Fixed
+
+- **Cards on a section index skipped a heading level.** With `list.cardView` on, every card
+  title on a section index rendered as an `h3` directly under the page's `h1`. `card.html` takes
+  a `level` parameter for exactly this reason and `term.html` passes it correctly; `section.html`
+  was calling the partial bare, so it got the default of 3 — which is right on the home page,
+  where an `h2` section-title sits above the grid, and wrong here, where nothing does.
+
+  Found by running the theme's own `tests/structure.py` against a real site that sets
+  `list.cardView = true`. It went unnoticed because `exampleSite` leaves that param off, so the
+  card branch of `section.html` is never built here and the two existing heading-order
+  assertions read a page that always used the row list. The new assertion reads the template
+  source instead: turning `cardView` on for the whole demo would change the post index design to
+  buy a test, which is the wrong trade. `list.cardView` having no page in `exampleSite` that
+  exercises it is a real gap, recorded in `BACKLOG.md`.
+
 ## [0.4.0](https://github.com/mortennordbye/northlight/compare/v0.3.0...v0.4.0) (2026-07-28)
 
 Shipped in [#24](https://github.com/mortennordbye/northlight/pull/24).

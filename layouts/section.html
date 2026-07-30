@@ -20,8 +20,12 @@
   </header>
 
   {{- if $cardView }}
+    {{- /* level 2, for the same reason post-item.html gets h2 below: the only other heading
+           on a section index is the list's own h1, so card.html's default of 3 skips a level.
+           That default is right for the home layouts, where an h2 section-title sits above
+           the grid — which is why this call and term.html's have to say otherwise. */ -}}
     <div class="card-grid">
-      {{- range $paginator.Pages }}{{ partial "card.html" . }}{{ end }}
+      {{- range $paginator.Pages }}{{ partial "card.html" (dict "ctx" . "level" 2) }}{{ end }}
     </div>
   {{- else if $groupByYear }}
     {{- /* Grouped within the current page of results, not across the whole section, so
