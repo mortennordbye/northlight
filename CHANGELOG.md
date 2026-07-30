@@ -6,7 +6,10 @@ and versions follow [semantic versioning](https://semver.org/).
 **Config keys are API.** A key is never renamed or repurposed without a major version bump. New
 keys are added with defaults that preserve existing behaviour.
 
-## [Unreleased]
+## [0.5.0](https://github.com/mortennordbye/northlight/compare/v0.4.1...v0.5.0) (2026-07-30)
+
+Shipped in [#27](https://github.com/mortennordbye/northlight/pull/27).
+
 
 ### Added
 
