@@ -74,6 +74,42 @@ again the next time something changes.
 Six considered palettes rather than sixteen. Every accent is measured against its own
 background in both modes, which is work that does not scale to a colour picker.
 
+### More of it: `accentEmphasis`
+
+The accent is rationed by default. It carries links, the eyebrow above a title, the active
+item in the table of contents and the reading-progress bar, and stops there — the rest of
+the page is a neutral base, which is the whole north-light brief.
+
+`accentEmphasis = true` lets it reach five more surfaces:
+
+| Surface | Default | With `accentEmphasis` |
+|---|---|---|
+| Section headings (`Featured`, `Recent posts`, `Related`) | Body colour | Accent |
+| Year rules on the post index | `--fg-3` | Accent |
+| Tag chips at rest | Neutral chip | Accent text on `--accent-tint` |
+| A card's border on hover | `--accent-pastel` | `--accent` |
+| The blockquote edge | `--accent-pastel` | `--accent` |
+
+```toml
+[params]
+  accentEmphasis = true    # default: false
+```
+
+**It invents no colours.** Every value is a token the palette already defines and that has
+already been measured in both modes, so all six palettes get this for free and none of them
+needed a second round of contrast work. The one combination that carries text — accent on
+`--accent-tint` — is the binding case the palettes are measured against, and it is what a
+tag already does on hover.
+
+This page and the rest of this site have it on, so the tag chips below a post, the year
+rules on [the index]({{< ref "/blog" >}}) and the headings above the related posts are the
+switch rather than a description of it.
+
+Two things it deliberately leaves alone: **prose headings and the article title**. Colouring
+the text a reader is actually reading is where more colour stops being trim and starts
+competing with the words. If you want that anyway, it is four lines in your own
+`assets/css/custom.css` — see below.
+
 ## Your own CSS
 
 Create `assets/css/custom.css` in your site. The theme picks it up automatically, with

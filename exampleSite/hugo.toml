@@ -98,6 +98,13 @@ summaryLength = 30
   # from the browser rather than from this theme.
   enableLightbox = true        # click prose images to enlarge  (default: false)
 
+  # Lets the palette reach five surfaces the theme otherwise leaves neutral: section
+  # headings, the year rules on the post index, tag chips, a card's hover border and the
+  # blockquote edge. No new colours — every value is a token already measured for the
+  # palette in both modes, so all six get it. Off by default, because it changes the look
+  # of every page. On here so the demo shows it rather than describing it.
+  accentEmphasis = true        # accent on more surfaces        (default: false)
+
   mainSections = ["blog"]      # which sections appear in lists (default: ["blog"])
                                # `docs` is deliberately absent: the manual should not
                                # appear in the blog index, the feed or the archive.

@@ -396,6 +396,51 @@ html[data-underline-links] .prose a {
   box-shadow: none;
 }
 
+/* --- accent emphasis -------------------------------------------------------- */
+
+/* `accentEmphasis` lets the palette reach five surfaces the theme otherwise leaves
+   neutral. It sits here rather than beside each component because it is one switch, and
+   a reviewer should be able to read the whole of what it does in one place — the same
+   reason `data-underline-links` above is not scattered across five files.
+
+   **No new colours.** Every value below is a token already measured for this palette in
+   both modes, which is what lets one switch serve all six without a second round of
+   contrast work. The one combination that carries text, accent on --accent-tint, is the
+   theme's binding case at 4.5:1 and is already what a tag does on hover today.
+
+   Off by default: it changes the look of every page, so an existing site has to ask.
+
+   Deliberately excluded: prose headings and the article title. Colouring the text a
+   reader is actually reading is where more colour stops being trim and starts competing
+   with the words, which is the thing this theme exists to avoid. */
+
+html[data-accent-emphasis] .section-title,
+html[data-accent-emphasis] .year-rule b {
+  color: var(--accent);
+}
+
+/* At rest this is what a tag already looks like on hover, so the hover state below has to
+   move further or the row stops answering the pointer. */
+html[data-accent-emphasis] .tag {
+  color: var(--accent);
+  background: var(--accent-tint);
+  border-color: var(--accent-pastel);
+}
+
+html[data-accent-emphasis] a.tag:hover {
+  border-color: var(--accent);
+}
+
+html[data-accent-emphasis] .card:hover {
+  border-color: var(--accent);
+}
+
+/* Logical, not `border-left-color`: the rail is `border-inline-start`, and the physical
+   form is what left the TOC accent unpainted under RTL. */
+html[data-accent-emphasis] .prose blockquote {
+  border-inline-start-color: var(--accent);
+}
+
 /* --- lightbox --------------------------------------------------------------- */
 
 /* A real box, not `display: contents`.

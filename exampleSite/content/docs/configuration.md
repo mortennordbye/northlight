@@ -40,6 +40,7 @@ default inline, so every default below lives in exactly one place in the source.
 | `layoutBackgroundHeaderSpace` | `false` | Extra room between the header and the body. |
 | `enableLightbox` | `false` | Click a prose image to see it full size. Uses a `<dialog>`, so the modal semantics, backdrop, focus trap and Escape handling come from the browser. Images that are already links are left alone. |
 | `enableA11y` | `false` | Shows a control that underlines every link on the page. Named for what it does: a control whose effect a reader cannot predict is not an accessibility feature. |
+| `accentEmphasis` | `false` | Lets the palette reach five surfaces the theme otherwise leaves neutral: section headings, the year rules on the post index, tag chips, a card's hover border and the blockquote edge. Invents no colours, so every palette gets it. See "More of it" on [Appearance]({{< ref "/docs/appearance" >}}). |
 | `header.layout` | `"fixed"` | `fixed` keeps the header sticky (the current behaviour); `basic` lets it scroll away. |
 | `mainSections` | `["blog"]` | Which sections count as posts for the home page, index, RSS and search. |
 | `dateFormat` | `"2 Jan 2006"` | Go reference layout. |
