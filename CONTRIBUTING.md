@@ -105,6 +105,26 @@ These are specific to this project. Breaking one is a bug even if the build pass
 - **No user-facing string in a template.** Everything a reader can see comes from `i18n/en.toml`.
   A hardcoded string is invisible to translators and cannot be found by grepping the catalogue.
 
+## Adding your site to the showcase
+
+If you run a site built with Northlight, add it. Append a block to
+`exampleSite/data/showcase.toml` and open a pull request:
+
+```toml
+[[sites]]
+  name = "example.com"
+  url = "https://example.com"
+  author = "Your Name"
+  description = "One sentence about what you write about."
+```
+
+All four fields are required and the build fails if one is missing, so `make check` tells you
+before a reviewer has to. Entries render in file order — add yours at the bottom. This is the one
+kind of pull request that needs nothing else: no changelog entry, no test, no documentation.
+
+Two things are asked of the site: it is yours, and it actually runs the theme. A fork changed
+beyond recognition is welcome too — say so in the description.
+
 ## Shipping a feature
 
 The demo site is also the manual, so a feature is not done when it works. `exampleSite/content/docs/`

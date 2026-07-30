@@ -446,6 +446,11 @@ anyone notices."""
     weight = 25
 
   [[menu.main]]
+    name = "Showcase"
+    pageRef = "showcase"
+    weight = 27
+
+  [[menu.main]]
     name = "Tags"
     pageRef = "tags"
     weight = 30

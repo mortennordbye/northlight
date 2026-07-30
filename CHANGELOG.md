@@ -6,6 +6,17 @@ and versions follow [semantic versioning](https://semver.org/).
 **Config keys are API.** A key is never renamed or repurposed without a major version bump. New
 keys are added with defaults that preserve existing behaviour.
 
+## [Unreleased]
+
+### Added
+
+- **A showcase page on the demo site**, at `/showcase/`, listing sites that run the theme.
+  Entries are blocks in `exampleSite/data/showcase.toml`, so adding a site is a four-line
+  pull request; a block missing any of its four fields fails the build rather than
+  rendering a card with a hole in it. The cards reuse the theme's own `card-grid`, so the
+  page adds no CSS. This is example-site scaffolding, not a theme feature — nothing under
+  `layouts/` changed and no new config key exists.
+
 ## [0.5.0](https://github.com/mortennordbye/northlight/compare/v0.4.1...v0.5.0) (2026-07-30)
 
 Shipped in [#27](https://github.com/mortennordbye/northlight/pull/27).

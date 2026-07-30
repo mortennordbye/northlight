@@ -227,6 +227,15 @@ required checks and how a release is cut.
 
 ---
 
+## Showcase
+
+Sites running Northlight are listed at
+<https://mortennordbye.github.io/northlight/showcase/>. If yours is one of them, add it: append a
+four-line block to `exampleSite/data/showcase.toml` and open a pull request. That is the whole
+process — see [`CONTRIBUTING.md`](CONTRIBUTING.md#adding-your-site-to-the-showcase).
+
+---
+
 ## Contributing
 
 Read [`CONTRIBUTING.md`](CONTRIBUTING.md) first. It documents the working rules, including the
