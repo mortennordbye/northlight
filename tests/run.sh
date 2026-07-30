@@ -751,6 +751,36 @@ else
 fi
 
 # --------------------------------------------------------------------------------
+group "Showcase"
+
+# Example-site scaffolding, not a theme feature: the entries live in
+# exampleSite/data/showcase.toml and exampleSite/layouts/showcase/section.html renders
+# them. Asserted here because the failure mode is silent — a renamed data key or a moved
+# layout leaves a page that still builds and is simply empty, and nobody notices until a
+# contributor asks where their pull request went.
+SHOWCASE="$PUBLIC/showcase/index.html"
+assert_file "$SHOWCASE" "the showcase page builds"
+
+# Every [[sites]] block reaches the page. A count rather than a spot check, because what
+# this guards is entries going missing, not the first entry going missing.
+WANT=$(grep -c '^\[\[sites\]\]' "$ROOT/exampleSite/data/showcase.toml" | tr -d ' ')
+GOT=$(grep -o 'class="card is-external"' "$SHOWCASE" | wc -l | tr -d ' ')
+assert_count "$WANT" "$GOT" "every showcase entry renders a card"
+
+# Every entry points off-site, so every link carries the treatment card.html gives an
+# externalUrl post — the rel, and the mark that says so before the click.
+XREL=$(grep -o 'class="card is-external" href=[^>]*rel=noopener' "$SHOWCASE" | wc -l | tr -d ' ')
+assert_count "$WANT" "$XREL" "every showcase link is marked as leaving the site"
+
+# The cards reuse the theme's classes rather than growing a second card style beside it,
+# which is the whole reason this page needs no CSS of its own.
+assert_grep 'class=card-grid' "$SHOWCASE" "showcase cards use the theme card grid"
+assert_grep 'class=meta-line' "$SHOWCASE" "showcase cards carry the author line"
+
+# Without the menu entry the page exists and nothing links to it.
+assert_grep '>Showcase<' "$PUBLIC/index.html" "the showcase is in the main menu"
+
+# --------------------------------------------------------------------------------
 group "Accessible names and heading order"
 
 # Below 720px both .search-trigger-label and the kbd hint are display:none, so the button
