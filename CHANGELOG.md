@@ -16,6 +16,14 @@ keys are added with defaults that preserve existing behaviour.
   rendering a card with a hole in it. The cards reuse the theme's own `card-grid`, so the
   page adds no CSS. This is example-site scaffolding, not a theme feature — nothing under
   `layouts/` changed and no new config key exists.
+- **`accentEmphasis`** — lets the palette reach five surfaces the theme otherwise leaves
+  neutral: section headings, the year rules on the post index, tag chips at rest, a card's
+  border on hover, and the blockquote edge. It invents no colours. Every value is a token
+  the palette already defines and that has already been measured in both modes, so all six
+  palettes get it without a second round of contrast work, and the one combination that
+  carries text — accent on `--accent-tint` — is the binding case the palettes are measured
+  against. Prose headings and the article title are deliberately left alone. Defaults to
+  `false`, so no existing site changes.
 
 ## [0.5.0](https://github.com/mortennordbye/northlight/compare/v0.4.1...v0.5.0) (2026-07-30)
 

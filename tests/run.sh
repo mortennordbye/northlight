@@ -1815,6 +1815,45 @@ assert_grep "prefers-color-scheme: dark) *\" content=\"$BG_DARK\"" "$ROOT/layout
   "dark theme-color matches the --bg token"
 
 # --------------------------------------------------------------------------------
+group "Accent emphasis"
+
+# exampleSite sets accentEmphasis = true, so the attribute has to reach <html>. Without
+# it every rule in the block below is inert and the feature fails silently.
+assert_grep 'data-accent-emphasis' "$PUBLIC/index.html" "accentEmphasis reaches the html element"
+
+# Off unless asked. A default that flipped would restyle every existing site on upgrade.
+assert_grep '"accentEmphasis".*"default" false' "$ROOT/layouts/_partials/init.html" \
+  "accentEmphasis defaults to off"
+
+# The whole promise of the feature is that it invents no colours: every value is a token
+# the palette already defines and has already been measured in both modes. A literal hex
+# in this block would be an unmeasured colour in six palettes at once, which is exactly
+# the work the token indirection exists to avoid.
+EMPH=$(awk '/^html\[data-accent-emphasis\]/,/^\/\* --- lightbox/' "$ROOT/assets/css/interaction.css")
+if printf '%s' "$EMPH" | grep -qE '#[0-9a-fA-F]{3,8}\b'; then
+  bad "accent emphasis declares no literal colours" "a hex value appears in the block"
+else
+  ok "accent emphasis declares no literal colours"
+fi
+
+# Every class the block styles must be one the templates actually render. A selector that
+# matches nothing reads as coverage and is what left zen mode with a visible TOC.
+for C in section-title year-rule tag card; do
+  if printf '%s' "$EMPH" | grep -q "$C" && grep -rq "\"$C\|$C\"\| $C " "$ROOT/layouts"; then
+    ok "accent emphasis targets a rendered class: $C"
+  else
+    bad "accent emphasis targets a rendered class: $C" "no template renders .$C"
+  fi
+done
+
+# The blockquote edge is the one rule with a direction to get wrong. The rail is
+# border-inline-start; a physical border-left-color is what left the TOC accent unpainted
+# under dir="rtl". The global border-left check further up covers interaction.css, so this
+# only has to assert the logical form is present rather than absent.
+assert_grep 'border-inline-start-color: var(--accent)' "$ROOT/assets/css/interaction.css" \
+  "the emphasised blockquote edge uses a logical property"
+
+# --------------------------------------------------------------------------------
 group "Template guards"
 
 # An explicit `mainSections = []` must not error the build. `index` on an empty slice
