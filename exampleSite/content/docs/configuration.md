@@ -38,7 +38,7 @@ default inline, so every default below lives in exactly one place in the source.
 | `disableImageOptimization` | `false` | Hand raster images to the browser unresized. For a site whose images are already optimised upstream. |
 | `layoutBackgroundBlur` | `false` | Blurs background and hero artwork. Applied to the image, not the block, so text over it stays sharp. |
 | `layoutBackgroundHeaderSpace` | `false` | Extra room between the header and the body. |
-| `enableLightbox` | `false` | Click a prose image to see it full size. Uses a `<dialog>`, so the modal semantics, backdrop, focus trap and Escape handling come from the browser. Images that are already links are left alone. |
+| `enableLightbox` | `false` | Click a prose image to open it, then zoom to 6x and pan around it — by the dialog's own buttons, the scroll wheel, a double-click, a trackpad or touch pinch, or `+` / `-` / `0` and the arrow keys. Uses a `<dialog>`, so the modal semantics, backdrop, focus trap and Escape handling come from the browser. Images that are already links are left alone. |
 | `enableA11y` | `false` | Shows a control that underlines every link on the page. Named for what it does: a control whose effect a reader cannot predict is not an accessibility feature. |
 | `accentEmphasis` | `false` | Lets the palette reach five surfaces the theme otherwise leaves neutral: section headings, the year rules on the post index, tag chips, a card's hover border and the blockquote edge. Invents no colours, so every palette gets it. See "More of it" on [Appearance]({{< ref "/docs/appearance" >}}). |
 | `header.layout` | `"fixed"` | `fixed` keeps the header sticky (the current behaviour); `basic` lets it scroll away. |

@@ -111,10 +111,18 @@ sectionNavigation = "Section"
 # for it will recognise it.
 zenMode = "Zen mode"
 
-# The lightbox. Both strings only exist after a click, so they are rendered into the JSON
-# block in baseof.html and read at runtime rather than into the markup.
+# The lightbox. Everything below except `viewFullSize` labels a control inside the dialog
+# shell, which lightbox.html renders at build time. `viewFullSize` labels the button the
+# script wraps each prose image in, so that one alone still travels through the JSON block
+# in baseof.html.
 viewFullSize = "View full size"
 closeLightbox = "Close image"
+imageViewer = "Image viewer"
+zoomIn = "Zoom in"
+zoomOut = "Zoom out"
+# "Fit to screen" rather than "Reset": it names the state the button lands on, which is
+# what the reader is choosing, rather than the undo it performs.
+resetZoom = "Fit to screen"
 
 # The underline-links control. Named for what it does rather than as an "accessibility
 # mode": a control whose effect a reader cannot predict is not an accessibility feature.

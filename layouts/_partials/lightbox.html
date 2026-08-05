@@ -1,0 +1,38 @@
+{{- /*
+  The lightbox shell, rendered once per page when `enableLightbox` is on.
+
+  It lives here rather than being built in JavaScript so its controls get icons from
+  `icon.html` and labels from `i18n/en.toml` like every other control in the theme. The
+  earlier version assembled the dialog at runtime, which meant the close button was a
+  `&times;` character rather than an icon, and its label had to travel through the JSON
+  string block in `baseof.html`. Three controls made that exception too expensive to keep.
+
+  Empty and inert until a reader clicks a prose image: a closed `<dialog>` is
+  `display: none`, contributes nothing to layout, and is skipped by assistive technology.
+  `lightbox.js` fills in the src, the alt and the caption on open.
+
+  With JavaScript off it stays closed forever and costs the reader nothing, which is the
+  same bargain the search modal makes.
+*/ -}}
+<dialog class="lightbox" aria-label="{{ i18n "imageViewer" }}">
+  <div class="lightbox-stage">
+    <img class="lightbox-image" alt="" draggable="false">
+  </div>
+  <p class="lightbox-caption" hidden></p>
+  <div class="lightbox-controls">
+    {{- /* Disabled at the bounds by the script, so a reader is never offered a zoom step
+           that does nothing. */ -}}
+    <button class="lightbox-button" type="button" data-lightbox-zoom="out" aria-label="{{ i18n "zoomOut" }}">
+      {{ partialCached "icon.html" "zoom-out" "zoom-out" }}
+    </button>
+    <button class="lightbox-button" type="button" data-lightbox-zoom="reset" aria-label="{{ i18n "resetZoom" }}">
+      {{ partialCached "icon.html" "zoom-reset" "zoom-reset" }}
+    </button>
+    <button class="lightbox-button" type="button" data-lightbox-zoom="in" aria-label="{{ i18n "zoomIn" }}">
+      {{ partialCached "icon.html" "zoom-in" "zoom-in" }}
+    </button>
+  </div>
+  <button class="lightbox-close" type="button" aria-label="{{ i18n "closeLightbox" }}">
+    {{ partialCached "icon.html" "x" "x" }}
+  </button>
+</dialog>

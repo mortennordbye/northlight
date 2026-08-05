@@ -503,17 +503,50 @@ html[data-accent-emphasis] .prose blockquote {
   /* The same fixed dark as the video letterbox and the hero scrim, and for the same
      reason: what sits behind it is a photograph, which does not invert with the palette. */
   background: rgb(12 12 16 / 88%);
+  backdrop-filter: blur(6px);
+}
+
+/* The stage clips the zoomed image and owns the cursor, so the image itself can be a
+   plain transformed box. It is the flex item that grows, which keeps the caption and the
+   controls on screen no matter how far in the reader zooms. */
+.lightbox-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  flex: 1 1 auto;
+  width: 100%;
+  overflow: hidden;
+  cursor: zoom-in;
+  /* The pointer handlers own every gesture inside the stage. Without this the browser
+     scrolls the page underneath instead of panning the image, and a pinch zooms the
+     whole document. */
+  touch-action: none;
+}
+
+.lightbox[data-zoomed="true"] .lightbox-stage {
+  cursor: grab;
+}
+
+.lightbox[data-dragging="true"] .lightbox-stage {
+  cursor: grabbing;
 }
 
 .lightbox-image {
   display: block;
   max-width: min(96vw, 1600px);
-  max-height: 88vh;
+  max-height: 100%;
   width: auto;
   height: auto;
   border-radius: var(--radius-thumb);
   /* contain, never cover: an enlarged image exists to be seen whole. */
   object-fit: contain;
+  /* The script writes the transform and decides per gesture whether it animates, so the
+     easing lives there rather than in a blanket transition here. */
+  transform-origin: center;
+  will-change: transform;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .lightbox-caption {
@@ -524,35 +557,125 @@ html[data-accent-emphasis] .prose blockquote {
   color: rgb(212 212 220);
 }
 
+.lightbox-controls {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  margin-block-end: var(--space-4);
+  border-radius: var(--radius-panel);
+  background: rgb(16 16 20 / 55%);
+  backdrop-filter: blur(10px);
+}
+
+/* Dark chrome over a light scrim, not light chrome over a dark one.
+ *
+ * These controls sit on top of the reader's image once it is zoomed, and the first
+ * version tinted them with white at 12%, which is invisible against a screenshot of a
+ * light interface — the close button disappeared entirely on exactly the images most
+ * likely to be posted. A dark pill with a light mark reads on both, and does not change
+ * with the palette, for the same reason the backdrop does not: what is behind it is a
+ * picture, and a picture does not invert. */
+.lightbox-button,
+.lightbox-close {
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  color: rgb(242 242 245);
+  background: rgb(16 16 20 / 62%);
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background var(--dur-color) var(--ease), opacity var(--dur-color) var(--ease);
+}
+
+/* The bar already carries the scrim, so its buttons only need to lift off it. */
+.lightbox-controls .lightbox-button {
+  background: rgb(255 255 255 / 14%);
+}
+
+.lightbox-button .icon,
+.lightbox-close .icon {
+  width: 1.15em;
+  height: 1.15em;
+}
+
+.lightbox-close:hover {
+  background: rgb(16 16 20 / 80%);
+}
+
+.lightbox-controls .lightbox-button:hover:not(:disabled) {
+  background: rgb(255 255 255 / 26%);
+}
+
+/* Dimmed rather than hidden. A control that disappears at the bounds moves the two
+   beside it, and the reader loses the target they were aiming at. */
+.lightbox-button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.lightbox-button:focus-visible,
+.lightbox-close:focus-visible {
+  outline: 2px solid rgb(255 255 255 / 85%);
+  outline-offset: 2px;
+}
+
 .lightbox-close {
   position: absolute;
   top: var(--space-4);
   inset-inline-end: var(--space-4);
-  width: 2.4rem;
-  height: 2.4rem;
-  font-size: 1.6rem;
-  line-height: 1;
-  color: rgb(242 242 245);
-  background: rgb(255 255 255 / 12%);
-  border: 0;
-  border-radius: 50%;
-  cursor: pointer;
 }
 
-.lightbox-close:hover {
-  background: rgb(255 255 255 / 22%);
-}
-
-/* The dialog's own entrance. Suppressed entirely when asked — this is the only motion the
-   lightbox has, so honouring the preference costs nothing. */
+/* The dialog's entrance and exit.
+ *
+ * `@starting-style` plus `transition-behavior: allow-discrete` is what lets a <dialog>
+ * animate *out* as well as in: the old animation-only version could fade the box in, but
+ * `display: none` landed the instant it closed, so dismissing it was a hard cut. A
+ * browser without either feature simply gets no transition, which is the same place the
+ * animation-only version started from.
+ *
+ * Suppressed entirely when asked. The transform is the part that matters for a reader who
+ * is sensitive to motion, and it is the first thing to go. */
 @media (prefers-reduced-motion: no-preference) {
-  .lightbox[open] {
-    animation: lightbox-in var(--dur-card) ease-out;
+  .lightbox {
+    opacity: 0;
+    transform: scale(0.96);
+    transition:
+      opacity var(--dur-card) var(--ease),
+      transform var(--dur-card) var(--ease),
+      overlay var(--dur-card) allow-discrete,
+      display var(--dur-card) allow-discrete;
   }
 
-  @keyframes lightbox-in {
-    from { opacity: 0; transform: scale(0.98); }
-    to   { opacity: 1; transform: none; }
+  .lightbox[open] {
+    opacity: 1;
+    transform: none;
+  }
+
+  @starting-style {
+    .lightbox[open] {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+
+  .lightbox::backdrop {
+    opacity: 0;
+    transition:
+      opacity var(--dur-card) var(--ease),
+      overlay var(--dur-card) allow-discrete,
+      display var(--dur-card) allow-discrete;
+  }
+
+  .lightbox[open]::backdrop {
+    opacity: 1;
+  }
+
+  @starting-style {
+    .lightbox[open]::backdrop {
+      opacity: 0;
+    }
   }
 }
 

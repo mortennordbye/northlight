@@ -890,10 +890,12 @@ one as a breaking change, the same as renaming a config key.
 | {{< icon "chevron-down" >}} `chevron-down` | {{< icon "moon" >}} `moon` | {{< icon "sun" >}} `sun` | {{< icon "copy" >}} `copy` |
 | {{< icon "check" >}} `check` | {{< icon "info" >}} `info` | {{< icon "bulb" >}} `bulb` | {{< icon "megaphone" >}} `megaphone` |
 | {{< icon "alert" >}} `alert` | {{< icon "octagon" >}} `octagon` | {{< icon "underline" >}} `underline` | {{< icon "zen" >}} `zen` |
-| {{< icon "eye" >}} `eye` | {{< icon "heart" >}} `heart` | | |
+| {{< icon "eye" >}} `eye` | {{< icon "heart" >}} `heart` | {{< icon "zoom-in" >}} `zoom-in` | {{< icon "zoom-out" >}} `zoom-out` |
+| {{< icon "zoom-reset" >}} `zoom-reset` | | | |
 
-The last five are the admonition marks, and they are drawn to be told apart by outline
-alone rather than by the colour beside them.
+`alert`, `octagon`, `info`, `bulb` and `megaphone` are the admonition marks, and they are
+drawn to be told apart by outline alone rather than by the colour beside them. The three
+`zoom-` marks are the lightbox controls, and share one lens so they read as a set.
 
 A name that is not on this list fails the build rather than rendering an empty gap.
 
