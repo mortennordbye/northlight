@@ -18,6 +18,34 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- **Zoom and pan in the lightbox.** Opening an image used to be the end of it: you saw it
+  scaled to the viewport and nothing more, which is no better than the browser's own "open
+  image in new tab" for a screenshot whose point is in the small text. It now zooms to 6x
+  and pans, by whichever route suits the reader. Buttons in the dialog, the scroll wheel or
+  a trackpad pinch, a double-click, two fingers on a phone, or `+`, `-`, `0` and the arrow
+  keys. Zoom is about the pointer rather than the centre, so the detail under the cursor
+  stays under the cursor instead of sliding away and having to be chased back. Panning is
+  clamped to the stage, because an image that can be flung off screen leaves the reader
+  looking at an empty backdrop with Escape as the only way out.
+- **The lightbox opens and closes with motion** rather than fading in and vanishing on a
+  hard cut. A `<dialog>` cannot animate out on opacity alone, since `display: none` lands
+  the instant it closes; `transition-behavior: allow-discrete` and `@starting-style` are
+  what buy the exit. Both sit inside `prefers-reduced-motion: no-preference`, so a reader
+  who asked for less motion gets an instant open and close rather than a shortened one,
+  and a browser without either feature is back where the old version started.
+
+### Changed
+
+- **The lightbox shell is a partial**, `layouts/_partials/lightbox.html`, rendered once per
+  page when `enableLightbox` is on. It was assembled in JavaScript, which meant its close
+  button was a `&times;` character rather than an icon from the set, and its label had to
+  travel through the JSON string block in `baseof.html`. Three controls made that exception
+  too expensive to keep. `closeLightbox` is rendered into the markup at build time now;
+  `viewFullSize` still goes through the JSON block, because it labels the trigger the
+  script wraps each image in. No config key changed and no site needs to do anything.
+- **Three icons added to the set**: `zoom-in`, `zoom-out` and `zoom-reset`. Additions, so
+  nothing that referenced the set before is affected.
+
 - **A showcase page on the demo site**, at `/showcase/`, listing sites that run the theme.
   Entries are blocks in `exampleSite/data/showcase.toml`, so adding a site is a four-line
   pull request; a block missing any of its four fields fails the build rather than

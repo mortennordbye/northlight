@@ -57,7 +57,7 @@ author can do. It is not a measure of effort.
 | **Admonitions / callouts** | **Have** | — | Five types via GitHub `> [!NOTE]` syntax, colours outside the palette system |
 | **Responsive images in prose** | **Have** | — | `render-image.html`: intrinsic dimensions, srcset, lazy, async |
 | Image captions | **Have** | — | Markdown title becomes a `<figcaption>` |
-| Image zoom / lightbox | **Have** | — | `enableLightbox`, off by default. A `<dialog>`, so the focus trap and Escape handling are the browser's rather than hand-rolled |
+| Image zoom / lightbox | **Have** | — | `enableLightbox`, off by default. A `<dialog>`, so the focus trap and Escape handling are the browser's rather than hand-rolled. Zooms to 6x and pans, by button, wheel, double-click, pinch or keyboard |
 | Zen / focus mode | **Have** | — | `article.showZenMode`. Escape leaves; the toggle survives the hiding |
 | Reply by email link | **Have** | — | `article.replyByEmail` plus `author.email`. A `mailto:` with the title prefilled: no third party, no script, works with JS off |
 | oEmbed rich cards | **Have** | — | Metadata and a build-time thumbnail, not the `html` field — that is almost always a third-party iframe. A facade, like `youtube-lite` |

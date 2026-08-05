@@ -35,6 +35,8 @@
 
   {{- if $cfg.enableSearch }}{{ partialCached "search-modal.html" . }}{{ end }}
 
+  {{- if $cfg.enableLightbox }}{{ partialCached "lightbox.html" . }}{{ end }}
+
   {{- /* One deferred bundle. Every module no-ops when the markup it needs is absent,
          so the same file is fine on every page. */ -}}
   {{- /* The handful of strings that only exist after a click, so they cannot be
@@ -50,7 +52,6 @@
       "switchToDarkMode"      (i18n "switchToDarkMode")
       "switchToLightMode"     (i18n "switchToLightMode")
       "viewFullSize"          (i18n "viewFullSize")
-      "closeLightbox"         (i18n "closeLightbox")
       "searchNoResults"       (i18n "searchNoResults" "%s")
       "readingTimeShort"      (i18n "readingTimeShort" "%s")
       | jsonify | safeJS -}}

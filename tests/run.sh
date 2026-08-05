@@ -1085,10 +1085,49 @@ if [ -n "$JS_REF" ] && grep -q 'lightbox-trigger' "$PUBLIC/$JS_REF" 2>/dev/null;
 else
   bad "the lightbox script is in the bundle when enabled" "no lightbox code in $JS_REF"
 fi
-assert_grep 'document.createElement("dialog")' "$ROOT/assets/js/lightbox.js" \
+assert_grep '<dialog class="lightbox"' "$ROOT/layouts/_partials/lightbox.html" \
   "the lightbox is a real dialog, not a hand-rolled overlay"
 assert_grep 'opener.focus()' "$ROOT/assets/js/lightbox.js" \
   "focus returns to the trigger when the lightbox closes"
+
+# The shell is rendered into the page rather than assembled at runtime, which is what lets
+# its controls carry icons from the set and labels from the catalogue.
+assert_grep 'class=lightbox' "$PUBLIC/index.html" \
+  "the lightbox shell is rendered when enabled"
+
+# Zoom is what separates this from "open image in new tab", and each route into it serves
+# a different reader: the buttons for a mouse, the wheel for a trackpad, the keys for a
+# keyboard, two pointers for a phone. Losing any one of them leaves a class of reader with
+# a picture they cannot enlarge, so assert them separately.
+assert_grep 'data-lightbox-zoom' "$ROOT/layouts/_partials/lightbox.html" \
+  "the lightbox ships zoom controls"
+assert_grep 'addEventListener("wheel"' "$ROOT/assets/js/lightbox.js" \
+  "the wheel and the trackpad pinch zoom"
+assert_grep '"ArrowLeft"' "$ROOT/assets/js/lightbox.js" \
+  "a keyboard can pan a zoomed image"
+assert_grep 'pointerdown' "$ROOT/assets/js/lightbox.js" \
+  "touch and mouse share one gesture path"
+
+# Unbounded panning lets a reader fling the image off screen and stare at an empty
+# backdrop, with Escape as the only way back.
+assert_grep 'function clampOffset' "$ROOT/assets/js/lightbox.js" \
+  "panning is clamped to the stage"
+
+# The pointer handlers own every gesture over the image. Without touch-action the browser
+# scrolls the page under the dialog instead of panning it, and a pinch zooms the document.
+STAGE_RULE=$(awk '/^\.lightbox-stage \{/,/^\}/' "$ROOT/assets/css/interaction.css")
+case "$STAGE_RULE" in
+  *"touch-action: none"*) ok "the stage takes its gestures back from the browser" ;;
+  *) bad "the stage takes its gestures back from the browser" "no touch-action on .lightbox-stage" ;;
+esac
+
+# A <dialog> cannot animate out on opacity alone: display:none lands the instant it
+# closes, so dismissing it is a hard cut. allow-discrete plus @starting-style is what buys
+# the exit, and dropping either one silently takes it away again.
+assert_grep 'allow-discrete' "$ROOT/assets/css/interaction.css" \
+  "the lightbox animates out as well as in"
+assert_grep '@starting-style' "$ROOT/assets/css/interaction.css" \
+  "the lightbox has an entrance to animate from"
 
 # display:contents on the trigger gives it a 0x0 box and makes it unfocusable, so the
 # lightbox becomes unreachable by keyboard — measured, not assumed. The trigger must keep

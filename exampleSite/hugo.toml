@@ -96,7 +96,7 @@ summaryLength = 30
   # image in new tab", and a lightbox with a bad focus trap is worse than none. This one
   # uses a <dialog>, so the modal semantics, backdrop, focus trap and Escape handling come
   # from the browser rather than from this theme.
-  enableLightbox = true        # click prose images to enlarge  (default: false)
+  enableLightbox = true        # click prose images to open, zoom and pan  (default: false)
 
   # Lets the palette reach five surfaces the theme otherwise leaves neutral: section
   # headings, the year rules on the post index, tag chips, a card's hover border and the
