@@ -6,6 +6,13 @@ and versions follow [semantic versioning](https://semver.org/).
 **Config keys are API.** A key is never renamed or repurposed without a major version bump. New
 keys are added with defaults that preserve existing behaviour.
 
+## [0.7.0](https://github.com/mortennordbye/northlight/compare/v0.6.0...v0.7.0) (2026-08-05)
+
+
+### Features
+
+* zoom and pan in the lightbox ([#36](https://github.com/mortennordbye/northlight/issues/36)) ([d541c85](https://github.com/mortennordbye/northlight/commit/d541c85d04c267e6fe5e5593613c0220c4dadd27))
+
 ## [0.6.0](https://github.com/mortennordbye/northlight/compare/v0.5.0...v0.6.0) (2026-07-30)
 
 
