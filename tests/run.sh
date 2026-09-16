@@ -196,6 +196,11 @@ assert_grep 'og:title'             "$PUBLIC/blog/measuring/index.html" "OpenGrap
 assert_grep 'rel=canonical'        "$PUBLIC/blog/measuring/index.html" "canonical URL emitted"
 # JSON-LD must be a JSON object, not a double-encoded string. This regressed once.
 refute_grep 'ld+json">"'           "$PUBLIC/blog/measuring/index.html" "JSON-LD is not double-encoded"
+# author.id/url/sameAs are configured in exampleSite; without them the Person node
+# is a bare name and the blog reads as a separate entity from the author's own site.
+assert_grep 'https://example.com/#person' "$PUBLIC/blog/measuring/index.html" "author @id reaches post JSON-LD"
+assert_grep 'https://example.com/#person' "$PUBLIC/index.html" "author @id reaches home JSON-LD"
+assert_grep 'sameAs' "$PUBLIC/index.html" "author sameAs emitted"
 
 # --------------------------------------------------------------------------------
 group "Content rendering"

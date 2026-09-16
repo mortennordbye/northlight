@@ -218,6 +218,18 @@ summaryLength = 30
     name = "Morten Victor Nordbye"
     headline = "Writes about building things that stay simple"
 
+    # Identity, for a blog that is one property of a wider presence. `id` is the
+    # @id of the Person node your main site publishes: setting it makes both sites
+    # resolve to one entity in structured data instead of two people who share a
+    # name. `url` is that site, `sameAs` the profiles that corroborate the claim.
+    # All three are optional and emit nothing when unset.
+    id = "https://example.com/#person"
+    url = "https://example.com"
+    sameAs = [
+      "https://github.com/example",
+      "https://www.linkedin.com/in/example",
+    ]
+
     # A paragraph, rendered as Markdown, shown on the `profile` home layout. The headline
     # says what you do in one line; this says who you are. Both are optional.
     #

@@ -25,6 +25,13 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Added
 
+- `author.id`, `author.url` and `author.sameAs`, emitted on the JSON-LD `Person` node. A blog
+  that is one property of a wider presence can now point its author at the canonical `@id`
+  published elsewhere, so structured data resolves to one entity instead of two people who
+  share a name. All three are optional; with none set the output is unchanged.
+
+### Added
+
 - **Zoom and pan in the lightbox.** Opening an image used to be the end of it: you saw it
   scaled to the viewport and nothing more, which is no better than the browser's own "open
   image in new tab" for a screenshot whose point is in the small text. It now zooms to 6x

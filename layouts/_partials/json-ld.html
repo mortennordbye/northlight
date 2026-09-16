@@ -6,6 +6,23 @@
 {{- $cfg := partialCached "init.html" . -}}
 {{- $data := dict -}}
 
+{{- /* The author node, built once and shared by both shapes below.
+
+  `name` alone describes a person who exists only on this site. A blog that is one
+  property of a wider identity wants the other three: `id` is the @id of the canonical
+  Person node elsewhere (so both properties resolve to one entity rather than two people
+  with the same name), `url` its home, and `sameAs` the profiles that corroborate it.
+
+  All three are optional. With none of them configured this emits exactly what it always
+  did, so existing sites are unaffected. */ -}}
+{{- $author := dict -}}
+{{- with $cfg.author.name -}}
+  {{- $author = dict "@type" "Person" "name" . -}}
+  {{- with $cfg.author.id }}{{ $author = merge $author (dict "@id" .) }}{{ end -}}
+  {{- with $cfg.author.url }}{{ $author = merge $author (dict "url" .) }}{{ end -}}
+  {{- with $cfg.author.sameAs }}{{ $author = merge $author (dict "sameAs" .) }}{{ end -}}
+{{- end -}}
+
 {{- if and .IsPage (in site.Params.mainSections .Section) -}}
   {{- $images := slice -}}
   {{- with .Resources.GetMatch "{cover,featured}.*" }}{{ $images = slice .Permalink }}{{ end -}}
@@ -23,7 +40,7 @@
   {{- with $images }}{{ $data = merge $data (dict "image" .) }}{{ end -}}
   {{- if not .Date.IsZero }}{{ $data = merge $data (dict "datePublished" (.Date.Format "2006-01-02T15:04:05Z07:00")) }}{{ end -}}
   {{- if not .Lastmod.IsZero }}{{ $data = merge $data (dict "dateModified" (.Lastmod.Format "2006-01-02T15:04:05Z07:00")) }}{{ end -}}
-  {{- with $cfg.author.name }}{{ $data = merge $data (dict "author" (dict "@type" "Person" "name" .)) }}{{ end -}}
+  {{- with $author }}{{ $data = merge $data (dict "author" .) }}{{ end -}}
   {{- with .GetTerms "tags" }}
     {{- $keywords := slice -}}
     {{- range . }}{{ $keywords = $keywords | append (cond (ne .Data.Term "") .Data.Term .LinkTitle) }}{{ end -}}
@@ -37,7 +54,7 @@
     "url" site.Home.Permalink
   -}}
   {{- with site.Params.description }}{{ $data = merge $data (dict "description" .) }}{{ end -}}
-  {{- with $cfg.author.name }}{{ $data = merge $data (dict "author" (dict "@type" "Person" "name" .)) }}{{ end -}}
+  {{- with $author }}{{ $data = merge $data (dict "author" .) }}{{ end -}}
 {{- end -}}
 
 {{- /* BreadcrumbList, emitted alongside the page's own schema whenever the page has

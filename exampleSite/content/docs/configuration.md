@@ -59,6 +59,9 @@ default inline, so every default below lives in exactly one place in the source.
 | `imageQuality` | `85` | JPEG/WebP quality for the avatar. **Lossless formats ignore it** — a PNG is byte-identical at any value; only the resize applies there. |
 | `image` | — | Square avatar, 160px or larger. Looked up in `assets/` then `static/`; a missing file renders nothing rather than a broken image. |
 | `links` | — | Array of single-key tables. Supported: `linkedin`, `github`, `rss`, `link`. |
+| `id` | — | The `@id` of the Person node your main site publishes, e.g. `https://example.com/#person`. Emitted in JSON-LD so both properties resolve to one entity rather than two people with the same name. |
+| `url` | — | The author's main site, emitted as `Person.url` in JSON-LD. |
+| `sameAs` | — | Array of profile URLs corroborating the identity, emitted as `Person.sameAs`. Only list profiles you control. |
 
 ### Several authors
 
