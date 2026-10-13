@@ -6,6 +6,18 @@ and versions follow [semantic versioning](https://semver.org/).
 **Config keys are API.** A key is never renamed or repurposed without a major version bump. New
 keys are added with defaults that preserve existing behaviour.
 
+## [0.8.0](https://github.com/mortennordbye/northlight/compare/v0.7.0...v0.8.0) (2026-10-13)
+
+
+### Features
+
+* add author identity params to JSON-LD ([#44](https://github.com/mortennordbye/northlight/issues/44)) ([23ed6b4](https://github.com/mortennordbye/northlight/commit/23ed6b4bcfe072cfe938374dd6938782c8cdd67d))
+
+
+### Bug Fixes
+
+* offer 1600w and 2400w in the cover srcset ([#48](https://github.com/mortennordbye/northlight/issues/48)) ([9a338ae](https://github.com/mortennordbye/northlight/commit/9a338aea8693f0ccd7e180fef1c6b404e39d6369))
+
 ## [0.7.0](https://github.com/mortennordbye/northlight/compare/v0.6.0...v0.7.0) (2026-08-05)
 
 
