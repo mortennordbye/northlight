@@ -64,7 +64,7 @@
   {{- $alt := htmlEscape ($ctx.Params.coverAlt | default "") -}}
   {{- if $raster -}}
     {{- $srcset := slice -}}
-    {{- range (slice 480 800 1200) -}}
+    {{- range (slice 480 800 1200 1600 2400) -}}
       {{- if le . $cover.Width -}}
         {{- $r := $cover.Resize (printf "%dx q85" .) -}}
         {{- $srcset = $srcset | append (printf "%s %dw" $r.RelPermalink .) -}}
