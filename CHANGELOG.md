@@ -75,6 +75,14 @@ keys are added with defaults that preserve existing behaviour.
   against. Prose headings and the article title are deliberately left alone. Defaults to
   `false`, so no existing site changes.
 
+### Fixed
+
+- **Covers are sharp on high-DPI screens.** The cover `srcset` stopped at 1200w, so a
+  cover shown at the full article width on a 2x display was upscaled from 1200 pixels and
+  its text went soft. It now also offers 1600w and 2400w. Widths larger than the source
+  image are still skipped, so a 1200x630 cover renders exactly as before; ship the cover at
+  2400x1260 to get the sharp version.
+
 ## [0.5.0](https://github.com/mortennordbye/northlight/compare/v0.4.1...v0.5.0) (2026-07-30)
 
 Shipped in [#27](https://github.com/mortennordbye/northlight/pull/27).
