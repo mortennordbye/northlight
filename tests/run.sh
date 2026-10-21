@@ -720,6 +720,11 @@ assert_grep 'class=intro'      "$PUBLIC/index.html" "the default home layout is 
 assert_grep 'class=feature'    "$PUBLIC/index.html" "stack still renders the featured post"
 assert_grep 'class=card-grid'  "$PUBLIC/index.html" "stack still renders the recent card grid"
 
+# The home body is Markdown, and base.css strips link colour. Without a rule scoped to
+# .intro-body, a link there renders as plain text.
+assert_grep '<a href=/docs/writing/>article link style' "$PUBLIC/index.html" "the example home body carries a link"
+assert_grep '\.intro-body a{' "$PUBLIC/$CSS_REF" "links in the home body are styled"
+
 # Covers are never cropped, in the layouts as much as anywhere. Anchored to a declaration
 # rather than the bare word, because the comments explaining the rule name it.
 # Scoped to the post-cover rules specifically: the profile avatar *is* deliberately

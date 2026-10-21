@@ -77,6 +77,9 @@ keys are added with defaults that preserve existing behaviour.
 
 ### Fixed
 
+- **Links in the home page body are visible.** The body of `content/_index.md` renders in
+  `.intro-body`, which had no link style, so links there took the surrounding text colour
+  with no underline. They now use the article link style.
 - **Covers are sharp on high-DPI screens.** The cover `srcset` stopped at 1200w, so a
   cover shown at the full article width on a 2x display was upscaled from 1200 pixels and
   its text went soft. It now also offers 1600w and 2400w. Widths larger than the source
