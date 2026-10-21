@@ -724,6 +724,7 @@ assert_grep 'class=card-grid'  "$PUBLIC/index.html" "stack still renders the rec
 # .intro-body, a link there renders as plain text.
 assert_grep '<a href=/docs/writing/>article link style' "$PUBLIC/index.html" "the example home body carries a link"
 assert_grep '\.intro-body a{' "$PUBLIC/$CSS_REF" "links in the home body are styled"
+assert_grep '\.intro-body a{text-decoration:underline' "$PUBLIC/$CSS_REF" "links in the home body are underlined"
 
 # Covers are never cropped, in the layouts as much as anywhere. Anchored to a declaration
 # rather than the bare word, because the comments explaining the rule name it.
