@@ -60,13 +60,15 @@
   margin: var(--space-6) 0 var(--space-2);
 }
 
-.prose a {
+.prose a,
+.intro-body a {
   color: var(--accent);
   box-shadow: inset 0 -1px 0 var(--accent-tint);
   transition: box-shadow var(--dur-card);
 }
 
-.prose a:hover {
+.prose a:hover,
+.intro-body a:hover {
   box-shadow: inset 0 -2px 0 var(--accent);
 }
 

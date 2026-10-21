@@ -67,6 +67,13 @@
   margin-bottom: 0;
 }
 
+/* The intro text is fg-2, too close to the accent for colour alone to mark a link (axe
+   link-in-text-block wants 3:1 or an underline). */
+.intro-body a {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
 .byline-row {
   display: flex;
   align-items: center;
