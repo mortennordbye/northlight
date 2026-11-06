@@ -1,8 +1,4 @@
-name: Dependabot Auto-merge
-
-# Safe only because the branch ruleset requires status checks and the required review count
-# is 0. --auto waits for those checks, so a dependency bump that breaks the build is never
-# merged; with no required checks this would merge immediately and unverified.
+name: Dependabot auto-merge
 
 on: pull_request
 
@@ -10,22 +6,11 @@ permissions:
   contents: read
 
 jobs:
-  automerge:
-    name: Auto-merge patch and minor
-    if: github.actor == 'dependabot[bot]'
-    runs-on: ubuntu-latest
+  auto-merge:
     permissions:
       contents: write
       pull-requests: write
-    steps:
-      - id: metadata
-        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      # Majors stay manual: those are the ones worth reading.
-      - if: contains(fromJSON('["version-update:semver-patch", "version-update:semver-minor"]'), steps.metadata.outputs.update-type)
-        run: gh pr merge --auto --squash "$PR_URL"
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    uses: mortennordbye/.github/.github/workflows/dependabot-automerge.yml@f4772051702542c8db5190ad8cae097590b08830 # v1
+    with:
+      allow-major: true
+    secrets: inherit
