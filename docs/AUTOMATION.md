@@ -19,7 +19,8 @@ configuration was wrong in a way that only showed up once something real ran thr
 | `scorecard.yml` | push to `main`, weekly | OpenSSF supply-chain grade, published to the Security tab. |
 | `pr-title.yml` | pull request | Enforce Conventional Commits on the title. |
 | `release-please.yml` | push to `main` | Open the release pull request; merging it cuts the tag and release. |
-| `dependabot-automerge.yml` | pull request | Merge patch and minor action bumps once checks pass. |
+| `dependabot-automerge.yml` | pull request | Merge Dependabot updates, majors too, once checks pass. Calls the shared workflow in `mortennordbye/.github`. |
+| `dependabot-ci-failed.yml` | workflow run | Label a red Dependabot pull request `ci-failed` and request the owner. |
 | `stale.yml` | daily | Mark and close inactive issues and pull requests. |
 
 CodeQL has no workflow file. It runs through GitHub's default setup, over `javascript-typescript`
