@@ -1,16 +1,15 @@
 <div align="center">
 
-# 🪟 Northlight
+<img src="exampleSite/static/favicon.svg" alt="" width="112" height="112">
+
+# Northlight
 
 ### A quiet, readable Hugo theme for technical writing.
 
-[![Hugo](https://img.shields.io/badge/Hugo-0.164%2B%20extended-FF4088?logo=hugo&logoColor=white)](https://gohugo.io) [![CSS](https://img.shields.io/badge/CSS-hand--written-1572B6?logo=css&logoColor=white)](assets/css) [![JavaScript](https://img.shields.io/badge/JavaScript-vanilla-F7DF1E?logo=javascript&logoColor=black)](assets/js) [![Docker](https://img.shields.io/badge/Docker-containerised%20build-2496ED?logo=docker&logoColor=white)](Makefile)
-
-[![CI](https://github.com/mortennordbye/northlight/actions/workflows/ci.yml/badge.svg)](https://github.com/mortennordbye/northlight/actions/workflows/ci.yml) [![Audit](https://github.com/mortennordbye/northlight/actions/workflows/audit.yml/badge.svg)](https://github.com/mortennordbye/northlight/actions/workflows/audit.yml) [![Pages](https://github.com/mortennordbye/northlight/actions/workflows/pages.yml/badge.svg)](https://github.com/mortennordbye/northlight/actions/workflows/pages.yml) [![Scorecard](https://api.securityscorecards.dev/projects/github.com/mortennordbye/northlight/badge)](https://scorecard.dev/viewer/?uri=github.com/mortennordbye/northlight)
-
-[![Lighthouse SEO](https://img.shields.io/badge/Lighthouse_SEO-100-brightgreen?style=flat-square&logo=lighthouse&logoColor=white)](#audited-output) [![Accessibility](https://img.shields.io/badge/Accessibility-100-brightgreen?style=flat-square&logo=lighthouse&logoColor=white)](#audited-output) [![Best Practices](https://img.shields.io/badge/Best_Practices-100-brightgreen?style=flat-square&logo=lighthouse&logoColor=white)](#audited-output)
-
-[![License](https://img.shields.io/github/license/mortennordbye/northlight?style=flat-square)](LICENSE) [![Last Commit](https://img.shields.io/github/last-commit/mortennordbye/northlight?style=flat-square)](https://github.com/mortennordbye/northlight/commits/main) [![Stars](https://img.shields.io/github/stars/mortennordbye/northlight?style=flat-square)](https://github.com/mortennordbye/northlight/stargazers)
+[![Hugo](https://img.shields.io/badge/Hugo-0.164%2B%20extended-a6aef0?style=flat-square&labelColor=41445a&logo=hugo&logoColor=white)](https://gohugo.io) [![CSS](https://img.shields.io/badge/CSS-hand--written-a6aef0?style=flat-square&labelColor=41445a&logo=css&logoColor=white)](assets/css) [![JavaScript](https://img.shields.io/badge/JavaScript-vanilla-a6aef0?style=flat-square&labelColor=41445a&logo=javascript&logoColor=white)](assets/js) [![Docker](https://img.shields.io/badge/Docker-containerised%20build-a6aef0?style=flat-square&labelColor=41445a&logo=docker&logoColor=white)](Makefile)<br>
+[![CI](https://img.shields.io/github/actions/workflow/status/mortennordbye/northlight/ci.yml?branch=main&style=flat-square&labelColor=41445a&label=ci)](https://github.com/mortennordbye/northlight/actions/workflows/ci.yml) [![Audit](https://img.shields.io/github/actions/workflow/status/mortennordbye/northlight/audit.yml?branch=main&style=flat-square&labelColor=41445a&label=audit)](https://github.com/mortennordbye/northlight/actions/workflows/audit.yml) [![Pages](https://img.shields.io/github/actions/workflow/status/mortennordbye/northlight/pages.yml?branch=main&style=flat-square&labelColor=41445a&label=pages)](https://github.com/mortennordbye/northlight/actions/workflows/pages.yml) [![OpenSSF Scorecard](https://img.shields.io/ossf-scorecard/github.com/mortennordbye/northlight?style=flat-square&labelColor=41445a&label=openssf%20scorecard)](https://scorecard.dev/viewer/?uri=github.com/mortennordbye/northlight)<br>
+[![Lighthouse SEO](https://img.shields.io/badge/Lighthouse_SEO-100-a6aef0?style=flat-square&labelColor=41445a&logo=lighthouse&logoColor=white)](#audited-output) [![Accessibility](https://img.shields.io/badge/Accessibility-100-a6aef0?style=flat-square&labelColor=41445a&logo=lighthouse&logoColor=white)](#audited-output) [![Best Practices](https://img.shields.io/badge/Best_Practices-100-a6aef0?style=flat-square&labelColor=41445a&logo=lighthouse&logoColor=white)](#audited-output)<br>
+[![License](https://img.shields.io/github/license/mortennordbye/northlight?style=flat-square&labelColor=41445a&color=a6aef0)](LICENSE) [![Last Commit](https://img.shields.io/github/last-commit/mortennordbye/northlight?style=flat-square&labelColor=41445a&color=a6aef0)](https://github.com/mortennordbye/northlight/commits/main) [![Stars](https://img.shields.io/github/stars/mortennordbye/northlight?style=flat-square&labelColor=41445a&color=a6aef0)](https://github.com/mortennordbye/northlight/stargazers)
 
 North light is the soft, even light from a north-facing window — no glare, no hard shadows, the
 same all day. That is the whole brief. Northlight has no concept to get between you and the
@@ -21,7 +20,6 @@ and a dark mode designed rather than inverted.
 **[Demo and documentation](https://mortennordbye.github.io/northlight/docs/)** · Screenshots:
 [light](images/screenshot.png) · the same page in both modes and all three palettes is in
 [`design/northlight.html`](design/northlight.html).
-
 </div>
 
 ---
